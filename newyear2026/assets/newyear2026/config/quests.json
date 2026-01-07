@@ -100,10 +100,6 @@
       {
         "itemCode": "game:gear-temporal",
         "amount": 1
-      },
-      {
-        "itemCode": "newyear2026:memorialscarf2026",
-        "amount": 1
       }
     ],
     "actionRewards": [
@@ -119,7 +115,8 @@
         "id": "showquestfinaldialog",
         "args": [
           "tradingwindow-questgiver",
-          "newyear2026:dialogue-witness-postquest"
+          "newyear2026:dialogue-witness-postquest",
+          "newyear2026:dialogue-witness-final-silent"
         ]
       },
       {
@@ -129,6 +126,12 @@
           "Привет, 2026",
           "Все восемь подарков собраны.",
           "Свидетель молчит так долго, что кажется — полночь проходит прямо в паузе. Потом он отдаёт награду и говорит, что в коробках осталась лишь тишина: она поможет услышать, когда тьма подойдёт ближе. После этого он замолкает окончательно."
+        ]
+      },
+      {
+        "id": "giveactionitem",
+        "args": [
+          "memorial-scarf-2026"
         ]
       }
     ]

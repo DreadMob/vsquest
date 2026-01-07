@@ -78,22 +78,25 @@ namespace VsQuest
                 .RegisterMessageType<QuestInfoMessage>().SetMessageHandler<QuestInfoMessage>(message => OnQuestInfoMessage(message, capi))
                 .RegisterMessageType<ExecutePlayerCommandMessage>().SetMessageHandler<ExecutePlayerCommandMessage>(message => OnExecutePlayerCommand(message, capi))
                 .RegisterMessageType<VanillaBlockInteractMessage>()
-                .RegisterMessageType<ShowNotificationMessage>().SetMessageHandler<ShowNotificationMessage>(message =>
-                {
-                    string text = message?.Notification;
-                    if (!string.IsNullOrEmpty(text))
-                    {
-                        try
-                        {
-                            if (Lang.HasTranslation(text)) text = Lang.Get(text);
-                        }
-                        catch
-                        {
-                        }
-                    }
-                    capi.ShowChatMessage(text);
-                })
+                .RegisterMessageType<ShowNotificationMessage>().SetMessageHandler<ShowNotificationMessage>(message => OnShowNotificationMessage(message, capi))
                 .RegisterMessageType<ShowQuestDialogMessage>().SetMessageHandler<ShowQuestDialogMessage>(message => OnShowQuestDialogMessage(message, capi));
+        }
+
+        private void OnShowNotificationMessage(ShowNotificationMessage message, ICoreClientAPI capi)
+        {
+            string text = message?.Notification;
+            if (!string.IsNullOrEmpty(text))
+            {
+                try
+                {
+                    if (Lang.HasTranslation(text)) text = Lang.Get(text);
+                }
+                catch
+                {
+                }
+            }
+
+            capi.ShowChatMessage(text);
         }
 
         public override void StartServerSide(ICoreServerAPI sapi)

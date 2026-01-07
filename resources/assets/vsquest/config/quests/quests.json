@@ -33,32 +33,5 @@
                 ]
             }
         ]
-    },
-    {
-        "id": "vsquest:NewYear2026",
-        "cooldown": 1,
-        "perPlayer": true,
-        "onAcceptedActions": [
-            {
-                "id": "playsound",
-                "args": [
-                    "game:sounds/effect/fireworks"
-                ]
-            }
-        ],
-        "actionObjectives": [
-            {
-                "id": "plantflowers",
-                "args": [
-                    "1"
-                ]
-            }
-        ],
-        "itemRewards": [
-            {
-                "itemCode": "game:gear-rusty",
-                "amount": 1
-            }
-        ]
     }
 ]
