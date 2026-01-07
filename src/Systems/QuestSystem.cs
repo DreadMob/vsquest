@@ -78,7 +78,22 @@ namespace VsQuest
                 .RegisterMessageType<QuestInfoMessage>().SetMessageHandler<QuestInfoMessage>(message => OnQuestInfoMessage(message, capi))
                 .RegisterMessageType<ExecutePlayerCommandMessage>().SetMessageHandler<ExecutePlayerCommandMessage>(message => OnExecutePlayerCommand(message, capi))
                 .RegisterMessageType<VanillaBlockInteractMessage>()
-                .RegisterMessageType<ShowNotificationMessage>().SetMessageHandler<ShowNotificationMessage>(message => capi.ShowChatMessage(message.Notification));
+                .RegisterMessageType<ShowNotificationMessage>().SetMessageHandler<ShowNotificationMessage>(message =>
+                {
+                    string text = message?.Notification;
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        try
+                        {
+                            if (Lang.HasTranslation(text)) text = Lang.Get(text);
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    capi.ShowChatMessage(text);
+                })
+                .RegisterMessageType<ShowQuestDialogMessage>().SetMessageHandler<ShowQuestDialogMessage>(message => OnShowQuestDialogMessage(message, capi));
         }
 
         public override void StartServerSide(ICoreServerAPI sapi)
@@ -96,7 +111,8 @@ namespace VsQuest
                 .RegisterMessageType<QuestInfoMessage>()
                 .RegisterMessageType<ExecutePlayerCommandMessage>()
                 .RegisterMessageType<VanillaBlockInteractMessage>().SetMessageHandler<VanillaBlockInteractMessage>((player, message) => OnVanillaBlockInteract(player, message, sapi))
-                .RegisterMessageType<ShowNotificationMessage>();
+                .RegisterMessageType<ShowNotificationMessage>()
+                .RegisterMessageType<ShowQuestDialogMessage>();
 
             // Register actions
             actionRegistry = new QuestActionRegistry(ActionRegistry, api);
@@ -161,14 +177,16 @@ namespace VsQuest
             }
         }
 
-
-
         private void OnVanillaBlockInteract(IServerPlayer player, VanillaBlockInteractMessage message, ICoreServerAPI sapi)
         {
             int[] position = new int[] { message.Position.X, message.Position.Y, message.Position.Z };
             GetPlayerQuests(player?.PlayerUID).ForEach(quest => quest.OnBlockUsed(message.BlockCode, position, player, sapi));
         }
 
+        private void OnShowQuestDialogMessage(ShowQuestDialogMessage message, ICoreClientAPI capi)
+        {
+            new QuestFinalDialogGui(capi, message.TitleLangKey, message.TextLangKey, message.Option1LangKey, message.Option2LangKey).TryOpen();
+        }
     }
 
     public class QuestConfig
@@ -211,9 +229,26 @@ namespace VsQuest
         public string Command { get; set; }
     }
 
-    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+    [ProtoContract]
     public class ShowNotificationMessage
     {
+        [ProtoMember(1)]
         public string Notification { get; set; }
+    }
+
+    [ProtoContract]
+    public class ShowQuestDialogMessage
+    {
+        [ProtoMember(1)]
+        public string TitleLangKey { get; set; }
+
+        [ProtoMember(2)]
+        public string TextLangKey { get; set; }
+
+        [ProtoMember(3)]
+        public string Option1LangKey { get; set; }
+
+        [ProtoMember(4)]
+        public string Option2LangKey { get; set; }
     }
 }

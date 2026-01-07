@@ -3,4 +3,4 @@ $modid=$modinfo.modid;
 Remove-Item "bin/vsdebug" -Force -Recurse; 
 New-Item -Path "bin/vsdebug" -Name $modid -ItemType "directory"; 
 Copy-Item -Path "resources/*" -Destination "bin/vsdebug/$modid" -Recurse;
-Copy-Item -Path "bin/Debug/net7.0/*" -Destination "bin/vsdebug/$modid";
+Copy-Item -Path "bin/Debug/net8.0/*" -Destination "bin/vsdebug/$modid";

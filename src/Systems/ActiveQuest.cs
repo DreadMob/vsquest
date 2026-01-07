@@ -49,69 +49,49 @@ namespace VsQuest
             for (int i = 0; i < quest.actionObjectives.Count; i++)
             {
                 var actionObj = quest.actionObjectives[i];
-                if (actionObj.id == "interactat" && actionObj.args.Length >= 1)
+                if ((actionObj.id == "interactat" || actionObj.id == "interactcount") && actionObj.args.Length >= 2)
                 {
-                    string coordString = actionObj.args[0];
-                    string[] coords = coordString.Split(',');
-                    if (coords.Length == 3)
+                    string actionString = actionObj.args[actionObj.args.Length - 1];
+                    int coordCount = actionObj.args.Length - 1;
+                    for (int coordIndex = 0; coordIndex < coordCount; coordIndex++)
                     {
-                        int targetX, targetY, targetZ;
-                        if (int.TryParse(coords[0], out targetX) && 
-                            int.TryParse(coords[1], out targetY) && 
-                            int.TryParse(coords[2], out targetZ))
+                        string coordString = actionObj.args[coordIndex];
+                        string[] coords = coordString.Split(',');
+                        if (coords.Length != 3) continue;
+
+                        if (!int.TryParse(coords[0], out int targetX) ||
+                            !int.TryParse(coords[1], out int targetY) ||
+                            !int.TryParse(coords[2], out int targetZ))
                         {
-                            if (targetX == position[0] && targetY == position[1] && targetZ == position[2])
-                            {
-                                string interactionKey = $"interactat_{targetX}_{targetY}_{targetZ}";
-                                string completedInteractions = byPlayer.Entity.WatchedAttributes.GetString("completedInteractions", "");
-                                string[] completed = completedInteractions.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                                
-                                if (!completed.Contains(interactionKey))
-                                {
-                                    if (!string.IsNullOrEmpty(completedInteractions))
-                                    {
-                                        completedInteractions += "," + interactionKey;
-                                    }
-                                    else
-                                    {
-                                        completedInteractions = interactionKey;
-                                    }
-                                    byPlayer.Entity.WatchedAttributes.SetString("completedInteractions", completedInteractions);
-
-                                    if (actionObj.args.Length > 1 && !string.IsNullOrEmpty(actionObj.args[1]))
-                                    {
-                                        var serverPlayer = byPlayer as IServerPlayer;
-                                        if (serverPlayer != null)
-                                        {
-                                            sapi.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage()
-                                            {
-                                                Notification = actionObj.args[1]
-                                            }, serverPlayer);
-                                        }
-                                    }
-
-                                    if (actionObj.args.Length > 2 && !string.IsNullOrEmpty(actionObj.args[2]))
-                                    {
-                                        sapi.World.PlaySoundFor(new AssetLocation(actionObj.args[2]), byPlayer);
-                                    }
-
-                                    if (actionObj.args.Length > 3 && !string.IsNullOrEmpty(actionObj.args[3]))
-                                    {
-                                        string command = actionObj.args[3];
-                                        var parts = command.Split(' ');
-                                        if (parts.Length == 4 && parts[0].ToLower() == "add" && parts[2].ToLower() == "to")
-                                        {
-                                            if (int.TryParse(parts[1], out int amountToAdd))
-                                            {
-                                                string varName = parts[3];
-                                                int currentValue = byPlayer.Entity.WatchedAttributes.GetInt(varName, 0);
-                                                byPlayer.Entity.WatchedAttributes.SetInt(varName, currentValue + amountToAdd);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            continue;
                         }
+
+                        if (targetX != position[0] || targetY != position[1] || targetZ != position[2]) continue;
+
+                        string interactionKey = $"interactat_{targetX}_{targetY}_{targetZ}";
+                        string completedInteractions = byPlayer.Entity.WatchedAttributes.GetString("completedInteractions", "");
+                        string[] completed = completedInteractions.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+                        if (completed.Contains(interactionKey)) break;
+
+                        if (!string.IsNullOrEmpty(completedInteractions))
+                        {
+                            completedInteractions += "," + interactionKey;
+                        }
+                        else
+                        {
+                            completedInteractions = interactionKey;
+                        }
+                        byPlayer.Entity.WatchedAttributes.SetString("completedInteractions", completedInteractions);
+
+                        var serverPlayer = byPlayer as IServerPlayer;
+                        if (serverPlayer != null && !string.IsNullOrWhiteSpace(actionString))
+                        {
+                            var message = new QuestAcceptedMessage { questGiverId = questGiverId, questId = questId };
+                            ActionStringExecutor.Execute(sapi, message, serverPlayer, actionString);
+                        }
+
+                        break;
                     }
                 }
             }

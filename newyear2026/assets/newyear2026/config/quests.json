@@ -1,0 +1,136 @@
+[
+  {
+    "id": "newyear2026:NewYear2026",
+    "cooldown": 1,
+    "perPlayer": true,
+    "onAcceptedActions": [
+      {
+        "id": "playsound",
+        "args": [
+          "game:sounds/effect/writing"
+        ]
+      },
+      {
+        "id": "addjournalentry",
+        "args": [
+          "newyear2026:newyear2026",
+          "Привет, 2026",
+          "Свидетель стоит в церкви и говорит коротко, будто каждое слово тяжелеет на воздухе.",
+          "Он знает о восьми подарках, оставшихся от Нового Года, который давно умер. Подарки спрятаны неподалёку, в коробках, завёрнутых в старую бумагу. Нужно найти и открыть все восемь — пока время ещё идёт."
+        ]
+      }
+    ],
+    "actionObjectives": [
+      {
+        "id": "interactat",
+        "args": [
+          "512000,3,512000",
+          "notify 'newyear2026:gift-found-1'; playsound 'newyear2026:sounds/giftfound'"
+        ]
+      },
+      {
+        "id": "interactat",
+        "args": [
+          "512000,3,512001",
+          "notify 'newyear2026:gift-found-2'; playsound 'newyear2026:sounds/giftfound'"
+        ]
+      },
+      {
+        "id": "interactat",
+        "args": [
+          "512000,3,512002",
+          "notify 'newyear2026:gift-found-3'; playsound 'newyear2026:sounds/giftfound'"
+        ]
+      },
+      {
+        "id": "interactat",
+        "args": [
+          "512000,3,512003",
+          "notify 'newyear2026:gift-found-4'; playsound 'newyear2026:sounds/giftfound'"
+        ]
+      },
+      {
+        "id": "interactat",
+        "args": [
+          "512000,3,512004",
+          "notify 'newyear2026:gift-found-5'; playsound 'newyear2026:sounds/giftfound'"
+        ]
+      },
+      {
+        "id": "interactat",
+        "args": [
+          "512000,3,512005",
+          "notify 'newyear2026:gift-found-6'; playsound 'newyear2026:sounds/giftfound'"
+        ]
+      },
+      {
+        "id": "interactat",
+        "args": [
+          "512000,3,512006",
+          "notify 'newyear2026:gift-found-7'; playsound 'newyear2026:sounds/giftfound'"
+        ]
+      },
+      {
+        "id": "interactat",
+        "args": [
+          "512000,3,512007",
+          "notify 'newyear2026:gift-found-8'; playsound 'newyear2026:sounds/giftfound'"
+        ]
+      },
+      {
+        "id": "interactcount",
+        "args": [
+          "512000,3,512000",
+          "512000,3,512001",
+          "512000,3,512002",
+          "512000,3,512003",
+          "512000,3,512004",
+          "512000,3,512005",
+          "512000,3,512006",
+          "512000,3,512007",
+          ""
+        ]
+      }
+    ],
+    "itemRewards": [
+      {
+        "itemCode": "game:looseores-anthracite-shale-free",
+        "amount": 16
+      },
+      {
+        "itemCode": "game:gear-temporal",
+        "amount": 1
+      },
+      {
+        "itemCode": "newyear2026:memorialscarf2026",
+        "amount": 1
+      }
+    ],
+    "actionRewards": [
+      {
+        "id": "setquestgiverattribute",
+        "args": [
+          "entity.newyear2026done",
+          "bool",
+          "true"
+        ]
+      },
+      {
+        "id": "showquestfinaldialog",
+        "args": [
+          "tradingwindow-questgiver",
+          "newyear2026:dialogue-witness-postquest"
+        ]
+      },
+      {
+        "id": "addjournalentry",
+        "args": [
+          "newyear2026:newyear2026",
+          "Привет, 2026",
+          "Все восемь подарков собраны.",
+          "Свидетель молчит так долго, что кажется — полночь проходит прямо в паузе. Потом он отдаёт награду и говорит, что в коробках осталась лишь тишина: она поможет услышать, когда тьма подойдёт ближе. После этого он замолкает окончательно."
+        ]
+      }
+    ]
+  }
+]

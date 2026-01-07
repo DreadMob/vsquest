@@ -7,6 +7,7 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Client;
 using Vintagestory.GameContent;
+using Vintagestory.API.Config;
 
 namespace VsQuest
 {
@@ -86,10 +87,32 @@ namespace VsQuest
         {
             var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
             var activeQuests = questSystem.GetPlayerQuests(player.PlayerUID).FindAll(quest => quest.questGiverId == entity.EntityId);
+
+            var serverPlayer = player.Player as IServerPlayer;
+            if (serverPlayer != null)
+            {
+                foreach (var activeQuest in activeQuests)
+                {
+                    if (activeQuest.isCompletable(player.Player))
+                    {
+                        var finalText = Lang.Get(activeQuest.questId + "-final");
+                        if (!string.IsNullOrEmpty(finalText))
+                        {
+                            sapi.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage()
+                            {
+                                Notification = finalText
+                            }, serverPlayer);
+                        }
+                        break;
+                    }
+                }
+            }
+
             var availableQuestIds = new List<string>();
             foreach (var questId in quests)
             {
                 var quest = questSystem.QuestRegistry[questId];
+
                 var key = quest.perPlayer ? String.Format("lastaccepted-{0}-{1}", questId, player.PlayerUID) : String.Format("lastaccepted-{0}", questId);
                 if (entity.WatchedAttributes.GetDouble(key, -quest.cooldown) + quest.cooldown < sapi.World.Calendar.TotalDays
                         && activeQuests.Find(activeQuest => activeQuest.questId == questId && activeQuest.questGiverId == entity.EntityId) == null

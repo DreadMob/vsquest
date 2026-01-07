@@ -10,18 +10,30 @@ namespace VsQuest
         public bool isCompletable(IPlayer byPlayer, params string[] args)
         {
             if (args == null || args.Length == 0) return false;
-            return CountCompleted(byPlayer, args) >= args.Length;
+
+            var coordArgs = GetCoordArgs(args);
+            if (coordArgs.Length == 0) return false;
+
+            return CountCompleted(byPlayer, coordArgs) >= coordArgs.Length;
         }
 
         public List<int> progress(IPlayer byPlayer, params string[] args)
         {
-            int total = args?.Length ?? 0;
+            var coordArgs = GetCoordArgs(args);
+            int total = coordArgs.Length;
             if (total == 0) return new List<int>(new int[] { 0, 0 });
 
-            int count = CountCompleted(byPlayer, args);
+            int count = CountCompleted(byPlayer, coordArgs);
             if (count > total) count = total;
 
             return new List<int>(new int[] { count, total });
+        }
+
+        private static string[] GetCoordArgs(string[] args)
+        {
+            if (args == null) return Array.Empty<string>();
+            if (args.Length >= 2) return args.Take(args.Length - 1).ToArray();
+            return Array.Empty<string>();
         }
 
         private static int CountCompleted(IPlayer byPlayer, string[] coordArgs)

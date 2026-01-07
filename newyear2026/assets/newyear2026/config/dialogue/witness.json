@@ -1,0 +1,125 @@
+{
+  "components": [
+    {
+      "code": "postquestcheck",
+      "owner": "npc",
+      "type": "condition",
+      "variable": "entity.newyear2026done",
+      "isValue": "true",
+      "thenJumpTo": "postquest",
+      "elseJumpTo": "intro"
+    },
+    {
+      "code": "intro",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-intro" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "postquest",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-postquest" }
+      ],
+      "jumpTo": "mainpost"
+    },
+    {
+      "code": "mainpost",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-q-midnight", "jumpTo": "post-q-midnight" },
+        { "value": "newyear2026:dialogue-witness-q-gifts", "jumpTo": "post-q-gifts" },
+        { "value": "newyear2026:dialogue-witness-q-year", "jumpTo": "post-q-year" },
+        { "value": "newyear2026:dialogue-witness-closechoice", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "post-q-midnight",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-a-midnight" }
+      ],
+      "jumpTo": "mainpost"
+    },
+    {
+      "code": "post-q-gifts",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-a-gifts" }
+      ],
+      "jumpTo": "mainpost"
+    },
+    {
+      "code": "post-q-year",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-a-year" }
+      ],
+      "jumpTo": "mainpost"
+    },
+    {
+      "code": "main",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-openquests", "jumpTo": "openquests" },
+        { "value": "newyear2026:dialogue-witness-q-midnight", "jumpTo": "q-midnight" },
+        { "value": "newyear2026:dialogue-witness-q-gifts", "jumpTo": "q-gifts" },
+        { "value": "newyear2026:dialogue-witness-q-year", "jumpTo": "q-year" },
+        { "value": "newyear2026:dialogue-witness-closechoice", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "q-midnight",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-a-midnight" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "q-gifts",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-a-gifts" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "q-year",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-a-year" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "openquests",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "openquests",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-openquests-confirm" }
+      ]
+    },
+    {
+      "code": "close",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "newyear2026:dialogue-witness-close" }
+      ]
+    }
+  ]
+}

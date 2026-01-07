@@ -140,7 +140,8 @@
       {
         "code": "questgiver",
         "quests": [
-          "vsquestexample:quest1"
+          "vsquestexample:quest1",
+          "vsquestexample:NewYear2026"
         ],
         "selectrandom": false,
         "selectrandomcount": 1
