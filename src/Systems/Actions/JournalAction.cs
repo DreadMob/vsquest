@@ -1,7 +1,8 @@
-
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
+using System;
 using System.Collections.Generic;
 using VsQuest;
 
@@ -47,6 +48,7 @@ namespace vsquest.src.Systems.Actions
             };
 
             modJournal.AddOrUpdateJournalEntry(player, journalEntry);
+            sapi.SendMessage(player, GlobalConstants.GeneralChatGroup, "Журнал обновлён", EnumChatType.Notification);
         }
     }
 }

@@ -89,24 +89,6 @@ namespace VsQuest
             var activeQuests = questSystem.GetPlayerQuests(player.PlayerUID);
 
             var serverPlayer = player.Player as IServerPlayer;
-            if (serverPlayer != null)
-            {
-                foreach (var activeQuest in activeQuests)
-                {
-                    if (activeQuest.isCompletable(player.Player))
-                    {
-                        var finalText = Lang.Get(activeQuest.questId + "-final");
-                        if (!string.IsNullOrEmpty(finalText))
-                        {
-                            sapi.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage()
-                            {
-                                Notification = finalText
-                            }, serverPlayer);
-                        }
-                        break;
-                    }
-                }
-            }
 
             var availableQuestIds = new List<string>();
             foreach (var questId in quests)

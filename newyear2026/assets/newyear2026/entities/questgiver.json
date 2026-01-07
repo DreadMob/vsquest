@@ -53,8 +53,8 @@
       },
       {
         "code": "health",
-        "currenthealth": 25,
-        "maxhealth": 25
+        "currenthealth": 1000000,
+        "maxhealth": 1000000
       },
       {
         "code": "conversable",

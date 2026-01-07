@@ -27,6 +27,10 @@ namespace VsQuest
             selectedActiveQuest = activeQuests?.Find(quest => true);
             player = capi.World.Player;
             closeGuiAfterAcceptingAndCompleting = questConfig.CloseGuiAfterAcceptingAndCompleting;
+            if (activeQuests != null && activeQuests.Count > 0)
+            {
+                curTab = 1;
+            }
             recompose();
         }
 
