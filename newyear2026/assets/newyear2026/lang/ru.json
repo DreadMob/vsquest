@@ -1,7 +1,6 @@
 {
   "newyear2026:dialogue-witness-postquest": "…Собрал.\nПолночь прошла.\nНовый Год кончился давно.\nЭти коробки — всё, что от него осталось.\nВозьми одну.\nВ ней тишина.\nОна поможет услышать, когда тьма подойдёт ближе.\nУходи.",
   "newyear2026:dialogue-witness-final-silent": "Промолчать.",
-  "newyear2026:dialogue-witness-final-thanks": "Поблагодарить.",
 
   "newyear2026:gift-found-1": "Найден подарок: ржавый механизм. Он помнит движение.",
   "newyear2026:gift-found-2": "Найден подарок: разбитый ёлочный шар. Он блестит в пустоте.",
@@ -27,7 +26,6 @@
   "newyear2026:dialogue-witness-a-gifts": "Подарки — это способ сказать «я помню». Даже когда уже некому помнить.",
   "newyear2026:dialogue-witness-a-year": "Год — просто число. Тьма не считает. Считай ты.",
   "newyear2026:dialogue-witness-closechoice": "…",
-  "newyear2026:dialogue-witness-close": "…",
 
   "game:tradingwindow-questgiver": "Свидетель",
 

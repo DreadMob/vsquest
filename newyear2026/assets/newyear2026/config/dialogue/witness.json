@@ -118,7 +118,7 @@
       "owner": "npc",
       "type": "talk",
       "text": [
-        { "value": "newyear2026:dialogue-witness-close" }
+        { "value": "newyear2026:dialogue-witness-closechoice" }
       ]
     }
   ]
