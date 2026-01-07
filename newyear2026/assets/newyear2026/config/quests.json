@@ -104,14 +104,6 @@
     ],
     "actionRewards": [
       {
-        "id": "setquestgiverattribute",
-        "args": [
-          "entity.newyear2026done",
-          "bool",
-          "true"
-        ]
-      },
-      {
         "id": "playsound",
         "args": [
           "newyear2026:sounds/qcomplet"
