@@ -51,9 +51,9 @@ namespace VsQuest
             actionRegistry.Add("playercommand", ActionUtil.PlayerCommand);
             actionRegistry.Add("giveactionitem", ActionUtil.GiveActionItem);
 
-            actionRegistry.Add("setquestgiverattribute", QuestActionHandlers.SetQuestGiverAttribute);
-            actionRegistry.Add("notify", QuestActionHandlers.Notify);
-            actionRegistry.Add("showquestfinaldialog", QuestActionHandlers.ShowQuestFinalDialog);
+            actionRegistry.Add("setquestgiverattribute", SetQuestGiverAttributeAction.Execute);
+            actionRegistry.Add("notify", NotifyAction.Execute);
+            actionRegistry.Add("showquestfinaldialog", ShowQuestFinalDialogAction.Execute);
         }
     }
 }
