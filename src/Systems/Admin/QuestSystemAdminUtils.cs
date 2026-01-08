@@ -3,11 +3,11 @@ using Vintagestory.API.Server;
 
 namespace VsQuest
 {
-    public partial class QuestSystem
+    public static class QuestSystemAdminUtils
     {
-        public bool ForgiveQuest(IServerPlayer player, string questId)
+        public static bool ResetQuestForPlayer(QuestSystem questSystem, IServerPlayer player, string questId)
         {
-            var quests = persistenceManager.GetPlayerQuests(player.PlayerUID);
+            var quests = questSystem.GetPlayerQuests(player.PlayerUID);
             var activeQuest = quests.Find(q => q.questId == questId);
             bool removed = false;
 
@@ -17,14 +17,12 @@ namespace VsQuest
                 removed = true;
             }
 
-            // Clear per-player cooldown marker
             var key = string.Format("vsquest:lastaccepted-{0}", questId);
             if (player.Entity?.WatchedAttributes != null)
             {
                 player.Entity.WatchedAttributes.RemoveAttribute(key);
                 player.Entity.WatchedAttributes.MarkPathDirty(key);
 
-                // Clear completion flag
                 var completed = player.Entity.WatchedAttributes.GetStringArray("vsquest:playercompleted", new string[0]);
                 if (completed != null && completed.Length > 0)
                 {
@@ -37,7 +35,7 @@ namespace VsQuest
                 }
             }
 
-            persistenceManager.SavePlayerQuests(player.PlayerUID, quests);
+            questSystem.SavePlayerQuests(player.PlayerUID, quests);
             return removed;
         }
     }

@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ProtoBuf;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -15,7 +14,7 @@ using vsquest.src.Systems.Actions;
 namespace VsQuest
 {
     public delegate void QuestAction(ICoreServerAPI sapi, QuestMessage message, IServerPlayer player, string[] args);
-    public partial class QuestSystem : ModSystem
+    public class QuestSystem : ModSystem
     {
         public Dictionary<string, Quest> QuestRegistry { get; private set; } = new Dictionary<string, Quest>();
         public Dictionary<string, QuestAction> ActionRegistry { get; private set; } = new Dictionary<string, QuestAction>();
@@ -72,17 +71,10 @@ namespace VsQuest
         {
             base.StartClientSide(capi);
 
-            capi.Network.RegisterChannel("vsquest")
-                .RegisterMessageType<QuestAcceptedMessage>()
-                .RegisterMessageType<QuestCompletedMessage>()
-                .RegisterMessageType<QuestInfoMessage>().SetMessageHandler<QuestInfoMessage>(message => OnQuestInfoMessage(message, capi))
-                .RegisterMessageType<ExecutePlayerCommandMessage>().SetMessageHandler<ExecutePlayerCommandMessage>(message => OnExecutePlayerCommand(message, capi))
-                .RegisterMessageType<VanillaBlockInteractMessage>()
-                .RegisterMessageType<ShowNotificationMessage>().SetMessageHandler<ShowNotificationMessage>(message => OnShowNotificationMessage(message, capi))
-                .RegisterMessageType<ShowQuestDialogMessage>().SetMessageHandler<ShowQuestDialogMessage>(message => OnShowQuestDialogMessage(message, capi));
+            QuestNetworkChannelRegistry.RegisterClient(capi, this);
         }
 
-        private void OnShowNotificationMessage(ShowNotificationMessage message, ICoreClientAPI capi)
+        internal void OnShowNotificationMessage(ShowNotificationMessage message, ICoreClientAPI capi)
         {
             string text = message?.Notification;
             if (!string.IsNullOrEmpty(text))
@@ -108,14 +100,7 @@ namespace VsQuest
             lifecycleManager = new QuestLifecycleManager(QuestRegistry, ActionRegistry, api);
             eventHandler = new QuestEventHandler(QuestRegistry, persistenceManager, sapi);
 
-            sapi.Network.RegisterChannel("vsquest")
-                .RegisterMessageType<QuestAcceptedMessage>().SetMessageHandler<QuestAcceptedMessage>((player, message) => OnQuestAccepted(player, message, sapi))
-                .RegisterMessageType<QuestCompletedMessage>().SetMessageHandler<QuestCompletedMessage>((player, message) => OnQuestCompleted(player, message, sapi))
-                .RegisterMessageType<QuestInfoMessage>()
-                .RegisterMessageType<ExecutePlayerCommandMessage>()
-                .RegisterMessageType<VanillaBlockInteractMessage>().SetMessageHandler<VanillaBlockInteractMessage>((player, message) => OnVanillaBlockInteract(player, message, sapi))
-                .RegisterMessageType<ShowNotificationMessage>()
-                .RegisterMessageType<ShowQuestDialogMessage>();
+            QuestNetworkChannelRegistry.RegisterServer(sapi, this);
 
             // Register actions
             actionRegistry = new QuestActionRegistry(ActionRegistry, api);
@@ -123,7 +108,7 @@ namespace VsQuest
             
             eventHandler.RegisterEventHandlers();
 
-            RegisterChatCommands(sapi);
+            QuestChatCommandRegistry.Register(sapi, api, this);
         }
 
         public override void AssetsLoaded(ICoreAPI api)
@@ -143,22 +128,27 @@ namespace VsQuest
             return persistenceManager.GetPlayerQuests(playerUID);
         }
 
-        private void OnQuestAccepted(IServerPlayer fromPlayer, QuestAcceptedMessage message, ICoreServerAPI sapi)
+        public void SavePlayerQuests(string playerUID, List<ActiveQuest> activeQuests)
+        {
+            persistenceManager.SavePlayerQuests(playerUID, activeQuests);
+        }
+
+        internal void OnQuestAccepted(IServerPlayer fromPlayer, QuestAcceptedMessage message, ICoreServerAPI sapi)
         {
             lifecycleManager.OnQuestAccepted(fromPlayer, message, sapi, GetPlayerQuests);
         }
 
-        public void OnQuestCompleted(IServerPlayer fromPlayer, QuestCompletedMessage message, ICoreServerAPI sapi)
+        internal void OnQuestCompleted(IServerPlayer fromPlayer, QuestCompletedMessage message, ICoreServerAPI sapi)
         {
             lifecycleManager.OnQuestCompleted(fromPlayer, message, sapi, GetPlayerQuests);
         }
 
-        private void OnQuestInfoMessage(QuestInfoMessage message, ICoreClientAPI capi)
+        internal void OnQuestInfoMessage(QuestInfoMessage message, ICoreClientAPI capi)
         {
             new QuestSelectGui(capi, message.questGiverId, message.availableQestIds, message.activeQuests, Config).TryOpen();
         }
 
-        private void OnExecutePlayerCommand(ExecutePlayerCommandMessage message, ICoreClientAPI capi)
+        internal void OnExecutePlayerCommand(ExecutePlayerCommandMessage message, ICoreClientAPI capi)
         {
             string command = message.Command;
 
@@ -172,13 +162,13 @@ namespace VsQuest
             }
         }
 
-        private void OnVanillaBlockInteract(IServerPlayer player, VanillaBlockInteractMessage message, ICoreServerAPI sapi)
+        internal void OnVanillaBlockInteract(IServerPlayer player, VanillaBlockInteractMessage message, ICoreServerAPI sapi)
         {
             int[] position = new int[] { message.Position.X, message.Position.Y, message.Position.Z };
             GetPlayerQuests(player?.PlayerUID).ForEach(quest => quest.OnBlockUsed(message.BlockCode, position, player, sapi));
         }
 
-        private void OnShowQuestDialogMessage(ShowQuestDialogMessage message, ICoreClientAPI capi)
+        internal void OnShowQuestDialogMessage(ShowQuestDialogMessage message, ICoreClientAPI capi)
         {
             new QuestFinalDialogGui(capi, message.TitleLangKey, message.TextLangKey, message.Option1LangKey, message.Option2LangKey).TryOpen();
         }
@@ -187,63 +177,5 @@ namespace VsQuest
     public class QuestConfig
     {
         public bool CloseGuiAfterAcceptingAndCompleting = true;
-    }
-
-    [ProtoContract]
-    public class QuestAcceptedMessage : QuestMessage
-    {
-    }
-
-    [ProtoContract]
-    public class QuestCompletedMessage : QuestMessage
-    {
-    }
-
-    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-    [ProtoInclude(10, typeof(QuestAcceptedMessage))]
-    [ProtoInclude(11, typeof(QuestCompletedMessage))]
-    public abstract class QuestMessage
-    {
-        public string questId { get; set; }
-
-        public long questGiverId { get; set; }
-    }
-
-    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-    public class QuestInfoMessage
-    {
-        public long questGiverId { get; set; }
-        public List<string> availableQestIds { get; set; }
-        public List<ActiveQuest> activeQuests { get; set; }
-    }
-
-    [ProtoContract]
-    public class ExecutePlayerCommandMessage
-    {
-        [ProtoMember(1)]
-        public string Command { get; set; }
-    }
-
-    [ProtoContract]
-    public class ShowNotificationMessage
-    {
-        [ProtoMember(1)]
-        public string Notification { get; set; }
-    }
-
-    [ProtoContract]
-    public class ShowQuestDialogMessage
-    {
-        [ProtoMember(1)]
-        public string TitleLangKey { get; set; }
-
-        [ProtoMember(2)]
-        public string TextLangKey { get; set; }
-
-        [ProtoMember(3)]
-        public string Option1LangKey { get; set; }
-
-        [ProtoMember(4)]
-        public string Option2LangKey { get; set; }
     }
 }

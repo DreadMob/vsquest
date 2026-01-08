@@ -1,17 +1,19 @@
+using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
 namespace VsQuest
 {
-    public partial class QuestSystem
+    public static class QuestChatCommandRegistry
     {
-        private void RegisterChatCommands(ICoreServerAPI sapi)
+        public static void Register(ICoreServerAPI sapi, ICoreAPI api, QuestSystem questSystem)
         {
             var itemSystem = api.ModLoader.GetModSystem<ItemSystem>();
             var giveActionItemHandler = new GiveActionItemCommandHandler(api, itemSystem);
 
-            var forgiveQuestHandler = new QuestForgiveCommandHandler(sapi, this);
-            var questListHandler = new QuestListCommandHandler(sapi, this);
-            var questCheckHandler = new QuestCheckCommandHandler(sapi, this);
+            var questListHandler = new QuestListCommandHandler(sapi, questSystem);
+            var questCheckHandler = new QuestCheckCommandHandler(sapi, questSystem);
+            var forgiveQuestHandler = new QuestForgiveCommandHandler(sapi, questSystem);
+            var questActionItemsHandler = new QuestActionItemsCommandHandler(itemSystem);
 
             sapi.ChatCommands.GetOrCreate("giveactionitem")
                 .WithDescription("Gives a player an action item defined in itemconfig.json.")
@@ -22,6 +24,11 @@ namespace VsQuest
             sapi.ChatCommands.GetOrCreate("quest")
                 .WithDescription("Quest administration commands")
                 .RequiresPrivilege(Privilege.give)
+                .BeginSubCommand("actionitems")
+                    .WithDescription("Lists all registered action items.")
+                    .RequiresPrivilege(Privilege.give)
+                    .HandleWith(questActionItemsHandler.Handle)
+                .EndSubCommand()
                 .BeginSubCommand("list")
                     .WithDescription("Lists all registered quest IDs and their titles.")
                     .RequiresPrivilege(Privilege.give)
