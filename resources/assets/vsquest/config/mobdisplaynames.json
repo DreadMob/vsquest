@@ -1,11 +1,14 @@
 {
   "drifter": "Дрифтер",
-  "drifter-normal": "Дрифтер",
-  "drifter-deep": "Глубинный дрифтер",
   "locust": "Саранча",
   "shiver": "Шивер",
   "bowtorn": "Боуторн",
-  "bighorn": "Боуторн",
+  "chicken": "Курица",
+  "pig": "Кабан",
+  "fox": "Лиса",
+  "deer": "Олень",
+  "hare": "Заяц",
+  "sheep-bighorn": "Толсторогий баран",
   "wolf": "Волк",
   "bear": "Медведь"
 }

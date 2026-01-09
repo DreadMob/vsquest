@@ -34,7 +34,7 @@ namespace VsQuest
                 return TextCommandResult.Error($"Player '{playerName}' not found online.");
             }
 
-            bool removed = QuestSystemAdminUtils.ResetQuestForPlayer(questSystem, target, questId);
+            bool removed = QuestSystemAdminUtils.ResetQuestForPlayer(questSystem, target, questId, sapi);
 
             return removed
                 ? TextCommandResult.Success($"Quest '{questId}' was reset for '{target.PlayerName}'.")

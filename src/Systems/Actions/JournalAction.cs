@@ -34,6 +34,39 @@ namespace vsquest.src.Systems.Actions
 
             var loreCode = args[0];
             var title = args[1];
+
+            if (!string.IsNullOrWhiteSpace(message?.questId) && player?.Entity?.WatchedAttributes != null && !string.IsNullOrWhiteSpace(loreCode))
+            {
+                string key = $"vsquest:journal:{message.questId}:lorecodes";
+                var existing = player.Entity.WatchedAttributes.GetStringArray(key, null);
+                if (existing == null)
+                {
+                    player.Entity.WatchedAttributes.SetStringArray(key, new[] { loreCode });
+                }
+                else
+                {
+                    bool already = false;
+                    for (int i = 0; i < existing.Length; i++)
+                    {
+                        if (string.Equals(existing[i], loreCode, StringComparison.OrdinalIgnoreCase))
+                        {
+                            already = true;
+                            break;
+                        }
+                    }
+
+                    if (!already)
+                    {
+                        var next = new string[existing.Length + 1];
+                        for (int i = 0; i < existing.Length; i++) next[i] = existing[i];
+                        next[existing.Length] = loreCode;
+                        player.Entity.WatchedAttributes.SetStringArray(key, next);
+                    }
+                }
+
+                player.Entity.WatchedAttributes.MarkPathDirty(key);
+            }
+
             var chapters = new List<JournalChapter>();
             for (int i = 2; i < args.Length; i++)
             {

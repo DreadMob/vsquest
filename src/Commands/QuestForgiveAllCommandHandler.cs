@@ -28,7 +28,7 @@ namespace VsQuest
                 return TextCommandResult.Error($"Player '{playerName}' not found online.");
             }
 
-            int removedCount = QuestSystemAdminUtils.ResetAllQuestsForPlayer(questSystem, target);
+            int removedCount = QuestSystemAdminUtils.ResetAllQuestsForPlayer(questSystem, target, sapi);
 
             return TextCommandResult.Success($"Reset all quests for '{target.PlayerName}'. Removed {removedCount} active quest(s). Cooldowns/completed flags cleared.");
         }

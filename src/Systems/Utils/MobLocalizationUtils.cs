@@ -48,105 +48,84 @@ namespace VsQuest
             displayNameMap = merged.Count > 0 ? merged : null;
         }
 
-        public static string GetMobDisplayName(string code)
-        {
-            if (string.IsNullOrWhiteSpace(code)) return code;
+         public static string GetMobDisplayName(string code)
+         {
+             if (string.IsNullOrWhiteSpace(code)) return code;
 
-            // Always apply explicit overrides first (including fallback to base code).
-            foreach (var mapped in GetCandidateCodes(code))
+             string normalized = NormalizeMobCode(code);
+
+            // 1) mobdisplaynames.json overrides (exact only)
+            if (displayNameMap != null && displayNameMap.TryGetValue(normalized, out var exactOverride) && !string.IsNullOrWhiteSpace(exactOverride))
             {
-                if (displayNameMap != null && displayNameMap.TryGetValue(mapped, out var mappedName) && !string.IsNullOrWhiteSpace(mappedName))
-                {
-                    return mappedName;
-                }
+                return exactOverride;
             }
 
-            // Last-resort fallback for locust variants: vanilla translations for locust variants are often English-only.
-            // Since quests treat locust variants as the same target, keep the display name consistent.
-            string mappedBase = MapCode(code);
-            if (MobLocalizationFallbacks.TryGetFallbackRuName(mappedBase, out var fallbackRuName))
+            // 2) Game localization (exact, then progressively shorter prefixes)
+            foreach (string candidate in GetFallbackCandidates(normalized))
             {
-                string key = $"mob-{mappedBase}";
-                try
-                {
-                    string t = Lang.Get(key);
-                    if (!string.Equals(t, key, StringComparison.OrdinalIgnoreCase)) return t;
-                }
-                catch
-                {
-                }
-
-                return fallbackRuName;
+                string t;
+                t = TryLangGet($"item-creature-{candidate}");
+                if (!string.IsNullOrWhiteSpace(t)) return t;
+                t = TryLangGet($"game:item-creature-{candidate}");
+                if (!string.IsNullOrWhiteSpace(t)) return t;
             }
 
-            // If this is a variant (e.g. locust-forest), prefer base-code translations before variant translations.
-            // This allows mods to override a whole family via mob-locust / mobdisplaynames.json without needing per-variant entries.
-            string baseCode = MapCode(code);
-            if (!string.IsNullOrWhiteSpace(baseCode) && !string.Equals(baseCode, code, StringComparison.OrdinalIgnoreCase))
+            // 3) mobdisplaynames.json overrides (prefixes/base), only if game localization has no match
+            if (displayNameMap != null)
             {
-                foreach (string key in GetTranslationKeys(baseCode))
+                foreach (string candidate in GetFallbackCandidates(normalized))
                 {
-                    try
+                    if (displayNameMap.TryGetValue(candidate, out var mappedName) && !string.IsNullOrWhiteSpace(mappedName))
                     {
-                        string t = Lang.Get(key);
-                        if (!string.Equals(t, key, StringComparison.OrdinalIgnoreCase)) return t;
-                    }
-                    catch
-                    {
+                        return mappedName;
                     }
                 }
             }
 
-            // Then try game translations.
-            foreach (var mapped in GetCandidateCodes(code))
+            // 4) Wildcard translations as a last resort
+            foreach (string candidate in GetFallbackCandidates(normalized))
             {
-                foreach (string key in GetTranslationKeys(mapped))
-                {
-                    try
-                    {
-                        string t = Lang.Get(key);
-                        if (!string.Equals(t, key, StringComparison.OrdinalIgnoreCase)) return t;
-                    }
-                    catch
-                    {
-                    }
-                }
+                string t;
+                t = TryLangGet($"item-creature-{candidate}-*");
+                if (!string.IsNullOrWhiteSpace(t)) return t;
+                t = TryLangGet($"game:item-creature-{candidate}-*");
+                if (!string.IsNullOrWhiteSpace(t)) return t;
             }
 
-            return MapCode(code);
-        }
+            string fallback = MapCode(normalized);
+            return fallback;
+         }
 
-        private static IEnumerable<string> GetTranslationKeys(string code)
+        private static IEnumerable<string> GetFallbackCandidates(string code)
         {
             if (string.IsNullOrWhiteSpace(code)) yield break;
 
-            string domain = null;
-            string path = code;
-            int colonIndex = code.IndexOf(':');
-            if (colonIndex > 0 && colonIndex < code.Length - 1)
+            string cur = code;
+            while (!string.IsNullOrWhiteSpace(cur))
             {
-                domain = code.Substring(0, colonIndex);
-                path = code.Substring(colonIndex + 1);
+                yield return cur;
+                int idx = cur.LastIndexOf('-');
+                if (idx <= 0) break;
+                cur = cur.Substring(0, idx);
             }
-
-            // Backwards compat with older mod versions (if any custom translations exist)
-            yield return $"mob-{path}";
-
-            // Vanilla uses item-creature-<code> for entity names
-            yield return $"item-creature-{path}";
-            yield return $"game:item-creature-{path}";
-            if (!string.IsNullOrWhiteSpace(domain)) yield return $"{domain}:item-creature-{path}";
         }
 
-        private static IEnumerable<string> GetCandidateCodes(string code)
+        private static string TryLangGet(string key)
         {
-            yield return code;
-
-            string baseCode = MapCode(code);
-            if (!string.IsNullOrWhiteSpace(baseCode) && !string.Equals(baseCode, code, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(key)) return null;
+            try
             {
-                yield return baseCode;
+                string t = Lang.Get(key);
+                if (!string.IsNullOrWhiteSpace(t) && !string.Equals(t, key, StringComparison.OrdinalIgnoreCase))
+                {
+                    return t;
+                }
             }
+            catch
+            {
+            }
+
+            return null;
         }
 
         public static string NormalizeMobCode(string code)
