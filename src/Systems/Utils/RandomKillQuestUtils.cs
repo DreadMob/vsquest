@@ -13,18 +13,6 @@ namespace VsQuest
             return MobLocalizationUtils.GetMobDisplayName(code);
         }
 
-        private static bool MobCodeMatches(string targetCode, string killedCode)
-        {
-            if (string.IsNullOrWhiteSpace(targetCode) || string.IsNullOrWhiteSpace(killedCode)) return false;
-
-            if (string.Equals(targetCode, killedCode, StringComparison.OrdinalIgnoreCase)) return true;
-
-            // Support matching entity variants, e.g. target "locust" should match "locust-forest", "locust-desert", etc.
-            if (killedCode.StartsWith(targetCode + "-", StringComparison.OrdinalIgnoreCase)) return true;
-
-            return false;
-        }
-
         public static string CodeKey(string questId) => $"vsquest:randkill:{questId}:code";
         public static string NeedKey(string questId) => $"vsquest:randkill:{questId}:need";
         public static string HaveKey(string questId) => $"vsquest:randkill:{questId}:have";
@@ -73,7 +61,7 @@ namespace VsQuest
 
             string targetCode = wa.GetString(codeKey, null);
             if (string.IsNullOrWhiteSpace(targetCode)) return false;
-            if (!MobCodeMatches(targetCode, killedCode)) return false;
+            if (!MobLocalizationUtils.MobCodeMatches(targetCode, killedCode)) return false;
 
             string needKey = NeedKey(questId);
             string haveKey = HaveKey(questId);
@@ -104,7 +92,7 @@ namespace VsQuest
 
             string targetCode = wa.GetString(codeKey, null);
             if (string.IsNullOrWhiteSpace(targetCode)) return false;
-            if (!MobCodeMatches(targetCode, killedCode)) return false;
+            if (!MobLocalizationUtils.MobCodeMatches(targetCode, killedCode)) return false;
 
             string needKey = SlotNeedKey(questId, slot);
             string haveKey = SlotHaveKey(questId, slot);
@@ -235,20 +223,13 @@ namespace VsQuest
 
         public static void SendRollNotification(ICoreServerAPI api, IServerPlayer byPlayer, string template, int need, string code)
         {
-            string messageText;
-            string name = LocalizeMobName(code);
-            try
+            api.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage()
             {
-                messageText = Lang.HasTranslation(template)
-                    ? Lang.Get(template, need, name)
-                    : string.Format(template, need, name);
-            }
-            catch
-            {
-                messageText = template;
-            }
-
-            api.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage() { Notification = messageText }, byPlayer);
+                Template = template,
+                Need = need,
+                MobCode = code,
+                Notification = null
+            }, byPlayer);
         }
     }
 }

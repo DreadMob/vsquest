@@ -76,17 +76,16 @@ namespace VsQuest
 
         internal void OnShowNotificationMessage(ShowNotificationMessage message, ICoreClientAPI capi)
         {
-            string text = message?.Notification;
-            if (!string.IsNullOrEmpty(text))
+            if (message == null)
             {
-                try
-                {
-                    if (Lang.HasTranslation(text)) text = Lang.Get(text);
-                }
-                catch
-                {
-                }
+                capi.ShowChatMessage(null);
+                return;
             }
+
+            string text = null;
+
+            // Preferred path: server sends template + mob code, client localizes mob name in its own language.
+            text = NotificationTextUtil.Build(message);
 
             capi.ShowChatMessage(text);
         }
@@ -114,6 +113,8 @@ namespace VsQuest
         public override void AssetsLoaded(ICoreAPI api)
         {
             base.AssetsLoaded(api);
+
+            MobLocalizationUtils.LoadFromAssets(api);
             foreach (var mod in api.ModLoader.Mods)
             {
                 api.Assets

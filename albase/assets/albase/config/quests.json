@@ -27,14 +27,17 @@
         "id": "randomkill",
         "args": [
           "2",
-          "4",
-          "10",
+          "2",
+          "7",
           "albase:priest-randomkill-notify",
           "playsound 'albase:sounds/priest_target' 0.25",
           "playsound 'albase:sounds/priest_quest_complete' 0.5",
           "drifter-normal",
           "drifter-deep",
-          "locust"
+          "locust",
+          "shiver",
+          "bowtorn",
+          "wolf"
         ]
       },
       {
