@@ -123,7 +123,12 @@ namespace VsQuest
         {
             foreach (var candidate in tracker.relevantCodes)
             {
-                if (candidate == code || candidate.EndsWith("*") && code.StartsWith(candidate.Remove(candidate.Length - 1)))
+                if (MobLocalizationUtils.MobCodeMatches(candidate, code))
+                {
+                    return true;
+                }
+
+                if (candidate.EndsWith("*") && code.StartsWith(candidate.Remove(candidate.Length - 1)))
                 {
                     return true;
                 }
@@ -142,7 +147,13 @@ namespace VsQuest
                     {
                         foreach (var codeCandidate in objective.validCodes)
                         {
-                            if (codeCandidate == code || codeCandidate.EndsWith("*") && code.StartsWith(codeCandidate.Remove(codeCandidate.Length - 1)))
+                            if (MobLocalizationUtils.MobCodeMatches(codeCandidate, code))
+                            {
+                                tracker.placedPositions.Add(candidate);
+                                return true;
+                            }
+
+                            if (codeCandidate.EndsWith("*") && code.StartsWith(codeCandidate.Remove(codeCandidate.Length - 1)))
                             {
                                 tracker.placedPositions.Add(candidate);
                                 return true;
@@ -156,7 +167,12 @@ namespace VsQuest
             {
                 foreach (var candidate in tracker.relevantCodes)
                 {
-                    if (candidate == code || candidate.EndsWith("*") && code.StartsWith(candidate.Remove(candidate.Length - 1)))
+                    if (MobLocalizationUtils.MobCodeMatches(candidate, code))
+                    {
+                        return true;
+                    }
+
+                    if (candidate.EndsWith("*") && code.StartsWith(candidate.Remove(candidate.Length - 1)))
                     {
                         return true;
                     }

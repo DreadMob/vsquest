@@ -72,8 +72,6 @@ namespace VsQuest
                 byPlayer.Entity.WatchedAttributes.MarkPathDirty(codeKey);
                 byPlayer.Entity.WatchedAttributes.MarkPathDirty(needKey);
                 byPlayer.Entity.WatchedAttributes.MarkPathDirty(haveKey);
-
-                RandomKillQuestUtils.SendRollNotification(api, byPlayer, template, need, code);
             }
         }
     }

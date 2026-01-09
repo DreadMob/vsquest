@@ -1,0 +1,69 @@
+{
+  "components": [
+    {
+      "code": "intro",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-innkeeper-intro" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "main",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-innkeeper-work", "jumpTo": "openquests" },
+        { "value": "albase:dialogue-innkeeper-whoareyou", "jumpTo": "whoareyou" },
+        { "value": "albase:dialogue-innkeeper-aboutplace", "jumpTo": "aboutplace" },
+        { "value": "albase:dialogue-innkeeper-whyso", "jumpTo": "whyso" },
+        { "value": "albase:dialogue-innkeeper-closechoice", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "whoareyou",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-innkeeper-whoareyou-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "aboutplace",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-innkeeper-aboutplace-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "whyso",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-innkeeper-whyso-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "openquests",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "openquests",
+      "text": [
+        { "value": "albase:dialogue-innkeeper-openquests-confirm" }
+      ]
+    },
+    {
+      "code": "close",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-innkeeper-close-answer" }
+      ]
+    }
+  ]
+}

@@ -20,8 +20,12 @@
     "attr-healingeffectiveness": "Эффективность лечения",
     "attr-rangedaccuracy": "Точность дальнего боя",
     "attr-rangedchargspeed": "Скорость заряда",
-    "mob-drifter-normal": "Дрифтер",
-    "mob-drifter-deep": "Глубинный дрифтер",
-    "mob-locust": "Саранча",
-    "ingamediscovery-vsquest-journalupdate": "Журнал обновлён"
+    "objective-walkdistance": "Путешествовать",
+    "unit-meter-short": "м.",
+    "kill-notify": "Убей {0}x {1}.",
+    "objective-timeofday-day": "Только днём",
+    "objective-timeofday-night": "Только ночью",
+    "timeofday-notify-day": "Эту работу можно сдать только днём.",
+    "timeofday-notify-night": "Эту работу можно сдать только ночью.",
+    "vsquest:journal-updated": "Журнал обновлён"
 }

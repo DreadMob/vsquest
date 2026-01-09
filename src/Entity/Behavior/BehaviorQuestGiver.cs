@@ -15,8 +15,12 @@ namespace VsQuest
     public class EntityBehaviorQuestGiver : EntityBehavior
     {
         private string[] quests;
+        private string[] alwaysQuests;
+        private string[] rotationPool;
         private bool selectRandom;
         private int selectRandomCount;
+        private int rotationDays;
+        private int rotationCount;
         private string noAvailableQuestDescLangKey;
         private string noAvailableQuestCooldownDescLangKey;
 
@@ -29,7 +33,12 @@ namespace VsQuest
             base.Initialize(properties, attributes);
             selectRandom = attributes["selectrandom"].AsBool();
             selectRandomCount = attributes["selectrandomcount"].AsInt(1);
-            quests = attributes["quests"].AsArray<string>();
+            rotationDays = attributes["rotationdays"].AsInt(0);
+            rotationCount = attributes["rotationcount"].AsInt(1);
+
+            quests = attributes["quests"].AsArray<string>() ?? Array.Empty<string>();
+            alwaysQuests = attributes["alwaysquests"].AsArray<string>() ?? Array.Empty<string>();
+            rotationPool = attributes["rotationpool"].AsArray<string>();
             noAvailableQuestDescLangKey = attributes["noAvailableQuestDescLangKey"].AsString(null);
             noAvailableQuestCooldownDescLangKey = attributes["noAvailableQuestCooldownDescLangKey"].AsString(null);
 
@@ -46,6 +55,69 @@ namespace VsQuest
                 }
                 quests = resultList.ToArray();
             }
+        }
+
+        private HashSet<string> BuildAllQuestIds()
+        {
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (quests != null)
+            {
+                foreach (var q in quests) if (!string.IsNullOrWhiteSpace(q)) set.Add(q);
+            }
+            if (alwaysQuests != null)
+            {
+                foreach (var q in alwaysQuests) if (!string.IsNullOrWhiteSpace(q)) set.Add(q);
+            }
+            if (rotationPool != null)
+            {
+                foreach (var q in rotationPool) if (!string.IsNullOrWhiteSpace(q)) set.Add(q);
+            }
+            return set;
+        }
+
+        private List<string> GetCurrentQuestSelection(ICoreServerAPI sapi)
+        {
+            var result = new List<string>();
+
+            if (alwaysQuests != null)
+            {
+                foreach (var q in alwaysQuests)
+                {
+                    if (!string.IsNullOrWhiteSpace(q)) result.Add(q);
+                }
+            }
+
+            var pool = rotationPool ?? quests;
+            if (pool == null || pool.Length == 0)
+            {
+                return result;
+            }
+
+            if (rotationDays <= 0 || sapi == null)
+            {
+                result.AddRange(pool);
+                return result;
+            }
+
+            int count = rotationCount;
+            if (count < 1) count = 1;
+            if (count > pool.Length) count = pool.Length;
+
+            int period = (int)Math.Floor(sapi.World.Calendar.TotalDays / rotationDays);
+            int offset = Math.Abs(unchecked((int)entity.EntityId));
+            offset = pool.Length == 0 ? 0 : offset % pool.Length;
+
+            for (int i = 0; i < count; i++)
+            {
+                int idx = (offset + period + i) % pool.Length;
+                string questId = pool[idx];
+                if (!string.IsNullOrWhiteSpace(questId) && !result.Contains(questId))
+                {
+                    result.Add(questId);
+                }
+            }
+
+            return result;
         }
 
         public override void AfterInitialized(bool onFirstSpawn)
@@ -86,7 +158,6 @@ namespace VsQuest
             return -1;
         }
 
-
         public override void OnInteract(EntityAgent byEntity, ItemSlot itemslot, Vec3d hitPosition, EnumInteractMode mode, ref EnumHandling handled)
         {
             if (entity.Alive
@@ -104,15 +175,19 @@ namespace VsQuest
         {
             var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
             var allActiveQuests = questSystem.GetPlayerQuests(player.PlayerUID);
+            var allQuestIds = BuildAllQuestIds();
+
             var activeQuests = allActiveQuests
-                .Where(activeQuest => quests.Contains(activeQuest.questId))
+                .Where(activeQuest => allQuestIds.Contains(activeQuest.questId))
                 .ToList();
 
             var serverPlayer = player.Player as IServerPlayer;
 
             var availableQuestIds = new List<string>();
             int? minCooldownDaysLeft = null;
-            foreach (var questId in quests)
+
+            var selection = GetCurrentQuestSelection(sapi);
+            foreach (var questId in selection)
             {
                 var quest = questSystem.QuestRegistry[questId];
 
@@ -151,6 +226,7 @@ namespace VsQuest
 
             sapi.Network.GetChannel("vsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);
         }
+
         public override WorldInteraction[] GetInteractionHelp(IClientWorldAccessor world, EntitySelection es, IClientPlayer player, ref EnumHandling handled)
         {
             if (entity.Alive && !entity.HasBehavior<EntityBehaviorConversable>())

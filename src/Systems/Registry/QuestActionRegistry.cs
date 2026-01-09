@@ -58,6 +58,8 @@ namespace VsQuest
 
             actionRegistry.Add("randomkill", RandomKillAction.Execute);
 
+            actionRegistry.Add("resetwalkdistance", ResetWalkDistanceAction.Execute);
+
             actionRegistry.Add("setquestgiverattribute", SetQuestGiverAttributeAction.Execute);
             actionRegistry.Add("notify", NotifyAction.Execute);
             actionRegistry.Add("showquestfinaldialog", ShowQuestFinalDialogAction.Execute);

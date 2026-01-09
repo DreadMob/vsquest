@@ -82,6 +82,15 @@ namespace VsQuest
                     sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup, string.Format("An error occurred during quest {0}, please check the server logs for more details.", quest.id), EnumChatType.Notification);
                 }
             }
+
+            try
+            {
+                QuestObjectiveAnnounceUtil.AnnounceOnAccept(fromPlayer, message, sapi, quest);
+            }
+            catch
+            {
+                // ignore announce errors
+            }
         }
 
         public void OnQuestCompleted(IServerPlayer fromPlayer, QuestCompletedMessage message, ICoreServerAPI sapi, System.Func<string, List<ActiveQuest>> getPlayerQuests)
@@ -130,14 +139,24 @@ namespace VsQuest
                 {
                     item = sapi.World.GetBlock(new AssetLocation(reward.itemCode));
                 }
+                if (item == null)
+                {
+                    sapi.Logger.Error($"vsquest: Quest '{quest.id}' has invalid item reward code '{reward.itemCode}'. Skipping reward.");
+                    continue;
+                }
+
                 var stack = new ItemStack(item, reward.amount);
                 if (!fromPlayer.InventoryManager.TryGiveItemstack(stack))
                 {
                     sapi.World.SpawnItemEntity(stack, (questgiver ?? fromPlayer.Entity).ServerPos.XYZ);
                 }
             }
-            List<RandomItem> randomItems = quest.randomItemRewards.items;
-            for (int i = 0; i < quest.randomItemRewards.selectAmount; i++)
+            var randomItems = quest.randomItemRewards?.items == null
+                ? new List<RandomItem>()
+                : new List<RandomItem>(quest.randomItemRewards.items);
+
+            int selectAmount = quest.randomItemRewards?.selectAmount ?? 0;
+            for (int i = 0; i < selectAmount; i++)
             {
                 if (randomItems.Count <= 0) break;
                 var randomItem = randomItems[sapi.World.Rand.Next(0, randomItems.Count)];
@@ -147,6 +166,12 @@ namespace VsQuest
                 {
                     item = sapi.World.GetBlock(new AssetLocation(randomItem.itemCode));
                 }
+                if (item == null)
+                {
+                    sapi.Logger.Error($"vsquest: Quest '{quest.id}' has invalid random item reward code '{randomItem.itemCode}'. Skipping reward.");
+                    continue;
+                }
+
                 var stack = new ItemStack(item, sapi.World.Rand.Next(randomItem.minAmount, randomItem.maxAmount + 1));
                 if (!fromPlayer.InventoryManager.TryGiveItemstack(stack))
                 {

@@ -20,8 +20,12 @@
     "attr-healingeffectiveness": "Healing Effectiveness",
     "attr-rangedaccuracy": "Ranged Accuracy",
     "attr-rangedchargspeed": "Ranged Charge Speed",
-    "mob-drifter-normal": "Drifter",
-    "mob-drifter-deep": "Deep drifter",
-    "mob-locust": "Locust",
-    "ingamediscovery-vsquest-journalupdate": "Journal updated"
+    "objective-walkdistance": "Travel",
+    "unit-meter-short": "m",
+    "kill-notify": "Kill {0}x {1}.",
+    "objective-timeofday-day": "Day only",
+    "objective-timeofday-night": "Night only",
+    "timeofday-notify-day": "This job can only be turned in during the day.",
+    "timeofday-notify-night": "This job can only be turned in during the night.",
+    "vsquest:journal-updated": "Journal updated"
 }
