@@ -61,6 +61,18 @@ namespace VsQuest
             }
         }
 
+        public override void OnEntityReceiveDamage(DamageSource damageSource, ref float damage)
+        {
+            base.OnEntityReceiveDamage(damageSource, ref damage);
+
+            if (damageSource != null)
+            {
+                damageSource.KnockbackStrength = 0f;
+            }
+
+            damage = 0f;
+        }
+
         private int Dialog_DialogTriggers(EntityAgent triggeringEntity, string value, JsonObject data)
         {
             var behaviorConversable = entity.GetBehavior<EntityBehaviorConversable>();
