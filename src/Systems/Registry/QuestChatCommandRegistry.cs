@@ -8,7 +8,9 @@ namespace VsQuest
         public static void Register(ICoreServerAPI sapi, ICoreAPI api, QuestSystem questSystem)
         {
             var itemSystem = api.ModLoader.GetModSystem<ItemSystem>();
-            var giveActionItemHandler = new GiveActionItemCommandHandler(api, itemSystem);
+            var getActionItemHandler = new GetActionItemCommandHandler(api, itemSystem);
+
+            var questNpcListHandler = new QuestNpcListCommandHandler(sapi);
 
             var questListHandler = new QuestListCommandHandler(sapi, questSystem);
             var questCheckHandler = new QuestCheckCommandHandler(sapi, questSystem);
@@ -21,11 +23,7 @@ namespace VsQuest
             var questAttrRemoveHandler = new QuestAttrRemoveCommandHandler(sapi);
             var questAttrListHandler = new QuestAttrListCommandHandler(sapi);
 
-            sapi.ChatCommands.GetOrCreate("giveactionitem")
-                .WithDescription("Gives a player an action item defined in itemconfig.json.")
-                .RequiresPrivilege(Privilege.give)
-                .WithArgs(sapi.ChatCommands.Parsers.Word("itemId"), sapi.ChatCommands.Parsers.OptionalInt("amount", 1))
-                .HandleWith(giveActionItemHandler.Handle);
+            var questEntityHandler = new QuestEntityCommandHandler(sapi, questSystem);
 
             sapi.ChatCommands.GetOrCreate("quest")
                 .WithDescription("Quest administration commands")
@@ -34,6 +32,22 @@ namespace VsQuest
                     .WithDescription("Lists all registered action items.")
                     .RequiresPrivilege(Privilege.give)
                     .HandleWith(questActionItemsHandler.Handle)
+                .EndSubCommand()
+                .BeginSubCommand("getactionitem")
+                    .WithDescription("Gives a player an action item defined in itemconfig.json.")
+                    .RequiresPrivilege(Privilege.give)
+                    .WithArgs(sapi.ChatCommands.Parsers.Word("itemId"), sapi.ChatCommands.Parsers.OptionalInt("amount", 1))
+                    .HandleWith(getActionItemHandler.Handle)
+                .EndSubCommand()
+                .BeginSubCommand("npclist")
+                    .WithDescription("Lists loaded questgiver NPCs (entity id, code, position).")
+                    .RequiresPrivilege(Privilege.give)
+                    .HandleWith(questNpcListHandler.Handle)
+                .EndSubCommand()
+                .BeginSubCommand("entity")
+                    .WithDescription("Lists entity types from a quest pack domain (assets/<domain>/entities).")
+                    .RequiresPrivilege(Privilege.give)
+                    .HandleWith(questEntityHandler.Handle)
                 .EndSubCommand()
                 .BeginSubCommand("complete")
                     .WithDescription("Force-completes an active quest for a player.")

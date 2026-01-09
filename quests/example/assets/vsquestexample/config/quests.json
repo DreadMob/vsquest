@@ -122,7 +122,7 @@
         ]
       },
       {
-        "id": "giveactionitem",
+        "id": "questitem",
         "args": [ "teleport-gear" ]
       }
     ]

@@ -23,6 +23,7 @@ namespace VsQuest
             objectiveRegistry.Add("checkvariable", new CheckVariableObjective());
             objectiveRegistry.Add("interactcount", new InteractCountObjective());
             objectiveRegistry.Add("randomkill", new RandomKillObjective());
+            objectiveRegistry.Add("walkdistance", new WalkDistanceObjective());
         }
     }
 }

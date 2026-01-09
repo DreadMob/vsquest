@@ -6,12 +6,12 @@ using Vintagestory.API.Server;
 
 namespace VsQuest
 {
-    public class GiveActionItemCommandHandler
+    public class GetActionItemCommandHandler
     {
         private readonly ICoreAPI api;
         private readonly ItemSystem itemSystem;
 
-        public GiveActionItemCommandHandler(ICoreAPI api, ItemSystem itemSystem)
+        public GetActionItemCommandHandler(ICoreAPI api, ItemSystem itemSystem)
         {
             this.api = api;
             this.itemSystem = itemSystem;

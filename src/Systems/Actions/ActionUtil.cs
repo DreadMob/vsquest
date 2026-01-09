@@ -174,17 +174,14 @@ namespace vsquest.src.Systems.Actions
         public static void GiveActionItem(ICoreServerAPI sapi, QuestMessage message, IServerPlayer byPlayer, string[] args)
         {
 
-            sapi.Logger.Debug("Hello!");
-
             if (args.Length < 1)
             {
-                throw new QuestException("The 'giveactionitem' action requires at least 1 argument: actionItemId.");
+                throw new QuestException("The 'questitem' action requires at least 1 argument: actionItemId.");
             }
+
             var itemSystem = sapi.ModLoader.GetModSystem<ItemSystem>();
             if (itemSystem.ActionItemRegistry.TryGetValue(args[0], out var actionItem))
             {
-                sapi.Logger.Debug(actionItem.itemCode);
-
                 CollectibleObject collectible = sapi.World.GetItem(new AssetLocation(actionItem.itemCode));
                 if (collectible == null)
                 {

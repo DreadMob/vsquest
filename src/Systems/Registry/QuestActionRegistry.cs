@@ -48,7 +48,7 @@ namespace VsQuest
             actionRegistry.Add("removetraits", ActionUtil.RemoveTraits);
             actionRegistry.Add("servercommand", ActionUtil.ServerCommand);
             actionRegistry.Add("playercommand", ActionUtil.PlayerCommand);
-            actionRegistry.Add("giveactionitem", ActionUtil.GiveActionItem);
+            actionRegistry.Add("questitem", ActionUtil.GiveActionItem);
 
             actionRegistry.Add("allowcharselonce", (api, message, byPlayer, args) =>
             {

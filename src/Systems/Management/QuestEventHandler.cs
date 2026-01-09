@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
@@ -43,19 +44,8 @@ namespace VsQuest
         {
             if (damageSource?.SourceEntity is EntityPlayer player)
             {
-                string killedCode = entity?.Code?.Path;
                 var quests = persistenceManager.GetPlayerQuests(player.PlayerUID);
-                var serverPlayer = player.Player as IServerPlayer;
-
-                foreach (var quest in quests)
-                {
-                    quest.OnEntityKilled(killedCode, player.Player);
-
-                    if (serverPlayer != null)
-                    {
-                        RandomKillQuestUtils.TryHandleKill(sapi, serverPlayer, quest, killedCode);
-                    }
-                }
+                QuestDeathUtil.HandleEntityDeath(sapi, quests, player, entity);
             }
         }
 
@@ -77,29 +67,16 @@ namespace VsQuest
 
         private void OnQuestTick(float dt)
         {
-            // This would need access to ActionObjectiveRegistry which is in QuestSystem
-            // For now, leaving as placeholder - will be handled by QuestSystem calling this method
-        }
+            var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+            if (questSystem == null) return;
 
-        public void HandleQuestTick(float dt, Dictionary<string, ActiveActionObjective> actionObjectiveRegistry, IServerPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests)
-        {
-            foreach (var serverPlayer in players)
-            {
-                var activeQuests = getPlayerQuests(serverPlayer.PlayerUID);
-                foreach (var activeQuest in activeQuests)
-                {
-                    var quest = questRegistry[activeQuest.questId];
-                    for (int i = 0; i < quest.actionObjectives.Count; i++)
-                    {
-                        var objective = quest.actionObjectives[i];
-                        if (objective.id == "checkvariable")
-                        {
-                            var objectiveImplementation = actionObjectiveRegistry[objective.id] as CheckVariableObjective;
-                            objectiveImplementation?.CheckAndFire(serverPlayer, quest, activeQuest, i, sapi);
-                        }
-                    }
-                }
-            }
+            var players = sapi.World.AllOnlinePlayers;
+            if (players == null || players.Length == 0) return;
+
+            var serverPlayers = players.OfType<IServerPlayer>().ToArray();
+            if (serverPlayers.Length == 0) return;
+
+            QuestTickUtil.HandleQuestTick(dt, questRegistry, questSystem.ActionObjectiveRegistry, serverPlayers, persistenceManager.GetPlayerQuests, sapi);
         }
     }
 }
