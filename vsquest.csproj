@@ -1,8 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<OutputPath>Release\build</OutputPath>
+		<ReleaseDir>$(MSBuildProjectDirectory)\Release</ReleaseDir>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<Reference Include="VintagestoryAPI">
 			<HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
@@ -29,5 +32,26 @@
 			<Private>false</Private>
 		</Reference>
 	</ItemGroup>
-	
+
+	<ItemGroup>
+		<Content Include="resources\**">
+			<Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<Target Name="ZipRelease" AfterTargets="Build">
+		<ZipDirectory SourceDirectory="$(OutputPath)" 
+		              DestinationFile="$(ReleaseDir)\$(MSBuildProjectName).zip" 
+		              Overwrite="true" />
+		
+		<ItemGroup>
+			<QuestFolders Include="$([System.IO.Directory]::GetDirectories('$(MSBuildProjectDirectory)\quests'))" />
+		</ItemGroup>
+		
+		<ZipDirectory SourceDirectory="%(QuestFolders.Identity)"
+		              DestinationFile="$(ReleaseDir)\$([System.IO.Path]::GetFileName('%(QuestFolders.Identity)'))_quest.zip"
+		              Overwrite="true"
+		              Condition="'@(QuestFolders)' != ''" />
+	</Target>
 </Project>
