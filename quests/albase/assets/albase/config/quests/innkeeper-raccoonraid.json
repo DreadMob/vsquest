@@ -1,6 +1,7 @@
 {
-  "id": "albase:innkeeper-firstimpression",
-  "cooldown": 1000000,
+  "id": "albase:innkeeper-raccoonraid",
+  "cooldown": 60,
+  "predecessor": "albase:innkeeper-firstimpression",
   "perPlayer": true,
   "onAcceptedActions": [
     {
@@ -13,7 +14,7 @@
     {
       "id": "resetwalkdistance",
       "args": [
-        "albase:innkeeper-firstimpression",
+        "albase:innkeeper-raccoonraid",
         "1"
       ]
     },
@@ -21,24 +22,20 @@
       "id": "addjournalentry",
       "args": [
         "albase:innkeeper",
-        "albase:innkeeper-firstimpression-journal-title",
-        "albase:innkeeper-firstimpression-journal-text"
+        "albase:innkeeper-raccoonraid-journal-title",
+        "albase:innkeeper-raccoonraid-journal-text"
       ]
     },
     {
       "id": "randomkill",
       "args": [
-        "2",
+        "1",
         "1",
         "2",
         "albase:innkeeper-randomkill-notify",
         "playsound 'sounds/effect/writing' 0.35",
         "playsound 'sounds/tutorialstepsuccess' 0.7",
-        "drifter-normal",
-        "bowtorn",
-        "wolf",
-        "bear",
-        "fox"
+        "raccoon"
       ]
     }
   ],
@@ -46,46 +43,31 @@
     {
       "id": "randomkill",
       "args": [
-        "albase:innkeeper-firstimpression",
+        "albase:innkeeper-raccoonraid",
         "0"
-      ]
-    },
-    {
-      "id": "randomkill",
-      "args": [
-        "albase:innkeeper-firstimpression",
-        "1"
       ]
     },
     {
       "id": "walkdistance",
       "args": [
-        "albase:innkeeper-firstimpression",
-        "600"
+        "albase:innkeeper-raccoonraid",
+        "700"
       ]
     }
   ],
   "killObjectives": [],
   "itemRewards": [
     {
-      "itemCode": "game:redmeat-raw",
-      "amount": 4
-    },
-    {
-      "itemCode": "game:bread-spelt-perfect",
+      "itemCode": "game:driedredmeat",
       "amount": 1
     },
     {
-      "itemCode": "game:bandage-clean",
+      "itemCode": "game:flaxtwine",
       "amount": 2
-    },
-    {
-      "itemCode": "game:torch-basic-extinct-up",
-      "amount": 1
     }
   ],
   "randomItemRewards": {
-    "selectAmount": 1,
+    "selectAmount": 2,
     "items": [
       {
         "itemCode": "game:redmeat-raw",
@@ -93,17 +75,12 @@
         "maxAmount": 4
       },
       {
-        "itemCode": "game:bread-spelt-perfect",
+        "itemCode": "game:bread-rye-perfect",
         "minAmount": 1,
-        "maxAmount": 2
+        "maxAmount": 1
       },
       {
         "itemCode": "game:bandage-clean",
-        "minAmount": 1,
-        "maxAmount": 2
-      },
-      {
-        "itemCode": "game:torch-basic-extinct-up",
         "minAmount": 1,
         "maxAmount": 2
       },
@@ -114,6 +91,11 @@
       },
       {
         "itemCode": "game:fat",
+        "minAmount": 1,
+        "maxAmount": 2
+      },
+      {
+        "itemCode": "game:torch-basic-extinct-up",
         "minAmount": 1,
         "maxAmount": 2
       }
@@ -131,7 +113,7 @@
       "id": "showquestfinaldialog",
       "args": [
         "albase:dialogue-innkeeper-final-title",
-        "albase:dialogue-innkeeper-firstimpression-final-text",
+        "albase:dialogue-innkeeper-raccoonraid-final-text",
         "albase:dialogue-innkeeper-final-option"
       ]
     },
@@ -139,8 +121,8 @@
       "id": "addjournalentry",
       "args": [
         "albase:innkeeper",
-        "albase:innkeeper-firstimpression-reward-journal-title",
-        "albase:innkeeper-firstimpression-reward-journal-text"
+        "albase:innkeeper-raccoonraid-reward-journal-title",
+        "albase:innkeeper-raccoonraid-reward-journal-text"
       ]
     }
   ]

@@ -97,6 +97,24 @@
   "albase:innkeeper-doorposter-journal-title": "Трактирщик",
   "albase:innkeeper-doorposter-journal-text": "На двери опять бумажка.\n\nТрактирщик сказал: «Ещё раз — и я сам выйду».\n\nСделай так, чтобы больше не писали.",
 
+  "albase:innkeeper-nightrunhunt-title": "Трактирщик: Ночная пробежка",
+  "albase:innkeeper-nightrunhunt-desc": "Трактирщик не любит огни у порога ночью. Слишком ярко — и к свету тянутся глаза и зубы.\n\nПробегись по тёмной дороге, держи шаг и прижми тех, кто идёт по следу.\n\nЭто не обычная работа. Делать надо ночью.",
+  "albase:innkeeper-nightrunhunt-obj": "",
+  "albase:innkeeper-nightrunhunt-journal-title": "Трактирщик",
+  "albase:innkeeper-nightrunhunt-journal-text": "Он сказал тихо: «Ночью пройдись по дороге. По-тихому. Без факельного шествия».\n\nПройди пешком и разберись с теми, кто тянется к свету.\n\nПотом возвращайся до рассвета.",
+
+  "albase:innkeeper-raccoonraid-title": "Трактирщик: Налёт на кладовку",
+  "albase:innkeeper-raccoonraid-desc": "Кто-то мелкий и умный шастает у трактира и таскает еду. Не волк и не дрифтер — просто наглые лапы.\n\nВыследи вора и сделай так, чтобы это прекратилось. По-тихому.\n\nТрактирщик заплатит припасами, как обычно.",
+  "albase:innkeeper-raccoonraid-obj": "",
+  "albase:innkeeper-raccoonraid-journal-title": "Трактирщик",
+  "albase:innkeeper-raccoonraid-journal-text": "Он буркнул: «Кладовка опять полегчала».\n\nСледы мелкие. Похоже, енот.\n\nПрижми вора и пройдись немного, чтобы завтра не вернулся.",
+
+  "albase:innkeeper-quietblade-title": "Трактирщик: Тихий клинок",
+  "albase:innkeeper-quietblade-desc": "Иногда трактирщику нужно, чтобы проблему решили далеко от трактира — без свидетелей и без разговоров.\n\nИди далеко. Убери то, на что он укажет. Вернись без хвастовства.\n\nШумным он не платит. Полезным — платит.",
+  "albase:innkeeper-quietblade-obj": "",
+  "albase:innkeeper-quietblade-journal-title": "Трактирщик",
+  "albase:innkeeper-quietblade-journal-text": "Он даже не поднял глаз: «Хочешь быть полезным — иди. Дальше обычного».\n\nДве цели. Без шума.\n\nВернись, когда всё будет сделано.",
+
   "albase:dialogue-innkeeper-final-title": "Трактирщик",
   "albase:dialogue-innkeeper-final-option": "Понял.",
   "albase:dialogue-innkeeper-firstimpression-final-text": "Сойдёшь.\n\nДержи еду и пару бинтов.\n\nЕсли снова понадобится работа — приходи. Но не раньше, чем через время.",
@@ -108,6 +126,11 @@
   "albase:dialogue-innkeeper-missingmugs-final-text": "Кружки на месте — значит, ночь прошла тихо.\n\nДержи припасы.\n\nИ не спрашивай лишнего.",
   "albase:dialogue-innkeeper-talkingbarrel-final-text": "Тихо стало. Вот и хорошо.\n\nДержи.\n\nЕсли кто спросит — ничего не слышал.",
   "albase:dialogue-innkeeper-doorposter-final-text": "Записок нет. И так лучше.\n\nДержи припасы.\n\nПусть дальше пишут у себя дома.",
+
+  "albase:dialogue-innkeeper-nightrunhunt-final-text": "Ночные дороги — для тех, у кого голова на месте.\n\nУ тебя на месте.\n\nДержи и не хвастайся.",
+
+  "albase:dialogue-innkeeper-raccoonraid-final-text": "Чтобы больше никаких лап в моей кладовке. Хорошо.\n\nДержи и молчи об этом.",
+  "albase:dialogue-innkeeper-quietblade-final-text": "Далеко сходил. Вернулся. Шума не сделал.\n\nВот это — правильная работа.\n\nДержи.",
 
   "albase:innkeeper-firstimpression-reward-journal-title": "Трактирщик",
   "albase:innkeeper-firstimpression-reward-journal-text": "Проверка пройдена.\n\nТрактирщик признал, что ты годишься для дел без лишнего шума.\n\nЕсли захочешь ещё работы — он выдаёт задания не чаще, чем раз в 40 игровых дней.",
@@ -128,6 +151,15 @@
   "albase:innkeeper-talkingbarrel-reward-journal-text": "Подвал замолчал. Посетители остались без зрелища.\n\nТрактирщик сказал, что так и должно быть.",
   "albase:innkeeper-doorposter-reward-journal-title": "Трактирщик",
   "albase:innkeeper-doorposter-reward-journal-text": "Записки на двери больше не появляются.\n\nТрактирщик выдал припасы и сделал вид, что это обычное дело.",
+
+  "albase:innkeeper-nightrunhunt-reward-journal-title": "Трактирщик",
+  "albase:innkeeper-nightrunhunt-reward-journal-text": "После пробежки вокруг трактира стало спокойнее.\n\nТрактирщик одобрил — не меняя тона.\n\nНочные дела у него редкие.",
+
+  "albase:innkeeper-raccoonraid-reward-journal-title": "Трактирщик",
+  "albase:innkeeper-raccoonraid-reward-journal-text": "Кладовка перестала «худеть».\n\nТрактирщик выдал припасы и сделал вид, что это пустяк.",
+
+  "albase:innkeeper-quietblade-reward-journal-title": "Трактирщик",
+  "albase:innkeeper-quietblade-reward-journal-text": "Поручение выполнено. Без свидетелей и без историй.\n\nТрактирщик был доволен. Для него это похвала.",
 
   "albase:innkeeper-randomkill-notify": "Убей {0}x {1}.",
 

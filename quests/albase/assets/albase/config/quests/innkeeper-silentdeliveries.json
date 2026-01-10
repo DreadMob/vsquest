@@ -5,6 +5,13 @@
   "perPlayer": true,
   "onAcceptedActions": [
     {
+      "id": "playsound",
+      "args": [
+        "alegacyvsquest:sounds/queacc",
+        "0.175"
+      ]
+    },
+    {
       "id": "resetwalkdistance",
       "args": [
         "albase:innkeeper-silentdeliveries",
@@ -63,15 +70,15 @@
   "itemRewards": [
     {
       "itemCode": "game:redmeat-raw",
-      "amount": 12
+      "amount": 9
     },
     {
       "itemCode": "game:bread-rye-perfect",
-      "amount": 2
+      "amount": 1
     },
     {
       "itemCode": "game:flaxtwine",
-      "amount": 8
+      "amount": 6
     },
     {
       "itemCode": "game:driedredmeat",
@@ -84,7 +91,7 @@
       {
         "itemCode": "game:redmeat-raw",
         "minAmount": 2,
-        "maxAmount": 6
+        "maxAmount": 5
       },
       {
         "itemCode": "game:bread-rye-perfect",
@@ -99,10 +106,20 @@
       {
         "itemCode": "game:flaxtwine",
         "minAmount": 2,
-        "maxAmount": 10
+        "maxAmount": 8
       },
       {
         "itemCode": "game:bandage-clean",
+        "minAmount": 1,
+        "maxAmount": 2
+      },
+      {
+        "itemCode": "game:resin",
+        "minAmount": 1,
+        "maxAmount": 2
+      },
+      {
+        "itemCode": "game:fat",
         "minAmount": 1,
         "maxAmount": 2
       }
@@ -112,8 +129,8 @@
     {
       "id": "playsound",
       "args": [
-        "sounds/effect/writing",
-        "0.5"
+        "game:sounds/player/coin1",
+        "0.35"
       ]
     },
     {

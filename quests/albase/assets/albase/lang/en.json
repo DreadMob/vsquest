@@ -137,9 +137,32 @@
   "albase:innkeeper-doorposter-journal-title": "Innkeeper",
   "albase:innkeeper-doorposter-journal-text": "Another note on the door.\n\nThe innkeeper said, “One more time, and I'll go out there myself.”\n\nMake sure they stop writing.",
 
+  "albase:innkeeper-nightrunhunt-title": "Innkeeper: Night Run",
+  "albase:innkeeper-nightrunhunt-desc": "The innkeeper does not like torches on the doorstep at night. Too much light brings eyes and teeth.\n\nMake a quick run through the dark, keep your feet moving, and put down what stalks the road.\n\nThis is not a regular job. Do it at night.",
+  "albase:innkeeper-nightrunhunt-obj": "",
+  "albase:innkeeper-nightrunhunt-journal-title": "Innkeeper",
+  "albase:innkeeper-nightrunhunt-journal-text": "He spoke low: “Run the roads at night. Quietly. No lantern parade.”\n\nCover ground on foot and deal with what follows the light.\n\nThen return before dawn.",
+
+  "albase:innkeeper-raccoonraid-title": "Innkeeper: Pantry Raiders",
+  "albase:innkeeper-raccoonraid-desc": "Something small and clever keeps sneaking close and stealing food. Not wolves, not drifters—just shameless little hands.\n\nTrack the thief down and make it stop. Quietly.\n\nThe innkeeper pays in supplies, as always.",
+  "albase:innkeeper-raccoonraid-obj": "",
+  "albase:innkeeper-raccoonraid-journal-title": "Innkeeper",
+  "albase:innkeeper-raccoonraid-journal-text": "He grunted: “Pantry's lighter again.”\n\nTracks are small. A raccoon, most likely.\n\nPut an end to it and walk a bit so it doesn't come back tomorrow.",
+
+  "albase:innkeeper-quietblade-title": "Innkeeper: Quiet Blade",
+  "albase:innkeeper-quietblade-desc": "Sometimes the innkeeper needs a problem solved far from the inn—quietly, with no witnesses and no stories.\n\nGo far. Remove what he points to. Come back without boasting.\n\nHe doesn't reward loud people, but he does reward useful ones.",
+  "albase:innkeeper-quietblade-obj": "",
+  "albase:innkeeper-quietblade-journal-title": "Innkeeper",
+  "albase:innkeeper-quietblade-journal-text": "He didn't look up: “If you want to be useful—go. Farther than usual.”\n\nTwo targets. No noise.\n\nReturn when it's done.",
+
   "albase:dialogue-innkeeper-missingmugs-final-text": "The mugs are in place—means the night was quiet.\n\nTake the supplies.\n\nAnd don't ask questions.",
   "albase:dialogue-innkeeper-talkingbarrel-final-text": "It's quiet now. Good.\n\nTake this.\n\nIf anyone asks, you heard nothing.",
   "albase:dialogue-innkeeper-doorposter-final-text": "No notes. Better this way.\n\nTake the supplies.\n\nLet them write at their own homes from now on.",
+
+  "albase:dialogue-innkeeper-nightrunhunt-final-text": "Night roads are for those who can keep their head.\n\nYou did.\n\nTake this and don't brag about it.",
+
+  "albase:dialogue-innkeeper-raccoonraid-final-text": "No more little paws in my pantry. Good.\n\nTake this and keep your mouth shut about it.",
+  "albase:dialogue-innkeeper-quietblade-final-text": "You went far. Came back. Didn't make noise.\n\nThat's the right kind of work.\n\nTake it.",
 
   "albase:innkeeper-missingmugs-reward-journal-title": "Innkeeper",
   "albase:innkeeper-missingmugs-reward-journal-text": "The mugs no longer ‘disappear’ on their own.\n\nThe innkeeper was pleased you didn't make a scene.",
@@ -147,6 +170,15 @@
   "albase:innkeeper-talkingbarrel-reward-journal-text": "The cellar fell silent. The patrons were left without a show.\n\nThe innkeeper said that's how it should be.",
   "albase:innkeeper-doorposter-reward-journal-title": "Innkeeper",
   "albase:innkeeper-doorposter-reward-journal-text": "The notes on the door have stopped appearing.\n\nThe innkeeper handed over the supplies and pretended it was just another day.",
+
+  "albase:innkeeper-nightrunhunt-reward-journal-title": "Innkeeper",
+  "albase:innkeeper-nightrunhunt-reward-journal-text": "The roads felt quieter after the run.\n\nThe innkeeper approved—without changing his tone.\n\nNight work is different. He only offers it rarely.",
+
+  "albase:innkeeper-raccoonraid-reward-journal-title": "Innkeeper",
+  "albase:innkeeper-raccoonraid-reward-journal-text": "The pantry stopped getting lighter.\n\nThe innkeeper paid you in supplies and acted like it was nothing.",
+
+  "albase:innkeeper-quietblade-reward-journal-title": "Innkeeper",
+  "albase:innkeeper-quietblade-reward-journal-text": "The errand is done. No witnesses, no stories.\n\nThe innkeeper seemed satisfied. For him, that's praise.",
 
   "tradingwindow-innkeeper": "Innkeeper",
   "game:tradingwindow-innkeeper": "Innkeeper",

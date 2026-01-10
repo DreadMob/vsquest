@@ -5,6 +5,13 @@
   "perPlayer": true,
   "onAcceptedActions": [
     {
+      "id": "playsound",
+      "args": [
+        "alegacyvsquest:sounds/queacc",
+        "0.175"
+      ]
+    },
+    {
       "id": "addjournalentry",
       "args": [
         "albase:innkeeper",
@@ -50,27 +57,21 @@
         "albase:innkeeper-talkingbarrel",
         "1100"
       ]
-    },
-    {
-      "id": "timeofday",
-      "args": [
-        "night"
-      ]
     }
   ],
   "killObjectives": [],
   "itemRewards": [
     {
       "itemCode": "game:redmeat-raw",
-      "amount": 10
+      "amount": 8
     },
     {
       "itemCode": "game:bandage-clean",
-      "amount": 3
+      "amount": 2
     },
     {
       "itemCode": "game:flaxtwine",
-      "amount": 6
+      "amount": 4
     }
   ],
   "randomItemRewards": {
@@ -79,7 +80,7 @@
       {
         "itemCode": "game:redmeat-raw",
         "minAmount": 2,
-        "maxAmount": 6
+        "maxAmount": 5
       },
       {
         "itemCode": "game:driedredmeat",
@@ -89,7 +90,7 @@
       {
         "itemCode": "game:flaxtwine",
         "minAmount": 2,
-        "maxAmount": 8
+        "maxAmount": 6
       },
       {
         "itemCode": "game:bandage-clean",
@@ -98,8 +99,18 @@
       },
       {
         "itemCode": "game:torch-basic-extinct-up",
-        "minAmount": 2,
-        "maxAmount": 6
+        "minAmount": 1,
+        "maxAmount": 3
+      },
+      {
+        "itemCode": "game:resin",
+        "minAmount": 1,
+        "maxAmount": 2
+      },
+      {
+        "itemCode": "game:fat",
+        "minAmount": 1,
+        "maxAmount": 2
       }
     ]
   },
@@ -107,8 +118,8 @@
     {
       "id": "playsound",
       "args": [
-        "sounds/effect/writing",
-        "0.5"
+        "game:sounds/player/coin1",
+        "0.35"
       ]
     },
     {
