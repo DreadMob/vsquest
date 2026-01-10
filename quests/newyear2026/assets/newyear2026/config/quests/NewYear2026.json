@@ -19,91 +19,65 @@
       ]
     }
   ],
-  "interactObjectives": [
-    {
-      "validCodes": [ "game:placedblock-present-plain" ],
-      "positions": [ "512000,3,512000" ],
-      "_oldPositions": [ "512174,191,512056" ],
-      "actionRewards": [
-        { "id": "markinteraction", "args": [ "512000,3,512000" ], "_oldArgs": [ "512174,191,512056" ] },
-        { "id": "notify", "args": [ "newyear2026:gift-found-1" ] },
-        { "id": "playsound", "args": [ "newyear2026:sounds/giftfound", "0.175" ] }
-      ]
-    },
-    {
-      "validCodes": [ "game:placedblock-present-plain" ],
-      "positions": [ "512000,3,512001" ],
-      "_oldPositions": [ "512135,199,512046" ],
-      "actionRewards": [
-        { "id": "markinteraction", "args": [ "512000,3,512001" ], "_oldArgs": [ "512135,199,512046" ] },
-        { "id": "notify", "args": [ "newyear2026:gift-found-2" ] },
-        { "id": "playsound", "args": [ "newyear2026:sounds/giftfound", "0.175" ] }
-      ]
-    },
-    {
-      "validCodes": [ "game:placedblock-present-plain" ],
-      "positions": [ "512000,3,512002" ],
-      "_oldPositions": [ "512208,227,511982" ],
-      "actionRewards": [
-        { "id": "markinteraction", "args": [ "512000,3,512002" ], "_oldArgs": [ "512208,227,511982" ] },
-        { "id": "notify", "args": [ "newyear2026:gift-found-3" ] },
-        { "id": "playsound", "args": [ "newyear2026:sounds/giftfound", "0.175" ] }
-      ]
-    },
-    {
-      "validCodes": [ "game:placedblock-present-plain" ],
-      "positions": [ "512000,3,512003" ],
-      "_oldPositions": [ "512213,188,512029" ],
-      "actionRewards": [
-        { "id": "markinteraction", "args": [ "512000,3,512003" ], "_oldArgs": [ "512213,188,512029" ] },
-        { "id": "notify", "args": [ "newyear2026:gift-found-4" ] },
-        { "id": "playsound", "args": [ "newyear2026:sounds/giftfound", "0.175" ] }
-      ]
-    },
-    {
-      "validCodes": [ "game:placedblock-present-plain" ],
-      "positions": [ "512000,3,512004" ],
-      "_oldPositions": [ "512172,171,511985" ],
-      "actionRewards": [
-        { "id": "markinteraction", "args": [ "512000,3,512004" ], "_oldArgs": [ "512172,171,511985" ] },
-        { "id": "notify", "args": [ "newyear2026:gift-found-5" ] },
-        { "id": "playsound", "args": [ "newyear2026:sounds/giftfound", "0.175" ] }
-      ]
-    },
-    {
-      "validCodes": [ "game:placedblock-present-plain" ],
-      "positions": [ "512000,3,512005" ],
-      "_oldPositions": [ "512138,180,511977" ],
-      "actionRewards": [
-        { "id": "markinteraction", "args": [ "512000,3,512005" ], "_oldArgs": [ "512138,180,511977" ] },
-        { "id": "notify", "args": [ "newyear2026:gift-found-6" ] },
-        { "id": "playsound", "args": [ "newyear2026:sounds/giftfound", "0.175" ] }
-      ]
-    },
-    {
-      "validCodes": [ "game:placedblock-present-plain" ],
-      "positions": [ "512000,3,512006" ],
-      "_oldPositions": [ "512226,172,512008" ],
-      "actionRewards": [
-        { "id": "markinteraction", "args": [ "512000,3,512006" ], "_oldArgs": [ "512226,172,512008" ] },
-        { "id": "notify", "args": [ "newyear2026:gift-found-7" ] },
-        { "id": "playsound", "args": [ "newyear2026:sounds/giftfound", "0.175" ] }
-      ]
-    },
-    {
-      "validCodes": [ "game:placedblock-present-plain" ],
-      "positions": [ "512000,3,512007" ],
-      "_oldPositions": [ "512216,182,511982" ],
-      "actionRewards": [
-        { "id": "markinteraction", "args": [ "512000,3,512007" ], "_oldArgs": [ "512216,182,511982" ] },
-        { "id": "notify", "args": [ "newyear2026:gift-found-8" ] },
-        { "id": "playsound", "args": [ "newyear2026:sounds/giftfound", "0.175" ] }
-      ]
-    }
-  ],
   "actionObjectives": [
     {
       "id": "interactat",
+      "args": [
+        "512000,3,512000",
+        "notify 'newyear2026:gift-found-1'; playsound 'newyear2026:sounds/giftfound' 0.25"
+      ]
+    },
+    {
+      "id": "interactat",
+      "args": [
+        "512000,3,512001",
+        "notify 'newyear2026:gift-found-2'; playsound 'newyear2026:sounds/giftfound' 0.25"
+      ]
+    },
+    {
+      "id": "interactat",
+      "args": [
+        "512000,3,512002",
+        "notify 'newyear2026:gift-found-3'; playsound 'newyear2026:sounds/giftfound' 0.25"
+      ]
+    },
+    {
+      "id": "interactat",
+      "args": [
+        "512000,3,512003",
+        "notify 'newyear2026:gift-found-4'; playsound 'newyear2026:sounds/giftfound' 0.25"
+      ]
+    },
+    {
+      "id": "interactat",
+      "args": [
+        "512000,3,512004",
+        "notify 'newyear2026:gift-found-5'; playsound 'newyear2026:sounds/giftfound' 0.25"
+      ]
+    },
+    {
+      "id": "interactat",
+      "args": [
+        "512000,3,512005",
+        "notify 'newyear2026:gift-found-6'; playsound 'newyear2026:sounds/giftfound' 0.25"
+      ]
+    },
+    {
+      "id": "interactat",
+      "args": [
+        "512000,3,512006",
+        "notify 'newyear2026:gift-found-7'; playsound 'newyear2026:sounds/giftfound' 0.25"
+      ]
+    },
+    {
+      "id": "interactat",
+      "args": [
+        "512000,3,512007",
+        "notify 'newyear2026:gift-found-8'; playsound 'newyear2026:sounds/giftfound' 0.25"
+      ]
+    },
+    {
+      "id": "interactcount",
       "args": [
         "512000,3,512000",
         "512000,3,512001",
@@ -112,7 +86,8 @@
         "512000,3,512004",
         "512000,3,512005",
         "512000,3,512006",
-        "512000,3,512007"
+        "512000,3,512007",
+        ""
       ]
     }
   ],

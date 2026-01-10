@@ -60,14 +60,20 @@ namespace VsQuest
 
             if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry)) return;
 
+            var serverPlayer = byPlayer as IServerPlayer;
+            if (serverPlayer != null)
+            {
+                QuestInteractAtUtil.TryHandleInteractAtObjectives(quest, this, serverPlayer, position, sapi);
+            }
+
             checkEventTrackers(interactTrackers, blockCode, position, quest.interactObjectives);
             for (int i = 0; i < quest.interactObjectives.Count; i++)
             {
                 var objective = quest.interactObjectives[i];
 
-                if (!QuestObjectiveMatchUtil.InteractObjectiveMatches(objective, blockCode, position)) continue;
+                bool matches = QuestObjectiveMatchUtil.InteractObjectiveMatches(objective, blockCode, position);
+                if (!matches) continue;
 
-                var serverPlayer = byPlayer as IServerPlayer;
                 if (serverPlayer != null)
                 {
                     var message = new QuestAcceptedMessage { questGiverId = questGiverId, questId = questId };
@@ -130,6 +136,14 @@ namespace VsQuest
                     var pos = candidate.Split(',').Select(int.Parse).ToArray();
                     if (pos.Length == 3 && pos[0] == position[0] && pos[1] == position[1] && pos[2] == position[2])
                     {
+                        // If validCodes is missing, treat position match as sufficient.
+                        if (objective.validCodes == null || objective.validCodes.Count == 0)
+                        {
+                            if (tracker.placedPositions.Contains(candidate)) return false;
+                            tracker.placedPositions.Add(candidate);
+                            return true;
+                        }
+
                         foreach (var codeCandidate in objective.validCodes)
                         {
                             if (LocalizationUtils.MobCodeMatches(codeCandidate, code))
@@ -172,7 +186,7 @@ namespace VsQuest
         {
             var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
             var quest = questSystem.QuestRegistry[questId];
-            var activeActionObjectives = quest.actionObjectives.ConvertAll<IActionObjective>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
+            var activeActionObjectives = quest.actionObjectives.ConvertAll<ActionObjectiveBase>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
             bool completable = true;
 
             while (blockPlaceTrackers.Count < quest.blockPlaceObjectives.Count)
@@ -280,7 +294,7 @@ namespace VsQuest
         {
             var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
             var quest = questSystem.QuestRegistry[questId];
-            var activeActionObjectives = quest.actionObjectives.ConvertAll<IActionObjective>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
+            var activeActionObjectives = quest.actionObjectives.ConvertAll<ActionObjectiveBase>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
 
             var result = gatherProgress(byPlayer);
             result.AddRange(trackerProgress());

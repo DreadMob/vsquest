@@ -5,7 +5,7 @@ namespace VsQuest
 {
     public static class QuestTimeGateUtil
     {
-        public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, IActionObjective> actionObjectiveRegistry)
+        public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry)
         {
             if (player == null || questDef == null) return true;
             if (questDef.actionObjectives == null) return true;

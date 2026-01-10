@@ -10,32 +10,33 @@ namespace VsQuest
         public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
             if (args.Length < 1) return false;
+            var wa = byPlayer?.Entity?.WatchedAttributes;
+            if (wa == null) return false;
 
-            foreach (var coordString in args)
+            string coordString = args[0];
+            if (string.IsNullOrWhiteSpace(coordString)) return false;
+
+            // Legacy storage (comma-separated list)
+            string[] coords = coordString.Split(',');
+            if (coords.Length != 3) return false;
+
+            if (!int.TryParse(coords[0], out int targetX) ||
+                !int.TryParse(coords[1], out int targetY) ||
+                !int.TryParse(coords[2], out int targetZ))
             {
-                var key = $"alegacyvsquest:interactat:{coordString}";
-                if (!byPlayer.Entity.WatchedAttributes.GetBool(key, false))
-                {
-                    return false;
-                }
+                return false;
             }
-            return true;
+
+            string interactionKey = $"interactat_{targetX}_{targetY}_{targetZ}";
+            string completedInteractions = wa.GetString("completedInteractions", "");
+            string[] completed = completedInteractions.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+            return completed.Contains(interactionKey);
         }
 
         public override List<int> GetProgress(IPlayer byPlayer, params string[] args)
         {
-            if (args.Length < 1) return new List<int> { 0, 1 };
-
-            int completedCount = 0;
-            foreach (var coordString in args)
-            {
-                var key = $"alegacyvsquest:interactat:{coordString}";
-                if (byPlayer.Entity.WatchedAttributes.GetBool(key, false))
-                {
-                    completedCount++;
-                }
-            }
-            return new List<int> { completedCount, args.Length };
+            bool completed = IsCompletable(byPlayer, args);
+            return new List<int>(new int[] { completed ? 1 : 0 });
         }
     }
 }

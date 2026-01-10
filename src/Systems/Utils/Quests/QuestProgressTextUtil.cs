@@ -88,7 +88,43 @@ namespace VsQuest
                 }
                 catch
                 {
-                    // ignore formatting issues and fall back to generic progress lines
+                    try
+                    {
+                        // Fallback for quests that use interactcount: compute have/need directly instead of relying on hardcoded indices.
+                        if (questDef.actionObjectives != null)
+                        {
+                            foreach (var ao in questDef.actionObjectives)
+                            {
+                                if (ao?.id != "interactcount") continue;
+
+                                var questSystem = api.ModLoader.GetModSystem<QuestSystem>();
+                                if (questSystem?.ActionObjectiveRegistry != null && questSystem.ActionObjectiveRegistry.TryGetValue("interactcount", out var impl) && impl != null)
+                                {
+                                    var prog = impl.GetProgress(player, ao.args);
+                                    if (prog != null && prog.Count >= 2)
+                                    {
+                                        int have = prog[0];
+                                        int need = prog[1];
+
+                                        var labelKey = activeQuest.questId + "-obj";
+                                        var template = LocalizationUtils.GetSafe(labelKey, have, need);
+                                        if (string.IsNullOrWhiteSpace(template) || string.Equals(template, labelKey, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            template = $"{have}/{need}";
+                                        }
+
+                                        lines.Add($"- {ApplyPrefix(template)}");
+                                        return string.Join("\n", lines);
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
                 }
 
                 void AddProgressLines(List<Objective> objectives)

@@ -22,7 +22,7 @@ namespace VsQuest.Harmony
             capi.Network.GetChannel("vsquest").SendPacket(new VanillaBlockInteractMessage()
             {
                 Position = blockSel.Position,
-                BlockCode = __instance.Code.Path
+                BlockCode = __instance.Code.ToString()
             });
         }
     }

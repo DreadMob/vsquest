@@ -13,7 +13,7 @@ namespace VsQuest
     {
         public Dictionary<string, Quest> QuestRegistry { get; private set; } = new Dictionary<string, Quest>();
         public Dictionary<string, IQuestAction> ActionRegistry { get; private set; } = new Dictionary<string, IQuestAction>();
-        public Dictionary<string, IActionObjective> ActionObjectiveRegistry { get; private set; } = new Dictionary<string, IActionObjective>();
+        public Dictionary<string, ActionObjectiveBase> ActionObjectiveRegistry { get; private set; } = new Dictionary<string, ActionObjectiveBase>();
 
         private QuestPersistenceManager persistenceManager;
         private QuestLifecycleManager lifecycleManager;

@@ -20,38 +20,48 @@ namespace VsQuest
         public override List<int> GetProgress(IPlayer byPlayer, params string[] args)
         {
             var coordArgs = GetCoordArgs(args);
-            int total = coordArgs.Length;
-            if (total == 0) return new List<int>(new int[] { 0, 0 });
+            int need = coordArgs.Length;
+            if (need == 0) return new List<int>(new int[] { 0, 0 });
 
-            int count = CountCompleted(byPlayer, coordArgs);
-            if (count > total) count = total;
+            int have = CountCompleted(byPlayer, coordArgs);
+            if (have > need) have = need;
 
-            return new List<int>(new int[] { count, total });
+            return new List<int>(new int[] { have, need });
         }
 
         private static string[] GetCoordArgs(string[] args)
         {
             if (args == null) return Array.Empty<string>();
-            if (args.Length >= 2) return args.Take(args.Length - 1).ToArray();
-            return Array.Empty<string>();
+
+            return args.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
         }
 
         private static int CountCompleted(IPlayer byPlayer, string[] coordArgs)
         {
-            if (byPlayer?.Entity?.WatchedAttributes == null) return 0;
+            var wa = byPlayer?.Entity?.WatchedAttributes;
+            if (wa == null) return 0;
 
-            var wa = byPlayer.Entity.WatchedAttributes;
+            // Legacy storage (comma-separated list)
+            string completedInteractions = wa.GetString("completedInteractions", "");
+            var completed = completedInteractions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             int count = 0;
             foreach (var coordString in coordArgs)
             {
                 if (string.IsNullOrWhiteSpace(coordString)) continue;
 
-                var key = $"alegacyvsquest:interactat:{coordString}";
-                if (wa.GetBool(key, false))
+                var coords = coordString.Split(',');
+                if (coords.Length != 3) continue;
+
+                if (!int.TryParse(coords[0], out int x) ||
+                    !int.TryParse(coords[1], out int y) ||
+                    !int.TryParse(coords[2], out int z))
                 {
-                    count++;
+                    continue;
                 }
+
+                string interactionKey = $"interactat_{x}_{y}_{z}";
+                if (completed.Contains(interactionKey)) count++;
             }
 
             return count;

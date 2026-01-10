@@ -5,7 +5,7 @@ namespace VsQuest
 {
     public static class QuestTickUtil
     {
-        public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, IActionObjective> actionObjectiveRegistry, IServerPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, ICoreServerAPI sapi)
+        public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IServerPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, ICoreServerAPI sapi)
         {
             foreach (var serverPlayer in players)
             {

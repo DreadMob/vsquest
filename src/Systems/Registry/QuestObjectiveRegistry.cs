@@ -5,10 +5,10 @@ namespace VsQuest
 {
     public class QuestObjectiveRegistry : IRegistry
     {
-        private readonly Dictionary<string, IActionObjective> objectiveRegistry;
+        private readonly Dictionary<string, ActionObjectiveBase> objectiveRegistry;
         private readonly ICoreAPI api;
 
-        public QuestObjectiveRegistry(Dictionary<string, IActionObjective> objectiveRegistry, ICoreAPI api)
+        public QuestObjectiveRegistry(Dictionary<string, ActionObjectiveBase> objectiveRegistry, ICoreAPI api)
         {
             this.objectiveRegistry = objectiveRegistry;
             this.api = api;

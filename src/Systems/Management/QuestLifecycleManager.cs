@@ -25,12 +25,21 @@ namespace VsQuest
         private List<EventTracker> CreateTrackers(List<Objective> objectives)
         {
             var trackers = new List<EventTracker>();
+            if (objectives == null) return trackers;
             foreach (var objective in objectives)
             {
+                if (objective == null)
+                {
+                    trackers.Add(new EventTracker() { count = 0, relevantCodes = new List<string>() });
+                    continue;
+                }
+
                 var tracker = new EventTracker()
                 {
                     count = 0,
-                    relevantCodes = new List<string>(objective.validCodes)
+                    relevantCodes = objective.validCodes != null
+                        ? new List<string>(objective.validCodes)
+                        : new List<string>()
                 };
                 trackers.Add(tracker);
             }
@@ -44,6 +53,8 @@ namespace VsQuest
                 sapi.Logger.Error($"[vsquest] Could not accept quest with id '{message.questId}' because it was not found in the QuestRegistry.");
                 return;
             }
+
+            QuestInteractAtUtil.ResetCompletedInteractAtObjectives(quest, fromPlayer);
             var playerQuests = getPlayerQuests(fromPlayer.PlayerUID);
 
             if (playerQuests.Exists(q => q.questId == message.questId))
