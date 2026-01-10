@@ -41,7 +41,7 @@ namespace VsQuest
 
                 if (questSystem.ActionRegistry.TryGetValue(actionId, out var action))
                 {
-                    action.Invoke(sapi, message, player, args.ToArray());
+                    action.Execute(sapi, message, player, args.ToArray());
                 }
             }
         }

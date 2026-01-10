@@ -11,10 +11,10 @@ namespace VsQuest
     public class QuestLifecycleManager
     {
         private readonly Dictionary<string, Quest> questRegistry;
-        private readonly Dictionary<string, QuestAction> actionRegistry;
+        private readonly Dictionary<string, IQuestAction> actionRegistry;
         private readonly ICoreAPI api;
 
-        public QuestLifecycleManager(Dictionary<string, Quest> questRegistry, Dictionary<string, QuestAction> actionRegistry, ICoreAPI api)
+        public QuestLifecycleManager(Dictionary<string, Quest> questRegistry, Dictionary<string, IQuestAction> actionRegistry, ICoreAPI api)
         {
             this.questRegistry = questRegistry;
             this.actionRegistry = actionRegistry;
@@ -74,7 +74,7 @@ namespace VsQuest
             {
                 try
                 {
-                    actionRegistry[action.id].Invoke(sapi, message, fromPlayer, action.args);
+                    actionRegistry[action.id].Execute(sapi, message, fromPlayer, action.args);
                 }
                 catch (Exception ex)
                 {
@@ -182,7 +182,7 @@ namespace VsQuest
             {
                 try
                 {
-                    actionRegistry[action.id].Invoke(sapi, message, fromPlayer, action.args);
+                    actionRegistry[action.id].Execute(sapi, message, fromPlayer, action.args);
                 }
                 catch (Exception ex)
                 {

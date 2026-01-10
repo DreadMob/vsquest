@@ -3,9 +3,9 @@ using Vintagestory.API.Common;
 
 namespace VsQuest
 {
-    public class RandomKillObjective : ActiveActionObjective
+    public class RandomKillObjective : ActionObjectiveBase
     {
-        public bool isCompletable(IPlayer byPlayer, params string[] args)
+        public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
             if (byPlayer?.Entity?.WatchedAttributes == null) return false;
             if (args == null || args.Length < 1) return false;
@@ -23,7 +23,7 @@ namespace VsQuest
             return need > 0 && have >= need;
         }
 
-        public List<int> progress(IPlayer byPlayer, params string[] args)
+        public override List<int> GetProgress(IPlayer byPlayer, params string[] args)
         {
             if (byPlayer?.Entity?.WatchedAttributes == null) return new List<int>(new int[] { 0, 0 });
             if (args == null || args.Length < 1) return new List<int>(new int[] { 0, 0 });

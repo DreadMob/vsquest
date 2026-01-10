@@ -4,9 +4,8 @@ using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 using System;
 using System.Collections.Generic;
-using VsQuest;
 
-namespace vsquest.src.Systems.Actions
+namespace VsQuest
 {
     public class JournalActionSystem : ModSystem
     {
@@ -15,7 +14,7 @@ namespace vsquest.src.Systems.Actions
             var questSystem = api.ModLoader.GetModSystem<QuestSystem>();
             if (questSystem != null)
             {
-                questSystem.ActionRegistry.Add("addjournalentry", AddJournalEntry);
+                questSystem.ActionRegistry.Add("addjournalentry", new DelegateQuestAction(AddJournalEntry));
             }
         }
 

@@ -5,9 +5,9 @@ using Vintagestory.API.Common;
 
 namespace VsQuest
 {
-    public class InteractCountObjective : ActiveActionObjective
+    public class InteractCountObjective : ActionObjectiveBase
     {
-        public bool isCompletable(IPlayer byPlayer, params string[] args)
+        public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
             if (args == null || args.Length == 0) return false;
 
@@ -17,7 +17,7 @@ namespace VsQuest
             return CountCompleted(byPlayer, coordArgs) >= coordArgs.Length;
         }
 
-        public List<int> progress(IPlayer byPlayer, params string[] args)
+        public override List<int> GetProgress(IPlayer byPlayer, params string[] args)
         {
             var coordArgs = GetCoordArgs(args);
             int total = coordArgs.Length;

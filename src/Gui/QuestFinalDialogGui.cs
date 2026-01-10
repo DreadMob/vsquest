@@ -35,8 +35,8 @@ namespace VsQuest
 
             bgBounds.BothSizing = ElementSizing.FitToChildren;
 
-            string titleText = LangUtil.GetSafe(titleLangKey);
-            string bodyText = LangUtil.GetSafe(textLangKey);
+            string titleText = LocalizationUtils.GetSafe(titleLangKey);
+            string bodyText = LocalizationUtils.GetSafe(textLangKey);
 
             SingleComposer = capi.Gui.CreateCompo("QuestFinalDialog-", dialogBounds)
                 .AddShadedDialogBG(bgBounds)
@@ -49,11 +49,11 @@ namespace VsQuest
                 .EndClip()
                 .AddVerticalScrollbar(OnNewScrollbarvalue, scrollbarBounds, "scrollbar")
                 .AddIf(!string.IsNullOrEmpty(option1LangKey) && !string.IsNullOrEmpty(option2LangKey))
-                    .AddButton(LangUtil.GetSafe(option1LangKey), TryClose, leftButtonBounds)
-                    .AddButton(LangUtil.GetSafe(option2LangKey), TryClose, rightButtonBounds)
+                    .AddButton(LocalizationUtils.GetSafe(option1LangKey), TryClose, leftButtonBounds)
+                    .AddButton(LocalizationUtils.GetSafe(option2LangKey), TryClose, rightButtonBounds)
                 .EndIf()
                 .AddIf(!string.IsNullOrEmpty(option1LangKey) && string.IsNullOrEmpty(option2LangKey))
-                    .AddButton(LangUtil.GetSafe(option1LangKey), TryClose, closeButtonBounds)
+                    .AddButton(LocalizationUtils.GetSafe(option1LangKey), TryClose, closeButtonBounds)
                 .EndIf()
                 .AddIf(string.IsNullOrEmpty(option1LangKey))
                     .AddButton(Lang.Get("vsquest:button-cancel"), TryClose, closeButtonBounds)

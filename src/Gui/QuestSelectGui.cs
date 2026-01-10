@@ -78,8 +78,8 @@ namespace VsQuest
                 else
                 {
                     string noQuestText = (noAvailableQuestCooldownDaysLeft > 0 && !string.IsNullOrEmpty(noAvailableQuestCooldownDescLangKey))
-                        ? LangUtil.GetSafe(noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft)
-                        : LangUtil.GetFallback(noAvailableQuestDescLangKey, "vsquest:no-quest-available-desc");
+                        ? LocalizationUtils.GetSafe(noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft)
+                        : LocalizationUtils.GetFallback(noAvailableQuestDescLangKey, "vsquest:no-quest-available-desc");
 
                     SingleComposer.AddStaticText(noQuestText, CairoFont.WhiteSmallishText(), ElementBounds.Fixed(0, 60, 400, 500))
                         .AddButton(Lang.Get("vsquest:button-cancel"), TryClose, ElementBounds.FixedOffseted(EnumDialogArea.CenterBottom, 0, -10, 200, 20));

@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace VsQuest
 {
-    public class CheckVariableObjective : ActiveActionObjective
+    public class CheckVariableObjective : ActionObjectiveBase
     {
-        public bool isCompletable(IPlayer byPlayer, params string[] args)
+        public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
             if (args.Length < 3) return false;
 
@@ -42,9 +42,9 @@ namespace VsQuest
             }
         }
 
-        public List<int> progress(IPlayer byPlayer, params string[] args)
+        public override List<int> GetProgress(IPlayer byPlayer, params string[] args)
         {
-            return new List<int> { isCompletable(byPlayer, args) ? 1 : 0 };
+            return new List<int> { IsCompletable(byPlayer, args) ? 1 : 0 };
         }
 
         public void CheckAndFire(IServerPlayer player, Quest quest, ActiveQuest activeQuest, int objectiveIndex, ICoreServerAPI sapi)
@@ -58,7 +58,7 @@ namespace VsQuest
                 return;
             }
 
-            if (isCompletable(player, args))
+            if (IsCompletable(player, args))
             {
                 string actionsToFire = args[3];
                 var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
@@ -90,7 +90,7 @@ namespace VsQuest
                     if (questSystem.ActionRegistry.TryGetValue(actionId, out var action))
                     {
                         var message = new QuestAcceptedMessage { questGiverId = activeQuest.questGiverId, questId = activeQuest.questId };
-                        action.Invoke(sapi, message, player, actionArgs.ToArray());
+                        action.Execute(sapi, message, player, actionArgs.ToArray());
                     }
                 }
 

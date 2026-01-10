@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using Vintagestory.API.Common;
-using vsquest.src.Systems.Actions;
 
 namespace VsQuest
 {
-    public class QuestObjectiveRegistry
+    public class QuestObjectiveRegistry : IQuestObjectiveRegistry
     {
         private readonly Dictionary<string, ActiveActionObjective> objectiveRegistry;
         private readonly ICoreAPI api;

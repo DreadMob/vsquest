@@ -4,9 +4,8 @@ using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using VsQuest;
 
-namespace vsquest.src.Systems.Actions
+namespace VsQuest
 {
     public static class PlaySoundAction
     {

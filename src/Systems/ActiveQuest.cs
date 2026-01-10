@@ -123,7 +123,7 @@ namespace VsQuest
         {
             foreach (var candidate in tracker.relevantCodes)
             {
-                if (MobLocalizationUtils.MobCodeMatches(candidate, code))
+                if (LocalizationUtils.MobCodeMatches(candidate, code))
                 {
                     return true;
                 }
@@ -147,7 +147,7 @@ namespace VsQuest
                     {
                         foreach (var codeCandidate in objective.validCodes)
                         {
-                            if (MobLocalizationUtils.MobCodeMatches(codeCandidate, code))
+                            if (LocalizationUtils.MobCodeMatches(codeCandidate, code))
                             {
                                 tracker.placedPositions.Add(candidate);
                                 return true;
@@ -167,7 +167,7 @@ namespace VsQuest
             {
                 foreach (var candidate in tracker.relevantCodes)
                 {
-                    if (MobLocalizationUtils.MobCodeMatches(candidate, code))
+                    if (LocalizationUtils.MobCodeMatches(candidate, code))
                     {
                         return true;
                     }

@@ -4,21 +4,9 @@ using Vintagestory.API.Common;
 
 namespace VsQuest
 {
-    public class TimeOfDayObjective : ActiveActionObjective
+    public class TimeOfDayObjective : ActionObjectiveBase
     {
-        public bool isCompletable(IPlayer byPlayer, params string[] args)
-        {
-            return IsInTimeWindow(byPlayer, args);
-        }
-
-        public List<int> progress(IPlayer byPlayer, params string[] args)
-        {
-            return IsInTimeWindow(byPlayer, args)
-                ? new List<int>(new int[] { 1, 1 })
-                : new List<int>(new int[] { 0, 1 });
-        }
-
-        private static bool IsInTimeWindow(IPlayer byPlayer, string[] args)
+        public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
             if (byPlayer?.Entity?.World?.Calendar == null) return false;
 
@@ -63,6 +51,13 @@ namespace VsQuest
 
             // Unknown mode -> allow
             return true;
+        }
+
+        public override List<int> GetProgress(IPlayer byPlayer, params string[] args)
+        {
+            return IsCompletable(byPlayer, args)
+                ? new List<int>(new int[] { 1, 1 })
+                : new List<int>(new int[] { 0, 1 });
         }
 
         private static double NormalizeHour(double hour)

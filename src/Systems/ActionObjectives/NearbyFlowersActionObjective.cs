@@ -3,14 +3,14 @@ using Vintagestory.API.Common;
 
 namespace VsQuest
 {
-    public class NearbyFlowersActionObjective : ActiveActionObjective
+    public class NearbyFlowersActionObjective : ActionObjectiveBase
     {
-        public bool isCompletable(IPlayer byPlayer, params string[] args)
+        public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
-            return progress(byPlayer)[0] >= int.Parse(args[0]);
+            return GetProgress(byPlayer)[0] >= int.Parse(args[0]);
         }
 
-        public List<int> progress(IPlayer byPlayer, params string[] args)
+        public override List<int> GetProgress(IPlayer byPlayer, params string[] args)
         {
             var entity = byPlayer.Entity;
             int flowersNearby = 0;

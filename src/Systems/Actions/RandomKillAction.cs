@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using vsquest.src.Systems.Actions;
 
 namespace VsQuest
 {
@@ -11,27 +10,7 @@ namespace VsQuest
         {
             if (byPlayer?.Entity?.WatchedAttributes == null) return;
 
-            // Support legacy rollkillobjective args:
-            // [minCount, maxCount, template, (opt) onprogress, (opt) oncomplete, mobs...]
-            // by translating to multi-objective args:
-            // [objectiveCount=1, minCount, maxCount, template, (opt) onprogress, (opt) oncomplete, mobs...]
-            if (args != null && args.Length >= 3)
-            {
-                bool looksLikeLegacy = int.TryParse(args[0], out _)
-                    && int.TryParse(args[1], out _)
-                    && !int.TryParse(args[2], out _);
-
-                if (looksLikeLegacy)
-                {
-                    var newArgs = new string[args.Length + 1];
-                    newArgs[0] = "1";
-                    for (int i = 0; i < args.Length; i++)
-                    {
-                        newArgs[i + 1] = args[i];
-                    }
-                    args = newArgs;
-                }
-            }
+            args = RandomKillLegacyUtils.NormalizeRollArgs(args);
 
             RandomKillQuestUtils.ParseRollArgsMulti(args, out int objectiveCount, out int minCount, out int maxCount, out string template, out string progressActions, out string completeActions, out int mobListStartIndex);
 

@@ -9,15 +9,15 @@ using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
-using vsquest.src.Systems.Actions;
 
 namespace VsQuest
 {
     public delegate void QuestAction(ICoreServerAPI sapi, QuestMessage message, IServerPlayer player, string[] args);
+
     public class QuestSystem : ModSystem
     {
         public Dictionary<string, Quest> QuestRegistry { get; private set; } = new Dictionary<string, Quest>();
-        public Dictionary<string, QuestAction> ActionRegistry { get; private set; } = new Dictionary<string, QuestAction>();
+        public Dictionary<string, IQuestAction> ActionRegistry { get; private set; } = new Dictionary<string, IQuestAction>();
         public Dictionary<string, ActiveActionObjective> ActionObjectiveRegistry { get; private set; } = new Dictionary<string, ActiveActionObjective>();
         
         private QuestPersistenceManager persistenceManager;
@@ -114,7 +114,7 @@ namespace VsQuest
         {
             base.AssetsLoaded(api);
 
-            MobLocalizationUtils.LoadFromAssets(api);
+            LocalizationUtils.LoadFromAssets(api);
             foreach (var mod in api.ModLoader.Mods)
             {
                 api.Assets

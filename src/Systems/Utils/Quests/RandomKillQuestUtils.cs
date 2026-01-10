@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
-using vsquest.src.Systems.Actions;
 
 namespace VsQuest
 {
@@ -10,7 +9,7 @@ namespace VsQuest
     {
         private static string LocalizeMobName(string code)
         {
-            return MobLocalizationUtils.GetMobDisplayName(code);
+            return LocalizationUtils.GetMobDisplayName(code);
         }
 
         public static string CodeKey(string questId) => $"vsquest:randkill:{questId}:code";
@@ -36,7 +35,7 @@ namespace VsQuest
             if (string.IsNullOrWhiteSpace(questId)) return false;
 
             // Legacy single-objective keys
-            if (TryHandleLegacyKill(sapi, serverPlayer, activeQuest, killedCode)) return true;
+            if (RandomKillLegacyUtils.TryHandleLegacyKill(sapi, serverPlayer, activeQuest, killedCode)) return true;
 
             // Multi-slot keys
             int slots = wa.GetInt(SlotsKey(questId), 0);
@@ -50,37 +49,6 @@ namespace VsQuest
             return any;
         }
 
-        private static bool TryHandleLegacyKill(ICoreServerAPI sapi, IServerPlayer serverPlayer, ActiveQuest activeQuest, string killedCode)
-        {
-            var wa = serverPlayer.Entity?.WatchedAttributes;
-            if (wa == null) return false;
-
-            string questId = activeQuest.questId;
-            string codeKey = CodeKey(questId);
-            if (!wa.HasAttribute(codeKey)) return false;
-
-            string targetCode = wa.GetString(codeKey, null);
-            if (string.IsNullOrWhiteSpace(targetCode)) return false;
-            if (!MobLocalizationUtils.MobCodeMatches(targetCode, killedCode)) return false;
-
-            string needKey = NeedKey(questId);
-            string haveKey = HaveKey(questId);
-
-            int need = wa.GetInt(needKey, 0);
-            if (need <= 0) return false;
-
-            int have = wa.GetInt(haveKey, 0);
-            if (have >= need) return false;
-
-            have++;
-            if (have > need) have = need;
-            wa.SetInt(haveKey, have);
-            wa.MarkPathDirty(haveKey);
-
-            FireActions(sapi, serverPlayer, activeQuest, have >= need);
-            return true;
-        }
-
         private static bool TryHandleSlotKill(ICoreServerAPI sapi, IServerPlayer serverPlayer, ActiveQuest activeQuest, string killedCode, int slot)
         {
             var wa = serverPlayer.Entity?.WatchedAttributes;
@@ -92,7 +60,7 @@ namespace VsQuest
 
             string targetCode = wa.GetString(codeKey, null);
             if (string.IsNullOrWhiteSpace(targetCode)) return false;
-            if (!MobLocalizationUtils.MobCodeMatches(targetCode, killedCode)) return false;
+            if (!LocalizationUtils.MobCodeMatches(targetCode, killedCode)) return false;
 
             string needKey = SlotNeedKey(questId, slot);
             string haveKey = SlotHaveKey(questId, slot);
@@ -112,7 +80,7 @@ namespace VsQuest
             return true;
         }
 
-        private static void FireActions(ICoreServerAPI sapi, IServerPlayer serverPlayer, ActiveQuest activeQuest, bool completedThisTick)
+        internal static void FireActions(ICoreServerAPI sapi, IServerPlayer serverPlayer, ActiveQuest activeQuest, bool completedThisTick)
         {
             var wa = serverPlayer.Entity?.WatchedAttributes;
             if (wa == null) return;

@@ -9,7 +9,7 @@ namespace VsQuest
             if (message == null) return null;
             if (string.IsNullOrWhiteSpace(message.Template) || string.IsNullOrWhiteSpace(message.MobCode)) return null;
 
-            string mobName = MobLocalizationUtils.GetMobDisplayName(message.MobCode);
+            string mobName = LocalizationUtils.GetMobDisplayName(message.MobCode);
             try
             {
                 return Lang.HasTranslation(message.Template)

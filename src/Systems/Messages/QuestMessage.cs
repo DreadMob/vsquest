@@ -15,7 +15,7 @@ namespace VsQuest
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     [ProtoInclude(10, typeof(QuestAcceptedMessage))]
     [ProtoInclude(11, typeof(QuestCompletedMessage))]
-    public abstract class QuestMessage
+    public abstract class QuestMessage : IQuestMessage
     {
         public string questId { get; set; }
 

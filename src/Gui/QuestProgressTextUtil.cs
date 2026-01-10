@@ -9,7 +9,7 @@ namespace VsQuest
     {
         private static string LocalizeMobName(string code)
         {
-            return MobLocalizationUtils.GetMobDisplayName(code);
+            return LocalizationUtils.GetMobDisplayName(code);
         }
 
         private static bool TryParseWalkDistanceArgs(string[] args, out string questId, out int slot, out int needMeters)

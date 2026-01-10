@@ -93,7 +93,7 @@ namespace VsQuest
                 if (questSystem.ActionRegistry.TryGetValue(action.id, out var registeredAction))
                 {
                     var message = new QuestAcceptedMessage { questGiverId = fromPlayer.Entity.EntityId, questId = "item-action" };
-                    registeredAction.Invoke(sapi, message, fromPlayer, action.args);
+                    registeredAction.Execute(sapi, message, fromPlayer, action.args);
                 }
             }
         }

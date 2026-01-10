@@ -7,14 +7,14 @@ using Vintagestory.API.Server;
 
 namespace VsQuest
 {
-    public class WalkDistanceObjective : ActiveActionObjective
+    public class WalkDistanceObjective : ActionObjectiveBase
     {
         public static string HaveKey(string questId, int slot) => $"vsquest:walkdist:{questId}:slot{slot}:have";
         private static string LastXKey(string questId, int slot) => $"vsquest:walkdist:{questId}:slot{slot}:lastx";
         private static string LastZKey(string questId, int slot) => $"vsquest:walkdist:{questId}:slot{slot}:lastz";
         private static string HasLastKey(string questId, int slot) => $"vsquest:walkdist:{questId}:slot{slot}:haslast";
 
-        public bool isCompletable(IPlayer byPlayer, params string[] args)
+        public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
             if (byPlayer?.Entity?.WatchedAttributes == null) return false;
             if (!TryParseArgs(args, out string questId, out int slot, out int needMeters)) return false;
@@ -25,7 +25,7 @@ namespace VsQuest
             return needMeters > 0 && have >= needMeters;
         }
 
-        public List<int> progress(IPlayer byPlayer, params string[] args)
+        public override List<int> GetProgress(IPlayer byPlayer, params string[] args)
         {
             if (byPlayer?.Entity?.WatchedAttributes == null) return new List<int>(new int[] { 0, 0 });
             if (!TryParseArgs(args, out string questId, out int slot, out int needMeters)) return new List<int>(new int[] { 0, 0 });
