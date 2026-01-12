@@ -17,6 +17,7 @@ namespace VsQuest
         private long questGiverId;
         private string selectedAvailableQuestId;
         private ActiveQuest selectedActiveQuest;
+        private string selectedActiveQuestKey;
 
         private List<string> availableQuestIds;
         private List<ActiveQuest> activeQuests;
@@ -33,6 +34,12 @@ namespace VsQuest
             closeGuiAfterAcceptingAndCompleting = questConfig.CloseGuiAfterAcceptingAndCompleting;
             ApplyData(questGiverId, availableQuestIds, activeQuests, noAvailableQuestDescLangKey, noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft);
             RequestRecompose();
+        }
+
+        private static string ActiveQuestKey(ActiveQuest quest)
+        {
+            if (quest == null) return null;
+            return $"{quest.questGiverId}:{quest.questId}";
         }
 
         private void RequestRecompose()
@@ -64,7 +71,25 @@ namespace VsQuest
             this.noAvailableQuestCooldownDescLangKey = noAvailableQuestCooldownDescLangKey;
             this.noAvailableQuestCooldownDaysLeft = noAvailableQuestCooldownDaysLeft;
 
-            selectedActiveQuest = activeQuests?.Find(quest => true);
+            if (activeQuests != null && activeQuests.Count > 0)
+            {
+                if (!string.IsNullOrEmpty(selectedActiveQuestKey))
+                {
+                    selectedActiveQuest = activeQuests.Find(q => ActiveQuestKey(q) == selectedActiveQuestKey);
+                }
+
+                if (selectedActiveQuest == null)
+                {
+                    selectedActiveQuest = activeQuests[0];
+                }
+
+                selectedActiveQuestKey = ActiveQuestKey(selectedActiveQuest);
+            }
+            else
+            {
+                selectedActiveQuest = null;
+                selectedActiveQuestKey = null;
+            }
 
             // Preserve the currently selected tab when updating data.
             // Only switch tabs if the current tab has no content.
@@ -153,14 +178,17 @@ namespace VsQuest
             {
                 if (activeQuests != null && activeQuests.Count > 0)
                 {
-                    if (selectedActiveQuest == null || activeQuests.FindIndex(match => match.questId == selectedActiveQuest.questId) < 0)
+                    if (selectedActiveQuest == null || string.IsNullOrEmpty(selectedActiveQuestKey) || activeQuests.FindIndex(match => ActiveQuestKey(match) == selectedActiveQuestKey) < 0)
                     {
                         selectedActiveQuest = activeQuests[0];
+                        selectedActiveQuestKey = ActiveQuestKey(selectedActiveQuest);
                     }
 
-                    int selected = Math.Max(0, activeQuests.FindIndex(match => match.questId == selectedActiveQuest.questId));
+                    int selected = Math.Max(0, activeQuests.FindIndex(match => ActiveQuestKey(match) == selectedActiveQuestKey));
 
-                    SingleComposer.AddDropDown(activeQuests.ConvertAll<string>(quest => quest.questId).ToArray(), activeQuests.ConvertAll<string>(quest => Lang.Get(quest.questId + "-title")).ToArray(), selected, onActiveQuestSelectionChanged, ElementBounds.FixedOffseted(EnumDialogArea.RightTop, 0, 20, 400, 30), DropDownKey)
+                    string[] activeQuestKeys = activeQuests.ConvertAll<string>(quest => ActiveQuestKey(quest)).ToArray();
+
+                    SingleComposer.AddDropDown(activeQuestKeys, activeQuests.ConvertAll<string>(quest => Lang.Get(quest.questId + "-title")).ToArray(), selected, onActiveQuestSelectionChanged, ElementBounds.FixedOffseted(EnumDialogArea.RightTop, 0, 20, 400, 30), DropDownKey)
                         .AddButton(Lang.Get("alegacyvsquest:button-cancel"), TryClose, bottomLeftButtonBounds)
                         .AddIf(selectedActiveQuest.IsCompletableOnClient)
                             .AddButton(Lang.Get("alegacyvsquest:button-complete"), completeQuest, bottomRightButtonBounds)
@@ -244,7 +272,7 @@ namespace VsQuest
             }
             else
             {
-                activeQuests.RemoveAll(quest => selectedActiveQuest.questId == quest.questId);
+                activeQuests.RemoveAll(quest => quest != null && selectedActiveQuest != null && quest.questId == selectedActiveQuest.questId && quest.questGiverId == selectedActiveQuest.questGiverId);
                 RequestRecompose();
             }
             return true;
@@ -273,7 +301,8 @@ namespace VsQuest
         {
             if (selected)
             {
-                selectedActiveQuest = activeQuests.Find(quest => quest.questId == questId);
+                selectedActiveQuestKey = questId;
+                selectedActiveQuest = activeQuests.Find(quest => ActiveQuestKey(quest) == selectedActiveQuestKey);
 
                 if (selectedActiveQuest == null)
                 {
@@ -282,6 +311,8 @@ namespace VsQuest
 
                 SingleComposer.GetRichtext("questtext").SetNewText(activeQuestText(selectedActiveQuest), CairoFont.WhiteSmallishText());
                 SingleComposer.GetScrollbar("scrollbar")?.SetNewTotalHeight((float)SingleComposer.GetRichtext("questtext").TotalHeight);
+                SingleComposer.GetScrollbar("scrollbar")?.SetScrollbarPosition(0);
+                OnNewScrollbarvalue(0);
 
                 capi.Event.EnqueueMainThreadTask(() =>
                 {
@@ -326,9 +357,12 @@ namespace VsQuest
         public override void OnMouseDown(MouseEvent args)
         {
             var dropdown = SingleComposer?.GetDropDown(DropDownKey);
-            if (dropdown?.listMenu?.IsOpened == true && !dropdown.IsPositionInside(args.X, args.Y))
+            bool clickInsideDropdown = dropdown != null && dropdown.IsPositionInside(args.X, args.Y);
+            bool clickInsideListMenu = dropdown?.listMenu?.IsOpened == true && dropdown.listMenu.Bounds?.PointInside(args.X, args.Y) == true;
+
+            if (dropdown?.listMenu?.IsOpened == true && !clickInsideDropdown && !clickInsideListMenu)
             {
-                CloseOpenedDropDown();
+                capi.Event.EnqueueMainThreadTask(CloseOpenedDropDown, "vsquest-close-dropdown-deferred");
             }
 
             base.OnMouseDown(args);

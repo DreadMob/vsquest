@@ -23,14 +23,12 @@ namespace VsQuest
             for (int slot = 0; slot < slots; slot++)
             {
                 string haveKey = WalkDistanceObjective.HaveKey(questId, slot);
-                string hasLastKey = WalkDistanceObjective.HasLastKey(questId, slot);
 
                 wa.SetFloat(haveKey, 0f);
-                wa.RemoveAttribute(hasLastKey);
-
                 wa.MarkPathDirty(haveKey);
-                wa.MarkPathDirty(hasLastKey);
             }
+
+            WalkDistanceObjective.ClearPlayerCache(byPlayer.PlayerUID);
         }
     }
 }

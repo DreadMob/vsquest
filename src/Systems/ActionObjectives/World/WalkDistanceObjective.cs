@@ -10,9 +10,45 @@ namespace VsQuest
     public class WalkDistanceObjective : ActionObjectiveBase
     {
         public static string HaveKey(string questId, int slot) => $"alegacyvsquest:walkdist:{questId}:slot{slot}:have";
-        private static string LastXKey(string questId, int slot) => $"alegacyvsquest:walkdist:{questId}:slot{slot}:lastx";
-        private static string LastZKey(string questId, int slot) => $"alegacyvsquest:walkdist:{questId}:slot{slot}:lastz";
-        public static string HasLastKey(string questId, int slot) => $"alegacyvsquest:walkdist:{questId}:slot{slot}:haslast";
+
+        private class PlayerWalkCache
+        {
+            public bool HasLast;
+            public double LastX;
+            public double LastZ;
+        }
+
+        private static readonly Dictionary<string, PlayerWalkCache> playerCacheByKey = new Dictionary<string, PlayerWalkCache>();
+
+        private static string CacheKey(string playerUid, string questId, int slot)
+        {
+            return $"{playerUid}|{questId}|{slot}";
+        }
+
+        public static void ClearPlayerCache(string playerUid)
+        {
+            if (string.IsNullOrWhiteSpace(playerUid)) return;
+
+            // Remove all caches for that player across quests/slots.
+            // (Using string keys; enumerate and remove safely.)
+            List<string> remove = null;
+            foreach (var key in playerCacheByKey.Keys)
+            {
+                if (key != null && key.StartsWith(playerUid + "|"))
+                {
+                    remove ??= new List<string>();
+                    remove.Add(key);
+                }
+            }
+
+            if (remove != null)
+            {
+                for (int i = 0; i < remove.Count; i++)
+                {
+                    playerCacheByKey.Remove(remove[i]);
+                }
+            }
+        }
 
         public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
@@ -62,20 +98,24 @@ namespace VsQuest
             double curX = entity.ServerPos.X;
             double curZ = entity.ServerPos.Z;
 
-            bool hasLast = wa.GetBool(HasLastKey(questId, slot), false);
-            if (!hasLast)
+            string cacheKey = CacheKey(player.PlayerUID, questId, slot);
+
+            if (!playerCacheByKey.TryGetValue(cacheKey, out var cache) || cache == null)
             {
-                wa.SetDouble(LastXKey(questId, slot), curX);
-                wa.SetDouble(LastZKey(questId, slot), curZ);
-                wa.SetBool(HasLastKey(questId, slot), true);
-                wa.MarkPathDirty(LastXKey(questId, slot));
-                wa.MarkPathDirty(LastZKey(questId, slot));
-                wa.MarkPathDirty(HasLastKey(questId, slot));
+                cache = new PlayerWalkCache();
+                playerCacheByKey[cacheKey] = cache;
+            }
+
+            if (!cache.HasLast)
+            {
+                cache.LastX = curX;
+                cache.LastZ = curZ;
+                cache.HasLast = true;
                 return;
             }
 
-            double lastX = wa.GetDouble(LastXKey(questId, slot), curX);
-            double lastZ = wa.GetDouble(LastZKey(questId, slot), curZ);
+            double lastX = cache.LastX;
+            double lastZ = cache.LastZ;
 
             double dx = curX - lastX;
             double dz = curZ - lastZ;
@@ -83,19 +123,15 @@ namespace VsQuest
 
             if (dist > 20)
             {
-                wa.SetDouble(LastXKey(questId, slot), curX);
-                wa.SetDouble(LastZKey(questId, slot), curZ);
-                wa.MarkPathDirty(LastXKey(questId, slot));
-                wa.MarkPathDirty(LastZKey(questId, slot));
+                cache.LastX = curX;
+                cache.LastZ = curZ;
                 return;
             }
 
             if (dist < 0.05)
             {
-                wa.SetDouble(LastXKey(questId, slot), curX);
-                wa.SetDouble(LastZKey(questId, slot), curZ);
-                wa.MarkPathDirty(LastXKey(questId, slot));
-                wa.MarkPathDirty(LastZKey(questId, slot));
+                cache.LastX = curX;
+                cache.LastZ = curZ;
                 return;
             }
 
@@ -103,10 +139,8 @@ namespace VsQuest
             if (have < 0f) have = 0f;
             if (have >= needMeters)
             {
-                wa.SetDouble(LastXKey(questId, slot), curX);
-                wa.SetDouble(LastZKey(questId, slot), curZ);
-                wa.MarkPathDirty(LastXKey(questId, slot));
-                wa.MarkPathDirty(LastZKey(questId, slot));
+                cache.LastX = curX;
+                cache.LastZ = curZ;
                 return;
             }
 
@@ -114,7 +148,9 @@ namespace VsQuest
             if (have > needMeters) have = needMeters;
 
             wa.SetFloat(HaveKey(questId, slot), have);
-            wa.MarkPathDirty(HaveKey(questId, slot));
+
+            // Intentionally do not MarkPathDirty(HaveKey): this progress is used server-side,
+            // and client UI receives progress via ActiveQuest.ProgressText.
 
             if (have >= needMeters)
             {
@@ -138,23 +174,30 @@ namespace VsQuest
                 }
             }
 
-            wa.SetDouble(LastXKey(questId, slot), curX);
-            wa.SetDouble(LastZKey(questId, slot), curZ);
-            wa.MarkPathDirty(LastXKey(questId, slot));
-            wa.MarkPathDirty(LastZKey(questId, slot));
+            cache.LastX = curX;
+            cache.LastZ = curZ;
         }
 
         private static void EnsureLastPosInitialized(Entity entity, SyncedTreeAttribute wa, string questId, int slot)
         {
             if (entity == null || wa == null) return;
-            if (wa.GetBool(HasLastKey(questId, slot), false)) return;
+            var player = entity as EntityPlayer;
+            if (player == null) return;
+            if (player.Player == null || string.IsNullOrWhiteSpace(player.Player.PlayerUID)) return;
+            if (string.IsNullOrWhiteSpace(questId)) return;
 
-            wa.SetDouble(LastXKey(questId, slot), entity.ServerPos.X);
-            wa.SetDouble(LastZKey(questId, slot), entity.ServerPos.Z);
-            wa.SetBool(HasLastKey(questId, slot), true);
-            wa.MarkPathDirty(LastXKey(questId, slot));
-            wa.MarkPathDirty(LastZKey(questId, slot));
-            wa.MarkPathDirty(HasLastKey(questId, slot));
+            string key = CacheKey(player.Player.PlayerUID, questId, slot);
+            if (!playerCacheByKey.TryGetValue(key, out var cache) || cache == null)
+            {
+                cache = new PlayerWalkCache();
+                playerCacheByKey[key] = cache;
+            }
+
+            if (cache.HasLast) return;
+
+            cache.LastX = entity.ServerPos.X;
+            cache.LastZ = entity.ServerPos.Z;
+            cache.HasLast = true;
         }
 
         public static bool TryParseArgs(string[] args, out string questId, out int slot, out int needMeters)
