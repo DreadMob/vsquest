@@ -271,7 +271,19 @@ namespace VsQuest
 
                 if (double.IsNaN(lastAccepted)) lastAccepted = -quest.cooldown;
 
-                bool onCooldown = quest.cooldown >= 0 && lastAccepted + quest.cooldown >= sapi.World.Calendar.TotalDays;
+                double nowDays = sapi.World.Calendar.TotalDays;
+
+                // If time was rewound (e.g. during testing via time fast-forward/rewind),
+                // the stored lastAccepted can become "in the future" relative to now,
+                // producing absurd cooldown values. Normalize to now.
+                if (!double.IsNaN(lastAccepted) && !double.IsInfinity(lastAccepted) && nowDays + 0.0001 < lastAccepted)
+                {
+                    lastAccepted = nowDays;
+                    player.WatchedAttributes.SetDouble(key, lastAccepted);
+                    player.WatchedAttributes.MarkPathDirty(key);
+                }
+
+                bool onCooldown = quest.cooldown >= 0 && lastAccepted + quest.cooldown >= nowDays;
                 bool isActive = allActiveQuests.Find(activeQuest => activeQuest.questId == questId) != null;
 
                 // cooldown < 0 means "one-time": once completed, never offer again.
@@ -288,9 +300,15 @@ namespace VsQuest
                 }
                 else if (eligible && onCooldown)
                 {
-                    double daysLeft = (lastAccepted + quest.cooldown) - sapi.World.Calendar.TotalDays;
+                    double daysLeft = (lastAccepted + quest.cooldown) - nowDays;
+                    if (double.IsNaN(daysLeft) || double.IsInfinity(daysLeft)) daysLeft = 0;
+
                     int left = (int)Math.Ceiling(daysLeft);
                     if (left < 0) left = 0;
+
+                    // Safety clamp to avoid absurd UI values from broken timestamps.
+                    if (left > 36500) left = 36500;
+
                     if (!minCooldownDaysLeft.HasValue || left < minCooldownDaysLeft.Value)
                     {
                         minCooldownDaysLeft = left;
