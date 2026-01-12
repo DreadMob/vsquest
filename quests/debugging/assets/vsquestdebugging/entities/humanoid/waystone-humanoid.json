@@ -13,9 +13,9 @@
 	},
 	"client": {
 		"renderer": "Shape",
-		"shape": { "base": "entity/humanoid/trader" },
-		"texture": { "base": "entity/humanoid/trader", "alternates": [
-			{ "base": "entity/humanoid/traderclothes/set1" }
+		"shape": { "base": "game:entity/humanoid/trader" },
+		"texture": { "base": "game:entity/humanoid/trader", "alternates": [
+			{ "base": "game:entity/humanoid/traderclothes/set1" }
 		] },
 		"behaviors": [
 			{ "code": "nametag" },

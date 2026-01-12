@@ -1,5 +1,5 @@
 {
-  "id": "albase:test",
+  "id": "vsquestdebugging:test",
   "cooldown": 1,
   "perPlayer": true,
   "onAcceptedActions": [
