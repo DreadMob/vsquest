@@ -1,0 +1,107 @@
+{
+    "code": "quest-scarf",
+    "class": "ItemWearable",
+    "maxstacksize": 1,
+    "storageFlags": 128,
+    "attributes": {
+        "clothescategory": "shoulder",
+        "wearableAttachment": true,
+        "warmth": 1,
+        "handbook": {
+            "groupBy": [
+                "quest-scarf-*"
+            ]
+        }
+    },
+    "shape": {
+        "base": "game:entity/humanoid/seraph/clothing/shoulder/cape",
+        "overlays": [
+            {
+                "base": "game:entity/humanoid/seraph/clothing/shoulder/collar-cape-fancy"
+            }
+        ]
+    },
+    "textures": {
+        "seraph": {
+            "base": "game:block/transparent"
+        },
+        "shouldertexture": {
+            "base": "vsquestdebugging:items/newyear-scarf"
+        }
+    },
+    "creativeinventory": {
+        "general": [
+            "*"
+        ],
+        "items": [
+            "*"
+        ],
+        "clothing": [
+            "*"
+        ]
+    },
+    "renderAlphaTest": 0.25,
+    "fpHandTransform": {
+        "translation": {
+            "x": -0.15,
+            "y": -0.8,
+            "z": 0.3
+        },
+        "rotation": {
+            "x": 180,
+            "y": 150,
+            "z": 180
+        },
+        "scale": 2
+    },
+    "tpHandTransform": {
+        "translation": {
+            "x": -0.8,
+            "y": -1.8,
+            "z": -1
+        },
+        "rotation": {
+            "x": -81,
+            "y": -89,
+            "z": 91
+        },
+        "scale": 0.59
+    },
+    "guiTransform": {
+        "rotate": false,
+        "translation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "rotation": {
+            "x": -180,
+            "y": -96,
+            "z": -18
+        },
+        "origin": {
+            "x": 0.2,
+            "y": 1.2,
+            "z": 0.6
+        },
+        "scale": 2.42
+    },
+    "groundTransform": {
+        "translation": {
+            "x": 0.05,
+            "y": 0.1,
+            "z": 0
+        },
+        "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": -87
+        },
+        "origin": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5299
+        },
+        "scale": 2.19
+    }
+}
