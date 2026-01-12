@@ -45,7 +45,7 @@
   "albase:innkeeper-firstimpression-obj": "",
   "albase:innkeeper-firstimpression-journal-title": "Трактирщик",
   "albase:innkeeper-firstimpression-journal-text": "Хозяин «Углей и Амброзии» — человек тяжелый. Чтобы он заговорил о деле, нужно доказать, что я умею держать язык за зубами.\n\nЗадание: пройти по маршруту, устранить помеху и вернуться. Главное условие — никакой суеты и рассказов в кабаке.",
-  "albase:innkeeper-firstimpression-reward": "Трактирщик: Недоносков много, а толку мало. Ты... сойдёт. Раньше чем через сорок дней не показывайся.",
+  "albase:innkeeper-firstimpression-reward": "Трактирщик: Недоносков много, а толку мало. Ты... сойдёшь. Раньше чем через тридцать дней не показывайся.",
 
   "albase:innkeeper-quietpatrol-title": "Трактирщик: Тихий час",
   "albase:innkeeper-quietpatrol-desc": "Ночные тени у порога нервируют гостей. Трактирщику не нужны героические битвы, ему нужна чистая дорога.\n\nОбойди округу пешком. Усмири тех, кто лезет на свет. И сделай это тихо.",
@@ -127,7 +127,7 @@
 
   "albase:dialogue-innkeeper-final-title": "Трактирщик",
   "albase:dialogue-innkeeper-final-option": "Понял.",
-  "albase:dialogue-innkeeper-firstimpression-final-text": "Руки из того места растут. На, жуй. И исчезни на сорок дней. У меня аллергия на частых гостей.",
+  "albase:dialogue-innkeeper-firstimpression-final-text": "Руки из того места растут. На, жуй. И исчезни на тридцать дней. У меня аллергия на частых гостей.",
   "albase:dialogue-innkeeper-quietpatrol-final-text": "Тихо. Хорошо. Вот твоя пайка. Язык за зубами держать умеешь?",
   "albase:dialogue-innkeeper-badcustomers-final-text": "Выставил их без лишнего шума. Ценю. Держи припасы. Проваливай.",
   "albase:dialogue-innkeeper-silentdeliveries-final-text": "Пришел, сделал, не ныл. Редкое качество. Забирай долю.",
@@ -143,7 +143,7 @@
   "albase:dialogue-innkeeper-quietblade-final-text": "Ни слуху, ни духу. Идеально. Вот твоё золото. Заслужил.",
 
   "albase:innkeeper-firstimpression-reward-journal-title": "Трактирщик",
-  "albase:innkeeper-firstimpression-reward-journal-text": "Я прошел его проверку. Старый хрыч признал, что я не просто болтушка в доспехах. Но в друзья он не набивается — работаем строго по делу раз в сорок дней.",
+  "albase:innkeeper-firstimpression-reward-journal-text": "Я прошел его проверку. Старый хрыч признал, что я не просто болтушка в доспехах. Но в друзья он не набивается — работаем строго по делу раз в тридцать дней.",
   "albase:innkeeper-quietpatrol-reward-journal-title": "Трактирщик",
   "albase:innkeeper-quietpatrol-reward-journal-text": "Дорога чиста. Трактирщик оценил мою скрытность. Кажется, он начинает мне доверять чуть больше, чем остальному сброду.",
   "albase:innkeeper-badcustomers-reward-journal-title": "Трактирщик",

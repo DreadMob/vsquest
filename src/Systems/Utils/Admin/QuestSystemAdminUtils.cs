@@ -10,6 +10,30 @@ namespace VsQuest
 {
     public static class QuestSystemAdminUtils
     {
+        private static void ClearQuestGiverChainCooldowns(IServerPlayer player, ICoreServerAPI sapi)
+        {
+            if (sapi == null || player?.Entity?.WatchedAttributes == null) return;
+
+            try
+            {
+                var entities = sapi.World.LoadedEntities?.Values;
+                if (entities == null) return;
+
+                foreach (var e in entities)
+                {
+                    if (e == null) continue;
+                    if (!e.HasBehavior<EntityBehaviorQuestGiver>()) continue;
+
+                    string chainKey = EntityBehaviorQuestGiver.ChainCooldownLastCompletedKey(e.EntityId);
+                    player.Entity.WatchedAttributes.SetDouble(chainKey, -9999999);
+                    player.Entity.WatchedAttributes.MarkPathDirty(chainKey);
+                }
+            }
+            catch
+            {
+            }
+        }
+
         private static void RemoveQuestJournalEntries(ICoreServerAPI sapi, QuestSystem questSystem, IServerPlayer player, string questId)
         {
             if (sapi == null || player == null || string.IsNullOrWhiteSpace(questId)) return;
@@ -276,6 +300,7 @@ namespace VsQuest
             if (sapi != null)
             {
                 RemoveQuestJournalEntries(sapi, questSystem, player, questId);
+                ClearQuestGiverChainCooldowns(player, sapi);
             }
             ClearPerQuestPlayerState(player, questId);
             ClearActionObjectiveCompletionFlagsForQuest(questSystem, player, questId);
@@ -301,6 +326,8 @@ namespace VsQuest
                 {
                     RemoveQuestJournalEntries(sapi, questSystem, player, questId);
                 }
+
+                ClearQuestGiverChainCooldowns(player, sapi);
             }
 
             if (player.Entity?.WatchedAttributes != null)
