@@ -14,7 +14,10 @@ namespace VsQuest
         public const string ActionItemSourceQuestKey = "alegacyvsquest:sourcequest";
         public const string ActionItemDefaultSourceQuestId = "item-action";
         public const string ActionItemTriggerOnInvAddKey = "alegacyvsquest:triggerOnInvAdd";
-        public const string ActionItemBlockEquipKey = "alegacyvsquest:blockEquip";
+        public const string ActionItemBlockMoveKey = "alegacyvsquest:blockMove";     // restrict movement (hotbar-only)
+        public const string ActionItemBlockEquipKey = "alegacyvsquest:blockEquip";   // restrict equipping (character slots)
+        public const string ActionItemBlockDropKey = "alegacyvsquest:blockDrop";     // restrict manual drop
+        public const string ActionItemBlockDeathKey = "alegacyvsquest:blockDeath";   // restrict drop on death
         public const string ActionItemShowAttrsKey = "alegacyvsquest:showAttrs";
         public const string ActionItemHideVanillaKey = "alegacyvsquest:hideVanilla";
 
@@ -97,11 +100,28 @@ namespace VsQuest
             return !string.IsNullOrWhiteSpace(actions);
         }
 
+        public static bool IsActionItemBlockedMove(ItemStack stack)
+        {
+            if (stack?.Attributes == null) return false;
+            return stack.Attributes.GetBool(ActionItemBlockMoveKey, false) && IsActionItem(stack);
+        }
+
         public static bool IsActionItemBlockedEquip(ItemStack stack)
         {
             if (stack?.Attributes == null) return false;
-            if (!stack.Attributes.GetBool(ActionItemBlockEquipKey, false)) return false;
-            return IsActionItem(stack);
+            return stack.Attributes.GetBool(ActionItemBlockEquipKey, false) && IsActionItem(stack);
+        }
+
+        public static bool IsActionItemBlockedDrop(ItemStack stack)
+        {
+            if (stack?.Attributes == null) return false;
+            return stack.Attributes.GetBool(ActionItemBlockDropKey, false) && IsActionItem(stack);
+        }
+
+        public static bool IsActionItemBlockedDeath(ItemStack stack)
+        {
+            if (stack?.Attributes == null) return false;
+            return stack.Attributes.GetBool(ActionItemBlockDeathKey, false) && IsActionItem(stack);
         }
 
         public static bool TryResolveCollectible(ICoreAPI api, string itemCode, out CollectibleObject collectible)
@@ -151,9 +171,24 @@ namespace VsQuest
                 stack.Attributes.SetBool(ActionItemTriggerOnInvAddKey, true);
             }
 
+            if (actionItem.blockMove)
+            {
+                stack.Attributes.SetBool(ActionItemBlockMoveKey, true);
+            }
+
             if (actionItem.blockEquip)
             {
                 stack.Attributes.SetBool(ActionItemBlockEquipKey, true);
+            }
+
+            if (actionItem.blockDrop)
+            {
+                stack.Attributes.SetBool(ActionItemBlockDropKey, true);
+            }
+
+            if (actionItem.blockDeath)
+            {
+                stack.Attributes.SetBool(ActionItemBlockDeathKey, true);
             }
 
             if (actionItem.attributes != null)

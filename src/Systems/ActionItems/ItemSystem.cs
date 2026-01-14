@@ -20,6 +20,7 @@ namespace VsQuest
         private IServerNetworkChannel serverChannel;
 
         private long inventoryScanListenerId = 0;
+        private long hotbarEnforceListenerId = 0;
 
         private const string ActionItemsCreativeTabCode = "vsquest-actionitems";
 
@@ -169,6 +170,9 @@ namespace VsQuest
             // Periodically scan inventories for action items that should trigger when added.
             // This avoids relying on right click and allows one-time processing.
             inventoryScanListenerId = api.Event.RegisterGameTickListener(OnInventoryScanTick, 1000);
+
+            // Periodically enforce hotbar-only placement for special quest items (blockEquip action items).
+            hotbarEnforceListenerId = api.Event.RegisterGameTickListener(OnHotbarEnforceTick, 500);
         }
 
         public override void StartClientSide(ICoreClientAPI api)
@@ -183,6 +187,81 @@ namespace VsQuest
             {
                 InjectActionItemsCreativeTab(api);
             };
+        }
+
+        private void OnHotbarEnforceTick(float dt)
+        {
+            if (sapi == null) return;
+
+            var players = sapi.World.AllOnlinePlayers;
+            if (players == null || players.Length == 0) return;
+
+            foreach (var p in players)
+            {
+                if (p is not IServerPlayer sp) continue;
+
+                var invMgr = sp.InventoryManager;
+                if (invMgr?.Inventories == null) continue;
+
+                var hotbarInv = invMgr.GetHotbarInventory();
+                if (hotbarInv == null) continue;
+
+                bool foundOutside = false;
+
+                // Find one blocked action item outside hotbar and move it into first free hotbar slot.
+                foreach (var kvp in invMgr.Inventories)
+                {
+                    var inv = kvp.Value;
+
+                    if (inv == null) continue;
+                    if (inv == hotbarInv) continue;
+                    if (inv.ClassName == GlobalConstants.creativeInvClassName) continue;
+
+                    for (int i = 0; i < inv.Count; i++)
+                    {
+                        var sourceSlot = inv[i];
+                        if (sourceSlot?.Empty != false) continue;
+
+                        var stack = sourceSlot.Itemstack;
+                        if (!ItemAttributeUtils.IsActionItemBlockedMove(stack)) continue;
+
+                        foundOutside = true;
+
+                        ItemSlot freeHotbarSlot = null;
+                        for (int j = 0; j < hotbarInv.Count; j++)
+                        {
+                            var hs = hotbarInv[j];
+                            if (hs?.Empty == true)
+                            {
+                                freeHotbarSlot = hs;
+                                break;
+                            }
+                        }
+
+                        // No free hotbar slot => do nothing (never delete items).
+                        if (freeHotbarSlot == null) break;
+
+                        var op = new ItemStackMoveOperation(sapi.World, EnumMouseButton.Left, 0, EnumMergePriority.AutoMerge, sourceSlot.StackSize)
+                        {
+                            ActingPlayer = sp
+                        };
+
+                        sourceSlot.TryPutInto(freeHotbarSlot, ref op);
+                        sourceSlot.MarkDirty();
+                        freeHotbarSlot.MarkDirty();
+
+                        // Only move one per tick per player to reduce churn
+                        foundOutside = false;
+                        break;
+                    }
+
+                    if (!foundOutside)
+                    {
+                        // either nothing found, or we moved one and want to stop scanning inventories for this player
+                        break;
+                    }
+                }
+            }
         }
 
         private bool TryGetActionItemActionsFromAttributes(ITreeAttribute attributes, out List<ItemAction> actions, out string sourceQuestId)
@@ -276,7 +355,19 @@ namespace VsQuest
                     var inventory = iinv.Value;
                     if (inventory == null) continue;
 
-                    for (int slotIndex = 0; slotIndex < inventory.Count; slotIndex++)
+                    if (inventory.ClassName == GlobalConstants.creativeInvClassName) continue;
+
+                    int slotCount;
+                    try
+                    {
+                        slotCount = inventory.Count;
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+
+                    for (int slotIndex = 0; slotIndex < slotCount; slotIndex++)
                     {
                         var slot = inventory[slotIndex];
                         var stack = slot?.Itemstack;

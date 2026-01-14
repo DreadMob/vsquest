@@ -4,6 +4,60 @@
   "perPlayer": true,
   "onAcceptedActions": [
     {
+      "id": "removeplayerattribute",
+      "args": [
+        "alstory:armorparts"
+      ]
+    },
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "alstory:found-helm"
+      ]
+    },
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "alstory:found-chest"
+      ]
+    },
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "alstory:found-legs"
+      ]
+    },
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "alstory:found-boots"
+      ]
+    },
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "vsquest:itemaction:invadd:alstory-armor-helm"
+      ]
+    },
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "vsquest:itemaction:invadd:alstory-armor-chest"
+      ]
+    },
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "vsquest:itemaction:invadd:alstory-armor-legs"
+      ]
+    },
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "vsquest:itemaction:invadd:alstory-armor-boots"
+      ]
+    },
+    {
       "id": "addjournalentry",
       "args": [
         "alstory:echo-proklyatiya",

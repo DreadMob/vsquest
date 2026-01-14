@@ -67,6 +67,7 @@ namespace VsQuest
 
             actionRegistry.Add("setquestgiverattribute", new SetQuestGiverAttributeQuestAction());
             actionRegistry.Add("notify", new NotifyQuestAction());
+            actionRegistry.Add("discover", new DiscoverQuestAction());
             actionRegistry.Add("showquestfinaldialog", new ShowQuestFinalDialogQuestAction());
         }
     }

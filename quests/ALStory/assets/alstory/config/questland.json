@@ -1,13 +1,13 @@
 {
   "allowedQuestPrefixes": ["alstory:"],
-  "enterAction": "notify '{message}'; playsound alegacyvsquest:sounds/queacc 0.175",
-  "exitAction": "notify '{message}'; playsound alegacyvsquest:sounds/queacc 0.175",
+  "enterAction": "discover '{message}'; playsound survival:sounds/effect/tempstab-drain 0.55",
+  "exitAction": "discover '{message}'; playsound survival:sounds/effect/tempstab-drain 0.35",
   "defaultExitMessage": "Мирные земли",
   "enterMessages": {
-    "Проклятый Холм": "Вход в Проклятый Холм",
-    "Лагерь Кровавой Длани": "Лагерь Кровавой Длани",
-    "Башня Ордена": "Башня Ордена",
-    "Обречённая деревня": "Деревня у Погибшего Камня",
-    "Некрополь Королей": "Некрополь Королей"
+    "kvest loka 1": "Вход в Проклятый Холм",
+    "lager rasboinik": "Лагерь Кровавой Длани",
+    "basnya kvest": "Башня Ордена",
+    "derevnia": "Деревня у Погибшего Камня",
+    "nekropol kvest": "Некрополь Королей"
   }
 }

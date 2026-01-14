@@ -1,0 +1,14 @@
+{
+  "money": {
+    "avg": 30,
+    "var": 10
+  },
+  "selling": {
+    "maxItems": 0,
+    "list": []
+  },
+  "buying": {
+    "maxItems": 0,
+    "list": []
+  }
+}

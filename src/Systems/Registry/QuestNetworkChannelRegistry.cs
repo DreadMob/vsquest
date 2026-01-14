@@ -21,6 +21,7 @@ namespace VsQuest
                 .RegisterMessageType<ExecutePlayerCommandMessage>().SetMessageHandler<ExecutePlayerCommandMessage>(message => questSystem.OnExecutePlayerCommand(message, capi))
                 .RegisterMessageType<VanillaBlockInteractMessage>()
                 .RegisterMessageType<ShowNotificationMessage>().SetMessageHandler<ShowNotificationMessage>(message => questSystem.OnShowNotificationMessage(message, capi))
+                .RegisterMessageType<ShowDiscoveryMessage>().SetMessageHandler<ShowDiscoveryMessage>(message => questSystem.OnShowDiscoveryMessage(message, capi))
                 .RegisterMessageType<ShowQuestDialogMessage>().SetMessageHandler<ShowQuestDialogMessage>(message => questSystem.OnShowQuestDialogMessage(message, capi));
         }
 
@@ -33,6 +34,7 @@ namespace VsQuest
                 .RegisterMessageType<ExecutePlayerCommandMessage>()
                 .RegisterMessageType<VanillaBlockInteractMessage>().SetMessageHandler<VanillaBlockInteractMessage>((player, message) => questSystem.OnVanillaBlockInteract(player, message, sapi))
                 .RegisterMessageType<ShowNotificationMessage>()
+                .RegisterMessageType<ShowDiscoveryMessage>()
                 .RegisterMessageType<ShowQuestDialogMessage>();
         }
     }

@@ -17,7 +17,12 @@ namespace VsQuest
         public List<ItemAction> actions { get; set; } = new List<ItemAction>();
         public string sourceQuestId { get; set; }
         public bool triggerOnInventoryAdd { get; set; } = false;
+        // blockMove: restrict movement (hotbar-only). blockEquip: forbid equipping into character slots.
+        // blockDrop: forbid manual dropping. blockDeath: forbid dropping on death.
+        public bool blockMove { get; set; } = false;
         public bool blockEquip { get; set; } = false;
+        public bool blockDrop { get; set; } = false;
+        public bool blockDeath { get; set; } = false;
         public Dictionary<string, float> attributes { get; set; } = new Dictionary<string, float>();
 
         /// List of custom attribute keys to show in tooltip (e.g., ["attackpower", "warmth"])

@@ -26,6 +26,9 @@ namespace VsQuest
 
         public QuestConfig Config { get; set; }
         private ICoreAPI api;
+
+        private VsQuestDiscoveryHud discoveryHud;
+
         public override void Start(ICoreAPI api)
         {
             this.api = api;
@@ -78,6 +81,15 @@ namespace VsQuest
             base.StartClientSide(capi);
 
             networkChannelRegistry.RegisterClient(capi);
+
+            try
+            {
+                discoveryHud = new VsQuestDiscoveryHud(capi);
+            }
+            catch
+            {
+                discoveryHud = null;
+            }
         }
 
         internal void OnShowNotificationMessage(ShowNotificationMessage message, ICoreClientAPI capi)
@@ -94,6 +106,30 @@ namespace VsQuest
             text = NotificationTextUtil.Build(message, capi.Logger);
 
             capi.ShowChatMessage(text);
+        }
+
+        internal void OnShowDiscoveryMessage(ShowDiscoveryMessage message, ICoreClientAPI capi)
+        {
+            if (message == null)
+            {
+                return;
+            }
+
+            string text = NotificationTextUtil.Build(new ShowNotificationMessage
+            {
+                Notification = message.Notification,
+                Template = message.Template,
+                Need = message.Need,
+                MobCode = message.MobCode
+            }, capi.Logger);
+
+            if (discoveryHud != null)
+            {
+                discoveryHud.Show(text);
+                return;
+            }
+
+            capi.TriggerIngameDiscovery(this, "vsquest", text);
         }
 
         public override void StartServerSide(ICoreServerAPI sapi)

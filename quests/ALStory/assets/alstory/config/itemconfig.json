@@ -41,6 +41,8 @@
       "sourceQuestId": "alstory:echo-proklyatiya",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
+      "blockDrop": true,
+      "blockDeath": true,
       "actions": [
         {
           "id": "addplayerint",
@@ -69,6 +71,8 @@
       "sourceQuestId": "alstory:echo-proklyatiya",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
+      "blockDrop": true,
+      "blockDeath": true,
       "actions": [
         {
           "id": "addplayerint",
@@ -97,6 +101,8 @@
       "sourceQuestId": "alstory:echo-proklyatiya",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
+      "blockDrop": true,
+      "blockDeath": true,
       "actions": [
         {
           "id": "addplayerint",
@@ -126,6 +132,8 @@
       "sourceQuestId": "alstory:echo-proklyatiya",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
+      "blockDrop": true,
+      "blockDeath": true,
       "actions": [
         {
           "id": "addplayerint",

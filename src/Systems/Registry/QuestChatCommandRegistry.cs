@@ -34,7 +34,11 @@ namespace VsQuest
             var questAttrRemoveHandler = new QuestAttrRemoveCommandHandler(sapi);
             var questAttrListHandler = new QuestAttrListCommandHandler(sapi);
 
+            var questWAttrHandler = new QuestWAttrCommandHandler(sapi);
+
             var questStartHandler = new QuestStartCommandHandler(sapi, questSystem);
+
+            var questExecActionStringHandler = new QuestExecActionStringCommandHandler(sapi);
 
             var questEntityHandler = new QuestEntityCommandHandler(sapi, questSystem);
 
@@ -115,6 +119,59 @@ namespace VsQuest
                         .HandleWith(questAttrRemoveHandler.Handle)
                     .EndSubCommand()
                 .EndSubCommand()
+                .BeginSubCommand("wattr")
+                    .WithDescription("Admin WatchedAttributes on an online player. If no player is given, uses the caller.")
+                    .RequiresPrivilege(Privilege.give)
+                    .BeginSubCommand("setint")
+                        .WithDescription("Sets an int WatchedAttribute.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                            sapi.ChatCommands.Parsers.Word("key"),
+                            sapi.ChatCommands.Parsers.Int("value")
+                        )
+                        .HandleWith(questWAttrHandler.SetInt)
+                    .EndSubCommand()
+                    .BeginSubCommand("addint")
+                        .WithDescription("Adds delta to an int WatchedAttribute.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                            sapi.ChatCommands.Parsers.Word("key"),
+                            sapi.ChatCommands.Parsers.Int("delta")
+                        )
+                        .HandleWith(questWAttrHandler.AddInt)
+                    .EndSubCommand()
+                    .BeginSubCommand("setbool")
+                        .WithDescription("Sets a bool WatchedAttribute.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                            sapi.ChatCommands.Parsers.Word("key"),
+                            sapi.ChatCommands.Parsers.Bool("value")
+                        )
+                        .HandleWith(questWAttrHandler.SetBool)
+                    .EndSubCommand()
+                    .BeginSubCommand("setstring")
+                        .WithDescription("Sets a string WatchedAttribute.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                            sapi.ChatCommands.Parsers.Word("key"),
+                            sapi.ChatCommands.Parsers.All("value")
+                        )
+                        .HandleWith(questWAttrHandler.SetString)
+                    .EndSubCommand()
+                    .BeginSubCommand("remove")
+                        .WithDescription("Removes a WatchedAttribute key.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                            sapi.ChatCommands.Parsers.Word("key")
+                        )
+                        .HandleWith(questWAttrHandler.Remove)
+                    .EndSubCommand()
+                .EndSubCommand()
                 .BeginSubCommand("list")
                     .WithDescription("Lists all registered quest IDs and their titles.")
                     .RequiresPrivilege(Privilege.give)
@@ -137,7 +194,17 @@ namespace VsQuest
                     .RequiresPrivilege(Privilege.give)
                     .WithArgs(sapi.ChatCommands.Parsers.OptionalWord("playerName"))
                     .HandleWith(forgiveAllQuestHandler.Handle)
-                .EndSubCommand();
+                .EndSubCommand()
+                .BeginSubCommand("exec")
+                    .WithDescription("Executes an action string (ActionStringExecutor) on a player. If no player is given, uses the caller.")
+                    .RequiresPrivilege(Privilege.give)
+                    .WithArgs(
+                        sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                        sapi.ChatCommands.Parsers.All("actionString")
+                    )
+                    .HandleWith(questExecActionStringHandler.Handle)
+                .EndSubCommand()
+                ;
         }
     }
 }

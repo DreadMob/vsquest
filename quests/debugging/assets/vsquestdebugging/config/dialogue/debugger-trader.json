@@ -1,0 +1,35 @@
+{
+  "components": [
+    {
+      "code": "main",
+      "owner": "trader",
+      "type": "talk",
+      "text": [
+        { "value": "Debugger online." }
+      ],
+      "jumpTo": "choices"
+    },
+    {
+      "code": "choices",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "Trade", "jumpTo": "opentrade" },
+        { "value": "Bye", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "opentrade",
+      "owner": "trader",
+      "trigger": "opentrade"
+    },
+    {
+      "code": "close",
+      "owner": "trader",
+      "type": "talk",
+      "text": [
+        { "value": "..." }
+      ]
+    }
+  ]
+}

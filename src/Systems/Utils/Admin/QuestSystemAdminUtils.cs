@@ -98,6 +98,48 @@ namespace VsQuest
 
             if (loreCodes == null || loreCodes.Length == 0)
             {
+                try
+                {
+                    var itemSystem = sapi.ModLoader.GetModSystem<ItemSystem>();
+                    if (itemSystem?.ActionItemRegistry != null && itemSystem.ActionItemRegistry.Count > 0)
+                    {
+                        var fromItems = new List<string>();
+
+                        foreach (var kvp in itemSystem.ActionItemRegistry)
+                        {
+                            var ai = kvp.Value;
+                            if (ai?.actions == null || ai.actions.Count == 0) continue;
+
+                            bool matches;
+                            if (string.Equals(questId, ItemAttributeUtils.ActionItemDefaultSourceQuestId, StringComparison.OrdinalIgnoreCase))
+                            {
+                                matches = string.IsNullOrWhiteSpace(ai.sourceQuestId);
+                            }
+                            else
+                            {
+                                matches = string.Equals(ai.sourceQuestId, questId, StringComparison.OrdinalIgnoreCase);
+                            }
+                            if (!matches) continue;
+
+                            foreach (var act in ai.actions)
+                            {
+                                if (act == null) continue;
+                                if (!string.Equals(act.id, "addjournalentry", StringComparison.OrdinalIgnoreCase)) continue;
+                                if (act.args == null || act.args.Length < 1) continue;
+                                if (!string.IsNullOrWhiteSpace(act.args[0])) fromItems.Add(act.args[0]);
+                            }
+                        }
+
+                        loreCodes = fromItems.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            if (loreCodes == null || loreCodes.Length == 0)
+            {
                 player.Entity.WatchedAttributes.RemoveAttribute(loreCodesKey);
                 player.Entity.WatchedAttributes.MarkPathDirty(loreCodesKey);
                 return;
@@ -119,8 +161,24 @@ namespace VsQuest
                 var journalsField = t.GetField("journalsByPlayerUid", BindingFlags.Instance | BindingFlags.NonPublic);
                 var channelField = t.GetField("serverChannel", BindingFlags.Instance | BindingFlags.NonPublic);
 
-                var journals = journalsField?.GetValue(modJournal) as Dictionary<string, Journal>;
-                var serverChannel = channelField?.GetValue(modJournal) as IServerNetworkChannel;
+                Dictionary<string, Journal> journals = journalsField?.GetValue(modJournal) as Dictionary<string, Journal>;
+                IServerNetworkChannel serverChannel = channelField?.GetValue(modJournal) as IServerNetworkChannel;
+
+                if (journals == null || serverChannel == null)
+                {
+                    var fields = t.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (journals == null)
+                    {
+                        var jf = fields.FirstOrDefault(f => typeof(Dictionary<string, Journal>).IsAssignableFrom(f.FieldType));
+                        journals = jf?.GetValue(modJournal) as Dictionary<string, Journal>;
+                    }
+
+                    if (serverChannel == null)
+                    {
+                        var cf = fields.FirstOrDefault(f => typeof(IServerNetworkChannel).IsAssignableFrom(f.FieldType));
+                        serverChannel = cf?.GetValue(modJournal) as IServerNetworkChannel;
+                    }
+                }
                 if (journals == null || serverChannel == null) return;
 
                 if (!journals.TryGetValue(player.PlayerUID, out var journal) || journal?.Entries == null) return;
@@ -160,6 +218,14 @@ namespace VsQuest
                 // Always clear tracking so future forgive doesn't keep trying
                 player.Entity.WatchedAttributes.RemoveAttribute(loreCodesKey);
                 player.Entity.WatchedAttributes.MarkPathDirty(loreCodesKey);
+
+                foreach (var loreCode in loreCodes ?? Array.Empty<string>())
+                {
+                    if (string.IsNullOrWhiteSpace(loreCode)) continue;
+                    string idKey = $"alegacyvsquest:journal:entryid:{loreCode}";
+                    player.Entity.WatchedAttributes.RemoveAttribute(idKey);
+                    player.Entity.WatchedAttributes.MarkPathDirty(idKey);
+                }
             }
         }
 
@@ -332,6 +398,9 @@ namespace VsQuest
             if (sapi != null)
             {
                 RemoveQuestJournalEntries(sapi, questSystem, player, questId);
+                // Action items that don't specify sourceQuestId default to the "item-action" bucket.
+                // Clear it as well so journal entries added via items are removed when forgiving.
+                RemoveQuestJournalEntries(sapi, questSystem, player, ItemAttributeUtils.ActionItemDefaultSourceQuestId);
                 ClearQuestGiverChainCooldowns(player, sapi);
             }
             ClearPerQuestPlayerState(player, questId);
@@ -359,6 +428,8 @@ namespace VsQuest
                     RemoveQuestJournalEntries(sapi, questSystem, player, questId);
                 }
 
+                // Also clear journal entries added via action items not tied to any quest.
+                RemoveQuestJournalEntries(sapi, questSystem, player, ItemAttributeUtils.ActionItemDefaultSourceQuestId);
                 ClearQuestGiverChainCooldowns(player, sapi);
             }
 
