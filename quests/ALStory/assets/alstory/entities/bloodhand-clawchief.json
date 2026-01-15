@@ -50,7 +50,8 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 2.1251 },
-      { "code": "health", "currenthealth": 120, "maxhealth": 120 },
+      { "code": "health", "currenthealth": 400, "maxhealth": 400 },
+      { "code": "questtarget", "targetId": "alstory:echo-proklyatiya:clawchief" },
       { "code": "deaddecay", "hoursToDecay": 999999 },
       {
         "code": "emotionstates",
@@ -65,8 +66,11 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damageByType": { "*-bellhead": 24 },
-            "damageTierByType": { "*-bellhead": 4 },
+            "damage": 24,
+            "damageTier": 4,
+            "minDist": 3.2,
+            "minVerDist": 2.0,
+            "attackAngleRangeDeg": 60,
             "mincooldown": 500,
             "maxcooldown": 1750,
             "damagePlayerAtMs": 400,
@@ -97,7 +101,7 @@
         ]
       },
       { "code": "bossrespawn", "respawnInGameHours": 24, "spawnNewBoss": false },
-      { "code": "questtarget", "targetId": "alstory:clawchief", "leashRange": 40, "returnMoveSpeed": 0.045, "leashCheckMs": 1000 },
+      { "code": "questtarget", "targetId": "alstory:echo-proklyatiya:clawchief", "leashRange": 40, "returnMoveSpeed": 0.045, "leashCheckMs": 1000 },
       { "code": "floatupwhenstuck", "onlyWhenDead": true }
     ]
   },

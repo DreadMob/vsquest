@@ -404,6 +404,7 @@ namespace VsQuest
                 ClearQuestGiverChainCooldowns(player, sapi);
             }
             ClearPerQuestPlayerState(player, questId);
+            ClearKillActionTargetProgressForQuest(questSystem, player, questId);
             ClearActionObjectiveCompletionFlagsForQuest(questSystem, player, questId);
             RemoveQuestFromCompletedList(player, questId);
 
@@ -443,6 +444,7 @@ namespace VsQuest
                 foreach (var questId in questSystem.QuestRegistry.Keys.ToList())
                 {
                     ClearPerQuestPlayerState(player, questId);
+                    ClearKillActionTargetProgressForQuest(questSystem, player, questId);
                     ClearActionObjectiveCompletionFlagsForQuest(questSystem, player, questId);
                 }
 
@@ -451,6 +453,40 @@ namespace VsQuest
 
             questSystem.SavePlayerQuests(player.PlayerUID, quests ?? new System.Collections.Generic.List<ActiveQuest>());
             return removedCount;
+        }
+
+        private static void ClearKillActionTargetProgressForQuest(QuestSystem questSystem, IServerPlayer player, string questId)
+        {
+            if (questSystem?.QuestRegistry == null) return;
+            if (player?.Entity?.WatchedAttributes == null) return;
+            if (string.IsNullOrWhiteSpace(questId)) return;
+
+            if (!questSystem.QuestRegistry.TryGetValue(questId, out var questDef) || questDef?.actionObjectives == null) return;
+
+            var wa = player.Entity.WatchedAttributes;
+
+            try
+            {
+                foreach (var ao in questDef.actionObjectives)
+                {
+                    if (ao == null) continue;
+                    if (!string.Equals(ao.id, "killactiontarget", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (ao.args == null || ao.args.Length < 2) continue;
+
+                    // Expected args: <questId> <objectiveId> <targetId> <need>
+                    string qid = ao.args[0];
+                    string objectiveId = ao.args[1];
+                    if (string.IsNullOrWhiteSpace(qid) || string.IsNullOrWhiteSpace(objectiveId)) continue;
+
+                    // Use the same key format as KillActionTargetObjective.CountKey
+                    string key = $"vsquest:killactiontarget:{qid}:{objectiveId}:count";
+                    wa.RemoveAttribute(key);
+                    wa.MarkPathDirty(key);
+                }
+            }
+            catch
+            {
+            }
         }
     }
 }

@@ -75,27 +75,32 @@
   ],
   "actionObjectives": [
     {
-      "id": "inland",
+      "id": "killactiontarget",
       "objectiveId": "bloodhandcamp",
-      "onCompleteActions": "addjournalentry alstory:echo-proklyatiya alstory:echo-proklyatiya-journal-title alstory:echo-proklyatiya-journal-step1",
+      "onCompleteActions": "addjournalentry alstory:echo-proklyatiya alstory:echo-proklyatiya-journal-title alstory:echo-proklyatiya-journal-step1; questitem alstory-armor-chest",
       "args": [
-        "lager rasboinik"
+        "alstory:echo-proklyatiya",
+        "bloodhandcamp",
+        "alstory:echo-proklyatiya:clawchief",
+        "1"
       ]
     },
     {
-      "id": "inland",
+      "id": "reachwaypoint",
       "objectiveId": "ordertower",
       "onCompleteActions": "addjournalentry alstory:echo-proklyatiya alstory:echo-proklyatiya-journal-title alstory:echo-proklyatiya-journal-step2",
       "args": [
-        "basnya kvest"
+        "1426,250,-4965",
+        "30"
       ]
     },
     {
-      "id": "inland",
+      "id": "reachwaypoint",
       "objectiveId": "village",
       "onCompleteActions": "addjournalentry alstory:echo-proklyatiya alstory:echo-proklyatiya-journal-title alstory:echo-proklyatiya-journal-step3",
       "args": [
-        "derevnia"
+        "-1243,180,-12736",
+        "40"
       ]
     },
     {
@@ -104,7 +109,7 @@
       "args": [
         "alstory:armorparts",
         ">=",
-        "4"
+        "3"
       ]
     }
   ],

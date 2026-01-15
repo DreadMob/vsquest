@@ -1,6 +1,7 @@
 using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
@@ -20,9 +21,41 @@ namespace VsQuest
         private bool spawnNewBoss;
         private long tickListenerId;
         private bool scheduled;
+        private bool announcedDeath;
 
         public EntityBehaviorBossRespawn(Entity entity) : base(entity)
         {
+        }
+
+        public override void OnEntityDeath(DamageSource damageSourceForDeath)
+        {
+            base.OnEntityDeath(damageSourceForDeath);
+
+            if (sapi == null || entity == null) return;
+            if (announcedDeath) return;
+
+            try
+            {
+                var plrEntity = damageSourceForDeath?.SourceEntity as EntityPlayer;
+                if (plrEntity == null) return;
+
+                var killer = sapi.World.PlayerByUid(plrEntity.PlayerUID) as IServerPlayer;
+                if (killer == null) return;
+
+                string bossName = MobLocalizationUtils.GetMobDisplayName(entity.Code?.ToShortString());
+                if (string.IsNullOrWhiteSpace(bossName)) bossName = entity.Code?.ToShortString() ?? "?";
+
+                string playerName = ChatFormatUtil.Font(killer.PlayerName, "#ffd75e");
+                string bossNameColored = ChatFormatUtil.Font(bossName, "#ff77ff");
+                string text = ChatFormatUtil.PrefixAlert($"{playerName} победил босса {bossNameColored}");
+
+                GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
+
+                announcedDeath = true;
+            }
+            catch
+            {
+            }
         }
 
         public override void Initialize(EntityProperties properties, JsonObject attributes)
@@ -47,6 +80,7 @@ namespace VsQuest
             if (entity.Alive)
             {
                 scheduled = false;
+                announcedDeath = false;
                 return;
             }
 

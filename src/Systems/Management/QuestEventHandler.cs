@@ -47,6 +47,20 @@ namespace VsQuest
                 var quests = persistenceManager.GetPlayerQuests(player.PlayerUID);
                 QuestDeathUtil.HandleEntityDeath(sapi, quests, player, entity);
             }
+
+            var victimPlayer = entity as EntityPlayer;
+            if (victimPlayer != null)
+            {
+                var killer = damageSource?.SourceEntity;
+                if (killer != null && killer.GetBehavior<EntityBehaviorQuestBoss>() != null)
+                {
+                    var serverVictim = victimPlayer.Player as IServerPlayer;
+                    if (serverVictim != null)
+                    {
+                        BossKillAnnouncementUtil.AnnouncePlayerKilledByBoss(sapi, serverVictim, killer);
+                    }
+                }
+            }
         }
 
         private void OnBlockBroken(IServerPlayer byPlayer, int blockId, BlockSelection blockSel)

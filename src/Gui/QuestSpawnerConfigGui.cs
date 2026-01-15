@@ -55,6 +55,8 @@ namespace VsQuest
             ElementBounds fullRow = cur.FlatCopy();
 
             ElementBounds closeButtonBounds = ElementBounds.FixedSize(0, 0).WithAlignment(EnumDialogArea.LeftFixed).WithFixedPadding(20, 4);
+            ElementBounds toggleButtonBounds = ElementBounds.FixedSize(0, 0).WithAlignment(EnumDialogArea.CenterFixed).WithFixedPadding(20, 4);
+            ElementBounds killButtonBounds = ElementBounds.FixedSize(0, 0).WithAlignment(EnumDialogArea.CenterFixed).WithFixedPadding(20, 4);
             ElementBounds saveButtonBounds = ElementBounds.FixedSize(0, 0).WithAlignment(EnumDialogArea.RightFixed).WithFixedPadding(20, 4);
 
             bgBounds.WithChildren(cur, closeButtonBounds, saveButtonBounds);
@@ -90,6 +92,8 @@ namespace VsQuest
 
             SingleComposer
                 .AddSmallButton("Close", OnButtonClose, closeButtonBounds.FixedUnder(cur, 10))
+                .AddSmallButton("Enable/Disable", OnButtonToggle, toggleButtonBounds.FixedUnder(cur, 10))
+                .AddSmallButton("Kill", OnButtonKill, killButtonBounds.FixedUnder(cur, 10).WithFixedOffset(0, 30))
                 .AddSmallButton("Save", OnButtonSave, saveButtonBounds.FixedUnder(cur, 10))
                 .EndChildElements()
                 .Compose();
@@ -120,6 +124,18 @@ namespace VsQuest
             data.entries = SingleComposer.GetTextArea(KeyEntries).GetText();
 
             capi.Network.SendBlockEntityPacket(bePos, 1001, SerializerUtil.Serialize(data));
+            return true;
+        }
+
+        private bool OnButtonKill()
+        {
+            capi.Network.SendBlockEntityPacket(bePos, 1002, new byte[0]);
+            return true;
+        }
+
+        private bool OnButtonToggle()
+        {
+            capi.Network.SendBlockEntityPacket(bePos, 1003, new byte[0]);
             return true;
         }
 

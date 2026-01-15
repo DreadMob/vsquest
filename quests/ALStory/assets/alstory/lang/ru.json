@@ -2,7 +2,7 @@
   "alstory:echo-proklyatiya-title": "Эхо Проклятия",
   "alstory:echo-proklyatiya-desc": "Старик Элрик просит собрать эхо истории Ордена Обречённых. Их доспехи, выкованные силой Гнили, давали мощь — и пожирали душу.\n\nНужно найти части доспехов и пройти по следам Ордена: лагерь Кровавой Длани, башня Ордена и обречённая деревня.",
 
-  "alstory:echo-proklyatiya-obj-bloodhandcamp": "Лагерь Кровавой Длани: {0}/{1}",
+  "alstory:echo-proklyatiya-obj-bloodhandcamp": "Убить Вождя с Руками-Клещами: {0}/{1}",
   "alstory:echo-proklyatiya-obj-ordertower": "Башня Ордена: {0}/{1}",
   "alstory:echo-proklyatiya-obj-village": "Обречённая деревня: {0}/{1}",
   "alstory:echo-proklyatiya-obj-armorparts": "Части доспехов Обречённых: {0}/{1}",
@@ -52,6 +52,10 @@
   "alstory:item-creature-bloodhand-raider-tainted": "Разбойник Кровавой Длани",
   "alstory:item-creature-bloodhand-champion-corrupt": "Громила Кровавой Длани",
   "alstory:item-creature-bloodhand-clawchief-bellhead": "Вождь с Руками-Клещами",
+
+  "alstory:item-dead-creature-bloodhand-raider-tainted": "Труп: Разбойник Кровавой Длани",
+  "alstory:item-dead-creature-bloodhand-champion-corrupt": "Труп: Громила Кровавой Длани",
+  "alstory:item-dead-creature-bloodhand-clawchief-bellhead": "Труп: Вождь с Руками-Клещами",
 
   "alstory:dialogue-elrik-intro": "Тень. Эхо. Упрямец, что отказывается стать прахом. Уходи, пока моя участь не стала и твоей.",
   "alstory:dialogue-elrik-who": "Кто ты?",

@@ -21,6 +21,8 @@ namespace VsQuest
 
         private const int PacketOpenGui = 1000;
         private const int PacketSave = 1001;
+        private const int PacketKill = 1002;
+        private const int PacketToggle = 1003;
 
         private string entityCode;
         private string killId;
@@ -172,10 +174,81 @@ namespace VsQuest
 
         public override void OnReceivedClientPacket(IPlayer fromPlayer, int packetid, byte[] bytes)
         {
-            if (packetid != PacketSave) return;
+            if (packetid == PacketSave)
+            {
+                var data = SerializerUtil.Deserialize<QuestSpawnerConfigData>(bytes);
+                ApplyConfigData(data, markDirty: true);
+                return;
+            }
 
-            var data = SerializerUtil.Deserialize<QuestSpawnerConfigData>(bytes);
-            ApplyConfigData(data, markDirty: true);
+            if (packetid == PacketKill)
+            {
+                KillAllSpawned(fromPlayer);
+                return;
+            }
+
+            if (packetid == PacketToggle)
+            {
+                ToggleEnabledServer(fromPlayer);
+                return;
+            }
+        }
+
+        private void ToggleEnabledServer(IPlayer byPlayer)
+        {
+            if (Api?.Side != EnumAppSide.Server) return;
+
+            var sp = byPlayer as IServerPlayer;
+            if (sp == null) return;
+
+            ToggleEnabled();
+            MarkDirty(true);
+
+            // Refresh GUI on client if it's open
+            var data = BuildConfigData();
+            (Api as ICoreServerAPI).Network.SendBlockEntityPacket(sp, Pos, PacketOpenGui, SerializerUtil.Serialize(data));
+        }
+
+        private void KillAllSpawned(IPlayer byPlayer)
+        {
+            if (Api?.Side != EnumAppSide.Server) return;
+
+            var sapi = Api as ICoreServerAPI;
+            if (sapi?.World?.LoadedEntities == null) return;
+
+            var list = new System.Collections.Generic.List<Entity>();
+            try
+            {
+                foreach (var e in sapi.World.LoadedEntities.Values)
+                {
+                    var wa = e?.WatchedAttributes;
+                    if (wa == null) continue;
+
+                    if (wa.GetInt("vsquest:spawner:dim", int.MinValue) != Pos.dimension) continue;
+                    if (wa.GetInt("vsquest:spawner:x", int.MinValue) != Pos.X) continue;
+                    if (wa.GetInt("vsquest:spawner:y", int.MinValue) != Pos.Y) continue;
+                    if (wa.GetInt("vsquest:spawner:z", int.MinValue) != Pos.Z) continue;
+
+                    list.Add(e);
+                }
+            }
+            catch
+            {
+                return;
+            }
+
+            foreach (var e in list)
+            {
+                try
+                {
+                    sapi.World.DespawnEntity(e, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
+                }
+                catch
+                {
+                }
+            }
+
+            MarkDirty(true);
         }
 
         private QuestSpawnerConfigData BuildConfigData()
@@ -324,24 +397,62 @@ namespace VsQuest
             if (elapsed < spawnIntervalSeconds) return;
             elapsed = 0;
 
-            int alive = CountAliveInRange();
-            if (alive >= maxAlive) return;
+            var countResult = CountAliveInRangeAndCheckBossRespawn();
+            if (countResult.blockSpawn) return;
+            if (countResult.aliveCount >= maxAlive) return;
 
             TrySpawnOne(entry);
         }
 
-        private int CountAliveInRange()
+        private (int aliveCount, bool blockSpawn) CountAliveInRangeAndCheckBossRespawn()
         {
             var world = Api?.World;
-            if (world == null) return 0;
+            if (world == null) return (0, false);
+
+            // Prefer scanning loaded entities to avoid duplicates when spawned mobs wander away from the spawner radius.
+            // (Radius-based counting can miss living mobs that moved far, causing the spawner to create extra copies.)
+            var sapi = Api as ICoreServerAPI;
+            var loaded = sapi?.World?.LoadedEntities?.Values;
+            if (loaded != null)
+            {
+                int aliveCount = 0;
+                bool blockSpawn = false;
+
+                foreach (var e in loaded)
+                {
+                    var wa = e?.WatchedAttributes;
+                    if (wa == null) continue;
+
+                    if (wa.GetInt("vsquest:spawner:dim", int.MinValue) != Pos.dimension) continue;
+                    if (wa.GetInt("vsquest:spawner:x", int.MinValue) != Pos.X) continue;
+                    if (wa.GetInt("vsquest:spawner:y", int.MinValue) != Pos.Y) continue;
+                    if (wa.GetInt("vsquest:spawner:z", int.MinValue) != Pos.Z) continue;
+
+                    if (e.Alive)
+                    {
+                        aliveCount++;
+                    }
+                    else
+                    {
+                        double respawnAt = wa.GetDouble("vsquest:bossrespawnAtTotalHours", double.NaN);
+                        if (!double.IsNaN(respawnAt))
+                        {
+                            blockSpawn = true;
+                        }
+                    }
+                }
+
+                return (aliveCount, blockSpawn);
+            }
 
             var center = Pos.ToVec3d().Add(0.5, 0, 0.5);
             float range = Math.Max(leashRange, spawnRadius) + 6f;
 
-            var entities = world.GetEntitiesAround(center, range, range, (Entity e) => e != null && e.Alive);
-            if (entities == null) return 0;
+            var entities = world.GetEntitiesAround(center, range, range, (Entity e) => e != null);
+            if (entities == null) return (0, false);
 
-            int alive = 0;
+            int aliveCountRadius = 0;
+            bool blockSpawnRadius = false;
 
             foreach (var e in entities)
             {
@@ -353,10 +464,24 @@ namespace VsQuest
                 if (wa.GetInt("vsquest:spawner:z", int.MinValue) != Pos.Z) continue;
                 if (wa.GetInt("vsquest:spawner:dim", int.MinValue) != Pos.dimension) continue;
 
-                alive++;
+                if (e.Alive)
+                {
+                    aliveCountRadius++;
+                }
+
+                // If there's a corpse with a boss respawn timer, do not spawn additional copies.
+                // This avoids race conditions where the spawner spawns while bossrespawn also spawns.
+                if (!e.Alive)
+                {
+                    double respawnAt = wa.GetDouble("vsquest:bossrespawnAtTotalHours", double.NaN);
+                    if (!double.IsNaN(respawnAt))
+                    {
+                        blockSpawnRadius = true;
+                    }
+                }
             }
 
-            return alive;
+            return (aliveCountRadius, blockSpawnRadius);
         }
 
         private SpawnEntry SelectSpawnEntry()
@@ -429,8 +554,8 @@ namespace VsQuest
             if (string.IsNullOrWhiteSpace(code)) return false;
 
             // Allow simplified format: "entityCode" only
-            // Default killId = entityCode
-            string id = parts.Length >= 2 ? parts[1]?.Trim() : code;
+            // If killId is omitted, don't set it at all (lets entity's own questtarget.targetId apply)
+            string id = parts.Length >= 2 ? parts[1]?.Trim() : null;
 
             int weight = 1;
             if (parts.Length >= 3)

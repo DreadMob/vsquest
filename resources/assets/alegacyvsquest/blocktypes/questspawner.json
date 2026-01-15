@@ -2,18 +2,24 @@
   "code": "questspawner",
   "class": "BlockQuestSpawner",
   "entityClass": "QuestSpawner",
-  "shape": { "base": "game:block/basic/cube" },
+  "shape": { "base": "alegacyvsquest:block/locustnest/cage/cage1" },
   "drawtype": "json",
-  "textures": { "all": { "base": "game:block/stone/granite" } },
+  "faceCullMode": "NeverCull",
+  "sidesolid": { "all": false },
+  "sideopaque": { "all": false },
+  "textures": {
+    "metal": { "base": "alegacyvsquest:block/locustnest/cage/metal" },
+    "fabric-side1": { "base": "alegacyvsquest:block/locustnest/cage/fabric-side1" },
+    "fabric-side2": { "base": "alegacyvsquest:block/locustnest/cage/fabric-side2" },
+    "fabric-top": { "base": "alegacyvsquest:block/locustnest/cage/fabric-top" }
+  },
   "creativeinventory": {
     "vsquest-actionitems": [ "*" ]
   },
   "attributes": {
-    "entityCode": "game:wolf",
-    "killId": "test",
-    "entries": [
-      "game:wolf|test|1"
-    ],
+    "entityCode": "",
+    "killId": "",
+    "entries": [],
     "maxAlive": 3,
     "spawnIntervalSeconds": 10,
     "spawnRadius": 4,
