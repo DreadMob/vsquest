@@ -1,6 +1,6 @@
 # VSQuest Objectives
 
-> **Documentation Version:** v1.1.0
+> **Documentation Version:** v1.1.2
 
 ---
 
