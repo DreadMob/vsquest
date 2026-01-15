@@ -1,0 +1,23 @@
+{
+  "code": "questspawner",
+  "class": "BlockQuestSpawner",
+  "entityClass": "QuestSpawner",
+  "shape": { "base": "game:block/basic/cube" },
+  "drawtype": "json",
+  "textures": { "all": { "base": "game:block/stone/granite" } },
+  "creativeinventory": {
+    "vsquest-actionitems": [ "*" ]
+  },
+  "attributes": {
+    "entityCode": "game:wolf",
+    "killId": "test",
+    "entries": [
+      "game:wolf|test|1"
+    ],
+    "maxAlive": 3,
+    "spawnIntervalSeconds": 10,
+    "spawnRadius": 4,
+    "leashRange": 12,
+    "yOffset": 0
+  }
+}

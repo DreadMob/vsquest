@@ -40,11 +40,17 @@ namespace VsQuest
             VsQuest.Harmony.EntityInteractPatch.TryPatch(harmony);
 
             api.RegisterEntityBehaviorClass("questgiver", typeof(EntityBehaviorQuestGiver));
+            api.RegisterEntityBehaviorClass("questtarget", typeof(EntityBehaviorQuestTarget));
+            api.RegisterEntityBehaviorClass("bossnametag", typeof(EntityBehaviorBossNameTag));
+            api.RegisterEntityBehaviorClass("bossrespawn", typeof(EntityBehaviorBossRespawn));
             api.RegisterItemClass("ItemDebugTool", typeof(ItemDebugTool));
             api.RegisterItemClass("ItemEntitySpawner", typeof(ItemEntitySpawner));
 
             api.RegisterBlockClass("BlockCooldownPlaceholder", typeof(BlockCooldownPlaceholder));
             api.RegisterBlockEntityClass("CooldownPlaceholder", typeof(BlockEntityCooldownPlaceholder));
+
+            api.RegisterBlockClass("BlockQuestSpawner", typeof(BlockQuestSpawner));
+            api.RegisterBlockEntityClass("QuestSpawner", typeof(BlockEntityQuestSpawner));
 
             // Register objectives
             objectiveRegistry = new QuestObjectiveRegistry(ActionObjectiveRegistry, api);

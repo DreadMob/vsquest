@@ -27,6 +27,7 @@ namespace VsQuest
             objectiveRegistry.Add("inland", new InLandObjective());
             objectiveRegistry.Add("landgate", new LandGateObjective());
             objectiveRegistry.Add("killnear", new KillNearObjective());
+            objectiveRegistry.Add("killactiontarget", new KillActionTargetObjective());
             objectiveRegistry.Add("sequence", new SequenceObjective());
             objectiveRegistry.Add("temporalstorm", new TemporalStormObjective());
             objectiveRegistry.Add("checkvariable", new CheckVariableObjective());

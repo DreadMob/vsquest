@@ -4,7 +4,7 @@
 
 ---
 
-## � Documentation Index
+## Documentation Index
 
 | Document | Description |
 |----------|-------------|

@@ -1,0 +1,117 @@
+{
+  "code": "bloodhand-champion",
+  "class": "EntityDrifter",
+  "tags": ["rust-creature", "habitat-land"],
+  "variantgroups": [
+    { "code": "type", "states": ["corrupt"] }
+  ],
+  "canClimb": true,
+  "hitboxSize": { "x": 0.6, "y": 1.3 },
+  "deadHitboxSize": { "x": 0.6, "y": 1 },
+  "eyeHeight": 1.3,
+  "attributes": {
+    "killedByInfoText": "deadcreature-vile",
+    "reckless": true
+  },
+  "drops": [],
+  "client": {
+    "renderer": "Shape",
+    "pitchStep": false,
+    "shapeByType": {
+      "*-corrupt": { "base": "game:entity/lore/drifter/deerhorn" }
+    },
+    "texturesByType": {
+      "*-corrupt": {
+        "skin": { "base": "game:entity/lore/drifter/deep2" }
+      }
+    },
+    "behaviors": [
+      { "code": "repulseagents" },
+      { "code": "controlledphysics", "stepHeight": 1.1251 },
+      { "code": "floatupwhenstuck", "onlyWhenDead": true },
+      { "code": "interpolateposition" },
+      { "code": "harvestable", "duration": 2 }
+    ],
+    "animations": [
+      { "code": "hurt", "animation": "standhurt", "animationSpeed": 2, "weight": 10, "blendMode": "AddAverage" },
+      { "code": "die", "animation": "standdie", "animationSpeed": 0.7, "weight": 10, "blendMode": "Average", "triggeredBy": { "onControls": ["dead"] } },
+      { "code": "idle", "animation": "standidle", "blendMode": "Average", "triggeredBy": { "defaultAnim": true } },
+      { "code": "standattack", "animation": "standattack", "animationSpeed": 1.5, "weight": 10, "blendMode": "Average" },
+      { "code": "standthrowleft", "animation": "standthrowleft", "animationSpeed": 1.5, "weight": 10, "blendMode": "Average" },
+      { "code": "standdespair", "animation": "standdespair", "animationSpeed": 1.25, "weight": 8, "blendMode": "Average" },
+      { "code": "standcry", "animation": "standcry", "animationSpeed": 1, "weight": 8, "blendMode": "Average" },
+      { "code": "crawlhurt", "animation": "crawlhurt", "animationSpeed": 2, "weight": 10, "blendMode": "AddAverage" },
+      { "code": "crawldie", "animation": "crawldie", "animationSpeed": 0.7, "weight": 10, "blendMode": "Average", "triggeredBy": { "onControls": ["dead"] } },
+      { "code": "crawlidle", "animation": "crawlidle", "blendMode": "Average", "weight": 0.1, "easeoutSpeed": 10 },
+      { "code": "standwalk", "animation": "standwalk", "blendMode": "Average" },
+      { "code": "standlowwalk", "animation": "standlowwalk", "blendMode": "Average" },
+      { "code": "standrun", "animation": "standrun", "blendMode": "Average" },
+      { "code": "crawlwalk", "animation": "crawlwalk", "blendMode": "Average" },
+      { "code": "crawlrun", "animation": "crawlrun", "blendMode": "Average" },
+      { "code": "crawlemote", "animation": "crawlemote" }
+    ]
+  },
+  "server": {
+    "behaviors": [
+      { "code": "repulseagents" },
+      { "code": "controlledphysics", "stepHeight": 1.1251 },
+      { "code": "health", "currenthealth": 35, "maxhealth": 35 },
+      {
+        "code": "emotionstates",
+        "states": [
+          { "code": "aggressiveondamage", "duration": 30, "chance": 1, "slot": 0, "priority": 0.5, "accumType": "noaccum" }
+        ]
+      },
+      {
+        "code": "taskai",
+        "aitasks": [
+          {
+            "code": "meleeattack",
+            "entityCodes": ["player"],
+            "priority": 2,
+            "damageByType": { "*-corrupt": 12 },
+            "damageTierByType": { "*-corrupt": 3 },
+            "damageTypeByType": { "*-corrupt": "SlashingAttack" },
+            "mincooldown": 500,
+            "maxcooldown": 1750,
+            "damagePlayerAtMs": 400,
+            "attackDurationMs": 1000,
+            "animation": "standattack",
+            "animationSpeed": 1.5
+          },
+          {
+            "code": "seekentity",
+            "entityCodes": ["player"],
+            "priority": 1.5,
+            "mincooldown": 400,
+            "maxcooldown": 800,
+            "movespeed": 0.018,
+            "seekingRange": 20,
+            "animationSpeed": 1.3,
+            "animation": "standrun"
+          },
+          {
+            "code": "wander",
+            "priority": 1.0,
+            "movespeed": 0.01,
+            "animationSpeed": 1.2,
+            "animation": "standwalk",
+            "preferredLightLevel": 15
+          },
+          { "code": "lookaround", "priority": 0.5 }
+        ]
+      },
+      { "code": "questtarget", "targetId": "alstory:bloodhand", "leashRange": 30, "returnMoveSpeed": 0.04, "leashCheckMs": 1000 },
+      { "code": "deaddecay", "hoursToDecay": 3 },
+      { "code": "floatupwhenstuck", "onlyWhenDead": true },
+      { "code": "despawn", "minPlayerDistance": 32, "minSeconds": 30 },
+      { "code": "despawn", "minPlayerDistance": 64, "minSeconds": 6 }
+    ]
+  },
+  "idleSoundRange": 14,
+  "sounds": {
+    "hurt": "game:creature/drifter-hurt",
+    "death": "game:creature/drifter-death",
+    "idle": "game:creature/drifter-idle"
+  }
+}

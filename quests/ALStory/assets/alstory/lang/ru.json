@@ -41,6 +41,18 @@
   "alstory:tradingwindow-loran": "Лорэн",
   "item-creature-loran": "Лорэн",
 
+  "item-creature-bloodhand-raider": "Разбойник Кровавой Длани",
+  "item-creature-bloodhand-champion": "Громила Кровавой Длани",
+  "item-creature-bloodhand-clawchief": "Вождь с Руками-Клещами",
+
+  "item-creature-bloodhand-raider-tainted": "Разбойник Кровавой Длани",
+  "item-creature-bloodhand-champion-corrupt": "Громила Кровавой Длани",
+  "item-creature-bloodhand-clawchief-bellhead": "Вождь с Руками-Клещами",
+
+  "alstory:item-creature-bloodhand-raider-tainted": "Разбойник Кровавой Длани",
+  "alstory:item-creature-bloodhand-champion-corrupt": "Громила Кровавой Длани",
+  "alstory:item-creature-bloodhand-clawchief-bellhead": "Вождь с Руками-Клещами",
+
   "alstory:dialogue-elrik-intro": "Тень. Эхо. Упрямец, что отказывается стать прахом. Уходи, пока моя участь не стала и твоей.",
   "alstory:dialogue-elrik-who": "Кто ты?",
   "alstory:dialogue-elrik-what": "Что с тобой случилось?",

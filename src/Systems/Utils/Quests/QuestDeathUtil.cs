@@ -26,6 +26,9 @@ namespace VsQuest
                     Quest questDef = null;
                     if (questSystem != null) questSystem.QuestRegistry.TryGetValue(quest.questId, out questDef);
 
+                    // killactiontarget objectives
+                    KillActionObjectiveUtil.TryHandleKill(sapi, serverPlayer, quest, killedEntity);
+
                     // killnear objectives
                     if (questDef?.actionObjectives != null)
                     {

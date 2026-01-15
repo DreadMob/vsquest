@@ -222,6 +222,20 @@ Counts kills near a coordinate, optionally filtered by mob code.
 
 ---
 
+### `killactiontarget`
+
+Counts kills of entities that have a matching `questtarget` behavior target id.
+
+This is intended for “kill the marked target” style quests where the spawned entity is tagged via `EntityBehaviorQuestTarget`.
+
+**Arguments:**
+- `<questId>` — Quest ID used for tracking (required)
+- `<objectiveId>` — Must match `actionObjective.objectiveId` (required)
+- `<targetId>` — Required target id from `questtarget` behavior (required)
+- `<need>` — Required kill count (required)
+
+---
+
 ### `sequence`
 
 Completes a list of other action objectives in a required order.
