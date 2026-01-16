@@ -24,11 +24,30 @@ namespace VsQuest
         public void RegisterEventHandlers()
         {
             sapi.Event.GameWorldSave += OnGameWorldSave;
+            sapi.Event.PlayerJoin += OnPlayerJoin;
             sapi.Event.PlayerDisconnect += OnPlayerDisconnect;
             sapi.Event.OnEntityDeath += OnEntityDeath;
             sapi.Event.DidBreakBlock += OnBlockBroken;
             sapi.Event.DidPlaceBlock += OnBlockPlaced;
             sapi.Event.RegisterGameTickListener(OnQuestTick, 1000);
+        }
+
+        private void OnPlayerJoin(IServerPlayer byPlayer)
+        {
+            if (byPlayer == null) return;
+
+            // Delay to give vanilla ModJournal time to load the player's journal.
+            sapi.Event.RegisterCallback(_ =>
+            {
+                try
+                {
+                    QuestJournalMigration.MigrateFromVanilla(sapi, byPlayer);
+                }
+                catch (Exception e)
+                {
+                    sapi.Logger.Warning($"[alegacyvsquest] Journal migration failed for {byPlayer.PlayerUID}: {e.Message}");
+                }
+            }, 1000);
         }
 
         private void OnGameWorldSave()
