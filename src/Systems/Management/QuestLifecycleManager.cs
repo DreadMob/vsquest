@@ -313,16 +313,38 @@ namespace VsQuest
             }
         }
 
-        private static void MarkQuestCompleted(IServerPlayer fromPlayer, QuestCompletedMessage message, Entity questgiver)
+        private void MarkQuestCompleted(IServerPlayer fromPlayer, QuestCompletedMessage message, Entity questgiver)
         {
             var key = "alegacyvsquest:playercompleted";
             var completedQuests = fromPlayer.Entity.WatchedAttributes.GetStringArray(key, new string[0]).ToList();
-            if (!completedQuests.Contains(message.questId))
+            string questId = NormalizeQuestId(message.questId, completedQuests, questRegistry);
+            if (!completedQuests.Contains(questId))
             {
-                completedQuests.Add(message.questId);
+                completedQuests.Add(questId);
                 fromPlayer.Entity.WatchedAttributes.SetStringArray(key, completedQuests.ToArray());
                 fromPlayer.Entity.WatchedAttributes.MarkPathDirty(key);
             }
+        }
+
+        private static string NormalizeQuestId(string questId, List<string> completedQuests, Dictionary<string, Quest> registry)
+        {
+            if (string.IsNullOrWhiteSpace(questId)) return questId;
+            if (registry != null && registry.ContainsKey(questId)) return questId;
+
+            const string legacyPrefix = "vsquest:";
+            const string currentPrefix = "alegacyvsquest:";
+
+            if (questId.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                string mapped = currentPrefix + questId.Substring(legacyPrefix.Length);
+                if ((registry != null && registry.ContainsKey(mapped))
+                    || (completedQuests != null && completedQuests.Contains(mapped)))
+                {
+                    return mapped;
+                }
+            }
+
+            return questId;
         }
     }
 }

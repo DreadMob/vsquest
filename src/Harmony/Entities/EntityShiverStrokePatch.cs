@@ -8,7 +8,8 @@ namespace VsQuest.Harmony
 {
     public static class EntityShiverStrokePatch
     {
-        private const double TestStrokeChancePerTick = 0.05;
+        private const double TestStrokeChancePerTick = 0.25;
+        private const string DespairStageKey = "alegacyvsquest:shiverdespairstage";
 
         [HarmonyPatch(typeof(EntityShiver), "OnGameTick")]
         public static class EntityShiver_OnGameTick_StrokeFreqPatch
@@ -28,9 +29,11 @@ namespace VsQuest.Harmony
 
                     if (!__instance.Alive) return true;
 
-                    // Don't interfere if stroke animations already active
+                    if (__instance.HasBehavior<VsQuest.EntityBehaviorBossDespair>()) return true;
+
+                    // Don't interfere if despair already active
                     if (__instance.AnimManager == null) return true;
-                    if (__instance.AnimManager.IsAnimationActive("stroke-start", "stroke-idle", "stroke-end", "despair")) return true;
+                    if (__instance.AnimManager.IsAnimationActive("despair")) return true;
 
                     // Use private fields via reflection
                     var strokeActiveField = AccessTools.Field(typeof(EntityShiver), "strokeActive");
@@ -41,7 +44,8 @@ namespace VsQuest.Harmony
                     bool strokeActive = (bool)strokeActiveField.GetValue(__instance);
                     if (strokeActive) return true;
 
-                    if (!(__instance.Api.World.Rand.NextDouble() < TestStrokeChancePerTick))
+                    int nextStage = GetNextDespairStage(__instance);
+                    if (nextStage < 0)
                     {
                         return true;
                     }
@@ -50,29 +54,19 @@ namespace VsQuest.Harmony
 
                     var aiTaskManager = aiTaskManagerField.GetValue(__instance) as AiTaskManager;
                     aiTaskManager?.StopTasks();
+                    FreezeEntity(__instance);
 
-                    __instance.AnimManager.StartAnimation("stroke-start");
-                    __instance.World.PlaySoundAt(new Vintagestory.API.Common.AssetLocation("sounds/creature/shiver/shock"), __instance, null, randomizePitch: true, 16f);
+                    __instance.AnimManager.StartAnimation("despair");
 
-                    __instance.Api.Event.RegisterCallback(_ =>
-                    {
-                        try
-                        {
-                            __instance.AnimManager.StartAnimation("stroke-idle");
-                        }
-                        catch { }
-                    }, 666);
-
-                    // Vanilla duration: (rand*3 + 3) * 1000 ms. Make it 2x longer.
+                    // Vanilla duration: (rand*3 + 3) * 1000 ms. Make it 3x longer.
                     int baseSeconds = (int)(__instance.Api.World.Rand.NextDouble() * 3.0 + 3.0);
-                    int durationMs = baseSeconds * 1000 * 2;
+                    int durationMs = baseSeconds * 1000 * 3;
 
                     __instance.Api.Event.RegisterCallback(_ =>
                     {
                         try
                         {
-                            __instance.AnimManager.StopAnimation("stroke-idle");
-                            __instance.AnimManager.StartAnimation("stroke-end");
+                            __instance.AnimManager.StopAnimation("despair");
                         }
                         catch { }
 
@@ -81,9 +75,10 @@ namespace VsQuest.Harmony
                             try
                             {
                                 strokeActiveField.SetValue(__instance, false);
+                                UnfreezeEntity(__instance);
                             }
                             catch { }
-                        }, 1200);
+                        }, 200);
 
                     }, durationMs);
 
@@ -94,6 +89,60 @@ namespace VsQuest.Harmony
                 {
                     return true;
                 }
+            }
+
+            private static int GetNextDespairStage(EntityShiver shiver)
+            {
+                if (shiver?.WatchedAttributes == null) return -1;
+
+                var healthTree = shiver.WatchedAttributes.GetTreeAttribute("health");
+                if (healthTree == null) return -1;
+
+                float maxHealth = healthTree.GetFloat("maxhealth", 0f);
+                if (maxHealth <= 0f)
+                {
+                    maxHealth = healthTree.GetFloat("basemaxhealth", 0f);
+                }
+
+                float curHealth = healthTree.GetFloat("currenthealth", 0f);
+                if (maxHealth <= 0f || curHealth <= 0f) return -1;
+
+                int stage = shiver.WatchedAttributes.GetInt(DespairStageKey, 0);
+                float healthFrac = curHealth / maxHealth;
+
+                if (stage == 0 && healthFrac <= 0.75f)
+                {
+                    shiver.WatchedAttributes.SetInt(DespairStageKey, 1);
+                    shiver.WatchedAttributes.MarkPathDirty(DespairStageKey);
+                    return 1;
+                }
+                if (stage == 1 && healthFrac <= 0.50f)
+                {
+                    shiver.WatchedAttributes.SetInt(DespairStageKey, 2);
+                    shiver.WatchedAttributes.MarkPathDirty(DespairStageKey);
+                    return 2;
+                }
+                if (stage == 2 && healthFrac <= 0.25f)
+                {
+                    shiver.WatchedAttributes.SetInt(DespairStageKey, 3);
+                    shiver.WatchedAttributes.MarkPathDirty(DespairStageKey);
+                    return 3;
+                }
+
+                return -1;
+            }
+
+            private static void FreezeEntity(EntityShiver shiver)
+            {
+                if (shiver == null) return;
+                shiver.ServerPos.Motion.Set(0, 0, 0);
+                shiver.Controls.StopAllMovement();
+            }
+
+            private static void UnfreezeEntity(EntityShiver shiver)
+            {
+                if (shiver == null) return;
+                shiver.ServerPos.Motion.Set(0, 0, 0);
             }
         }
     }

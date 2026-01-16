@@ -227,8 +227,7 @@ namespace VsQuest
                 : BuildAllQuestIds();
 
             var completedQuests = new HashSet<string>(
-                entity.World.PlayerByUid(player.PlayerUID)?.Entity?.WatchedAttributes.GetStringArray("alegacyvsquest:playercompleted", new string[0])
-                ?? new string[0],
+                questSystem.GetNormalizedCompletedQuestIds(player.Player),
                 StringComparer.OrdinalIgnoreCase
             );
 
@@ -454,12 +453,16 @@ namespace VsQuest
 
         private bool predecessorsCompleted(Quest quest, string playerUID)
         {
-            var completedQuests = new List<string>(entity.World.PlayerByUid(playerUID)?.Entity?.WatchedAttributes.GetStringArray("alegacyvsquest:playercompleted", new string[0]) ?? new string[0]);
+            var questSystem = entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var completedQuests = questSystem != null
+                ? new List<string>(questSystem.GetNormalizedCompletedQuestIds(entity.World.PlayerByUid(playerUID)))
+                : new List<string>(entity.World.PlayerByUid(playerUID)?.Entity?.WatchedAttributes.GetStringArray("alegacyvsquest:playercompleted", new string[0]) ?? new string[0]);
 
             // Legacy: single predecessor
             if (!String.IsNullOrEmpty(quest.predecessor))
             {
-                if (!completedQuests.Contains(quest.predecessor))
+                string predecessor = questSystem?.NormalizeQuestId(quest.predecessor) ?? quest.predecessor;
+                if (!completedQuests.Contains(predecessor))
                 {
                     return false;
                 }
@@ -472,6 +475,11 @@ namespace VsQuest
                 {
                     string pred = quest.predecessors[i];
                     if (String.IsNullOrWhiteSpace(pred)) continue;
+
+                    if (questSystem != null)
+                    {
+                        pred = questSystem.NormalizeQuestId(pred);
+                    }
 
                     if (!completedQuests.Contains(pred))
                     {

@@ -264,7 +264,7 @@ namespace VsQuest
 
             var wa = player.Entity.WatchedAttributes;
 
-            static string CompletedKey(string qid, string objectiveKey) => $"vsquest:ao:completed:{qid}:{objectiveKey}";
+            static string CompletedKey(string qid, string objectiveKey) => $"alegacyvsquest:ao:completed:{qid}:{objectiveKey}";
 
             // Clear any per-objective completion markers so onCompleteActions can fire again.
             // Stored as flat keys on the player's WatchedAttributes.
@@ -330,10 +330,14 @@ namespace VsQuest
         {
             if (player?.Entity?.WatchedAttributes == null) return;
 
-            var completed = player.Entity.WatchedAttributes.GetStringArray("alegacyvsquest:playercompleted", new string[0]);
+            var questSystem = player.Entity.Api?.ModLoader?.GetModSystem<QuestSystem>();
+            var completed = questSystem != null
+                ? questSystem.GetNormalizedCompletedQuestIds(player)
+                : player.Entity.WatchedAttributes.GetStringArray("alegacyvsquest:playercompleted", new string[0]);
             if (completed == null || completed.Length == 0) return;
 
-            var filtered = completed.Where(id => id != questId).ToArray();
+            string normalized = questSystem?.NormalizeQuestId(questId) ?? questId;
+            var filtered = completed.Where(id => !string.Equals(id, normalized, StringComparison.OrdinalIgnoreCase)).ToArray();
             if (filtered.Length == completed.Length) return;
 
             player.Entity.WatchedAttributes.SetStringArray("alegacyvsquest:playercompleted", filtered);
@@ -440,6 +444,9 @@ namespace VsQuest
                 player.Entity.WatchedAttributes.RemoveAttribute("alegacyvsquest:playercompleted");
                 player.Entity.WatchedAttributes.MarkPathDirty("alegacyvsquest:playercompleted");
 
+                player.Entity.WatchedAttributes.RemoveAttribute("vsquest:playercompleted");
+                player.Entity.WatchedAttributes.MarkPathDirty("vsquest:playercompleted");
+
                 // Clear cooldowns and any per-quest state we store on the player
                 foreach (var questId in questSystem.QuestRegistry.Keys.ToList())
                 {
@@ -479,7 +486,7 @@ namespace VsQuest
                     if (string.IsNullOrWhiteSpace(qid) || string.IsNullOrWhiteSpace(objectiveId)) continue;
 
                     // Use the same key format as KillActionTargetObjective.CountKey
-                    string key = $"vsquest:killactiontarget:{qid}:{objectiveId}:count";
+                    string key = $"alegacyvsquest:killactiontarget:{qid}:{objectiveId}:count";
                     wa.RemoveAttribute(key);
                     wa.MarkPathDirty(key);
                 }

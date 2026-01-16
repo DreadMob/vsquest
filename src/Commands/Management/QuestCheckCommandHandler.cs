@@ -31,7 +31,7 @@ namespace VsQuest
             }
 
             var active = questSystem.GetPlayerQuests(target.PlayerUID) ?? new List<ActiveQuest>();
-            var completed = target.Entity?.WatchedAttributes?.GetStringArray("alegacyvsquest:playercompleted", new string[0]) ?? new string[0];
+            var completed = questSystem.GetNormalizedCompletedQuestIds(target);
 
             var lines = new List<string>();
             lines.Add($"Player: {target.PlayerName}");

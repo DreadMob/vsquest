@@ -45,6 +45,9 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("questtarget", typeof(EntityBehaviorQuestTarget));
             api.RegisterEntityBehaviorClass("bossnametag", typeof(EntityBehaviorBossNameTag));
             api.RegisterEntityBehaviorClass("bossrespawn", typeof(EntityBehaviorBossRespawn));
+            api.RegisterEntityBehaviorClass("bossdespair", typeof(EntityBehaviorBossDespair));
+            api.RegisterEntityBehaviorClass("shiverdebug", typeof(EntityBehaviorShiverDebug));
+
             api.RegisterItemClass("ItemDebugTool", typeof(ItemDebugTool));
             api.RegisterItemClass("ItemEntitySpawner", typeof(ItemEntitySpawner));
 
@@ -190,12 +193,108 @@ namespace VsQuest
 
         public List<ActiveQuest> GetPlayerQuests(string playerUID)
         {
-            return persistenceManager.GetPlayerQuests(playerUID);
+            var quests = persistenceManager.GetPlayerQuests(playerUID);
+            if (quests == null || quests.Count == 0) return quests;
+
+            bool changed = false;
+            foreach (var quest in quests)
+            {
+                if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
+
+                string normalized = NormalizeQuestId(quest.questId);
+                if (!string.Equals(normalized, quest.questId, StringComparison.OrdinalIgnoreCase))
+                {
+                    quest.questId = normalized;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                persistenceManager.SavePlayerQuests(playerUID, quests);
+            }
+
+            return quests;
         }
 
         public void SavePlayerQuests(string playerUID, List<ActiveQuest> activeQuests)
         {
             persistenceManager.SavePlayerQuests(playerUID, activeQuests);
+        }
+
+        internal string NormalizeQuestId(string questId)
+        {
+            if (string.IsNullOrWhiteSpace(questId)) return questId;
+            if (QuestRegistry == null) return questId;
+            if (QuestRegistry.ContainsKey(questId)) return questId;
+
+            const string legacyPrefix = "vsquest:";
+            const string currentPrefix = "alegacyvsquest:";
+
+            if (questId.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                string mapped = currentPrefix + questId.Substring(legacyPrefix.Length);
+                if (QuestRegistry.ContainsKey(mapped)) return mapped;
+            }
+
+            return questId;
+        }
+
+        internal string[] GetNormalizedCompletedQuestIds(IPlayer player)
+        {
+            var wa = player?.Entity?.WatchedAttributes;
+            if (wa == null) return new string[0];
+
+            var current = wa.GetStringArray("alegacyvsquest:playercompleted", new string[0]) ?? new string[0];
+            var legacy = wa.GetStringArray("vsquest:playercompleted", null);
+
+            var combined = new List<string>(current.Length + (legacy?.Length ?? 0));
+            combined.AddRange(current);
+            if (legacy != null) combined.AddRange(legacy);
+
+            var normalizedSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var questId in combined)
+            {
+                if (string.IsNullOrWhiteSpace(questId)) continue;
+                normalizedSet.Add(NormalizeQuestId(questId));
+            }
+
+            var normalized = normalizedSet.ToArray();
+
+            bool changed = legacy != null;
+            if (!changed)
+            {
+                if (current.Length != normalized.Length)
+                {
+                    changed = true;
+                }
+                else
+                {
+                    var currentSet = new HashSet<string>(current, StringComparer.OrdinalIgnoreCase);
+                    foreach (var id in normalized)
+                    {
+                        if (!currentSet.Contains(id))
+                        {
+                            changed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (changed)
+            {
+                wa.SetStringArray("alegacyvsquest:playercompleted", normalized);
+                wa.MarkPathDirty("alegacyvsquest:playercompleted");
+
+                if (legacy != null)
+                {
+                    wa.RemoveAttribute("vsquest:playercompleted");
+                    wa.MarkPathDirty("vsquest:playercompleted");
+                }
+            }
+
+            return normalized;
         }
 
         internal bool ForceCompleteQuestInternal(IServerPlayer player, QuestCompletedMessage message, ICoreServerAPI sapi)
@@ -290,7 +389,7 @@ namespace VsQuest
     public class QuestConfig
     {
         public bool CloseGuiAfterAcceptingAndCompleting { get; set; } = true;
-        public string defaultObjectiveCompletionSound { get; set; } = "survival:sounds/tutorialstepsuccess";
+        public string defaultObjectiveCompletionSound { get; set; } = "sounds/tutorialstepsuccess";
         public bool ShowCustomBossDeathMessage { get; set; } = false;
     }
 }

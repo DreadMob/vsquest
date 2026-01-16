@@ -147,7 +147,11 @@ namespace VsQuest
 
             if (!string.IsNullOrWhiteSpace(text) && entity != null && !entity.Alive)
             {
-                double respawnAt = entity.WatchedAttributes.GetDouble("vsquest:bossrespawnAtTotalHours", double.NaN);
+                double respawnAt = entity.WatchedAttributes.GetDouble("alegacyvsquest:bossrespawnAtTotalHours", double.NaN);
+                if (double.IsNaN(respawnAt))
+                {
+                    respawnAt = entity.WatchedAttributes.GetDouble("vsquest:bossrespawnAtTotalHours", double.NaN);
+                }
                 if (!double.IsNaN(respawnAt))
                 {
                     double hoursLeft = Math.Max(0, respawnAt - capi.World.Calendar.TotalHours);

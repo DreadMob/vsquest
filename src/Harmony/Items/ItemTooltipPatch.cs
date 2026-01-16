@@ -55,7 +55,7 @@ namespace VsQuest.Harmony
                 try { hideVanilla = new HashSet<string>(JsonConvert.DeserializeObject<List<string>>(hideVanillaJson)); } catch { }
             }
 
-            string customDesc = attrs.GetString("itemizerDesc");
+            string customDesc = attrs.GetString(ItemAttributeUtils.QuestDescKey);
             bool hasCustomDesc = !string.IsNullOrEmpty(customDesc);
             bool hideDesc = hasCustomDesc || hideVanilla.Contains("description");
 

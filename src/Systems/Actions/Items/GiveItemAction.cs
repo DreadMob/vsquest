@@ -32,12 +32,12 @@ namespace VsQuest
 
             if (args.Length > 2)
             {
-                stack.Attributes.SetString("itemizerName", args[2]);
+                stack.Attributes.SetString(ItemAttributeUtils.QuestNameKey, args[2]);
             }
             if (args.Length > 3)
             {
                 string desc = string.Join(" ", args, 3, args.Length - 3);
-                stack.Attributes.SetString("itemizerDesc", desc);
+                stack.Attributes.SetString(ItemAttributeUtils.QuestDescKey, desc);
             }
 
             if (!byPlayer.InventoryManager.TryGiveItemstack(stack))

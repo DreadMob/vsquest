@@ -1,0 +1,62 @@
+{
+  "inheritFrom": "game:entities/lore/shiver",
+  "code": "shiver",
+  "variantgroups": [
+    {
+      "code": "type",
+      "states": [
+        "surface"
+      ]
+    }
+  ],
+  "client": {
+    "shapeByType": {
+      "*-surface": {
+        "base": "game:entity/lore/shiver/surface"
+      }
+    },
+    "texturesByType": {
+      "*-surface": {
+        "skin": {
+          "base": "game:entity/lore/shiver/surface1",
+          "alternates": [
+            {
+              "base": "game:entity/lore/shiver/surface2"
+            },
+            {
+              "base": "game:entity/lore/shiver/surface3"
+            },
+            {
+              "base": "game:entity/lore/shiver/surface4"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "server": {
+    "behaviors": [
+      {
+        "code": "shiverdebug"
+      },
+      {
+        "code": "controlledphysics",
+        "stepHeight": 0
+      },
+      {
+        "code": "taskai",
+        "aitasks": []
+      },
+      {
+        "code": "health",
+        "currenthealth": 1000000,
+        "maxhealth": 1000000
+      }
+    ]
+  },
+  "sounds": {
+    "hurt": "game:creature/shiver/hurt",
+    "death": "game:creature/shiver/death",
+    "idle": "game:creature/shiver/idle*"
+  }
+}

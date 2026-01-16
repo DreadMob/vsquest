@@ -43,7 +43,8 @@
       { "code": "swipe", "animation": "swipe", "animationSpeed": 1, "weight": 100, "blendMode": "Average" },
       { "code": "bite", "animation": "bite", "animationSpeed": 1, "weight": 100, "blendMode": "Average" },
       { "code": "die", "animation": "Death", "animationSpeed": 1, "weight": 10, "blendMode": "Average", "triggeredBy": { "onControls": ["dead"] } },
-      { "code": "idle", "animation": "idle", "blendMode": "Average", "triggeredBy": { "defaultAnim": true } }
+      { "code": "idle", "animation": "idle", "blendMode": "Average", "triggeredBy": { "defaultAnim": true } },
+      { "code": "despair", "animation": "Despair", "weight": 8, "easeOutSpeed": 20, "weightCapFactor": 0.5, "blendMode": "Average", "supressDefaultAnimation": true }
     ]
   },
   "server": {
@@ -51,6 +52,7 @@
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 2.1251 },
       { "code": "health", "currenthealth": 400, "maxhealth": 400 },
+      { "code": "bossdespair", "despairDurationMultiplier": 3 },
       { "code": "questtarget", "targetId": "alstory:echo-proklyatiya:clawchief" },
       { "code": "deaddecay", "hoursToDecay": 999999 },
       {
@@ -66,10 +68,10 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 24,
+            "damage": 16,
             "damageTier": 4,
-            "minDist": 2.4,
-            "minVerDist": 2.0,
+            "minDist": 3.2,
+            "minVerDist": 2.6,
             "attackAngleRangeDeg": 120,
             "mincooldown": 300,
             "maxcooldown": 900,

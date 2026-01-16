@@ -27,8 +27,8 @@
           "alegacyvsquest:blockEquip": false,
           "alegacyvsquest:showAttrs": "[\"walkspeed\",\"hungerrate\",\"healingeffectiveness\"]",
           "alegacyvsquest:hideVanilla": "[]",
-          "itemizerName": "<font color=\"#8B5CF6\">Шарфык</font>",
-          "itemizerDesc": "<font color=\"#60A5FA\">Шарфык фы фы фы</font>",
+          "alegacyvsquest:questName": "<font color=\"#8B5CF6\">Шарфык</font>",
+          "alegacyvsquest:questDesc": "<font color=\"#60A5FA\">Шарфык фы фы фы</font>",
           "alegacyvsquest:attr:walkspeed": 0.05,
           "alegacyvsquest:attr:hungerrate": -0.1,
           "alegacyvsquest:attr:healingeffectiveness": 0.1

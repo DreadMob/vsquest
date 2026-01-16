@@ -18,7 +18,7 @@ namespace VsQuest.Harmony
                 string actions = itemStack.Attributes.GetString(ItemAttributeUtils.ActionItemActionsKey);
                 if (string.IsNullOrWhiteSpace(actions)) return;
 
-                string customName = itemStack.Attributes.GetString(ItemAttributeUtils.ItemizerNameKey);
+                string customName = itemStack.Attributes.GetString(ItemAttributeUtils.QuestNameKey);
                 if (string.IsNullOrWhiteSpace(customName)) return;
 
                 // Preserve VTML/color markup if the stored name already contains it.

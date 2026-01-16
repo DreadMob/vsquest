@@ -10,11 +10,11 @@ namespace VsQuest
 {
     public class EntityBehaviorBossRespawn : EntityBehavior
     {
-        private const string AttrRespawnAtHours = "vsquest:bossrespawnAtTotalHours";
-        private const string AttrRespawnX = "vsquest:bossrespawnX";
-        private const string AttrRespawnY = "vsquest:bossrespawnY";
-        private const string AttrRespawnZ = "vsquest:bossrespawnZ";
-        private const string AttrRespawnDim = "vsquest:bossrespawnDim";
+        private const string AttrRespawnAtHours = "alegacyvsquest:bossrespawnAtTotalHours";
+        private const string AttrRespawnX = "alegacyvsquest:bossrespawnX";
+        private const string AttrRespawnY = "alegacyvsquest:bossrespawnY";
+        private const string AttrRespawnZ = "alegacyvsquest:bossrespawnZ";
+        private const string AttrRespawnDim = "alegacyvsquest:bossrespawnDim";
 
         private ICoreServerAPI sapi;
         private double respawnInGameHours;

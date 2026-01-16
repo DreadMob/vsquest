@@ -22,8 +22,8 @@ namespace VsQuest
         public const string ActionItemShowAttrsKey = "alegacyvsquest:showAttrs";
         public const string ActionItemHideVanillaKey = "alegacyvsquest:hideVanilla";
 
-        public const string ItemizerNameKey = "itemizerName";
-        public const string ItemizerDescKey = "itemizerDesc";
+        public const string QuestNameKey = "alegacyvsquest:questName";
+        public const string QuestDescKey = "alegacyvsquest:questDesc";
 
         public const string AttrAttackPower = "attackpower";
         public const string AttrWarmth = "warmth";
@@ -154,11 +154,11 @@ namespace VsQuest
 
             if (!string.IsNullOrWhiteSpace(actionItem.name))
             {
-                stack.Attributes.SetString(ItemizerNameKey, actionItem.name);
+                stack.Attributes.SetString(QuestNameKey, actionItem.name);
             }
             if (!string.IsNullOrWhiteSpace(actionItem.description))
             {
-                stack.Attributes.SetString(ItemizerDescKey, actionItem.description);
+                stack.Attributes.SetString(QuestDescKey, actionItem.description);
             }
 
             stack.Attributes.SetString(ActionItemActionsKey, JsonConvert.SerializeObject(actionItem.actions));
