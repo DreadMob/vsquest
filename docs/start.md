@@ -1,4 +1,4 @@
-# VSQuest Mod Structure Documentation
+# Alegacy VS Quest Mod Structure Documentation
 
 > **Documentation Version:** v1.2.0
 
@@ -13,6 +13,8 @@
 | [actions.md](actions.md) | All available quest actions |
 | [objectives.md](objectives.md) | All available quest objectives |
 | [actionitems.md](actionitems.md) | Action Items system |
+| [journal.md](journal.md) | Quest Journal (UI, storage, migration) |
+| [spawner.md](spawner.md) | Quest Spawner (mobs & bosses) |
 | [dialogue.md](dialogue.md) | NPC dialogue system |
 | [commands.md](commands.md) | Chat commands |
 | [questland.md](questland.md) | QuestLand (land-claim notifications) |

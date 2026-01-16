@@ -1,4 +1,4 @@
-# VSQuest Dialogues
+# Alegacy VS Quest Dialogues
 
 > **Documentation Version:** v1.2.0
 
@@ -6,9 +6,9 @@
 
 ## Overview
 
-Dialogues in Vintage Story are part of the vanilla **EntityBehaviorConversable** system. NPCs with this behavior can have conversations with players through a dialogue UI. VSQuest extends this system by intercepting the `trigger` property to execute quest actions.
+Dialogues in Vintage Story are part of the vanilla **EntityBehaviorConversable** system. NPCs with this behavior can have conversations with players through a dialogue UI. Alegacy VS Quest extends this system by intercepting the `trigger` property to execute quest actions.
 
-This documentation covers the vanilla dialogue format with notes on VSQuest-specific features.
+This documentation covers the vanilla dialogue format with notes on Alegacy VS Quest-specific features.
 
 ---
 
@@ -145,9 +145,9 @@ Show/hide player choices based on conditions:
 
 ---
 
-## VSQuest Trigger Integration
+## Alegacy VS Quest Trigger Integration
 
-The `trigger` property executes VSQuest action strings when the component is entered:
+The `trigger` property executes Alegacy VS Quest action strings when the component is entered:
 
 ```json
 {
@@ -165,7 +165,7 @@ Multiple actions separated by `;`:
 
 ```json
 {
-  "trigger": "playsound 'sounds/effect/writing' 0.5;addjournalentry category 'Title' 'Text'"
+  "trigger": "playsound 'sounds/effect/writing' 0.5;addjournalentry yourmod:questid yourmod:lorecode 'Title' 'Text'"
 }
 ```
 

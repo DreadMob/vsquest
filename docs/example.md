@@ -1,4 +1,4 @@
-# VSQuest Example: Creating a Quest Giver
+# Alegacy VS Quest Example: Creating a Quest Giver
 
 > **Documentation Version:** v1.2.0
 
@@ -37,7 +37,7 @@ your-mod/
 
 ## Step 1: modinfo.json
 
-Declare dependency on VSQuest:
+Declare dependency on Alegacy VS Quest:
 
 ```json
 {
@@ -144,7 +144,7 @@ Create `config/dialogue/priest.json`:
 }
 ```
 
-The `trigger: "openquests"` line executes the VSQuest action to show the quest menu.
+The `trigger: "openquests"` line executes the Alegacy VS Quest action to show the quest menu.
 
 ---
 
@@ -170,7 +170,7 @@ Create `config/quests/priest-quest.json`:
     },
     {
       "id": "addjournalentry",
-      "args": ["yourmod:priest", "yourmod:quest-journal-title", "yourmod:quest-journal-text"]
+      "args": ["yourmod:priest-quest", "yourmod:priest", "yourmod:quest-journal-title", "yourmod:quest-journal-text"]
     }
   ],
   "actionObjectives": [

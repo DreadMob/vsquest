@@ -1,4 +1,4 @@
-# VSQuest Chat Commands
+# Alegacy VS Quest Chat Commands
 
 > **Documentation Version:** v1.2.0
 

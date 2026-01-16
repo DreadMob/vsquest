@@ -1,4 +1,4 @@
-# VSQuest Objectives
+# Alegacy VS Quest Objectives
 
 > **Documentation Version:** v1.2.0
 

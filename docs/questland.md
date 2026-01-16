@@ -6,7 +6,7 @@
 
 ## Overview
 
-VSQuest can optionally fire an action string when a player **enters/leaves a land claim** while they have a matching active quest.
+Alegacy VS Quest can optionally fire an action string when a player **enters/leaves a land claim** while they have a matching active quest.
 
 This is controlled by an optional quest pack config file: `config/questland.json`.
 

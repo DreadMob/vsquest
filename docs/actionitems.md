@@ -1,4 +1,4 @@
-# VSQuest Action Items
+# Alegacy VS Quest Action Items
 
 > **Documentation Version:** v1.2.0
 

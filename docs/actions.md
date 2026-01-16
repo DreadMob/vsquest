@@ -1,4 +1,4 @@
-# VSQuest Actions
+# Alegacy VS Quest Actions
 
 > **Documentation Version:** v1.2.0
 
@@ -206,10 +206,19 @@ Consumes (removes) one or more action items from the player's inventories by mat
 Adds or updates a journal entry for the player.
 
 **Arguments:**
-- `<loreCode>` — Unique identifier for this journal entry category (required)
-- `<title>` — Journal entry title, supports localization keys (required)
-- `<chapter1>` — First chapter text, supports localization keys (required)
-- `[chapter2...]` — Additional chapters, each remaining arg becomes a chapter
+- **New format:** `addjournalentry <groupId> <loreCode> <title> [overwrite] <chapter1> [chapter2...]`
+  - `<groupId>` — Group identifier shown as the top-level selector in the Journal UI. Typically a quest id (e.g. `yourmod:priest-quest`) (required)
+  - `<loreCode>` — Unique identifier for this journal entry (required)
+  - `<title>` — Journal entry title, supports localization keys (required)
+  - `[overwrite]` — Optional literal token. If present and both the existing entry and incoming update have exactly 1 chapter, replaces that chapter instead of appending (optional)
+  - `<chapter1>` — First chapter text, supports localization keys (required)
+  - `[chapter2...]` — Additional chapters, each remaining arg becomes a chapter (optional)
+
+- **Legacy format:** `addjournalentry <loreCode> <title> <chapter1> [chapter2...]`
+  - The entry will be grouped under the current quest context (if available), otherwise it falls back to `loreCode`.
+
+- **Legacy format:** `addjournalentry <loreCode> <chapter1> [chapter2...]`
+  - Title defaults to `loreCode`.
 
 ---
 
