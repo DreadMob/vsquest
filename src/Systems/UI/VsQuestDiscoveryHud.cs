@@ -90,13 +90,13 @@ namespace VsQuest
                 .WithStroke(GuiStyle.DialogBorderColor, 2.0)
                 .WithOrientation(EnumTextOrientation.Center);
 
-            Composers["vsquest-discovery"] = capi.Gui.CreateCompo("vsquest-discovery", dialogBounds.FlatCopy()).PremultipliedAlpha(false)
+            Composers["alegacyvsquest-discovery"] = capi.Gui.CreateCompo("alegacyvsquest-discovery", dialogBounds.FlatCopy()).PremultipliedAlpha(false)
                 .BeginChildElements(dialogBounds)
                 .AddTranspHoverText("", font, 700, iteminfoBounds, "discoverytext")
                 .EndChildElements()
                 .Compose();
 
-            elem = Composers["vsquest-discovery"].GetHoverText("discoverytext");
+            elem = Composers["alegacyvsquest-discovery"].GetHoverText("discoverytext");
             elem.SetFollowMouse(false);
             elem.SetAutoWidth(false);
             elem.SetAutoDisplay(false);

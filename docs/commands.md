@@ -1,6 +1,6 @@
 # VSQuest Chat Commands
 
-> **Documentation Version:** v1.1.2
+> **Documentation Version:** v1.2.0
 
 All commands require **`give` privilege** and are accessed via the `/quest` command.
 

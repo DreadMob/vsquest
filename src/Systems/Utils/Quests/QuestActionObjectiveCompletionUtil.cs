@@ -5,7 +5,7 @@ namespace VsQuest
 {
     public static class QuestActionObjectiveCompletionUtil
     {
-        private static string CompletedKey(string questId, string objectiveKey) => $"vsquest:ao:completed:{questId}:{objectiveKey}";
+        private static string CompletedKey(string questId, string objectiveKey) => $"alegacyvsquest:ao:completed:{questId}:{objectiveKey}";
 
         public static void ResetCompletionFlags(Quest quest, IServerPlayer player)
         {

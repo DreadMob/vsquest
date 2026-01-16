@@ -266,7 +266,7 @@ namespace VsQuest
             }
             catch (Exception e)
             {
-                api.Logger.Error($"[vsquest] Error building progress text for quest '{activeQuest.questId}': {e}");
+                api.Logger.Error($"[alegacyvsquest] Error building progress text for quest '{activeQuest.questId}': {e}");
                 return "Error loading progress.";
             }
         }

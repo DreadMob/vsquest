@@ -281,7 +281,7 @@ namespace VsQuest
                             noAvailableQuestCooldownDaysLeft = left
                         };
 
-                        sapi.Network.GetChannel("vsquest").SendPacket<QuestInfoMessage>(msgChainCd, player.Player as IServerPlayer);
+                        sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(msgChainCd, player.Player as IServerPlayer);
                         return;
                     }
                 }
@@ -303,7 +303,7 @@ namespace VsQuest
                     noAvailableQuestCooldownDaysLeft = cooldownDaysLeftActive
                 };
 
-                sapi.Network.GetChannel("vsquest").SendPacket<QuestInfoMessage>(msgActive, player.Player as IServerPlayer);
+                sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(msgActive, player.Player as IServerPlayer);
                 return;
             }
 
@@ -434,7 +434,7 @@ namespace VsQuest
                 noAvailableQuestCooldownDaysLeft = cooldownDaysLeft
             };
 
-            sapi.Network.GetChannel("vsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);
+            sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);
         }
 
         public override WorldInteraction[] GetInteractionHelp(IClientWorldAccessor world, EntitySelection es, IClientPlayer player, ref EnumHandling handled)

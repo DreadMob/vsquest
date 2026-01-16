@@ -61,7 +61,7 @@ namespace VsQuest
 
             bgBounds.WithChildren(cur, closeButtonBounds, saveButtonBounds);
 
-            SingleComposer = capi.Gui.CreateCompo("vsquest-questspawner-config", dialogBounds)
+            SingleComposer = capi.Gui.CreateCompo("alegacyvsquest-questspawner-config", dialogBounds)
                 .AddShadedDialogBG(bgBounds)
                 .AddDialogTitleBar(DialogTitle, OnTitleBarClose)
                 .BeginChildElements(bgBounds);

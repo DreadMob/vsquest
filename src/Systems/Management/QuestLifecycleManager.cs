@@ -79,7 +79,7 @@ namespace VsQuest
         {
             if (!questRegistry.TryGetValue(message.questId, out var quest))
             {
-                sapi.Logger.Error($"[vsquest] Could not accept quest with id '{message.questId}' because it was not found in the QuestRegistry.");
+                sapi.Logger.Error($"[alegacyvsquest] Could not accept quest with id '{message.questId}' because it was not found in the QuestRegistry.");
                 return;
             }
 
@@ -128,7 +128,7 @@ namespace VsQuest
             }
             catch (Exception e)
             {
-                sapi.Logger.Warning($"[vsquest] Error announcing quest objective on accept for quest '{message.questId}': {e.Message}");
+                sapi.Logger.Warning($"[alegacyvsquest] Error announcing quest objective on accept for quest '{message.questId}': {e.Message}");
             }
         }
 
@@ -250,7 +250,7 @@ namespace VsQuest
         {
             if (!questRegistry.TryGetValue(message.questId, out var quest))
             {
-                sapi.Logger.Error($"[vsquest] Could not reward player for quest with id '{message.questId}' because it was not found in the QuestRegistry.");
+                sapi.Logger.Error($"[alegacyvsquest] Could not reward player for quest with id '{message.questId}' because it was not found in the QuestRegistry.");
                 return;
             }
             foreach (var reward in quest.itemRewards)

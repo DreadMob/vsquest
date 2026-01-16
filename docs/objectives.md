@@ -1,6 +1,6 @@
 # VSQuest Objectives
 
-> **Documentation Version:** v1.1.2
+> **Documentation Version:** v1.2.0
 
 ---
 
@@ -68,13 +68,69 @@ Requires the player to walk a certain distance in meters.
 
 Completes when all random-kill slots rolled for the quest are finished.
 
-This objective relies on the `rollkillobjectives` action to set up targets and store progress.
+This objective relies on the `randomkill` action to set up targets and store progress.
 
 **Arguments:**
 - `<questId>` — Quest ID for tracking (required)
 - `<slot>` — Which random kill slot to check (required)
 
 The `randomkill` action in `onAcceptedActions` generates the kill targets. Each slot corresponds to a randomly selected mob to hunt.
+
+---
+
+## Objective Helper Actions
+
+These are quest **actions** that support objectives. They are often placed in `onAcceptedActions` or invoked by scripts/events.
+
+### `randomkill` (action)
+
+Rolls and initializes random kill targets for a quest and stores progress/completion callbacks.
+
+**Arguments:**
+- `<slotCount>` — How many random-kill slots to roll (required)
+- `<killsPerSlot>` — Required kills per slot (required)
+- `<maxMobDistance>` — Max distance in blocks for kill counting (required)
+- `<notifyTemplateLangKey>` — Notification template language key, supports `{0}` = remaining kills, `{1}` = mob name (required)
+- `[onProgressActionString]` — Action string executed on kill progress (optional)
+- `[onCompletedActionString]` — Action string executed when all slots are complete (optional)
+- `<entityCode1>` — First possible mob code (required)
+- `[entityCode2...]` — Additional mob codes to pick from
+
+---
+
+### `resetwalkdistance` (action)
+
+Resets the internal walk distance tracking for `walkdistance` objectives.
+
+**Arguments:**
+- `<questId>` — Quest ID used for tracking (required)
+- `[slot]` — Objective slot for multiple walk objectives (optional)
+
+---
+
+### `checkobjective` (action)
+
+Forces a re-check of quest objectives (useful if progress is driven by manual actions rather than events).
+
+**Arguments:** None
+
+---
+
+### `markinteraction` (action)
+
+Marks a coordinate string as interacted for objectives like `interactat`.
+
+**Arguments:**
+- `<x,y,z>` — Coordinate string to mark (required)
+
+---
+
+### `markentityinteraction` (action)
+
+Marks an entity interaction for objectives like `interactwithentity`.
+
+**Arguments:**
+- `<entityId>` — Entity id as integer/long (required)
 
 ---
 

@@ -221,7 +221,7 @@ namespace VsQuest
 
         public static void SendRollNotification(ICoreServerAPI api, IServerPlayer byPlayer, string template, int need, string code)
         {
-            api.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage()
+            api.Network.GetChannel("alegacyvsquest").SendPacket(new ShowNotificationMessage()
             {
                 Template = template,
                 Need = need,

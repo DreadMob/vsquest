@@ -61,7 +61,7 @@ namespace VsQuest
                 BorderWidth = 2.0
             };
 
-            capi.Event.RegisterRenderer(this, EnumRenderStage.Ortho, "vsquest-bossnametag");
+            capi.Event.RegisterRenderer(this, EnumRenderStage.Ortho, "alegacyvsquest-bossnametag");
             RegenTexture();
         }
 

@@ -18,7 +18,7 @@ namespace VsQuest
                 option2LangKey = null;
             }
 
-            api.Network.GetChannel("vsquest").SendPacket(new ShowQuestDialogMessage()
+            api.Network.GetChannel("alegacyvsquest").SendPacket(new ShowQuestDialogMessage()
             {
                 TitleLangKey = titleLangKey,
                 TextLangKey = textLangKey,

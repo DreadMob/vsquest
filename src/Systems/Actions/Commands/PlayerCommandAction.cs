@@ -9,7 +9,7 @@ namespace VsQuest
             if (args.Length > 0)
             {
                 string command = string.Join(" ", args);
-                sapi.Network.GetChannel("vsquest").SendPacket(new ExecutePlayerCommandMessage() { Command = command }, byPlayer);
+                sapi.Network.GetChannel("alegacyvsquest").SendPacket(new ExecutePlayerCommandMessage() { Command = command }, byPlayer);
             }
         }
     }

@@ -70,11 +70,11 @@
             "damageTier": 4,
             "minDist": 2.4,
             "minVerDist": 2.0,
-            "attackAngleRangeDeg": 60,
-            "mincooldown": 500,
-            "maxcooldown": 1750,
-            "damagePlayerAtMs": 400,
-            "attackDurationMs": 1000,
+            "attackAngleRangeDeg": 120,
+            "mincooldown": 300,
+            "maxcooldown": 900,
+            "damagePlayerAtMs": 250,
+            "attackDurationMs": 600,
             "animation": "swipe",
             "animationSpeed": 1
           },
@@ -104,7 +104,7 @@
         ]
       },
       { "code": "bossrespawn", "respawnInGameHours": 24, "spawnNewBoss": false },
-      { "code": "questtarget", "targetId": "alstory:echo-proklyatiya:clawchief", "leashRange": 40, "returnMoveSpeed": 0.045, "leashCheckMs": 1000 },
+      { "code": "questtarget", "targetId": "alstory:echo-proklyatiya:clawchief", "leashRange": 80, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
       { "code": "floatupwhenstuck", "onlyWhenDead": true }
     ]
   },

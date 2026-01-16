@@ -52,7 +52,7 @@ namespace VsQuest
 
         public override void OnUnloaded(ICoreAPI api)
         {
-            var dict = ObjectCacheUtil.TryGet<Dictionary<string, MultiTextureMeshRef>>(api, "vsquest-entityspawner-entityicon-meshes");
+            var dict = ObjectCacheUtil.TryGet<Dictionary<string, MultiTextureMeshRef>>(api, "alegacyvsquest-entityspawner-entityicon-meshes");
             if (dict != null)
             {
                 foreach (var value in dict.Values)
@@ -71,13 +71,13 @@ namespace VsQuest
                 string code = itemstack?.Attributes?.GetString("type");
                 if (!string.IsNullOrWhiteSpace(code))
                 {
-                    var meshrefs = ObjectCacheUtil.GetOrCreate(capi, "vsquest-entityspawner-entityicon-meshes", () => new Dictionary<string, MultiTextureMeshRef>());
+                    var meshrefs = ObjectCacheUtil.GetOrCreate(capi, "alegacyvsquest-entityspawner-entityicon-meshes", () => new Dictionary<string, MultiTextureMeshRef>());
                     if (!meshrefs.TryGetValue(code, out var meshref) || meshref == null)
                     {
                         EntityProperties type = (nowTesselatingEntityType = api.World.GetEntityType(new AssetLocation(code)));
                         if (type?.Client?.LoadedShape != null)
                         {
-                            capi.Tesselator.TesselateShape("vsquest-entityspawner-entityicon", type.Client.LoadedShape, out var meshdata, this, null, 0, 0, 0);
+                            capi.Tesselator.TesselateShape("alegacyvsquest-entityspawner-entityicon", type.Client.LoadedShape, out var meshdata, this, null, 0, 0, 0);
 
                             ModelTransform tf = type.Attributes?["guiTransform"]?.AsObject<ModelTransform>();
                             if (tf == null)

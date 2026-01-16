@@ -1,6 +1,6 @@
 # VSQuest Dialogues
 
-> **Documentation Version:** v1.1.0
+> **Documentation Version:** v1.2.0
 
 ---
 

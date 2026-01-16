@@ -2,7 +2,7 @@
   "code": "questspawner",
   "class": "BlockQuestSpawner",
   "entityClass": "QuestSpawner",
-  "shape": { "base": "alegacyvsquest:block/locustnest/cage/cage1" },
+  "shape": { "base": "alegacyvsquest:spawner/cage1" },
   "drawtype": "json",
   "faceCullMode": "NeverCull",
   "sidesolid": { "all": false },
@@ -14,7 +14,7 @@
     "fabric-top": { "base": "alegacyvsquest:block/locustnest/cage/fabric-top" }
   },
   "creativeinventory": {
-    "vsquest-actionitems": [ "*" ]
+    "alegacyvsquest-actionitems": [ "*" ]
   },
   "attributes": {
     "entityCode": "",

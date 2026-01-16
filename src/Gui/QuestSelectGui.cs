@@ -51,7 +51,7 @@ namespace VsQuest
             {
                 recomposeQueued = false;
                 recompose();
-            }, "vsquest-recompose");
+            }, "alegacyvsquest-recompose");
         }
 
         private void CloseOpenedDropDownDeferred()
@@ -59,7 +59,7 @@ namespace VsQuest
             capi.Event.EnqueueMainThreadTask(() =>
             {
                 CloseOpenedDropDown();
-            }, "vsquest-closedropdown");
+            }, "alegacyvsquest-closedropdown");
         }
 
         private void ApplyData(long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, string noAvailableQuestDescLangKey, string noAvailableQuestCooldownDescLangKey, int noAvailableQuestCooldownDaysLeft)
@@ -245,7 +245,7 @@ namespace VsQuest
                 questGiverId = questGiverId,
                 questId = selectedAvailableQuestId
             };
-            capi.Network.GetChannel("vsquest").SendPacket(message);
+            capi.Network.GetChannel("alegacyvsquest").SendPacket(message);
             if (closeGuiAfterAcceptingAndCompleting)
             {
                 TryClose();
@@ -265,7 +265,7 @@ namespace VsQuest
                 questGiverId = questGiverId,
                 questId = selectedActiveQuest.questId
             };
-            capi.Network.GetChannel("vsquest").SendPacket(message);
+            capi.Network.GetChannel("alegacyvsquest").SendPacket(message);
             if (closeGuiAfterAcceptingAndCompleting)
             {
                 TryClose();
@@ -293,7 +293,7 @@ namespace VsQuest
                 {
                     CloseOpenedDropDown();
                     RequestRecompose();
-                }, "vsquest-availablequestchanged");
+                }, "alegacyvsquest-availablequestchanged");
             }
         }
 
@@ -318,7 +318,7 @@ namespace VsQuest
                 {
                     CloseOpenedDropDown();
                     RequestRecompose();
-                }, "vsquest-activequestchanged");
+                }, "alegacyvsquest-activequestchanged");
             }
         }
 
@@ -339,7 +339,6 @@ namespace VsQuest
             {
                 try
                 {
-                    // GuiElementListMenu.Close() is internal in some VS API builds; invoke it via reflection.
                     MethodInfo closeMethod = dropdown.listMenu.GetType().GetMethod("Close", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                     closeMethod?.Invoke(dropdown.listMenu, null);
                 }
@@ -347,7 +346,6 @@ namespace VsQuest
                 {
                 }
 
-                // Fallback: still attempt to close via focus loss
                 dropdown.listMenu.OnFocusLost();
                 dropdown.OnFocusLost();
                 SingleComposer?.UnfocusOwnElements();
@@ -362,7 +360,7 @@ namespace VsQuest
 
             if (dropdown?.listMenu?.IsOpened == true && !clickInsideDropdown && !clickInsideListMenu)
             {
-                capi.Event.EnqueueMainThreadTask(CloseOpenedDropDown, "vsquest-close-dropdown-deferred");
+                capi.Event.EnqueueMainThreadTask(CloseOpenedDropDown, "alegacyvsquest-close-dropdown-deferred");
             }
 
             base.OnMouseDown(args);

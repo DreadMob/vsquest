@@ -14,7 +14,7 @@ namespace VsQuest
 
         public void RegisterClient(ICoreClientAPI capi)
         {
-            capi.Network.RegisterChannel("vsquest")
+            capi.Network.RegisterChannel("alegacyvsquest")
                 .RegisterMessageType<QuestAcceptedMessage>()
                 .RegisterMessageType<QuestCompletedMessage>()
                 .RegisterMessageType<QuestInfoMessage>().SetMessageHandler<QuestInfoMessage>(message => questSystem.OnQuestInfoMessage(message, capi))
@@ -27,7 +27,7 @@ namespace VsQuest
 
         public void RegisterServer(ICoreServerAPI sapi)
         {
-            sapi.Network.RegisterChannel("vsquest")
+            sapi.Network.RegisterChannel("alegacyvsquest")
                 .RegisterMessageType<QuestAcceptedMessage>().SetMessageHandler<QuestAcceptedMessage>((player, message) => questSystem.OnQuestAccepted(player, message, sapi))
                 .RegisterMessageType<QuestCompletedMessage>().SetMessageHandler<QuestCompletedMessage>((player, message) => questSystem.OnQuestCompleted(player, message, sapi))
                 .RegisterMessageType<QuestInfoMessage>()

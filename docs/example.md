@@ -1,6 +1,6 @@
 # VSQuest Example: Creating a Quest Giver
 
-> **Documentation Version:** v1.1.0
+> **Documentation Version:** v1.2.0
 
 This guide walks through creating a complete quest system using the **Priest** from `albase` as an example.
 

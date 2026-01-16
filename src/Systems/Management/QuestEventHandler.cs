@@ -58,7 +58,11 @@ namespace VsQuest
                     var serverVictim = victimPlayer.Player as IServerPlayer;
                     if (serverVictim != null)
                     {
-                        BossKillAnnouncementUtil.AnnouncePlayerKilledByBoss(sapi, serverVictim, killer);
+                        var qs = sapi.ModLoader.GetModSystem<QuestSystem>();
+                        if (qs?.Config == null || qs.Config.ShowCustomBossDeathMessage)
+                        {
+                            BossKillAnnouncementUtil.AnnouncePlayerKilledByBoss(sapi, serverVictim, killer);
+                        }
                     }
                 }
             }

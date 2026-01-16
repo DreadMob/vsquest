@@ -1,6 +1,6 @@
 # Alegacy VS Quest QuestLand (land-claim notifications)
 
-> **Documentation Version:** v1.1.0
+> **Documentation Version:** v1.2.0
 
 ---
 

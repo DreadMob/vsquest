@@ -53,7 +53,7 @@ namespace VsQuest
 
                 string currentClaim = GetCurrentClaimName(sp);
 
-                string key = "vsquest:questland:lastclaim";
+                string key = "alegacyvsquest:questland:lastclaim";
                 string lastClaim = wa.GetString(key, null);
 
                 if (string.Equals(currentClaim, lastClaim, StringComparison.Ordinal))

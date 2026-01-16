@@ -8,6 +8,30 @@ namespace VsQuest.Harmony
 {
     public class ItemAttributePatches
     {
+        [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemName")]
+        public class CollectibleObject_GetHeldItemName_ActionItem_ItemizerName_Patch
+        {
+            public static void Postfix(ItemStack itemStack, ref string __result)
+            {
+                if (itemStack?.Attributes == null) return;
+
+                string actions = itemStack.Attributes.GetString(ItemAttributeUtils.ActionItemActionsKey);
+                if (string.IsNullOrWhiteSpace(actions)) return;
+
+                string customName = itemStack.Attributes.GetString(ItemAttributeUtils.ItemizerNameKey);
+                if (string.IsNullOrWhiteSpace(customName)) return;
+
+                // Preserve VTML/color markup if the stored name already contains it.
+                if (customName.IndexOf('<') >= 0)
+                {
+                    __result = customName;
+                    return;
+                }
+
+                __result = $"<i>{customName}</i>";
+            }
+        }
+
         [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
         public class CollectibleObject_GetAttackPower_Patch
         {

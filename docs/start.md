@@ -1,6 +1,6 @@
 # VSQuest Mod Structure Documentation
 
-> **Documentation Version:** v1.1.0
+> **Documentation Version:** v1.2.0
 
 ---
 

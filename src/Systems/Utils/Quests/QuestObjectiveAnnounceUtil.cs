@@ -43,7 +43,7 @@ namespace VsQuest
                     if (string.IsNullOrWhiteSpace(code)) continue;
 
                     // Client-side localization (server language may be EN)
-                    sapi.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage()
+                    sapi.Network.GetChannel("alegacyvsquest").SendPacket(new ShowNotificationMessage()
                     {
                         Template = "kill-notify",
                         Need = need,
@@ -93,7 +93,7 @@ namespace VsQuest
                 if (string.IsNullOrWhiteSpace(code) || need <= 0) continue;
 
                 // Client-side localization for the template
-                sapi.Network.GetChannel("vsquest").SendPacket(new ShowNotificationMessage()
+                sapi.Network.GetChannel("alegacyvsquest").SendPacket(new ShowNotificationMessage()
                 {
                     Template = template,
                     Need = need,

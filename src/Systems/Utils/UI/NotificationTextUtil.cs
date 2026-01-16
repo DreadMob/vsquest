@@ -23,7 +23,7 @@ namespace VsQuest
             }
             catch (Exception e)
             {
-                logger.Warning($"[vsquest] Could not format notification template '{message.Template}': {e.Message}");
+                logger.Warning($"[alegacyvsquest] Could not format notification template '{message.Template}': {e.Message}");
                 return message.Template;
             }
         }

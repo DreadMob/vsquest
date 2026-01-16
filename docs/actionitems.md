@@ -1,6 +1,6 @@
 # VSQuest Action Items
 
-> **Documentation Version:** v1.1.2
+> **Documentation Version:** v1.2.0
 
 ---
 

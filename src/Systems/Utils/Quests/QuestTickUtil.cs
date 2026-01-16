@@ -17,7 +17,7 @@ namespace VsQuest
                 {
                     if (!questRegistry.ContainsKey(activeQuest.questId))
                     {
-                        sapi.Logger.Error($"[vsquest] Active quest with id '{activeQuest.questId}' for player '{serverPlayer.PlayerUID}' not found in QuestRegistry. Skipping tick update. This might happen if a quest was removed but player data was not updated.");
+                        sapi.Logger.Error($"[alegacyvsquest] Active quest with id '{activeQuest.questId}' for player '{serverPlayer.PlayerUID}' not found in QuestRegistry. Skipping tick update. This might happen if a quest was removed but player data was not updated.");
                         continue;
                     }
                     var quest = questRegistry[activeQuest.questId];
@@ -54,7 +54,7 @@ namespace VsQuest
             var wa = player.Entity?.WatchedAttributes;
             if (wa == null) return;
 
-            string throttleKey = $"vsquest:ao:lastcheck:{activeQuest.questId}";
+            string throttleKey = $"alegacyvsquest:ao:lastcheck:{activeQuest.questId}";
             double now = sapi.World.Calendar.TotalHours;
             double last = wa.GetDouble(throttleKey, -999999);
             if (now - last < (1.0 / 3600.0)) return;

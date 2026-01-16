@@ -19,7 +19,7 @@ namespace VsQuest.Harmony
             var capi = world.Api as ICoreClientAPI;
             if (capi == null) return;
 
-            capi.Network.GetChannel("vsquest").SendPacket(new VanillaBlockInteractMessage()
+            capi.Network.GetChannel("alegacyvsquest").SendPacket(new VanillaBlockInteractMessage()
             {
                 Position = blockSel.Position,
                 BlockCode = __instance.Code.ToString()

@@ -27,14 +27,14 @@
     {
       "id": "addplayerattribute",
       "args": [
-        "vsquest:test-attr",
+        "alegacyvsquest:test-attr",
         "1"
       ]
     },
     {
       "id": "addplayerattribute",
       "args": [
-        "vsquest:test-var",
+        "alegacyvsquest:test-var",
         "5"
       ]
     },
@@ -66,7 +66,7 @@
       "objectiveId": "attr",
       "onCompleteActions": "notify 'hasattribute done'; playsound 'sounds/tutorialsuccess' 0.5",
       "args": [
-        "vsquest:test-attr",
+        "alegacyvsquest:test-attr",
         "1"
       ]
     },
@@ -75,7 +75,7 @@
       "objectiveId": "var",
       "onCompleteActions": "notify 'checkvariable done'; playsound 'sounds/tutorialsuccess' 0.5",
       "args": [
-        "vsquest:test-var",
+        "alegacyvsquest:test-var",
         ">=",
         "0"
       ]

@@ -36,7 +36,7 @@ namespace VsQuest
 
             MobLocalizationUtils.LoadFromAssets(api);
 
-            var harmony = new HarmonyLib.Harmony("vsquest");
+            var harmony = new HarmonyLib.Harmony("alegacyvsquest");
             harmony.PatchAll();
 
             VsQuest.Harmony.EntityInteractPatch.TryPatch(harmony);
@@ -137,14 +137,14 @@ namespace VsQuest
                 return;
             }
 
-            capi.TriggerIngameDiscovery(this, "vsquest", text);
+            capi.TriggerIngameDiscovery(this, "alegacyvsquest", text);
         }
 
         public override void StartServerSide(ICoreServerAPI sapi)
         {
             base.StartServerSide(sapi);
 
-            sapi.Logger.VerboseDebug($"[vsquest] QuestSystem.StartServerSide loaded ({DateTime.UtcNow:O})");
+            sapi.Logger.VerboseDebug($"[alegacyvsquest] QuestSystem.StartServerSide loaded ({DateTime.UtcNow:O})");
 
             // Initialize managers
             persistenceManager = new QuestPersistenceManager(sapi);
@@ -291,5 +291,6 @@ namespace VsQuest
     {
         public bool CloseGuiAfterAcceptingAndCompleting { get; set; } = true;
         public string defaultObjectiveCompletionSound { get; set; } = "survival:sounds/tutorialstepsuccess";
+        public bool ShowCustomBossDeathMessage { get; set; } = false;
     }
 }

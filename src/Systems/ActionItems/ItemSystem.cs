@@ -22,7 +22,7 @@ namespace VsQuest
         private long inventoryScanListenerId = 0;
         private long hotbarEnforceListenerId = 0;
 
-        private const string ActionItemsCreativeTabCode = "vsquest-actionitems";
+        private const string ActionItemsCreativeTabCode = "alegacyvsquest-actionitems";
 
         public Dictionary<string, ActionItem> ActionItemRegistry { get; private set; } = new Dictionary<string, ActionItem>();
 
@@ -163,7 +163,7 @@ namespace VsQuest
         public override void StartServerSide(ICoreServerAPI api)
         {
             sapi = api;
-            serverChannel = api.Network.RegisterChannel("vsquest-itemaction")
+            serverChannel = api.Network.RegisterChannel("alegacyvsquest-itemaction")
                 .RegisterMessageType<ExecuteActionItemPacket>()
                 .SetMessageHandler<ExecuteActionItemPacket>(OnActionPacket);
 
@@ -178,7 +178,7 @@ namespace VsQuest
         public override void StartClientSide(ICoreClientAPI api)
         {
             capi = api;
-            clientChannel = api.Network.RegisterChannel("vsquest-itemaction")
+            clientChannel = api.Network.RegisterChannel("alegacyvsquest-itemaction")
                 .RegisterMessageType<ExecuteActionItemPacket>();
 
             api.Event.MouseDown += OnMouseDown;
@@ -378,7 +378,7 @@ namespace VsQuest
                         string actionItemId = stack.Attributes.GetString(ItemAttributeUtils.ActionItemIdKey);
                         if (string.IsNullOrWhiteSpace(actionItemId)) continue;
 
-                        string onceKey = $"vsquest:itemaction:invadd:{actionItemId}";
+                        string onceKey = $"alegacyvsquest:itemaction:invadd:{actionItemId}";
                         if (wa.GetBool(onceKey, false)) continue;
 
                         if (!TryGetActionItemActionsFromAttributes(stack.Attributes, out var actions, out string sourceQuestId))

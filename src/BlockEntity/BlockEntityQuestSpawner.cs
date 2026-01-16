@@ -224,10 +224,12 @@ namespace VsQuest
                     var wa = e?.WatchedAttributes;
                     if (wa == null) continue;
 
-                    if (wa.GetInt("vsquest:spawner:dim", int.MinValue) != Pos.dimension) continue;
-                    if (wa.GetInt("vsquest:spawner:x", int.MinValue) != Pos.X) continue;
-                    if (wa.GetInt("vsquest:spawner:y", int.MinValue) != Pos.Y) continue;
-                    if (wa.GetInt("vsquest:spawner:z", int.MinValue) != Pos.Z) continue;
+                    bool matchNew = wa.GetInt("alegacyvsquest:spawner:dim", int.MinValue) == Pos.dimension
+                        && wa.GetInt("alegacyvsquest:spawner:x", int.MinValue) == Pos.X
+                        && wa.GetInt("alegacyvsquest:spawner:y", int.MinValue) == Pos.Y
+                        && wa.GetInt("alegacyvsquest:spawner:z", int.MinValue) == Pos.Z;
+
+                    if (!matchNew) continue;
 
                     list.Add(e);
                 }
@@ -423,10 +425,12 @@ namespace VsQuest
                     var wa = e?.WatchedAttributes;
                     if (wa == null) continue;
 
-                    if (wa.GetInt("vsquest:spawner:dim", int.MinValue) != Pos.dimension) continue;
-                    if (wa.GetInt("vsquest:spawner:x", int.MinValue) != Pos.X) continue;
-                    if (wa.GetInt("vsquest:spawner:y", int.MinValue) != Pos.Y) continue;
-                    if (wa.GetInt("vsquest:spawner:z", int.MinValue) != Pos.Z) continue;
+                    bool matchNew = wa.GetInt("alegacyvsquest:spawner:dim", int.MinValue) == Pos.dimension
+                        && wa.GetInt("alegacyvsquest:spawner:x", int.MinValue) == Pos.X
+                        && wa.GetInt("alegacyvsquest:spawner:y", int.MinValue) == Pos.Y
+                        && wa.GetInt("alegacyvsquest:spawner:z", int.MinValue) == Pos.Z;
+
+                    if (!matchNew) continue;
 
                     if (e.Alive)
                     {
@@ -434,7 +438,7 @@ namespace VsQuest
                     }
                     else
                     {
-                        double respawnAt = wa.GetDouble("vsquest:bossrespawnAtTotalHours", double.NaN);
+                        double respawnAt = wa.GetDouble("alegacyvsquest:bossrespawnAtTotalHours", double.NaN);
                         if (!double.IsNaN(respawnAt))
                         {
                             blockSpawn = true;
@@ -459,10 +463,12 @@ namespace VsQuest
                 var wa = e?.WatchedAttributes;
                 if (wa == null) continue;
 
-                if (wa.GetInt("vsquest:spawner:x", int.MinValue) != Pos.X) continue;
-                if (wa.GetInt("vsquest:spawner:y", int.MinValue) != Pos.Y) continue;
-                if (wa.GetInt("vsquest:spawner:z", int.MinValue) != Pos.Z) continue;
-                if (wa.GetInt("vsquest:spawner:dim", int.MinValue) != Pos.dimension) continue;
+                bool matchNewRadius = wa.GetInt("alegacyvsquest:spawner:dim", int.MinValue) == Pos.dimension
+                    && wa.GetInt("alegacyvsquest:spawner:x", int.MinValue) == Pos.X
+                    && wa.GetInt("alegacyvsquest:spawner:y", int.MinValue) == Pos.Y
+                    && wa.GetInt("alegacyvsquest:spawner:z", int.MinValue) == Pos.Z;
+
+                if (!matchNewRadius) continue;
 
                 if (e.Alive)
                 {
@@ -473,7 +479,7 @@ namespace VsQuest
                 // This avoids race conditions where the spawner spawns while bossrespawn also spawns.
                 if (!e.Alive)
                 {
-                    double respawnAt = wa.GetDouble("vsquest:bossrespawnAtTotalHours", double.NaN);
+                    double respawnAt = wa.GetDouble("alegacyvsquest:bossrespawnAtTotalHours", double.NaN);
                     if (!double.IsNaN(respawnAt))
                     {
                         blockSpawnRadius = true;
@@ -606,8 +612,8 @@ namespace VsQuest
 
             if (!string.IsNullOrWhiteSpace(entry.killId))
             {
-                entity.WatchedAttributes.SetString("vsquest:killaction:targetid", entry.killId);
-                entity.WatchedAttributes.MarkPathDirty("vsquest:killaction:targetid");
+                entity.WatchedAttributes.SetString("alegacyvsquest:killaction:targetid", entry.killId);
+                entity.WatchedAttributes.MarkPathDirty("alegacyvsquest:killaction:targetid");
             }
 
             world.SpawnEntity(entity);

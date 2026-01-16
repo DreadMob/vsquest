@@ -1,6 +1,6 @@
 # VSQuest Actions
 
-> **Documentation Version:** v1.1.2
+> **Documentation Version:** v1.2.0
 
 ---
 
@@ -180,6 +180,15 @@ Gives an action item defined in `itemconfig.json` to the player.
 
 ---
 
+### `giveactionitem`
+
+Alias of `questitem`.
+
+**Arguments:**
+- `<actionItemId>` — The ID of the action item from `itemconfig.json` (required)
+
+---
+
 ### `consumeactionitem`
 
 Consumes (removes) one or more action items from the player's inventories by matching `actionItemId` stored on the item attributes.
@@ -216,6 +225,16 @@ Sets a persistent string attribute on the player's watched attributes. These att
 
 ---
 
+### `addplayerint`
+
+Adds an integer delta to a player's watched attribute.
+
+**Arguments:**
+- `<key>` — Attribute key/name (required)
+- `<delta>` — Integer delta to add (required)
+
+---
+
 ### `removeplayerattribute`
 
 Removes a persistent attribute from the player's watched attributes.
@@ -249,7 +268,6 @@ Adds one or more extra character traits to the player's `extraTraits` attribute.
 **Arguments:**
 - `<trait1>` — First trait code (required)
 - `[trait2...]` — Additional traits to add
-
 
 ---
 
@@ -322,6 +340,15 @@ Opens the quest completion dialog with custom title, text, and optional buttons.
 - `<textLangKey>` — Dialog body text, supports localization keys (required)
 - `[option1LangKey]` — First button text (optional)
 - `[option2LangKey]` — Second button text (optional)
+
+---
+
+### `discover`
+
+Shows a discovery message. If the discovery HUD is available, it is shown there; otherwise falls back to a vanilla discovery trigger.
+
+**Arguments:**
+- `<message>` — Discovery text to display (required)
 
 ---
 

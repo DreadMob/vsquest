@@ -7,28 +7,31 @@ using Vintagestory.GameContent;
 
 namespace VsQuest
 {
-    public class EntityBehaviorQuestMob : EntityBehavior
+    public class EntityBehaviorQuestTarget : EntityBehavior
     {
-        private const string AnchorKeyPrefix = "vsquest:spawner:";
+        protected const string AnchorKeyPrefix = "alegacyvsquest:spawner:";
 
-        private string mobId;
-        private float? maxHealthOverride;
-        private float leashRange;
-        private float returnMoveSpeed;
-        private int leashCheckMs;
-        private long lastLeashCheckMs;
+        protected string id;
+        protected float? maxHealthOverride;
+        protected float leashRange;
+        protected float returnMoveSpeed;
+        protected int leashCheckMs;
+        protected long lastLeashCheckMs;
 
-        public string MobId => mobId;
+        public string TargetId => id;
 
-        public EntityBehaviorQuestMob(Entity entity) : base(entity)
+        public EntityBehaviorQuestTarget(Entity entity) : base(entity)
         {
         }
+
+        protected virtual string JsonIdKey => "targetId";
+        protected virtual string WatchedIdKey => "alegacyvsquest:killaction:targetid";
 
         public override void Initialize(EntityProperties properties, JsonObject attributes)
         {
             base.Initialize(properties, attributes);
 
-            mobId = attributes["mobId"].AsString(null);
+            id = attributes[JsonIdKey].AsString(null);
             maxHealthOverride = attributes.KeyExists("maxHealth") ? attributes["maxHealth"].AsFloat() : (float?)null;
 
             leashRange = attributes["leashRange"].AsFloat(0);
@@ -37,8 +40,8 @@ namespace VsQuest
 
             if (entity?.WatchedAttributes != null)
             {
-                string waMobId = entity.WatchedAttributes.GetString("vsquest:killaction:mobid", null);
-                if (!string.IsNullOrWhiteSpace(waMobId)) mobId = waMobId;
+                string waId = entity.WatchedAttributes.GetString(WatchedIdKey, null);
+                if (!string.IsNullOrWhiteSpace(waId)) id = waId;
             }
 
             if (entity?.Api?.Side == EnumAppSide.Server)
@@ -52,7 +55,7 @@ namespace VsQuest
             base.OnGameTick(deltaTime);
 
             if (entity?.Api?.Side != EnumAppSide.Server) return;
-            if (!(entity is EntityAgent agent)) return;
+            if (entity is not EntityAgent agent) return;
             if (!agent.Alive) return;
             if (leashRange <= 0) return;
 
@@ -74,7 +77,7 @@ namespace VsQuest
             }
         }
 
-        private bool TryGetAnchor(out Vec3d anchor)
+        protected bool TryGetAnchor(out Vec3d anchor)
         {
             anchor = null;
             var wa = entity?.WatchedAttributes;
@@ -93,7 +96,7 @@ namespace VsQuest
             return true;
         }
 
-        private void TryApplyHealthOverride()
+        protected void TryApplyHealthOverride()
         {
             if (!maxHealthOverride.HasValue) return;
             var healthBh = entity.GetBehavior<EntityBehaviorHealth>();
@@ -104,9 +107,7 @@ namespace VsQuest
             healthBh.Health = healthBh.MaxHealth;
         }
 
-        public override string PropertyName() => "questmob";
-
-        public static void SetSpawnerAnchor(Entity entity, BlockPos pos)
+        protected static void SetSpawnerAnchorStatic(Entity entity, BlockPos pos)
         {
             if (entity?.WatchedAttributes == null || pos == null) return;
 
@@ -119,16 +120,13 @@ namespace VsQuest
             entity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "y");
             entity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "z");
             entity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "dim");
+        }
 
-            entity.WatchedAttributes.SetInt("vsquest:spawner:x", pos.X);
-            entity.WatchedAttributes.SetInt("vsquest:spawner:y", pos.Y);
-            entity.WatchedAttributes.SetInt("vsquest:spawner:z", pos.Z);
-            entity.WatchedAttributes.SetInt("vsquest:spawner:dim", pos.dimension);
+        public override string PropertyName() => "questtarget";
 
-            entity.WatchedAttributes.MarkPathDirty("vsquest:spawner:x");
-            entity.WatchedAttributes.MarkPathDirty("vsquest:spawner:y");
-            entity.WatchedAttributes.MarkPathDirty("vsquest:spawner:z");
-            entity.WatchedAttributes.MarkPathDirty("vsquest:spawner:dim");
+        public static void SetSpawnerAnchor(Entity entity, BlockPos pos)
+        {
+            SetSpawnerAnchorStatic(entity, pos);
         }
     }
 }

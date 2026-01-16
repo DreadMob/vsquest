@@ -36,25 +36,25 @@
     {
       "id": "removeplayerattribute",
       "args": [
-        "vsquest:itemaction:invadd:alstory-armor-helm"
+        "alegacyvsquest:itemaction:invadd:alstory-armor-helm"
       ]
     },
     {
       "id": "removeplayerattribute",
       "args": [
-        "vsquest:itemaction:invadd:alstory-armor-chest"
+        "alegacyvsquest:itemaction:invadd:alstory-armor-chest"
       ]
     },
     {
       "id": "removeplayerattribute",
       "args": [
-        "vsquest:itemaction:invadd:alstory-armor-legs"
+        "alegacyvsquest:itemaction:invadd:alstory-armor-legs"
       ]
     },
     {
       "id": "removeplayerattribute",
       "args": [
-        "vsquest:itemaction:invadd:alstory-armor-boots"
+        "alegacyvsquest:itemaction:invadd:alstory-armor-boots"
       ]
     },
     {
