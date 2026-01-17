@@ -33,7 +33,7 @@ namespace VsQuest
             }
 
             var itemName = collectible.GetHeldItemName(stack);
-            sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, $"{quantity}x {itemName}", EnumChatType.Notification);
+            sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:questitem-given", quantity, itemName), EnumChatType.Notification);
         }
     }
 }

@@ -1,6 +1,7 @@
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -21,6 +22,13 @@ namespace VsQuest
         private bool stateDirty;
 
         private long tickListenerId;
+
+        private readonly Dictionary<string, List<BossHuntAnchorPoint>> orderedAnchorsCache = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> orderedAnchorsDirty = new(StringComparer.OrdinalIgnoreCase);
+
+        private Entity cachedBossEntity;
+        private string cachedBossTargetId;
+        private double nextBossEntityScanTotalHours;
 
         public override void StartServerSide(ICoreServerAPI api)
         {
@@ -203,6 +211,7 @@ namespace VsQuest
             existing.dim = pos.dimension;
 
             stateDirty = true;
+            orderedAnchorsDirty.Add(cfg.bossKey);
         }
 
         public void UnsetAnchorPoint(string bossKey, string anchorId, BlockPos pos)
@@ -229,6 +238,7 @@ namespace VsQuest
                 {
                     st.anchorPoints.RemoveAt(i);
                     stateDirty = true;
+                    orderedAnchorsDirty.Add(cfg.bossKey);
                     break;
                 }
             }
@@ -251,7 +261,8 @@ namespace VsQuest
             var st = GetOrCreateState(cfg.bossKey);
             NormalizeState(cfg, st);
 
-            var bossEntity = FindBossEntity(cfg);
+            double nowHours = sapi.World.Calendar.TotalHours;
+            var bossEntity = FindBossEntity(cfg, nowHours);
             if (bossEntity != null && bossEntity.Alive)
             {
                 pos = new Vec3d(bossEntity.ServerPos.X, bossEntity.ServerPos.Y, bossEntity.ServerPos.Z);
@@ -355,8 +366,7 @@ namespace VsQuest
                 st.nextRelocateAtTotalHours = nowHours + cfg.GetRelocateIntervalHours();
                 stateDirty = true;
             }
-
-                var bossEntity = FindBossEntity(cfg);
+                Entity bossEntity = FindBossEntity(cfg, nowHours);
                 bool bossAlive = bossEntity != null && bossEntity.Alive;
 
                 // Handle relocation
@@ -402,7 +412,7 @@ namespace VsQuest
                 // Ensure boss is spawned when a player comes close to its current point.
             if (!bossAlive)
             {
-                if (TryGetPoint(cfg, st, st.currentPointIndex, out var point, out int pointDim) && AnyPlayerNear(point, pointDim, cfg.GetActivationRange()))
+                if (TryGetPoint(cfg, st, st.currentPointIndex, out var point, out int pointDim) && AnyPlayerNear(point.X, point.Y, point.Z, pointDim, cfg.GetActivationRange()))
                 {
                     TrySpawnBoss(cfg, point, pointDim);
                 }
@@ -441,6 +451,12 @@ namespace VsQuest
         private bool AnyPlayerNear(Vec3d point, int dim, float range)
         {
             if (point == null) return false;
+
+            return AnyPlayerNear(point.X, point.Y, point.Z, dim, range);
+        }
+
+        private bool AnyPlayerNear(double x, double y, double z, int dim, float range)
+        {
             if (range <= 0) range = 160f;
 
             var players = sapi.World.AllOnlinePlayers;
@@ -455,9 +471,9 @@ namespace VsQuest
                 if (pe?.Pos == null) continue;
                 if (pe.Pos.Dimension != dim) continue;
 
-                double dx = pe.Pos.X - point.X;
-                double dy = pe.Pos.Y - point.Y;
-                double dz = pe.Pos.Z - point.Z;
+                double dx = pe.Pos.X - x;
+                double dy = pe.Pos.Y - y;
+                double dz = pe.Pos.Z - z;
 
                 if (dx * dx + dy * dy + dz * dz <= rangeSq) return true;
             }
@@ -472,7 +488,7 @@ namespace VsQuest
             float playerLockRange = cfg.GetPlayerLockRange();
             if (playerLockRange > 0)
             {
-                if (AnyPlayerNear(new Vec3d(bossEntity.ServerPos.X, bossEntity.ServerPos.Y, bossEntity.ServerPos.Z), bossEntity.ServerPos.Dimension, playerLockRange))
+                if (AnyPlayerNear(bossEntity.ServerPos.X, bossEntity.ServerPos.Y, bossEntity.ServerPos.Z, bossEntity.ServerPos.Dimension, playerLockRange))
                 {
                     return false;
                 }
@@ -491,9 +507,33 @@ namespace VsQuest
             return true;
         }
 
-        private Entity FindBossEntity(BossHuntConfig cfg)
+        private Entity FindBossEntity(BossHuntConfig cfg, double nowHours)
         {
             if (cfg == null) return null;
+
+            if (cachedBossEntity != null && cachedBossEntity.Alive)
+            {
+                var qtCached = cachedBossEntity.GetBehavior<EntityBehaviorQuestTarget>();
+                if (qtCached != null && string.Equals(qtCached.TargetId, cfg.bossTargetId, StringComparison.OrdinalIgnoreCase))
+                {
+                    return cachedBossEntity;
+                }
+
+                cachedBossEntity = null;
+            }
+
+            if (cachedBossTargetId == null || !string.Equals(cachedBossTargetId, cfg.bossTargetId, StringComparison.OrdinalIgnoreCase))
+            {
+                cachedBossTargetId = cfg.bossTargetId;
+                nextBossEntityScanTotalHours = 0;
+            }
+
+            if (nowHours < nextBossEntityScanTotalHours)
+            {
+                return null;
+            }
+
+            nextBossEntityScanTotalHours = nowHours + (1.0 / 60.0);
 
             var loaded = sapi?.World?.LoadedEntities;
             if (loaded == null) return null;
@@ -508,6 +548,7 @@ namespace VsQuest
 
                     if (string.Equals(qt.TargetId, cfg.bossTargetId, StringComparison.OrdinalIgnoreCase))
                     {
+                        cachedBossEntity = e;
                         return e;
                     }
                 }
@@ -592,7 +633,7 @@ namespace VsQuest
 
             if (st?.anchorPoints != null && st.anchorPoints.Count > 0)
             {
-                var ordered = GetOrderedAnchors(st.anchorPoints);
+                var ordered = GetOrderedAnchorsCached(st);
                 if (index >= 0 && index < ordered.Count)
                 {
                     var ap = ordered[index];
@@ -602,33 +643,101 @@ namespace VsQuest
                 }
             }
 
-            if (cfg?.points == null) return false;
-            if (index < 0 || index >= cfg.points.Count) return false;
+            EnsureParsedPoints(cfg);
+            if (cfg?._parsedPoints == null) return false;
+            if (index < 0 || index >= cfg._parsedPoints.Count) return false;
 
-            var raw = cfg.points[index];
-            if (string.IsNullOrWhiteSpace(raw)) return false;
+            var p = cfg._parsedPoints[index];
+            if (p == null || !p.ok) return false;
 
-            try
+            dim = p.dim;
+            point = new Vec3d(p.x, p.y, p.z);
+            return true;
+        }
+
+        private List<BossHuntAnchorPoint> GetOrderedAnchorsCached(BossHuntStateEntry st)
+        {
+            if (st == null || string.IsNullOrWhiteSpace(st.bossKey) || st.anchorPoints == null || st.anchorPoints.Count == 0)
             {
-                var parts = raw.Split(',');
-                if (parts.Length < 3) return false;
+                return new List<BossHuntAnchorPoint>();
+            }
 
-                if (!double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out double x)) return false;
-                if (!double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double y)) return false;
-                if (!double.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double z)) return false;
+            if (!orderedAnchorsCache.TryGetValue(st.bossKey, out var ordered) || ordered == null || orderedAnchorsDirty.Contains(st.bossKey))
+            {
+                ordered = GetOrderedAnchors(st.anchorPoints);
+                orderedAnchorsCache[st.bossKey] = ordered;
+                orderedAnchorsDirty.Remove(st.bossKey);
+            }
 
-                if (parts.Length >= 4)
+            return ordered;
+        }
+
+        private void EnsureParsedPoints(BossHuntConfig cfg)
+        {
+            if (cfg == null) return;
+            if (cfg.points == null)
+            {
+                cfg._parsedPoints = null;
+                return;
+            }
+
+            if (cfg._parsedPoints != null && cfg._parsedPoints.Count == cfg.points.Count)
+            {
+                return;
+            }
+
+            var list = new List<ParsedPoint>(cfg.points.Count);
+            for (int i = 0; i < cfg.points.Count; i++)
+            {
+                var raw = cfg.points[i];
+                if (string.IsNullOrWhiteSpace(raw))
                 {
-                    int.TryParse(parts[3], out dim);
+                    list.Add(new ParsedPoint { ok = false });
+                    continue;
                 }
 
-                point = new Vec3d(x, y, z);
-                return true;
+                try
+                {
+                    var parts = raw.Split(',');
+                    if (parts.Length < 3)
+                    {
+                        list.Add(new ParsedPoint { ok = false });
+                        continue;
+                    }
+
+                    if (!double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out double x))
+                    {
+                        list.Add(new ParsedPoint { ok = false });
+                        continue;
+                    }
+
+                    if (!double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out double y))
+                    {
+                        list.Add(new ParsedPoint { ok = false });
+                        continue;
+                    }
+
+                    if (!double.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out double z))
+                    {
+                        list.Add(new ParsedPoint { ok = false });
+                        continue;
+                    }
+
+                    int dim = 0;
+                    if (parts.Length >= 4)
+                    {
+                        int.TryParse(parts[3], out dim);
+                    }
+
+                    list.Add(new ParsedPoint { ok = true, x = x, y = y, z = z, dim = dim });
+                }
+                catch
+                {
+                    list.Add(new ParsedPoint { ok = false });
+                }
             }
-            catch
-            {
-                return false;
-            }
+
+            cfg._parsedPoints = list;
         }
 
         private List<BossHuntAnchorPoint> GetOrderedAnchors(List<BossHuntAnchorPoint> anchors)
@@ -717,6 +826,18 @@ namespace VsQuest
             public double GetNoRelocateAfterDamageHours() => noRelocateAfterDamageMinutes > 0 ? (noRelocateAfterDamageMinutes / 60.0) : (10.0 / 60.0);
             public float GetActivationRange() => activationRange > 0 ? activationRange : 160f;
             public float GetPlayerLockRange() => playerLockRange > 0 ? playerLockRange : 40f;
+
+            [ProtoIgnore]
+            public List<ParsedPoint> _parsedPoints;
+        }
+
+        public class ParsedPoint
+        {
+            public bool ok;
+            public double x;
+            public double y;
+            public double z;
+            public int dim;
         }
 
         [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]

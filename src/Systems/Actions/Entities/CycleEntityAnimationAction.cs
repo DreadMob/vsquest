@@ -51,20 +51,20 @@ namespace VsQuest
             var selectedEntity = playerEntity?.EntitySelection?.Entity;
             if (selectedEntity == null)
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "Не выбрана энтити.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:entity-not-selected"), EnumChatType.Notification);
                 return;
             }
 
             if (!IsAllowedEntity(selectedEntity, args))
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "Эта энтити не подходит для переключения анимаций.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:cycleanim-not-allowed"), EnumChatType.Notification);
                 return;
             }
 
             var animations = GetAnimations(args);
             if (animations.Count == 0)
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "Список анимаций пуст.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:cycleanim-empty-list"), EnumChatType.Notification);
                 return;
             }
 
@@ -76,7 +76,7 @@ namespace VsQuest
 
             StartForcedAnimation(selectedEntity, nextAnim);
 
-            sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, $"Анимация: {nextAnim}", EnumChatType.Notification);
+            sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:cycleanim-current", nextAnim), EnumChatType.Notification);
         }
 
         private static bool IsAllowedEntity(Entity entity, string[] args)

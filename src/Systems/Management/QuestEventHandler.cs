@@ -160,10 +160,7 @@ namespace VsQuest
             var players = sapi.World.AllOnlinePlayers;
             if (players == null || players.Length == 0) return;
 
-            var serverPlayers = players.OfType<IServerPlayer>().ToArray();
-            if (serverPlayers.Length == 0) return;
-
-            QuestTickUtil.HandleQuestTick(dt, questRegistry, questSystem.ActionObjectiveRegistry, serverPlayers, persistenceManager.GetPlayerQuests, sapi);
+            QuestTickUtil.HandleQuestTick(dt, questRegistry, questSystem.ActionObjectiveRegistry, players, persistenceManager.GetPlayerQuests, sapi);
         }
     }
 }

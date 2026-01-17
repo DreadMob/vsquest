@@ -16,64 +16,34 @@ namespace VsQuest
                 throw new QuestException("The 'playsound' action requires at least 1 argument: soundLocation.");
             }
 
-            var sound = new AssetLocation(args[0]);
+            string raw = args[0];
+            var sound = new AssetLocation(raw);
+
+            // args:
+            // 0: soundLocation
+            // 1: volume (optional)
+            // 2: pitch  (optional)
+            // Notes: Vintage Story exposes PlaySoundFor overloads with either (bool randomizePitch, float range, float volume)
+            // or (float pitch, float range, float volume). Reflection-based selection is brittle across versions, so call directly.
             if (args.Length < 2)
             {
                 api.World.PlaySoundFor(sound, byPlayer);
                 return;
             }
 
-            if (!float.TryParse(args[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float volume))
+            float volume = 1f;
+            if (!float.TryParse(args[1], NumberStyles.Float, CultureInfo.InvariantCulture, out volume))
             {
                 volume = 1f;
             }
 
-            var world = api.World;
-
-            var methods = world.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Where(m => m.Name == "PlaySoundFor")
-                .ToArray();
-
-            foreach (var m in methods)
+            if (args.Length >= 3 && float.TryParse(args[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float pitch))
             {
-                var ps = m.GetParameters();
-                if (ps.Length < 2) continue;
-                if (ps[0].ParameterType != typeof(AssetLocation)) continue;
-                if (!ps[1].ParameterType.IsInstanceOfType(byPlayer)) continue;
-
-                int volumeIndex = -1;
-                for (int i = 0; i < ps.Length; i++)
-                {
-                    if (ps[i].ParameterType == typeof(float) && string.Equals(ps[i].Name, "volume", StringComparison.OrdinalIgnoreCase))
-                    {
-                        volumeIndex = i;
-                        break;
-                    }
-                }
-                if (volumeIndex == -1) continue;
-
-                var invokeArgs = new object[ps.Length];
-                invokeArgs[0] = sound;
-                invokeArgs[1] = byPlayer;
-
-                for (int i = 2; i < ps.Length; i++)
-                {
-                    if (i == volumeIndex)
-                    {
-                        invokeArgs[i] = volume;
-                        continue;
-                    }
-
-                    invokeArgs[i] = ps[i].HasDefaultValue
-                        ? ps[i].DefaultValue
-                        : (ps[i].ParameterType.IsValueType ? Activator.CreateInstance(ps[i].ParameterType) : null);
-                }
-
-                m.Invoke(world, invokeArgs);
+                api.World.PlaySoundFor(sound, byPlayer, pitch, 32f, volume);
                 return;
             }
 
-            world.PlaySoundFor(sound, byPlayer);
+            api.World.PlaySoundFor(sound, byPlayer, randomizePitch: true, range: 32f, volume: volume);
         }
     }
 }

@@ -30,7 +30,7 @@
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "floatupwhenstuck", "onlyWhenDead": true },
       { "code": "interpolateposition" },
-      { "code": "harvestable", "duration": 2 }
+      { "code": "harvestable", "duration": 999999 }
     ],
     "animations": [
       { "code": "hurt", "animation": "standhurt", "animationSpeed": 2, "weight": 10, "blendMode": "AddAverage" },
@@ -101,10 +101,8 @@
         ]
       },
       { "code": "questtarget", "targetId": "alstory:bloodhand", "leashRange": 30, "returnMoveSpeed": 0.04, "leashCheckMs": 1000 },
-      { "code": "deaddecay", "hoursToDecay": 3 },
-      { "code": "floatupwhenstuck", "onlyWhenDead": true },
-      { "code": "despawn", "minPlayerDistance": 32, "minSeconds": 30 },
-      { "code": "despawn", "minPlayerDistance": 64, "minSeconds": 6 }
+      { "code": "deaddecay", "hoursToDecay": 999999 },
+      { "code": "floatupwhenstuck", "onlyWhenDead": true }
     ]
   },
   "idleSoundRange": 14,

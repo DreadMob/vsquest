@@ -32,17 +32,10 @@ namespace VsQuest
         private QuestJournalGui questJournalGui;
         private const string JournalHotkeyCode = "alegacyvsquest-journal";
 
-        public override void Start(ICoreAPI api)
+        public override void StartPre(ICoreAPI api)
         {
             this.api = api;
-            base.Start(api);
-
-            MobLocalizationUtils.LoadFromAssets(api);
-
-            var harmony = new HarmonyLib.Harmony("alegacyvsquest");
-            harmony.PatchAll();
-
-            VsQuest.Harmony.EntityInteractPatch.TryPatch(harmony);
+            base.StartPre(api);
 
             api.RegisterEntityBehaviorClass("questgiver", typeof(EntityBehaviorQuestGiver));
             api.RegisterEntityBehaviorClass("questtarget", typeof(EntityBehaviorQuestTarget));
@@ -51,6 +44,7 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("bossdespair", typeof(EntityBehaviorBossDespair));
             api.RegisterEntityBehaviorClass("bosshuntcombatmarker", typeof(EntityBehaviorBossHuntCombatMarker));
             api.RegisterEntityBehaviorClass("bosssummonritual", typeof(EntityBehaviorBossSummonRitual));
+            api.RegisterEntityBehaviorClass("bossgrowthritual", typeof(EntityBehaviorBossGrowthRitual));
             api.RegisterEntityBehaviorClass("bossrebirth", typeof(EntityBehaviorBossRebirth));
             api.RegisterEntityBehaviorClass("shiverdebug", typeof(EntityBehaviorShiverDebug));
 
@@ -65,6 +59,18 @@ namespace VsQuest
 
             api.RegisterBlockClass("BlockBossHuntAnchor", typeof(BlockBossHuntAnchor));
             api.RegisterBlockEntityClass("BossHuntAnchor", typeof(BlockEntityBossHuntAnchor));
+        }
+
+        public override void Start(ICoreAPI api)
+        {
+            base.Start(api);
+
+            MobLocalizationUtils.LoadFromAssets(api);
+
+            var harmony = new HarmonyLib.Harmony("alegacyvsquest");
+            harmony.PatchAll();
+
+            VsQuest.Harmony.EntityInteractPatch.TryPatch(harmony);
 
             // Register objectives
             objectiveRegistry = new QuestObjectiveRegistry(ActionObjectiveRegistry, api);
@@ -99,6 +105,12 @@ namespace VsQuest
         public override void StartClientSide(ICoreClientAPI capi)
         {
             base.StartClientSide(capi);
+
+            if (networkChannelRegistry == null)
+            {
+                capi.Logger.Error("[alegacyvsquest] networkChannelRegistry was null in StartClientSide(). Recreating it (mod may have had an earlier startup error).");
+                networkChannelRegistry = new QuestNetworkChannelRegistry(this);
+            }
 
             networkChannelRegistry.RegisterClient(capi);
 
@@ -196,6 +208,12 @@ namespace VsQuest
             persistenceManager = new QuestPersistenceManager(sapi);
             lifecycleManager = new QuestLifecycleManager(QuestRegistry, ActionRegistry, api);
             eventHandler = new QuestEventHandler(QuestRegistry, persistenceManager, sapi);
+
+            if (networkChannelRegistry == null)
+            {
+                sapi.Logger.Error("[alegacyvsquest] networkChannelRegistry was null in StartServerSide(). Recreating it (mod may have had an earlier startup error).");
+                networkChannelRegistry = new QuestNetworkChannelRegistry(this);
+            }
 
             networkChannelRegistry.RegisterServer(sapi);
 

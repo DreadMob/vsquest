@@ -1,0 +1,59 @@
+{
+  "inheritFrom": "game:entities/lore/drifter",
+  "code": "drifter",
+  "variantgroups": [
+    {
+      "code": "type",
+      "states": [
+        "normal"
+      ]
+    }
+  ],
+  "client": {
+    "shapeByType": {
+      "*-normal": {
+        "base": "game:entity/lore/drifter/surface"
+      }
+    },
+    "texturesByType": {
+      "*-normal": {
+        "skin": {
+          "base": "game:entity/lore/drifter/surface1",
+          "alternates": [
+            {
+              "base": "game:entity/lore/drifter/surface2"
+            },
+            {
+              "base": "game:entity/lore/drifter/surface3"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "server": {
+    "behaviors": [
+      {
+        "code": "shiverdebug"
+      },
+      {
+        "code": "controlledphysics",
+        "stepHeight": 0
+      },
+      {
+        "code": "taskai",
+        "aitasks": []
+      },
+      {
+        "code": "health",
+        "currenthealth": 1000000,
+        "maxhealth": 1000000
+      }
+    ]
+  },
+  "sounds": {
+    "hurt": "game:creature/drifter-hurt",
+    "death": "game:creature/drifter-death",
+    "idle": "game:creature/drifter-idle"
+  }
+}

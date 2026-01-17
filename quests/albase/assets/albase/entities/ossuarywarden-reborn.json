@@ -2,13 +2,10 @@
   "code": "ossuarywarden-reborn",
   "class": "EntityDrifter",
   "tags": ["rust-creature", "habitat-land"],
-  "variantgroups": [
-    { "code": "type", "states": ["reborn"] }
-  ],
   "canClimb": true,
-  "hitboxSize": { "x": 2.4, "y": 4.2 },
-  "deadHitboxSize": { "x": 2.0, "y": 2.4 },
-  "eyeHeight": 4.0,
+  "hitboxSize": { "x": 2.4, "y": 2.2 },
+  "deadHitboxSize": { "x": 2.0, "y": 1.2 },
+  "eyeHeight": 2.0,
   "attributes": {
     "killedByInfoText": "deadcreature-vile",
     "reckless": true,
@@ -20,22 +17,15 @@
     "renderer": "Shape",
     "pitchStep": false,
     "size": 2,
-    "shapeByType": {
-      "*-reborn": { "base": "game:entity/lore/drifter/knife" }
-    },
-    "texturesByType": {
-      "*-reborn": {
-        "skin": { "base": "game:entity/lore/drifter/knife" }
-      }
-    },
+    "shape": { "base": "game:entity/lore/drifter/double-headed" },
+    "texture": { "base": "game:entity/lore/drifter/double" },
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "floatupwhenstuck", "onlyWhenDead": true },
       { "code": "interpolateposition" },
       { "code": "boss", "bossHpBarRange": 60 },
-      { "code": "harvestable", "duration": 2 },
-      { "code": "bossnametag", "nameLangKey": "item-creature-ossuarywarden", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 80 }
+      { "code": "bossnametag", "nameLangKey": "item-creature-ossuarywarden-reborn", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 80 }
     ],
     "animations": [
       { "code": "hurt", "animation": "standhurt", "animationSpeed": 2, "weight": 10, "blendMode": "AddAverage" },
@@ -83,7 +73,7 @@
             "attackDurationMs": 900,
             "animation": "standattack",
             "animationSpeed": 1.5,
-            "sound": "creature/drifter-hit",
+            "sound": "game:creature/drifter-hit",
             "soundStartMs": 350
           },
           {
@@ -97,12 +87,12 @@
             "attackAngleRangeDeg": 140,
             "mincooldown": 1800,
             "maxcooldown": 2800,
-            "damagePlayerAtMs": 500,
+            "damagePlayerAtMs": 650,
             "attackDurationMs": 1000,
             "animation": "standthrowleft",
             "animationSpeed": 1.4,
-            "sound": "creature/drifter-hit",
-            "soundStartMs": 450
+            "sound": "game:creature/drifter-hit",
+            "soundStartMs": 250
           },
           {
             "code": "seekentity",
@@ -127,14 +117,15 @@
           { "code": "lookaround", "priority": 0.5 }
         ]
       },
+      { "code": "deaddecay", "hoursToDecay": 999999 },
       { "code": "bossrespawn", "respawnInGameHours": 24, "spawnNewBoss": false },
       { "code": "floatupwhenstuck", "onlyWhenDead": true }
     ]
   },
   "idleSoundRange": 32,
   "sounds": {
-    "hurt": "creature/drifter-hurt",
-    "death": "creature/drifter-death",
-    "idle": "creature/drifter-idle"
+    "hurt": "game:creature/drifter-hurt",
+    "death": "albase:bosshunt_1",
+    "idle": "game:creature/drifter-idle"
   }
 }

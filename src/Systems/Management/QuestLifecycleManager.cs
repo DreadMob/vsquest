@@ -118,7 +118,7 @@ namespace VsQuest
                 catch (Exception ex)
                 {
                     sapi.Logger.Error(string.Format("Action {0} caused an Error in Quest {1}. The Error had the following message: {2}\n Stacktrace:", action.id, quest.id, ex.Message, ex.StackTrace));
-                    sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup, string.Format("An error occurred during quest {0}, please check the server logs for more details.", quest.id), EnumChatType.Notification);
+                    sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup, Lang.Get("alegacyvsquest:quest-action-error", quest.id), EnumChatType.Notification);
                 }
             }
 
@@ -154,7 +154,7 @@ namespace VsQuest
 
                     string playerName = ChatFormatUtil.Font(fromPlayer.PlayerName, "#ffd75e");
                     string questName = ChatFormatUtil.Font(title, "#77ddff");
-                    string text = ChatFormatUtil.PrefixAlert($"{playerName} завершил квест: {questName}");
+                    string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
                     GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
                 }
                 catch
@@ -215,7 +215,7 @@ namespace VsQuest
 
                 string playerName = ChatFormatUtil.Font(fromPlayer.PlayerName, "#ffd75e");
                 string questName = ChatFormatUtil.Font(title, "#77ddff");
-                string text = ChatFormatUtil.PrefixAlert($"{playerName} завершил квест: {questName}");
+                string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
                 GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
             }
             catch
@@ -308,7 +308,7 @@ namespace VsQuest
                 catch (Exception ex)
                 {
                     sapi.Logger.Error(string.Format("Action {0} caused an Error in Quest {1}. The Error had the following message: {2}\n Stacktrace:", action.id, quest.id, ex.Message, ex.StackTrace));
-                    sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup, string.Format("An error occurred during quest {0}, please check the server logs for more details.", quest.id), EnumChatType.Notification);
+                    sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup, Lang.Get("alegacyvsquest:quest-action-error", quest.id), EnumChatType.Notification);
                 }
             }
         }

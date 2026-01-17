@@ -36,13 +36,14 @@
         "main",
         "final",
         "loran",
+        "loranboss",
         "elrikreturn"
       ]
     },
     {
       "id": "inland",
       "objectiveId": "final",
-      "onCompleteActions": "addjournalentry alstory:fallen-magister alstory:fallen-magister-journal-title alstory:fallen-magister-journal-step1; addplayerattribute alstory_fm_stage final",
+      "onCompleteActions": "addjournalentry alstory:fallen-magister alstory:fallen-magister-journal-title alstory:fallen-magister-journal-step1; addplayerattribute alstory_fm_stage final; questitem alstory-tablet-epitaph; questitem alstory-note-necropolisfragment",
       "args": [
         "nekropol kvest"
       ]
@@ -56,6 +57,17 @@
         "alstory:loran",
         "1",
         "dialog"
+      ]
+    },
+    {
+      "id": "killactiontarget",
+      "objectiveId": "loranboss",
+      "onCompleteActions": "addplayerattribute alstory_fm_stage loranboss; addplayerint alstory:loranbosskilled 1 1 alstory:loranbosskilledonce",
+      "args": [
+        "alstory:fallen-magister",
+        "loranboss",
+        "alstory:fallen-magister:loran",
+        "1"
       ]
     },
     {

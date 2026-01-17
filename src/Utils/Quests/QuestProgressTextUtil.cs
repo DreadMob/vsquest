@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 
 namespace VsQuest
 {
@@ -116,7 +117,7 @@ namespace VsQuest
                         string code = wa.GetString(RandomKillQuestUtils.SlotCodeKey(activeQuest.questId, slot), "?");
                         int have = wa.GetInt(RandomKillQuestUtils.SlotHaveKey(activeQuest.questId, slot), 0);
                         int need = wa.GetInt(RandomKillQuestUtils.SlotNeedKey(activeQuest.questId, slot), 0);
-                        lines.Add($"- {ApplyPrefixes($"{LocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", null)}");
+                        lines.Add($"- {ApplyPrefixes($"{MobLocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", null)}");
                     }
                 }
 
@@ -186,7 +187,7 @@ namespace VsQuest
                             int have = progress[progressIndex++];
                             int need = objective.demand;
                             string code = objective.validCodes.FirstOrDefault() ?? "?";
-                            lines.Add($"- {ApplyPrefixes($"{LocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", null)}");
+                            lines.Add($"- {ApplyPrefixes($"{MobLocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", null)}");
                         }
                     }
                 }
@@ -210,6 +211,9 @@ namespace VsQuest
                         // Do not show gates as progress lines
                         if (actionObjective.id == "timeofday") continue;
                         if (actionObjective.id == "landgate") continue;
+
+                        // Do not show technical wrapper objectives
+                        if (actionObjective.id == "sequence") continue;
 
                         // randomkill already has its own slot lines
                         if (actionObjective.id == "randomkill") continue;
@@ -243,19 +247,45 @@ namespace VsQuest
                                 : candidate;
                         }
 
+                        if (actionObjective.id == "killactiontarget" && actionObjective.args != null && actionObjective.args.Length >= 3 && prog.Count >= 2)
+                        {
+                            string targetId = actionObjective.args[2];
+                            string targetCode = targetId?.Trim();
+
+                            if (!string.IsNullOrWhiteSpace(targetCode))
+                            {
+                                int lastColon = targetCode.LastIndexOf(':');
+                                if (lastColon >= 0 && lastColon < targetCode.Length - 1)
+                                {
+                                    targetCode = targetCode.Substring(lastColon + 1);
+                                }
+
+                                string nameKey = $"item-creature-{targetCode}";
+                                string targetName = LocalizationUtils.GetSafe(nameKey);
+                                if (string.IsNullOrWhiteSpace(targetName) || string.Equals(targetName, nameKey, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    targetName = targetCode;
+                                }
+
+                                string killLine = Lang.Get("alegacyvsquest:progress-pair", targetName, prog[0], prog[1]);
+                                lines.Add($"- {ApplyPrefixes(killLine, actionObjective.objectiveId)}");
+                                continue;
+                            }
+                        }
+
                         string line;
                         if (actionObjective.id == "walkdistance" && prog.Count >= 2)
                         {
                             var meterUnit = LocalizationUtils.GetSafe("alegacyvsquest:unit-meter-short");
-                            line = $"{objectiveLabel}: {prog[0]}/{prog[1]} {meterUnit}";
+                            line = Lang.Get("alegacyvsquest:progress-walkdistance", objectiveLabel, prog[0], prog[1], meterUnit);
                         }
                         else if (prog.Count >= 2)
                         {
-                            line = $"{objectiveLabel}: {prog[0]}/{prog[1]}";
+                            line = Lang.Get("alegacyvsquest:progress-pair", objectiveLabel, prog[0], prog[1]);
                         }
                         else
                         {
-                            line = $"{objectiveLabel}: {prog[0]}";
+                            line = Lang.Get("alegacyvsquest:progress-single", objectiveLabel, prog[0]);
                         }
 
                         lines.Add($"- {ApplyPrefixes(line, actionObjective.objectiveId)}");
@@ -267,7 +297,7 @@ namespace VsQuest
             catch (Exception e)
             {
                 api.Logger.Error($"[alegacyvsquest] Error building progress text for quest '{activeQuest.questId}': {e}");
-                return "Error loading progress.";
+                return LocalizationUtils.GetSafe("alegacyvsquest:progress-load-error");
             }
         }
     }

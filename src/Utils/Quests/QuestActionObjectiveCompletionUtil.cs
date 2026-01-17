@@ -6,6 +6,7 @@ namespace VsQuest
     public static class QuestActionObjectiveCompletionUtil
     {
         private static string CompletedKey(string questId, string objectiveKey) => $"alegacyvsquest:ao:completed:{questId}:{objectiveKey}";
+        private static string SequenceStepKey(string questId, string sequenceId) => $"vsquest:sequence:{questId}:{sequenceId}:step";
 
         public static void ResetCompletionFlags(Quest quest, IServerPlayer player)
         {
@@ -36,6 +37,18 @@ namespace VsQuest
                 string key = CompletedKey(quest.id, objectiveKey);
                 wa.RemoveAttribute(key);
                 wa.MarkPathDirty(key);
+
+                if (ao.id == "sequence" && ao.args != null && ao.args.Length >= 2)
+                {
+                    string questId = ao.args[0];
+                    string sequenceId = ao.args[1];
+                    if (!string.IsNullOrWhiteSpace(questId) && !string.IsNullOrWhiteSpace(sequenceId))
+                    {
+                        string stepKey = SequenceStepKey(questId, sequenceId);
+                        wa.RemoveAttribute(stepKey);
+                        wa.MarkPathDirty(stepKey);
+                    }
+                }
             }
         }
 

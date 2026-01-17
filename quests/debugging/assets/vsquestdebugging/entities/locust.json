@@ -1,0 +1,43 @@
+{
+  "inheritFrom": "game:entities/lore/locust",
+  "code": "locust",
+  "variantgroups": [
+    {
+      "code": "type",
+      "states": [
+        "bronze"
+      ]
+    }
+  ],
+  "client": {
+    "renderer": "Shape",
+    "shape": {
+      "base": "game:entity/lore/locust/locust-{type}"
+    }
+  },
+  "sounds": {
+    "hurt": "game:creature/locust/hurt",
+    "death": "game:creature/locust/death",
+    "idle": "game:creature/locust/idle"
+  },
+  "server": {
+    "behaviors": [
+      {
+        "code": "shiverdebug"
+      },
+      {
+        "code": "controlledphysics",
+        "stepHeight": 0
+      },
+      {
+        "code": "taskai",
+        "aitasks": []
+      },
+      {
+        "code": "health",
+        "currenthealth": 1000000,
+        "maxhealth": 1000000
+      }
+    ]
+  }
+}

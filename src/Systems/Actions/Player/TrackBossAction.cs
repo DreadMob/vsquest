@@ -10,8 +10,8 @@ namespace VsQuest
 {
     public class TrackBossAction : IQuestAction
     {
-        private const double CooldownHours = 5.0 / 60.0; // 5 minutes
-        private const float HpCost = 2f;
+        private const double CooldownHours = 1.0 / 60.0; // 1 minute
+        private const float HpCost = 3f;
 
         public void Execute(ICoreServerAPI sapi, QuestMessage message, IServerPlayer byPlayer, string[] args)
         {
@@ -27,14 +27,14 @@ namespace VsQuest
             var healthBh = playerEntity.GetBehavior<EntityBehaviorHealth>();
             if (healthBh != null && healthBh.Health <= HpCost)
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "Недостаточно здоровья, чтобы использовать трекер.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:trackboss-not-enough-health"), EnumChatType.Notification);
                 return;
             }
 
             var bossSystem = sapi.ModLoader.GetModSystem<BossHuntSystem>();
             if (bossSystem == null)
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "Система охоты недоступна.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:trackboss-system-unavailable"), EnumChatType.Notification);
                 return;
             }
 
@@ -45,7 +45,7 @@ namespace VsQuest
 
             if (string.IsNullOrWhiteSpace(bossKey))
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "Нет активной цели для отслеживания.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:trackboss-no-active-target"), EnumChatType.Notification);
                 return;
             }
 
@@ -54,7 +54,7 @@ namespace VsQuest
             if (cooldownUntil > nowHours)
             {
                 double remainingMinutes = Math.Max(0, (cooldownUntil - nowHours) * 60.0);
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, $"Трекер ещё не восстановился. Подождите {remainingMinutes:0} мин.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:trackboss-cooldown", remainingMinutes), EnumChatType.Notification);
                 return;
             }
 
@@ -65,21 +65,21 @@ namespace VsQuest
                 bool isActive = active != null && active.Exists(q => q != null && string.Equals(q.questId, activeQuestId, StringComparison.OrdinalIgnoreCase));
                 if (!isActive)
                 {
-                    sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "Отслеживание доступно только во время активной охоты.", EnumChatType.Notification);
+                    sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:trackboss-only-during-hunt"), EnumChatType.Notification);
                     return;
                 }
             }
 
             if (!bossSystem.TryGetBossPosition(bossKey, out Vec3d bossPos, out int bossDim, out bool isLiveEntity))
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "След босса не найден.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:trackboss-trail-not-found"), EnumChatType.Notification);
                 return;
             }
 
             int playerDim = playerEntity.ServerPos?.Dimension ?? 0;
             if (playerDim != bossDim)
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "След босса ведёт в другой мир.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:trackboss-different-dimension"), EnumChatType.Notification);
                 return;
             }
 
@@ -101,8 +101,8 @@ namespace VsQuest
             playerEntity.WatchedAttributes.SetDouble(cooldownKey, nowHours + CooldownHours);
             playerEntity.WatchedAttributes.MarkPathDirty(cooldownKey);
 
-            string liveSuffix = isLiveEntity ? "" : " (след)";
-            sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, $"Босс{liveSuffix}: {dist:0} блоков.", EnumChatType.Notification);
+            string liveSuffix = isLiveEntity ? "" : Lang.Get("alegacyvsquest:trackboss-trail-suffix");
+            sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:trackboss-distance", liveSuffix, dist), EnumChatType.Notification);
         }
     }
 }

@@ -38,6 +38,25 @@
         "albase:bosshunt:ossuarywarden",
         "1"
       ]
+    },
+    {
+      "id": "interactwithentity",
+      "objectiveId": "return",
+      "args": [
+        "albase:bosshunt-ossuarywarden",
+        "albase:bosshunter",
+        "1"
+      ]
+    },
+    {
+      "id": "sequence",
+      "objectiveId": "main",
+      "args": [
+        "albase:bosshunt-ossuarywarden",
+        "main",
+        "warden",
+        "return"
+      ]
     }
   ],
   "killObjectives": [],

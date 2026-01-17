@@ -24,7 +24,7 @@ namespace VsQuest
                     {
                         var walkLabel = LocalizationUtils.GetSafe("alegacyvsquest:objective-walkdistance");
                         var meterUnit = LocalizationUtils.GetSafe("alegacyvsquest:unit-meter-short");
-                        sapi.SendMessage(player, GlobalConstants.GeneralChatGroup, $"{walkLabel}: 0/{needMeters} {meterUnit}", EnumChatType.Notification);
+                        sapi.SendMessage(player, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:walkdistance-notify", walkLabel, needMeters, meterUnit), EnumChatType.Notification);
                     }
                 }
             }

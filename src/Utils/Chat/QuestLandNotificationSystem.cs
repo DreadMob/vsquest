@@ -16,6 +16,11 @@ namespace VsQuest
         private List<QuestLandConfig> configs = new List<QuestLandConfig>();
         private QuestSystem questSystem;
 
+        private readonly Dictionary<string, (QuestLandConfig cfg, int prefixLen)> bestConfigByQuestId = new Dictionary<string, (QuestLandConfig cfg, int prefixLen)>(StringComparer.OrdinalIgnoreCase);
+
+        private readonly Dictionary<string, (int x, int y, int z)> lastBlockPosByPlayerUid = new Dictionary<string, (int x, int y, int z)>(StringComparer.Ordinal);
+        private readonly Dictionary<string, string> lastClaimByPlayerUid = new Dictionary<string, string>(StringComparer.Ordinal);
+
         public override void StartServerSide(ICoreServerAPI api)
         {
             sapi = api;
@@ -25,6 +30,7 @@ namespace VsQuest
             // Load all questland configs from all mods that provide config/questland.json
             // (domain is owned by each mod; this system stays domain-agnostic)
             configs.Clear();
+            bestConfigByQuestId.Clear();
             foreach (var mod in api.ModLoader.Mods)
             {
                 var assets = sapi.Assets.GetMany<QuestLandConfig>(sapi.Logger, "config/questland", mod.Info.ModID);
@@ -48,21 +54,37 @@ namespace VsQuest
             for (int i = 0; i < players.Length; i++)
             {
                 if (!(players[i] is IServerPlayer sp)) continue;
-                var wa = sp.Entity?.WatchedAttributes;
-                if (wa == null) continue;
+
+                var pos = sp.Entity?.Pos;
+                if (pos == null) continue;
+                int curX = pos.AsBlockPos.X;
+                int curY = pos.AsBlockPos.Y;
+                int curZ = pos.AsBlockPos.Z;
+
+                string uid = sp.PlayerUID;
+                if (string.IsNullOrWhiteSpace(uid)) continue;
+
+                lastBlockPosByPlayerUid.TryGetValue(uid, out var lastPos);
+                int lastX = lastPos.x;
+                int lastY = lastPos.y;
+                int lastZ = lastPos.z;
+                if (curX == lastX && curY == lastY && curZ == lastZ)
+                {
+                    continue;
+                }
+
+                lastBlockPosByPlayerUid[uid] = (curX, curY, curZ);
 
                 string currentClaim = GetCurrentClaimName(sp);
 
-                string key = "alegacyvsquest:questland:lastclaim";
-                string lastClaim = wa.GetString(key, null);
+                lastClaimByPlayerUid.TryGetValue(uid, out string lastClaim);
 
                 if (string.Equals(currentClaim, lastClaim, StringComparison.Ordinal))
                 {
                     continue;
                 }
 
-                wa.SetString(key, currentClaim);
-                wa.MarkPathDirty(key);
+                lastClaimByPlayerUid[uid] = currentClaim;
 
                 // questland is a quest helper: only fire while player has an active quest matching allowed prefixes.
                 if (!TryGetRelevantQuestAndConfig(sp, out string questId, out var config))
@@ -105,27 +127,25 @@ namespace VsQuest
                 var qid = aq?.questId;
                 if (string.IsNullOrWhiteSpace(qid)) continue;
 
-                for (int ci = 0; ci < configs.Count; ci++)
+                if (TryGetBestConfigForQuestIdCached(qid, out var cachedCfg, out int cachedLen))
                 {
-                    var cfg = configs[ci];
-                    var prefixes = cfg?.allowedQuestPrefixes;
-                    if (prefixes == null || prefixes.Length == 0) continue;
-
-                    for (int pi = 0; pi < prefixes.Length; pi++)
+                    if (cachedCfg != null && cachedLen > bestPrefixLen)
                     {
-                        var p = prefixes[pi];
-                        if (string.IsNullOrWhiteSpace(p)) continue;
-                        if (qid.StartsWith(p, StringComparison.OrdinalIgnoreCase))
-                        {
-                            int len = p.Length;
-                            if (len > bestPrefixLen)
-                            {
-                                bestPrefixLen = len;
-                                bestQuestId = qid;
-                                bestConfig = cfg;
-                            }
-                        }
+                        bestPrefixLen = cachedLen;
+                        bestQuestId = qid;
+                        bestConfig = cachedCfg;
                     }
+                    continue;
+                }
+
+                var (localCfg, localLen) = ComputeBestConfigForQuestId(qid);
+                bestConfigByQuestId[qid] = (localCfg, localLen);
+
+                if (localCfg != null && localLen > bestPrefixLen)
+                {
+                    bestPrefixLen = localLen;
+                    bestQuestId = qid;
+                    bestConfig = localCfg;
                 }
             }
 
@@ -134,6 +154,58 @@ namespace VsQuest
             questId = bestQuestId;
             config = bestConfig;
             return true;
+        }
+
+        private (QuestLandConfig cfg, int prefixLen) ComputeBestConfigForQuestId(string questId)
+        {
+            if (string.IsNullOrWhiteSpace(questId) || configs == null || configs.Count == 0)
+            {
+                return (null, -1);
+            }
+
+            QuestLandConfig best = null;
+            int bestLen = -1;
+
+            for (int ci = 0; ci < configs.Count; ci++)
+            {
+                var cfg = configs[ci];
+                var prefixes = cfg?.allowedQuestPrefixes;
+                if (prefixes == null || prefixes.Length == 0) continue;
+
+                for (int pi = 0; pi < prefixes.Length; pi++)
+                {
+                    var p = prefixes[pi];
+                    if (string.IsNullOrWhiteSpace(p)) continue;
+
+                    if (questId.StartsWith(p, StringComparison.OrdinalIgnoreCase))
+                    {
+                        int len = p.Length;
+                        if (len > bestLen)
+                        {
+                            bestLen = len;
+                            best = cfg;
+                        }
+                    }
+                }
+            }
+
+            return (best, bestLen);
+        }
+
+        private bool TryGetBestConfigForQuestIdCached(string questId, out QuestLandConfig cfg, out int prefixLen)
+        {
+            cfg = null;
+            prefixLen = -1;
+            if (string.IsNullOrWhiteSpace(questId)) return false;
+
+            if (bestConfigByQuestId.TryGetValue(questId, out var cached))
+            {
+                cfg = cached.cfg;
+                prefixLen = cached.prefixLen;
+                return true;
+            }
+
+            return false;
         }
 
         private void FireEnter(IServerPlayer sp, string questId, QuestLandConfig config, string claimName)
@@ -185,7 +257,7 @@ namespace VsQuest
                 }
             }
 
-            return $"Вход: {claimName}";
+            return Lang.Get("alegacyvsquest:questland-enter", claimName);
         }
 
         private string GetExitMessage(QuestLandConfig config, string lastClaimName)
@@ -195,7 +267,7 @@ namespace VsQuest
                 return config.defaultExitMessage;
             }
 
-            return $"Выход: {lastClaimName}";
+            return Lang.Get("alegacyvsquest:questland-exit", lastClaimName);
         }
 
         private string GetCurrentClaimName(IServerPlayer sp)

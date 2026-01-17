@@ -25,7 +25,7 @@
       {
         "code": "nametag",
         "showtagonlywhentargeted": true,
-        "selectFromRandomName": [ "Охотник" ]
+        "selectFromRandomName": [ "Скиталец" ]
       },
       { "code": "controlledphysics", "stepHeight": 1.01 },
       {

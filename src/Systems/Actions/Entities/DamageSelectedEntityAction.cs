@@ -16,7 +16,7 @@ namespace VsQuest
             var selectedEntity = playerEntity?.EntitySelection?.Entity;
             if (selectedEntity == null)
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, "Не выбрана энтити.", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:entity-not-selected"), EnumChatType.Notification);
                 return;
             }
 
@@ -41,7 +41,7 @@ namespace VsQuest
 
             try
             {
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, $"Нанесено {damage:0.#} урона: {selectedEntity.Code}", EnumChatType.Notification);
+                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:damage-selected-done", damage, selectedEntity.Code), EnumChatType.Notification);
             }
             catch
             {

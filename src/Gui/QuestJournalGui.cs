@@ -275,8 +275,27 @@ namespace VsQuest
         private string EntryTitle(QuestJournalEntry entry)
         {
             if (entry == null) return "";
-            if (!string.IsNullOrWhiteSpace(entry.Title)) return entry.Title;
-            return entry.LoreCode ?? "";
+            if (!string.IsNullOrWhiteSpace(entry.Title)) return StripKnownNpcPrefix(entry.Title);
+            return StripKnownNpcPrefix(entry.LoreCode ?? "");
+        }
+
+        private static string StripKnownNpcPrefix(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return "";
+
+            string s = value.Trim();
+
+            int colon = s.IndexOf(':');
+            if (colon > 0 && colon < s.Length - 1)
+            {
+                string prefix = s.Substring(0, colon).Trim();
+                if (prefix.Equals("game", StringComparison.OrdinalIgnoreCase) || prefix.Equals("survival", StringComparison.OrdinalIgnoreCase) || prefix.Equals("albase", StringComparison.OrdinalIgnoreCase) || prefix.Equals("vsquestdebugging", StringComparison.OrdinalIgnoreCase))
+                {
+                    s = s.Substring(colon + 1).TrimStart();
+                }
+            }
+
+            return s;
         }
 
         private static string StripEntryPrefixForList(string entryTitle, string groupTitle)
@@ -312,7 +331,13 @@ namespace VsQuest
             var entry = entriesForQuest.FirstOrDefault(e => string.Equals(e.LoreCode, entryKey, StringComparison.OrdinalIgnoreCase));
             if (entry?.Chapters == null || entry.Chapters.Count == 0) return "";
 
-            return string.Join("\n\n", entry.Chapters.Where(c => !string.IsNullOrWhiteSpace(c)));
+            string Normalize(string s)
+            {
+                if (string.IsNullOrEmpty(s)) return s;
+                return s.Replace("\\r\\n", "\n").Replace("\\n", "\n");
+            }
+
+            return string.Join("\n\n", entry.Chapters.Where(c => !string.IsNullOrWhiteSpace(c)).Select(Normalize));
         }
 
         private float ComputeDropdownWidth(string[] texts, double maxWidth, float minWidth)

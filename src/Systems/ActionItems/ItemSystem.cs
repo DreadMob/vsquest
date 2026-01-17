@@ -22,6 +22,8 @@ namespace VsQuest
         private long inventoryScanListenerId = 0;
         private long hotbarEnforceListenerId = 0;
 
+        private readonly Dictionary<string, (string invKey, int slot)> inventoryScanCursorByPlayerUid = new Dictionary<string, (string invKey, int slot)>(StringComparer.Ordinal);
+
         private const string ActionItemsCreativeTabCode = "alegacyvsquest-actionitems";
 
         public Dictionary<string, ActionItem> ActionItemRegistry { get; private set; } = new Dictionary<string, ActionItem>();
@@ -357,12 +359,36 @@ namespace VsQuest
             {
                 if (!(p is IServerPlayer sp)) continue;
                 var inv = sp?.InventoryManager;
-                var wa = sp?.Entity?.WatchedAttributes;
-                if (inv == null || wa == null) continue;
+                if (inv == null) continue;
+
+                string uid = sp.PlayerUID;
+                if (string.IsNullOrWhiteSpace(uid)) continue;
+
+                const int maxSlotsPerTick = 64;
+                int scanned = 0;
+
+                inventoryScanCursorByPlayerUid.TryGetValue(uid, out var cursor);
+                string resumeInvKey = cursor.invKey;
+                int resumeSlot = cursor.slot;
+                if (resumeSlot < 0) resumeSlot = 0;
+
+                bool resuming = !string.IsNullOrWhiteSpace(resumeInvKey);
+                bool resumeInvReached = !resuming;
 
                 // Walk all inventories/slots; trigger only for stacks that request auto-processing.
                 foreach (var iinv in inv.Inventories)
                 {
+                    // If we have a resume inventory key, skip inventories until we reach it.
+                    if (!resumeInvReached)
+                    {
+                        if (!string.Equals(iinv.Key, resumeInvKey, StringComparison.Ordinal))
+                        {
+                            continue;
+                        }
+
+                        resumeInvReached = true;
+                    }
+
                     var inventory = iinv.Value;
                     if (inventory == null) continue;
 
@@ -378,8 +404,16 @@ namespace VsQuest
                         continue;
                     }
 
+                    if (slotCount <= 0) continue;
+
+                    int startSlot = (resuming && string.Equals(iinv.Key, resumeInvKey, StringComparison.Ordinal)) ? resumeSlot : 0;
+                    if (startSlot < 0) startSlot = 0;
+                    if (startSlot >= slotCount) startSlot = 0;
+
                     for (int slotIndex = 0; slotIndex < slotCount; slotIndex++)
                     {
+                        if (slotIndex < startSlot) continue;
+
                         var slot = inventory[slotIndex];
                         var stack = slot?.Itemstack;
                         if (stack?.Attributes == null) continue;
@@ -390,6 +424,8 @@ namespace VsQuest
                         if (string.IsNullOrWhiteSpace(actionItemId)) continue;
 
                         string onceKey = $"alegacyvsquest:itemaction:invadd:{actionItemId}";
+                        var wa = sp?.Entity?.WatchedAttributes;
+                        if (wa == null) break;
                         if (wa.GetBool(onceKey, false)) continue;
 
                         if (!TryGetActionItemActionsFromAttributes(stack.Attributes, out var actions, out string sourceQuestId))
@@ -421,10 +457,25 @@ namespace VsQuest
 
                         wa.SetBool(onceKey, true);
                         wa.MarkPathDirty(onceKey);
+
+                        scanned++;
+                        if (scanned >= maxSlotsPerTick)
+                        {
+                            // Continue from next slot on next tick.
+                            inventoryScanCursorByPlayerUid[uid] = (iinv.Key, slotIndex + 1);
+                            goto nextPlayer;
+                        }
                     }
                 }
+
+                // Finished full scan => reset cursor.
+                inventoryScanCursorByPlayerUid.Remove(uid);
+
+            nextPlayer:
+                continue;
             }
         }
+
     }
 
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]

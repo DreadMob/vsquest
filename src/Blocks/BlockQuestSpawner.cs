@@ -29,7 +29,7 @@ namespace VsQuest
                 var sapi = world.Api as Vintagestory.API.Server.ICoreServerAPI;
                 if (sapi != null)
                 {
-                    sapi.SendMessage(byPlayer as Vintagestory.API.Server.IServerPlayer, GlobalConstants.InfoLogChatGroup, added ? "Added spawn entry" : "Spawn entry already exists", EnumChatType.Notification);
+                    sapi.SendMessage(byPlayer as Vintagestory.API.Server.IServerPlayer, GlobalConstants.InfoLogChatGroup, Lang.Get(added ? "alegacyvsquest:questspawner-added-entry" : "alegacyvsquest:questspawner-entry-exists"), EnumChatType.Notification);
                 }
                 return true;
             }

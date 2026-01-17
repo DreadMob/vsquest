@@ -135,10 +135,24 @@ namespace VsQuest
             string text = null;
             if (!string.IsNullOrWhiteSpace(nameLangKey))
             {
-                text = Lang.GetIfExists(nameLangKey)
-                    ?? Lang.GetIfExists("alstory:" + nameLangKey)
-                    ?? Lang.GetIfExists("game:" + nameLangKey)
-                    ?? nameLangKey;
+                if (nameLangKey.IndexOf(':') >= 0)
+                {
+                    text = Lang.GetIfExists(nameLangKey);
+                }
+                else
+                {
+                    string domain = entity?.Code?.Domain;
+                    if (!string.IsNullOrWhiteSpace(domain))
+                    {
+                        text = Lang.GetIfExists(domain + ":" + nameLangKey);
+                    }
+
+                    text = text
+                        ?? Lang.GetIfExists(nameLangKey)
+                        ?? Lang.GetIfExists("game:" + nameLangKey);
+                }
+
+                text ??= nameLangKey;
             }
             else if (!string.IsNullOrWhiteSpace(rawName))
             {
@@ -155,7 +169,7 @@ namespace VsQuest
                 if (!double.IsNaN(respawnAt))
                 {
                     double hoursLeft = Math.Max(0, respawnAt - capi.World.Calendar.TotalHours);
-                    text = $"{text} (респавн через {hoursLeft:0.#}ч)";
+                    text = Lang.Get("alegacyvsquest:boss-respawn-suffix", text, hoursLeft);
                 }
             }
 

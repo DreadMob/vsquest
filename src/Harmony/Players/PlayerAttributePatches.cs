@@ -34,7 +34,42 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityAgent __instance, DamageSource damageSource, ref float damage)
             {
+                if (__instance?.WatchedAttributes != null)
+                {
+                    try
+                    {
+                        if (__instance.WatchedAttributes.GetBool("alegacyvsquest:bossclone:invulnerable", false))
+                        {
+                            damage = 0f;
+                            if (damageSource != null)
+                            {
+                                damageSource.KnockbackStrength = 0f;
+                            }
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
                 if (damage <= 0f) return;
+
+                if (damageSource?.SourceEntity?.WatchedAttributes != null)
+                {
+                    try
+                    {
+                        float mult = damageSource.SourceEntity.WatchedAttributes.GetFloat("alegacyvsquest:bossclone:damagemult", 0f);
+                        if (mult > 0f && mult < 0.999f)
+                        {
+                            damage *= mult;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
                 if (damageSource?.SourceEntity is not EntityPlayer byEntity) return;
                 if (byEntity.WatchedAttributes == null) return;
 
@@ -87,6 +122,42 @@ namespace VsQuest.Harmony
                 catch
                 {
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
+        public class EntityAgent_OnGameTick_BossCloneSpeedMult_Patch
+        {
+            public static void Prefix(EntityAgent __instance)
+            {
+                if (__instance?.WatchedAttributes == null) return;
+                if (__instance.Stats == null) return;
+
+                const string MultKey = "alegacyvsquest:bossclone:walkspeedmult";
+                const string BaseKey = "alegacyvsquest:bossclone:walkspeedbase";
+                const string AppliedKey = "alegacyvsquest:bossclone:walkspeedapplied";
+
+                float mult = __instance.WatchedAttributes.GetFloat(MultKey, 0f);
+                if (mult <= 0f) return;
+                if (mult >= 0.999f && mult <= 1.001f) return;
+
+                float applied = __instance.WatchedAttributes.GetFloat(AppliedKey, 0f);
+                if (applied == mult) return;
+
+                float baseWalkSpeed = __instance.WatchedAttributes.GetFloat(BaseKey, 0f);
+                if (baseWalkSpeed <= 0f)
+                {
+                    baseWalkSpeed = __instance.Stats.GetBlended("walkspeed");
+                    if (baseWalkSpeed > 0f)
+                    {
+                        __instance.WatchedAttributes.SetFloat(BaseKey, baseWalkSpeed);
+                    }
+                }
+
+                if (baseWalkSpeed <= 0f) return;
+
+                __instance.Stats.Set("walkspeed", "alegacyvsquest", baseWalkSpeed * mult, true);
+                __instance.WatchedAttributes.SetFloat(AppliedKey, mult);
             }
         }
     }

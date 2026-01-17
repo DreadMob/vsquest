@@ -9,7 +9,7 @@ namespace VsQuest
     {
         private static string LocalizeMobName(string code)
         {
-            return LocalizationUtils.GetMobDisplayName(code);
+            return MobLocalizationUtils.GetMobDisplayName(code);
         }
 
 

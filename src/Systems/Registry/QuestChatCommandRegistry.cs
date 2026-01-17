@@ -21,6 +21,8 @@ namespace VsQuest
             var itemSystem = api.ModLoader.GetModSystem<ItemSystem>();
             var getActionItemHandler = new GetActionItemCommandHandler(api, itemSystem);
 
+            var questFxHandler = new QuestFxCommandHandler(sapi);
+
             var questNpcListHandler = new QuestNpcListCommandHandler(sapi);
 
             var questListHandler = new QuestListCommandHandler(sapi, questSystem);
@@ -45,6 +47,41 @@ namespace VsQuest
             sapi.ChatCommands.GetOrCreate("quest")
                 .WithDescription("Quest administration commands")
                 .RequiresPrivilege(Privilege.give)
+                .BeginSubCommand("fx")
+                    .WithDescription("Particle FX debug tools")
+                    .RequiresPrivilege(Privilege.give)
+                    .BeginSubCommand("list")
+                        .WithDescription("Lists loaded particle FX preset IDs.")
+                        .RequiresPrivilege(Privilege.give)
+                        .HandleWith(questFxHandler.List)
+                    .EndSubCommand()
+                    .BeginSubCommand("select")
+                        .WithDescription("Selects a preset for use with action-items or spawnselected.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(sapi.ChatCommands.Parsers.OptionalWord("presetId"), sapi.ChatCommands.Parsers.OptionalWord("scope"))
+                        .HandleWith(questFxHandler.Select)
+                    .EndSubCommand()
+                    .BeginSubCommand("spawn")
+                        .WithDescription("Spawns a preset at the caller's position. Optional: count, radiusTimes10.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.Word("presetId"),
+                            sapi.ChatCommands.Parsers.OptionalInt("count", 0),
+                            sapi.ChatCommands.Parsers.OptionalInt("radiusTimes10", 0)
+                        )
+                        .HandleWith(questFxHandler.Spawn)
+                    .EndSubCommand()
+                    .BeginSubCommand("spawnselected")
+                        .WithDescription("Spawns the selected preset at the caller's position. Optional: count, radiusTimes10.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.OptionalWord("scope"),
+                            sapi.ChatCommands.Parsers.OptionalInt("count", 0),
+                            sapi.ChatCommands.Parsers.OptionalInt("radiusTimes10", 0)
+                        )
+                        .HandleWith(questFxHandler.SpawnSelected)
+                    .EndSubCommand()
+                .EndSubCommand()
                 .BeginSubCommand("actionitems")
                     .WithDescription("Lists all registered action items.")
                     .RequiresPrivilege(Privilege.give)

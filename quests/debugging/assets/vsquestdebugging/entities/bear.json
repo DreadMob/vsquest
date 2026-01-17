@@ -1,0 +1,60 @@
+{
+  "inheritFrom": "game:entities/animal/mammal/bear-adult",
+  "code": "bear",
+  "variantgroups": [
+    {
+      "code": "type",
+      "states": [
+        "black"
+      ]
+    },
+    {
+      "code": "age",
+      "states": [
+        "adult"
+      ]
+    },
+    {
+      "code": "gender",
+      "states": [
+        "male"
+      ]
+    }
+  ],
+  "client": {
+    "renderer": "Shape",
+    "shape": {
+      "base": "game:entity/animal/mammal/bear/black-adult"
+    },
+    "texture": {
+      "base": "game:entity/animal/mammal/bear/black-adult1"
+    }
+  },
+  "sounds": {
+    "hurt": "game:creature/bear/hurt",
+    "idle": "game:creature/bear/growl*",
+    "death": "game:creature/bear/hurt",
+    "attack": "game:creature/bear/attack",
+    "aggro": "game:creature/bear/aggro"
+  },
+  "server": {
+    "behaviors": [
+      {
+        "code": "shiverdebug"
+      },
+      {
+        "code": "controlledphysics",
+        "stepHeight": 0
+      },
+      {
+        "code": "taskai",
+        "aitasks": []
+      },
+      {
+        "code": "health",
+        "currenthealth": 1000000,
+        "maxhealth": 1000000
+      }
+    ]
+  }
+}

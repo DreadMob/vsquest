@@ -66,29 +66,43 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.7,
-            "entityCode": "game:locust-corrupt",
+            "entityCode": "game:locust-bronze",
             "minCount": 3,
             "maxCount": 5,
             "ritualMs": 5000,
             "healPerSecond": 8,
             "spawnRange": 10,
+            "circleRadius": 3.5,
+            "circleMoveSpeed": 1.2,
+            "circleStartDelayMs": 200,
             "animation": "attack",
-            "sound": "creature/locust/saw",
+            "sound": "game:creature/locust/saw",
             "soundRange": 28,
-            "soundStartMs": 500
+            "soundStartMs": 500,
+            "loopSound": "game:creature/locust/saw",
+            "loopSoundRange": 24,
+            "loopSoundIntervalMs": 900,
+            "spawnDelayMs": 600
           },
           {
             "whenHealthRelBelow": 0.35,
-            "entityCode": "game:locust-corrupt-sawblade",
+            "entityCode": "game:locust-bronze",
             "minCount": 4,
             "maxCount": 6,
             "ritualMs": 6000,
             "healPerSecond": 10,
             "spawnRange": 12,
+            "circleRadius": 4.0,
+            "circleMoveSpeed": 1.4,
+            "circleStartDelayMs": 200,
             "animation": "rundrill",
-            "sound": "creature/locust/saw",
+            "sound": "game:creature/locust/saw",
             "soundRange": 32,
-            "soundStartMs": 400
+            "soundStartMs": 400,
+            "loopSound": "game:creature/locust/saw",
+            "loopSoundRange": 28,
+            "loopSoundIntervalMs": 800,
+            "spawnDelayMs": 700
           }
         ]
       },
@@ -110,7 +124,7 @@
             "attackDurationMs": 800,
             "animation": "attack",
             "animationSpeed": 1.8,
-            "sound": "creature/locust/saw",
+            "sound": "game:creature/locust/saw",
             "soundStartMs": 1000
           },
           {
@@ -124,12 +138,12 @@
             "attackAngleRangeDeg": 120,
             "mincooldown": 3500,
             "maxcooldown": 5000,
-            "damagePlayerAtMs": 600,
+            "damagePlayerAtMs": 750,
             "attackDurationMs": 1200,
             "animation": "rundrill",
             "animationSpeed": 7.5,
-            "sound": "creature/locust/saw",
-            "soundStartMs": 900,
+            "sound": "game:creature/locust/saw",
+            "soundStartMs": 450,
             "whenInEmotionState": "ashenlurker-frenzy|ashenlurker-overdrive"
           },
           {
@@ -143,12 +157,12 @@
             "attackAngleRangeDeg": 140,
             "mincooldown": 2500,
             "maxcooldown": 3500,
-            "damagePlayerAtMs": 450,
+            "damagePlayerAtMs": 650,
             "attackDurationMs": 900,
             "animation": "rundrill",
             "animationSpeed": 8.5,
-            "sound": "creature/locust/saw",
-            "soundStartMs": 700,
+            "sound": "game:creature/locust/saw",
+            "soundStartMs": 350,
             "whenInEmotionState": "ashenlurker-overdrive"
           },
           {
@@ -161,6 +175,8 @@
             "seekingRange": 30,
             "maxFollowTime": 120,
             "animationSpeed": 7,
+            "leapAtTarget": true,
+            "leapAnimation": "jump",
             "animation": "rundrill"
           },
           {
@@ -174,14 +190,16 @@
           { "code": "lookaround", "priority": 0.5 }
         ]
       },
+      { "code": "deaddecay", "hoursToDecay": 999999 },
       { "code": "bossrespawn", "respawnInGameHours": 24, "spawnNewBoss": false },
       { "code": "floatupwhenstuck", "onlyWhenDead": true }
     ]
   },
   "idleSoundRange": 32,
+  "idleSoundChance": 0.04,
   "sounds": {
-    "hurt": "creature/locust/hurt",
-    "death": "creature/locust/death",
-    "idle": "creature/locust/idle"
+    "hurt": "game:creature/locust/hurt",
+    "death": "game:creature/locust/death",
+    "idle": "game:creature/locust/idle"
   }
 }

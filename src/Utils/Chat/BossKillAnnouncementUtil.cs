@@ -31,7 +31,7 @@ namespace VsQuest
             string victimName = ChatFormatUtil.Font(victim.PlayerName, "#ffd75e");
             string bossNameColored = ChatFormatUtil.Font(bossName, "#ff77ff");
 
-            string template = "{victim} погиб от {boss}";
+            string template = LocalizationUtils.GetSafe("alegacyvsquest:bosskill-default-template");
             if (TemplateLangKeys.Length > 0)
             {
                 string langKey = TemplateLangKeys[sapi.World.Rand.Next(0, TemplateLangKeys.Length)];
@@ -50,7 +50,9 @@ namespace VsQuest
 
             string message = template
                 .Replace("{victim}", victimName)
-                .Replace("{boss}", bossNameColored);
+                .Replace("{boss}", bossNameColored)
+                .Replace("{{victim}}", victimName)
+                .Replace("{{boss}}", bossNameColored);
 
             GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, ChatFormatUtil.PrefixAlert(message), Vintagestory.API.Common.EnumChatType.Notification);
         }
@@ -64,7 +66,7 @@ namespace VsQuest
 
             string playerName = ChatFormatUtil.Font(killer.PlayerName, "#ffd75e");
             string bossNameColored = ChatFormatUtil.Font(bossName, "#ff77ff");
-            string text = ChatFormatUtil.PrefixAlert($"{playerName} победил босса {bossNameColored}");
+            string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:boss-defeated", playerName, bossNameColored));
 
             GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, Vintagestory.API.Common.EnumChatType.Notification);
         }

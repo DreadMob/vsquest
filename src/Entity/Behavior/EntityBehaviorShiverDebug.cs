@@ -12,6 +12,8 @@ namespace VsQuest
     {
         private const string AnimIndexKey = "alegacyvsquest:shiverdebug:index";
 
+        private List<string> cachedAnimations;
+
         private static readonly List<string> ShiverAnimations = new List<string>
         {
             "hurt",
@@ -56,7 +58,7 @@ namespace VsQuest
             string nextAnim = NextAnimation();
             StartForcedAnimation(nextAnim);
 
-            sapi.SendMessage(player.Player as IServerPlayer, GlobalConstants.GeneralChatGroup, $"Анимация: {nextAnim}", EnumChatType.Notification);
+            sapi.SendMessage(player.Player as IServerPlayer, GlobalConstants.GeneralChatGroup, Lang.Get("alegacyvsquest:shiverdebug-current", nextAnim), EnumChatType.Notification);
             handled = EnumHandling.Handled;
         }
 
@@ -70,12 +72,44 @@ namespace VsQuest
 
         private string NextAnimation()
         {
+            var animations = GetAnimations();
+
             int index = entity.WatchedAttributes.GetInt(AnimIndexKey, 0);
             if (index < 0) index = 0;
-            string anim = ShiverAnimations[index % ShiverAnimations.Count];
+            string anim = animations[index % animations.Count];
             entity.WatchedAttributes.SetInt(AnimIndexKey, index + 1);
             entity.WatchedAttributes.MarkPathDirty(AnimIndexKey);
             return anim;
+        }
+
+        private List<string> GetAnimations()
+        {
+            if (cachedAnimations != null && cachedAnimations.Count > 0)
+            {
+                return cachedAnimations;
+            }
+
+            var list = new List<string>();
+            var animations = entity?.Properties?.Client?.AnimationsByMetaCode;
+            if (animations != null)
+            {
+                foreach (var kvp in animations)
+                {
+                    var code = kvp.Key;
+                    if (string.IsNullOrWhiteSpace(code)) continue;
+                    list.Add(code);
+                }
+            }
+
+            if (list.Count == 0)
+            {
+                cachedAnimations = ShiverAnimations;
+                return cachedAnimations;
+            }
+
+            list.Sort(StringComparer.OrdinalIgnoreCase);
+            cachedAnimations = list;
+            return cachedAnimations;
         }
 
         private void StartForcedAnimation(string animCode)

@@ -35,6 +35,8 @@ namespace VsQuest
 
         public void OnBlockPlaced(string blockCode, int[] position, IPlayer byPlayer)
         {
+            if (blockPlaceTrackers == null || blockPlaceTrackers.Count == 0) return;
+
             var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
             var quest = questSystem.QuestRegistry[questId];
 
@@ -45,6 +47,8 @@ namespace VsQuest
 
         public void OnBlockBroken(string blockCode, int[] position, IPlayer byPlayer)
         {
+            if (blockBreakTrackers == null || blockBreakTrackers.Count == 0) return;
+
             var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
             var quest = questSystem.QuestRegistry[questId];
 
@@ -112,22 +116,30 @@ namespace VsQuest
 
         private void checkEventTrackers(List<EventTracker> trackers, string code, int[] position, List<Objective> objectives)
         {
-            foreach (var tracker in trackers)
+            if (trackers == null || trackers.Count == 0) return;
+
+            if (position == null)
             {
-                if (position == null)
+                for (int i = 0; i < trackers.Count; i++)
                 {
+                    var tracker = trackers[i];
                     if (trackerMatches(tracker, code))
                     {
                         tracker.count++;
                     }
                 }
-                else
+                return;
+            }
+
+            if (objectives == null || objectives.Count == 0) return;
+
+            int count = Math.Min(trackers.Count, objectives.Count);
+            for (int i = 0; i < count; i++)
+            {
+                var tracker = trackers[i];
+                if (trackerMatches(objectives[i], tracker, code, position))
                 {
-                    var index = trackers.IndexOf(tracker);
-                    if (index != -1 && trackerMatches(objectives[index], tracker, code, position))
-                    {
-                        tracker.count++;
-                    }
+                    tracker.count++;
                 }
             }
         }

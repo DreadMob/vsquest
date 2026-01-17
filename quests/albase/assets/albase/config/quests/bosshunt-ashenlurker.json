@@ -38,6 +38,25 @@
         "albase:bosshunt:ashenlurker",
         "1"
       ]
+    },
+    {
+      "id": "interactwithentity",
+      "objectiveId": "return",
+      "args": [
+        "albase:bosshunt-ashenlurker",
+        "albase:bosshunter",
+        "1"
+      ]
+    },
+    {
+      "id": "sequence",
+      "objectiveId": "main",
+      "args": [
+        "albase:bosshunt-ashenlurker",
+        "main",
+        "ashenlurker",
+        "return"
+      ]
     }
   ],
   "killObjectives": [],

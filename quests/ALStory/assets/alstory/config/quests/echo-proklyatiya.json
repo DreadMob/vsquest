@@ -88,7 +88,7 @@
     {
       "id": "reachwaypoint",
       "objectiveId": "ordertower",
-      "onCompleteActions": "addjournalentry alstory:echo-proklyatiya alstory:echo-proklyatiya-journal-title alstory:echo-proklyatiya-journal-step2",
+      "onCompleteActions": "addjournalentry alstory:echo-proklyatiya alstory:echo-proklyatiya-journal-title alstory:echo-proklyatiya-journal-step2; questitem alstory-armor-helm",
       "args": [
         "1426,250,-4965",
         "30"

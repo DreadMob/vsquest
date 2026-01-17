@@ -31,6 +31,20 @@
           ]
         }
       ]
+    },
+    {
+      "id": "vsquestdebugging:fx",
+      "itemCode": "alegacyvsquest:debugtool",
+      "name": "<font color=\"#34D399\">Debug: FX</font>",
+      "description": "<font color=\"#60A5FA\">ПКМ по хотбару: спавнит выбранный FX preset (scope default). Выбор: .quest fx select &amp;lt;id&amp;gt;</font>",
+      "actions": [
+        {
+          "id": "spawnfxselected",
+          "args": [
+            "default"
+          ]
+        }
+      ]
     }
   ]
 }

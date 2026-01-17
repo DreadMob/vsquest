@@ -1,26 +1,33 @@
 using System.Collections.Generic;
 using System.Linq;
+using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
 namespace VsQuest
 {
     public static class QuestTickUtil
     {
-        public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IServerPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, ICoreServerAPI sapi)
+        public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, ICoreServerAPI sapi)
         {
-            foreach (var serverPlayer in players)
+            if (players == null || players.Length == 0) return;
+
+            for (int p = 0; p < players.Length; p++)
             {
+                if (players[p] is not IServerPlayer serverPlayer) continue;
+
                 var activeQuests = getPlayerQuests(serverPlayer.PlayerUID);
                 if (activeQuests == null || activeQuests.Count == 0) continue;
 
-                foreach (var activeQuest in activeQuests.ToArray())
+                for (int aq = 0; aq < activeQuests.Count; aq++)
                 {
-                    if (!questRegistry.ContainsKey(activeQuest.questId))
+                    var activeQuest = activeQuests[aq];
+                    if (activeQuest == null || string.IsNullOrWhiteSpace(activeQuest.questId)) continue;
+
+                    if (!questRegistry.TryGetValue(activeQuest.questId, out var quest) || quest == null)
                     {
                         sapi.Logger.Error($"[alegacyvsquest] Active quest with id '{activeQuest.questId}' for player '{serverPlayer.PlayerUID}' not found in QuestRegistry. Skipping tick update. This might happen if a quest was removed but player data was not updated.");
                         continue;
                     }
-                    var quest = questRegistry[activeQuest.questId];
 
                     for (int i = 0; i < quest.actionObjectives.Count; i++)
                     {

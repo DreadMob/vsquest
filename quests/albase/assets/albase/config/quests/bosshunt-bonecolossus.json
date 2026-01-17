@@ -38,6 +38,25 @@
         "albase:bosshunt:bonecolossus",
         "1"
       ]
+    },
+    {
+      "id": "interactwithentity",
+      "objectiveId": "return",
+      "args": [
+        "albase:bosshunt-bonecolossus",
+        "albase:bosshunter",
+        "1"
+      ]
+    },
+    {
+      "id": "sequence",
+      "objectiveId": "main",
+      "args": [
+        "albase:bosshunt-bonecolossus",
+        "main",
+        "bonecolossus",
+        "return"
+      ]
     }
   ],
   "killObjectives": [],

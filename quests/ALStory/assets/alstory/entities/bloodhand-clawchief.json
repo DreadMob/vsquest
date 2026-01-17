@@ -33,7 +33,7 @@
       { "code": "floatupwhenstuck", "onlyWhenDead": true },
       { "code": "interpolateposition" },
       { "code": "boss", "bossHpBarRange": 60 },
-      { "code": "harvestable", "duration": 2 },
+      { "code": "harvestable", "duration": 999999 },
       { "code": "bossnametag", "nameLangKey": "item-creature-bloodhand-clawchief-bellhead", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 80 }
     ],
     "animations": [
