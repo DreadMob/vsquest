@@ -29,6 +29,8 @@ namespace VsQuest
                 return 0;
             }
 
+            var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+
             var t = modJournal.GetType();
             var journalsField = t.GetField("journalsByPlayerUid", BindingFlags.Instance | BindingFlags.NonPublic);
 
@@ -50,18 +52,24 @@ namespace VsQuest
             var entries = QuestJournalEntry.Load(wa);
             bool changed = false;
             int importedCount = 0;
+            int eligibleCount = 0;
 
             foreach (var legacyEntry in journal.Entries)
             {
                 if (legacyEntry == null) continue;
                 if (string.IsNullOrWhiteSpace(legacyEntry.LoreCode)) continue;
-                if (!IsQuestLoreCode(legacyEntry.LoreCode, lorePrefix)) continue;
+                if (!IsQuestLoreCode(legacyEntry.LoreCode, lorePrefix, questSystem)) continue;
+
+                eligibleCount++;
+
+                string resolvedQuestId = ResolveQuestId(legacyEntry.LoreCode, questSystem);
 
                 var existing = entries.FirstOrDefault(e => e != null && string.Equals(e.LoreCode, legacyEntry.LoreCode, StringComparison.OrdinalIgnoreCase));
                 if (existing == null)
                 {
                     existing = new QuestJournalEntry
                     {
+                        QuestId = resolvedQuestId,
                         LoreCode = legacyEntry.LoreCode,
                         Title = legacyEntry.Title,
                         Chapters = new List<string>()
@@ -69,6 +77,11 @@ namespace VsQuest
                     entries.Add(existing);
                     changed = true;
                     importedCount++;
+                }
+                else if (string.IsNullOrWhiteSpace(existing.QuestId) && !string.IsNullOrWhiteSpace(resolvedQuestId))
+                {
+                    existing.QuestId = resolvedQuestId;
+                    changed = true;
                 }
 
                 if (!string.IsNullOrWhiteSpace(legacyEntry.Title) && !string.Equals(existing.Title, legacyEntry.Title, StringComparison.Ordinal))
@@ -101,16 +114,22 @@ namespace VsQuest
                 }
             }
 
-            if (changed)
+            if (eligibleCount > 0)
             {
-                QuestJournalEntry.Save(wa, entries);
-                wa.MarkPathDirty(QuestJournalEntry.JournalEntriesKey);
-            }
+                if (changed)
+                {
+                    QuestJournalEntry.Save(wa, entries);
+                    wa.MarkPathDirty(QuestJournalEntry.JournalEntriesKey);
+                }
 
-            // Mark migration as completed even if nothing was imported.
-            // Otherwise we'd retry every login and keep reflecting into ModJournal.
-            wa.SetBool(MigrationFlagKey, true);
-            wa.MarkPathDirty(MigrationFlagKey);
+                // Mark migration as completed when we've processed quest entries.
+                wa.SetBool(MigrationFlagKey, true);
+                wa.MarkPathDirty(MigrationFlagKey);
+            }
+            else
+            {
+                sapi.Logger.VerboseDebug($"[alegacyvsquest] Journal migration found no eligible quest entries for {player.PlayerUID}. Migration flag not set.");
+            }
 
             if (importedCount > 0)
             {
@@ -120,9 +139,11 @@ namespace VsQuest
             return importedCount;
         }
 
-        private static bool IsQuestLoreCode(string loreCode, string preferredPrefix)
+        private static bool IsQuestLoreCode(string loreCode, string preferredPrefix, QuestSystem questSystem)
         {
             if (string.IsNullOrWhiteSpace(loreCode)) return false;
+
+            if (questSystem?.QuestRegistry != null && questSystem.QuestRegistry.ContainsKey(loreCode)) return true;
 
             // Current mod id
             if (loreCode.StartsWith(preferredPrefix, StringComparison.OrdinalIgnoreCase)) return true;
@@ -131,6 +152,16 @@ namespace VsQuest
             if (loreCode.StartsWith("vsquest", StringComparison.OrdinalIgnoreCase)) return true;
 
             return false;
+        }
+
+        private static string ResolveQuestId(string loreCode, QuestSystem questSystem)
+        {
+            if (!string.IsNullOrWhiteSpace(loreCode) && questSystem?.QuestRegistry != null && questSystem.QuestRegistry.ContainsKey(loreCode))
+            {
+                return loreCode;
+            }
+
+            return loreCode;
         }
     }
 }

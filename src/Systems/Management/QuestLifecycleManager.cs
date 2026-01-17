@@ -15,6 +15,35 @@ namespace VsQuest
         private readonly Dictionary<string, IQuestAction> actionRegistry;
         private readonly ICoreAPI api;
 
+        private static string BuildQuestHoverText(string questId)
+        {
+            if (string.IsNullOrWhiteSpace(questId)) return null;
+
+            string hoverKey = questId + "-hover";
+            string hoverText = LocalizationUtils.GetSafe(hoverKey);
+            if (!string.IsNullOrWhiteSpace(hoverText)
+                && !string.Equals(hoverText, hoverKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return hoverText.Replace("\r", "").Replace("\"", "&quot;");
+            }
+
+            string langKey = questId + "-desc";
+            string desc = LocalizationUtils.GetSafe(langKey);
+            if (string.IsNullOrWhiteSpace(desc) || string.Equals(desc, langKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            string[] lines = desc.Replace("\r", "").Split('\n');
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                return line.Trim().Replace("\"", "&quot;");
+            }
+
+            return null;
+        }
+
         public QuestLifecycleManager(Dictionary<string, Quest> questRegistry, Dictionary<string, IQuestAction> actionRegistry, ICoreAPI api)
         {
             this.questRegistry = questRegistry;
@@ -153,7 +182,10 @@ namespace VsQuest
                     }
 
                     string playerName = ChatFormatUtil.Font(fromPlayer.PlayerName, "#ffd75e");
-                    string questName = ChatFormatUtil.Font(title, "#77ddff");
+                    string hoverText = BuildQuestHoverText(message.questId);
+                    string questName = string.IsNullOrWhiteSpace(hoverText)
+                        ? ChatFormatUtil.Font(title, "#77ddff")
+                        : $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
                     string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
                     GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
                 }
@@ -214,7 +246,10 @@ namespace VsQuest
                 }
 
                 string playerName = ChatFormatUtil.Font(fromPlayer.PlayerName, "#ffd75e");
-                string questName = ChatFormatUtil.Font(title, "#77ddff");
+                string hoverText = BuildQuestHoverText(message.questId);
+                string questName = string.IsNullOrWhiteSpace(hoverText)
+                    ? ChatFormatUtil.Font(title, "#77ddff")
+                    : $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
                 string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
                 GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
             }

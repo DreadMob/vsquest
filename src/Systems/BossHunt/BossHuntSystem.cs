@@ -319,6 +319,35 @@ namespace VsQuest
             return null;
         }
 
+        private Entity FindBossEntityImmediateAny(string bossTargetId)
+        {
+            if (sapi == null) return null;
+            if (string.IsNullOrWhiteSpace(bossTargetId)) return null;
+
+            var loaded = sapi.World?.LoadedEntities;
+            if (loaded == null) return null;
+
+            try
+            {
+                foreach (var e in loaded.Values)
+                {
+                    if (e == null) continue;
+                    var qt = e.GetBehavior<EntityBehaviorQuestTarget>();
+                    if (qt == null) continue;
+
+                    if (string.Equals(qt.TargetId, bossTargetId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return e;
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
+
         public string GetActiveBossKey()
         {
             return state?.activeBossKey;
@@ -452,8 +481,14 @@ namespace VsQuest
         {
             if (sapi == null || cfg == null) return;
 
-            var bossEntity = FindBossEntityImmediate(cfg.bossKey);
-            if (bossEntity == null || !bossEntity.Alive) return;
+            var bossEntity = FindBossEntityImmediateAny(cfg.bossKey);
+            if (bossEntity == null) return;
+
+            if (!bossEntity.Alive)
+            {
+                TryDespawnBossCorpse(bossEntity);
+                return;
+            }
 
             // If this boss has multi-phase rebirth behavior, we must ensure no leftover phase remains when the
             // active boss rotates away, otherwise two bosses can coexist.
@@ -475,6 +510,19 @@ namespace VsQuest
 
             bool okToDespawn = double.IsNaN(lastDamage) || lockHours <= 0 || nowHours - lastDamage >= lockHours;
             if (!okToDespawn) return;
+
+            try
+            {
+                sapi.World.DespawnEntity(bossEntity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
+            }
+            catch
+            {
+            }
+        }
+
+        private void TryDespawnBossCorpse(Entity bossEntity)
+        {
+            if (sapi == null || bossEntity == null || bossEntity.Alive) return;
 
             try
             {
@@ -956,6 +1004,7 @@ namespace VsQuest
                     }
 
                     cachedBossEntity = null;
+                    nextBossEntityScanTotalHours = 0;
                     return;
                 }
 

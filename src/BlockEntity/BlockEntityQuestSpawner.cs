@@ -174,6 +174,9 @@ namespace VsQuest
 
         public override void OnReceivedClientPacket(IPlayer fromPlayer, int packetid, byte[] bytes)
         {
+            var sp = fromPlayer as IServerPlayer;
+            if (sp == null || !sp.HasPrivilege(Privilege.controlserver)) return;
+
             if (packetid == PacketSave)
             {
                 var data = SerializerUtil.Deserialize<QuestSpawnerConfigData>(bytes);

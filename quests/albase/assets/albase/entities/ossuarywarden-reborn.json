@@ -11,7 +11,13 @@
     "reckless": true,
     "vsquestSoundPitchMul": 0.6,
     "SoundVolumeMulBySound": { "albase:bosshunt_1": 0.36 },
-    "alegacyvsquestHideInfoText": true
+    "alegacyvsquestHideInfoText": true,
+    "oddsToAlter": 999999,
+    "alternativeCollisionBox": [2.4, 2.2],
+    "alternativeCanClimb": true,
+    "animationsRemapping": {},
+    "alternativeIdleAnimationCode": "idle",
+    "alternativeDieAnimationCode": "die"
   },
   "drops": [],
   "client": {

@@ -171,12 +171,27 @@ namespace VsQuest
 
             if (changed)
             {
+                const string lastQuestKey = "alegacyvsquest:journal:lastquestid";
+                const string lastEntryKey = "alegacyvsquest:journal:lastentrykey";
+
                 // Treat updated entries as "newest" for UI ordering by moving them to the end.
                 // This way the journal can auto-select the most recently updated entry.
                 if (entry != null)
                 {
                     entries.Remove(entry);
                     entries.Add(entry);
+                }
+
+                if (!string.IsNullOrWhiteSpace(resolvedQuestId))
+                {
+                    wa.SetString(lastQuestKey, resolvedQuestId);
+                    wa.MarkPathDirty(lastQuestKey);
+                }
+
+                if (!string.IsNullOrWhiteSpace(loreCode))
+                {
+                    wa.SetString(lastEntryKey, loreCode);
+                    wa.MarkPathDirty(lastEntryKey);
                 }
 
                 QuestJournalEntry.Save(wa, entries);

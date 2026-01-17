@@ -13,16 +13,31 @@
     {
       "id": "randomkill",
       "args": [
-        "1",
-        "1",
-        "2",
+        "5",
+        "5",
+        "9",
         "albase:bosshunt-intro-randomkill-notify",
         "playsound 'albase:sounds/priest_target' 0.25",
         "playsound 'sounds/tutorialstepsuccess' 0.7",
-        "drifter-normal",
         "drifter-deep",
-        "bowtorn",
-        "shiver"
+        "drifter-tainted",
+        "drifter-corrupt",
+        "drifter-nightmare",
+        "drifter-double-headed",
+        "shiver-deep",
+        "shiver-tainted",
+        "shiver-corrupt",
+        "shiver-nightmare",
+        "shiver-stilt",
+        "shiver-bellhead",
+        "shiver-deepsplit",
+        "bowtorn-deep",
+        "bowtorn-tainted",
+        "bowtorn-corrupt",
+        "bowtorn-nightmare",
+        "bowtorn-gearfoot",
+        "locust-bronze",
+        "locust-corrupt"
       ]
     },
     {

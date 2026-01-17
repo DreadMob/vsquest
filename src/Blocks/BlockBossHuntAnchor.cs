@@ -1,6 +1,7 @@
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 
 namespace VsQuest
 {
@@ -12,6 +13,12 @@ namespace VsQuest
 
             var be = world.BlockAccessor.GetBlockEntity(blockSel.Position) as BlockEntityBossHuntAnchor;
             if (be == null) return false;
+
+            if (world.Side == EnumAppSide.Server)
+            {
+                var sp = byPlayer as IServerPlayer;
+                if (sp == null || !sp.HasPrivilege(Privilege.controlserver)) return true;
+            }
 
             be.OnInteract(byPlayer);
             return true;

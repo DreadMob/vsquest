@@ -40,12 +40,13 @@ Each journal entry is represented by `QuestJournalEntry`:
 The journal UI (`QuestJournalGui`) shows:
 - A **quest/group selector** (based on distinct `QuestId` values found in entries)
 - A list of entries for the selected group:
-  - Uses **tabs** if the group has up to 12 entries
-  - Uses a **dropdown** if the group has more than 12 entries
+  - Uses **tabs** if the group has up to 12 entries and tab titles fit within the UI width
+  - Uses a **dropdown** if the group has more than 12 entries or titles are too wide for tabs
 
 Ordering:
 - When an entry is updated via `addjournalentry`, it is moved to the end of the stored list.
 - The UI defaults to selecting the most recently updated entry for the group.
+- The last selected quest and entry are stored on the player to restore the selection on reopen.
 
 ---
 

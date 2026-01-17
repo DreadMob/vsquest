@@ -107,17 +107,16 @@ namespace VsQuest
 
         public override void OnReceivedClientPacket(IPlayer fromPlayer, int packetid, byte[] bytes)
         {
+            var sp = fromPlayer as IServerPlayer;
+            if (sp == null || !sp.HasPrivilege(Privilege.controlserver)) return;
+
             if (packetid != PacketSave) return;
 
             var data = SerializerUtil.Deserialize<BossHuntAnchorConfigData>(bytes);
             ApplyConfigData(data, markDirty: true);
 
-            var sp = fromPlayer as IServerPlayer;
-            if (sp != null)
-            {
-                var refreshed = BuildConfigData();
-                (Api as ICoreServerAPI).Network.SendBlockEntityPacket(sp, Pos, PacketOpenGui, SerializerUtil.Serialize(refreshed));
-            }
+            var refreshed = BuildConfigData();
+            (Api as ICoreServerAPI).Network.SendBlockEntityPacket(sp, Pos, PacketOpenGui, SerializerUtil.Serialize(refreshed));
         }
 
         internal void OnRemovedServerSide()

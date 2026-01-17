@@ -12,11 +12,16 @@ namespace VsQuest
         public override string ToggleKeyCombinationCode => null;
 
         private const string DropDownKey = "entrydropdown";
+        private const string EntryListKey = DropDownKey;
         private const string QuestDropDownKey = "questdropdown";
+        private const string LastQuestIdKey = "alegacyvsquest:journal:lastquestid";
+        private const string LastEntryKey = "alegacyvsquest:journal:lastentrykey";
         private const int MaxTabCount = 12;
 
         private bool recomposeQueued;
         private IClientPlayer player;
+        private bool keepEntryListOpen;
+        private bool useEntryListMenu;
 
         private List<string> questIds = new List<string>();
         private List<QuestJournalEntry> entriesForQuest = new List<QuestJournalEntry>();
@@ -79,6 +84,15 @@ namespace VsQuest
                 return;
             }
 
+            string lastQuestId = player.Entity.WatchedAttributes.GetString(LastQuestIdKey, null);
+            string lastEntryKey = player.Entity.WatchedAttributes.GetString(LastEntryKey, null);
+            if (string.IsNullOrWhiteSpace(selectedQuestId)
+                && !string.IsNullOrWhiteSpace(lastQuestId)
+                && questIds.Contains(lastQuestId))
+            {
+                selectedQuestId = lastQuestId;
+            }
+
             if (string.IsNullOrWhiteSpace(selectedQuestId) || !questIds.Contains(selectedQuestId))
             {
                 selectedQuestId = questIds[0];
@@ -86,6 +100,13 @@ namespace VsQuest
             }
 
             UpdateEntriesForQuest(entries, selectedQuestId);
+
+            if (string.IsNullOrWhiteSpace(selectedEntryKey)
+                && !string.IsNullOrWhiteSpace(lastEntryKey)
+                && entriesForQuest.Any(e => string.Equals(e?.LoreCode, lastEntryKey, StringComparison.OrdinalIgnoreCase)))
+            {
+                selectedEntryKey = lastEntryKey;
+            }
 
             if (entriesForQuest.Count > 0 && !string.IsNullOrWhiteSpace(selectedEntryKey))
             {
@@ -125,7 +146,7 @@ namespace VsQuest
             ElementBounds bgBounds = ElementBounds.Fill.WithFixedPadding(GuiStyle.ElementToDialogPadding);
             const double headerY = 18;
             const double entryHeaderY = 52;
-            const double contentY = 88;
+            const double contentY = 70;
             const double contentHeight = 470;
             const double entryOffsetX = -240;
             const double textWidth = 420;
@@ -135,7 +156,8 @@ namespace VsQuest
             ElementBounds textBounds = ElementBounds.Fixed(0, contentY, textWidth, contentHeight);
             ElementBounds scrollbarBounds = textBounds.CopyOffsetedSibling(textBounds.fixedWidth + 10).WithFixedWidth(20).WithFixedHeight(textBounds.fixedHeight);
             ElementBounds clippingBounds = textBounds.ForkBoundingParent();
-            ElementBounds bottomButtonBounds = ElementBounds.FixedOffseted(EnumDialogArea.CenterBottom, 0, -10, 200, 20);
+            double bottomButtonY = contentY + contentHeight + 12;
+            ElementBounds bottomButtonBounds = ElementBounds.Fixed((textWidth - 200) / 2, bottomButtonY, 200, 20);
 
             bgBounds.BothSizing = ElementSizing.FitToChildren;
 
@@ -175,7 +197,10 @@ namespace VsQuest
                 string groupTitle = QuestTitle(selectedQuestId);
                 string[] entryTitles = entriesForQuest.Select(e => StripEntryPrefixForList(EntryTitle(e), groupTitle)).ToArray();
 
-                bool useEntryTabs = entriesForQuest.Count <= MaxTabCount;
+                bool useEntryTabs = entriesForQuest.Count <= MaxTabCount
+                    && ShouldUseEntryTabs(entryTitles, tabBounds.fixedWidth - 12);
+                keepEntryListOpen = !useEntryTabs;
+                useEntryListMenu = keepEntryListOpen;
                 if (useEntryTabs)
                 {
                     GuiTab[] entryTabs = entriesForQuest
@@ -211,6 +236,7 @@ namespace VsQuest
             SingleComposer.GetScrollbar("scrollbar")?.SetHeights((float)textBounds.fixedHeight, (float)textBounds.fixedHeight);
             SingleComposer.GetScrollbar("scrollbar")?.SetNewTotalHeight((float)(SingleComposer.GetRichtext("entrytext")?.TotalHeight ?? textBounds.fixedHeight));
             SingleComposer.GetScrollbar("scrollbar")?.SetScrollbarPosition(0);
+            EnsureEntryListOpen();
         }
 
         private void OnNewScrollbarvalue(float value)
@@ -355,6 +381,24 @@ namespace VsQuest
             return Math.Min(maxTextWidth + 30f, (float)maxWidth);
         }
 
+        private bool ShouldUseEntryTabs(IEnumerable<string> titles, double maxWidth)
+        {
+            if (titles == null) return false;
+
+            float charWidth = (float)GuiStyle.SmallishFontSize * 0.62f;
+            foreach (var title in titles)
+            {
+                if (string.IsNullOrWhiteSpace(title)) continue;
+                float estimatedWidth = title.Length * charWidth;
+                if (estimatedWidth > maxWidth)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private void CloseOpenedDropDown()
         {
             CloseOpenedDropDown(DropDownKey);
@@ -363,6 +407,12 @@ namespace VsQuest
 
         private void CloseOpenedDropDown(string key)
         {
+            if (key == DropDownKey && keepEntryListOpen)
+            {
+                EnsureEntryListOpen();
+                return;
+            }
+
             var dropdown = SingleComposer?.GetDropDown(key);
             if (dropdown?.listMenu?.IsOpened == true)
             {
@@ -388,7 +438,7 @@ namespace VsQuest
             var entryDropdown = SingleComposer?.GetDropDown(DropDownKey);
             bool entryClickInsideDropdown = entryDropdown != null && entryDropdown.IsPositionInside(args.X, args.Y);
             bool entryClickInsideListMenu = entryDropdown?.listMenu?.IsOpened == true && entryDropdown.listMenu.Bounds?.PointInside(args.X, args.Y) == true;
-            if (entryDropdown?.listMenu?.IsOpened == true && !entryClickInsideDropdown && !entryClickInsideListMenu)
+            if (!keepEntryListOpen && entryDropdown?.listMenu?.IsOpened == true && !entryClickInsideDropdown && !entryClickInsideListMenu)
             {
                 shouldClose = true;
             }
@@ -405,14 +455,40 @@ namespace VsQuest
             {
                 capi.Event.EnqueueMainThreadTask(CloseOpenedDropDown, "alegacyvsquest-journal-close-dropdown-deferred");
             }
+            else
+            {
+                EnsureEntryListOpen();
+            }
 
             base.OnMouseDown(args);
+
+            if (keepEntryListOpen && entryClickInsideDropdown)
+            {
+                EnsureEntryListOpen();
+            }
+        }
+
+        public override void OnMouseMove(MouseEvent args)
+        {
+            base.OnMouseMove(args);
+            EnsureEntryListOpen();
         }
 
         public override void OnGuiClosed()
         {
             CloseOpenedDropDown();
             base.OnGuiClosed();
+        }
+
+        private void EnsureEntryListOpen()
+        {
+            if (!keepEntryListOpen) return;
+
+            var dropdown = SingleComposer?.GetDropDown(DropDownKey);
+            if (dropdown?.listMenu == null) return;
+
+            dropdown.listMenu.Open();
+            dropdown.listMenu.HoveredIndex = dropdown.listMenu.SelectedIndex;
         }
     }
 }

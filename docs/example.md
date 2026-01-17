@@ -203,6 +203,7 @@ Create `lang/en.json`:
 {
   "yourmod:priest-quest-title": "Priest's Task",
   "yourmod:priest-quest-desc": "The priest needs your help.",
+  "yourmod:priest-quest-hover": "Quest giver: Priest.",
   
   "yourmod:dialogue-intro": "Peace be with you.",
   "yourmod:dialogue-quests": "Do you have work for me?",
@@ -222,6 +223,10 @@ Create `lang/en.json`:
   "yourmod:final-button": "Understood."
 }
 ```
+
+**Hover tooltip for quest name in chat:**
+- Optional `*-hover` key controls the tooltip when hovering the quest name in completion chat.
+- If `*-hover` is missing, the first non-empty line of `*-desc` is used instead.
 
 ---
 
