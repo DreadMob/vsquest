@@ -29,7 +29,7 @@ namespace VsQuest
         private ICoreAPI api;
 
         private VsQuestDiscoveryHud discoveryHud;
-        private QuestJournalGui questJournalGui;
+        private GuiDialog questJournalGui;
         private const string JournalHotkeyCode = "alegacyvsquest-journal";
 
         public override void StartPre(ICoreAPI api)
@@ -153,11 +153,12 @@ namespace VsQuest
             }
         }
 
+
         private void ToggleQuestJournalGui(ICoreClientAPI capi)
         {
             if (questJournalGui == null)
             {
-                questJournalGui = new QuestJournalGui(capi);
+                questJournalGui = new Gui.Journal.QuestJournalDialog(capi);
                 questJournalGui.OnClosed += () =>
                 {
                     if (questJournalGui != null && !questJournalGui.IsOpened())
@@ -175,7 +176,7 @@ namespace VsQuest
                 return;
             }
 
-            questJournalGui.Refresh();
+            (questJournalGui as Gui.Journal.QuestJournalDialog)?.Refresh();
             questJournalGui.TryOpen();
         }
 

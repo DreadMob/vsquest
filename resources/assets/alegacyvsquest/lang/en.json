@@ -87,5 +87,18 @@
     "alegacyvsquest:progress-load-error": "Error loading progress.",
     "alegacyvsquest:questland-enter": "Entered: {0}",
     "alegacyvsquest:questland-exit": "Left: {0}",
-    "alegacyvsquest:boss-respawn-suffix": "{0} (respawn in {1:0.#}h)"
+    "alegacyvsquest:boss-respawn-suffix": "{0} (respawn in {1:0.#}h)",
+    "alegacyvsquest:search-placeholder": "Search...",
+    "alegacyvsquest:no-search-results": "No entries match your search.",
+    "alegacyvsquest:no-entries-for-quest": "No entries found for this quest.",
+    "alegacyvsquest:select-entry-prompt": "Select an entry to view its contents.",
+    "alegacyvsquest:entry-no-content": "This entry has no content.",
+    "alegacyvsquest:tab-all": "All",
+    "alegacyvsquest:tab-quests": "Quests",
+    "alegacyvsquest:tab-notes": "Notes",
+    "alegacyvsquest:button-close-journal": "Close Journal",
+    "alegacyvsquest:button-overview": "Overview",
+    "alegacyvsquest:entry-count-single": "{0} entry",
+    "alegacyvsquest:entry-count-plural": "{0} entries",
+    "alegacyvsquest:notes-coming-soon": "Notes feature coming soon..."
 }

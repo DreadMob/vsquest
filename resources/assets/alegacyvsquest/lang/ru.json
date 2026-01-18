@@ -87,5 +87,18 @@
     "alegacyvsquest:progress-load-error": "Ошибка загрузки прогресса.",
     "alegacyvsquest:questland-enter": "Вход: {0}",
     "alegacyvsquest:questland-exit": "Выход: {0}",
-    "alegacyvsquest:boss-respawn-suffix": "{0} (респавн через {1:0.#}ч)"
+    "alegacyvsquest:boss-respawn-suffix": "{0} (респавн через {1:0.#}ч)",
+    "alegacyvsquest:search-placeholder": "Поиск...",
+    "alegacyvsquest:no-search-results": "Записи по вашему запросу не найдены.",
+    "alegacyvsquest:no-entries-for-quest": "Записей для этого квеста не найдено.",
+    "alegacyvsquest:select-entry-prompt": "Выберите запись для просмотра.",
+    "alegacyvsquest:entry-no-content": "Эта запись не имеет содержимого.",
+    "alegacyvsquest:tab-all": "Все",
+    "alegacyvsquest:tab-quests": "Квесты",
+    "alegacyvsquest:tab-notes": "Заметки",
+    "alegacyvsquest:button-close-journal": "Закрыть журнал",
+    "alegacyvsquest:button-overview": "Обзор",
+    "alegacyvsquest:entry-count-single": "{0} запись",
+    "alegacyvsquest:entry-count-plural": "{0} записей",
+    "alegacyvsquest:notes-coming-soon": "Функция заметок скоро появится..."
 }
