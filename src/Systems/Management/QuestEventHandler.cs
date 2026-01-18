@@ -92,6 +92,8 @@ namespace VsQuest
                 }
             }
 
+            var creditedPlayers = new List<IServerPlayer>();
+
             foreach (var uid in credited)
             {
                 if (string.IsNullOrWhiteSpace(uid)) continue;
@@ -109,18 +111,31 @@ namespace VsQuest
                 var epl = iPlayer?.Entity as EntityPlayer;
                 if (epl == null) continue;
 
+                var serverPlayer = iPlayer as IServerPlayer;
+                if (serverPlayer != null)
+                {
+                    creditedPlayers.Add(serverPlayer);
+                }
+
                 var quests = persistenceManager.GetPlayerQuests(uid);
                 QuestDeathUtil.HandleEntityDeath(sapi, quests, epl, entity);
             }
 
             try
             {
-                if (damageSource?.SourceEntity is EntityPlayer announcePlayer && IsBossEntity(entity) && IsFinalBossStage(entity))
+                if (IsBossEntity(entity) && IsFinalBossStage(entity))
                 {
-                    var serverPlayer = announcePlayer.Player as IServerPlayer;
-                    if (serverPlayer != null)
+                    if (creditedPlayers.Count > 0)
                     {
-                        BossKillAnnouncementUtil.AnnounceBossDefeated(sapi, serverPlayer, entity);
+                        BossKillAnnouncementUtil.AnnounceBossDefeated(sapi, creditedPlayers, entity);
+                    }
+                    else if (damageSource?.SourceEntity is EntityPlayer announcePlayer)
+                    {
+                        var serverPlayer = announcePlayer.Player as IServerPlayer;
+                        if (serverPlayer != null)
+                        {
+                            BossKillAnnouncementUtil.AnnounceBossDefeated(sapi, serverPlayer, entity);
+                        }
                     }
                 }
             }

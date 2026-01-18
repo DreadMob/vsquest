@@ -60,6 +60,7 @@
     "alegacyvsquest:bosskill-template-10": "{{victim}} didn't dodge in time: {{boss}}",
     "alegacyvsquest:bosskill-default-template": "{{victim}} was killed by {{boss}}",
     "alegacyvsquest:boss-defeated": "{0} defeated boss {1}",
+    "alegacyvsquest:boss-defeated-multi": "{0} defeated boss {1}",
     "alegacyvsquest:quest-completed-broadcast": "{0} completed quest: {1}",
     "alegacyvsquest:trackboss-not-enough-health": "Not enough health to use the tracker.",
     "alegacyvsquest:trackboss-system-unavailable": "Boss hunt system is unavailable.",

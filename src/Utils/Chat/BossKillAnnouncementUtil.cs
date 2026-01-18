@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vintagestory.API.Config;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
@@ -67,6 +69,26 @@ namespace VsQuest
             string playerName = ChatFormatUtil.Font(killer.PlayerName, "#ffd75e");
             string bossNameColored = ChatFormatUtil.Font(bossName, "#ff77ff");
             string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:boss-defeated", playerName, bossNameColored));
+
+            GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, Vintagestory.API.Common.EnumChatType.Notification);
+        }
+
+        public static void AnnounceBossDefeated(ICoreServerAPI sapi, IReadOnlyList<IServerPlayer> killers, Entity bossEntity)
+        {
+            if (sapi == null || bossEntity == null || killers == null || killers.Count == 0) return;
+
+            string bossName = MobLocalizationUtils.GetMobDisplayName(bossEntity);
+            if (string.IsNullOrWhiteSpace(bossName)) bossName = bossEntity.Code?.ToShortString() ?? "?";
+
+            string bossNameColored = ChatFormatUtil.Font(bossName, "#ff77ff");
+            string playerNames = string.Join(", ", killers
+                .Where(player => player != null)
+                .Select(player => ChatFormatUtil.Font(player.PlayerName, "#ffd75e")));
+
+            if (string.IsNullOrWhiteSpace(playerNames)) return;
+
+            string langKey = killers.Count > 1 ? "alegacyvsquest:boss-defeated-multi" : "alegacyvsquest:boss-defeated";
+            string text = ChatFormatUtil.PrefixAlert(Lang.Get(langKey, playerNames, bossNameColored));
 
             GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, Vintagestory.API.Common.EnumChatType.Notification);
         }
