@@ -10,7 +10,7 @@
     "killedByInfoText": "deadcreature-eaten-large",
     "reckless": true,
     "vsquestSoundPitchMul": 0.4,
-    "SoundVolumeMulBySound": { "albase:bosshunt_1": 0.36 },
+    "SoundVolumeMulBySound": { "albase:bosshunt_1": 0.36, "albase:magic-sparkling": 0.36, "albase:dark-magic-charge-up": 0.36, "albase:shock-sound-effect-horror": 0.36 },
     "alegacyvsquestHideInfoText": true
   },
   "client": {
@@ -40,7 +40,7 @@
         ]
       },
       { "code": "boss", "bossHpBarRange": 70 },
-      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_1", "musicUrl": "https://drive.google.com/uc?export=download&id=1SbLjPIKI4hIDmilOupbbha2iyesbhTRy", "range": 45, "combatTimeoutMs": 12000, "requireRecentDamage": false },
+      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_1", "range": 80, "combatTimeoutMs": 12000, "requireRecentDamage": false },
       { "code": "bossnametag", "nameLangKey": "item-creature-bonecolossus", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 100 }
     ],
     "animations": [
@@ -56,7 +56,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 520, "maxhealth": 520 },
+      { "code": "health", "currenthealth": 370, "maxhealth": 370 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "questtarget", "targetId": "albase:bosshunt:bonecolossus", "leashRange": 120, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
       {
@@ -82,7 +82,8 @@
             "dashAnimation": "run",
             "sound": "game:creature/wolf/attack",
             "soundRange": 24,
-            "soundStartMs": 150
+            "soundStartMs": 150,
+            "soundVolume": 0.18
           },
           {
             "whenHealthRelBelow": 0.3,
@@ -96,7 +97,8 @@
             "dashAnimation": "run",
             "sound": "game:creature/wolf/attack",
             "soundRange": 28,
-            "soundStartMs": 120
+            "soundStartMs": 120,
+            "soundVolume": 0.18
           }
         ]
       },

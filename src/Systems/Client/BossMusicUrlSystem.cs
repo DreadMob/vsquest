@@ -17,6 +17,14 @@ namespace VsQuest
     {
         private ICoreClientAPI capi;
 
+        private static readonly Dictionary<string, string> UrlByKey = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "theme_bosshunt_1", "https://drive.google.com/uc?export=download&id=1SbLjPIKI4hIDmilOupbbha2iyesbhTRy" },
+            { "theme_bosshunt_2", "https://drive.google.com/uc?export=download&id=1Swpv0Jqsed7VFyCRefr7eglVLM1mfyKG" },
+            { "theme_bosshunt_2_reborn", "https://drive.google.com/uc?export=download&id=1JPczCvwS_ULq1ToWRuvcbc4woX-bIGNG" },
+            { "theme_bosshunt_3", "https://drive.google.com/uc?export=download&id=1l81SbymJR2rEStzKk-DWE6x6ycWytrZh" }
+        };
+
         private string currentKey;
         private string currentUrl;
         private float currentStartAtSeconds;
@@ -31,8 +39,12 @@ namespace VsQuest
         private Task fadeTask;
         private CancellationTokenSource fadeCts;
 
+        private readonly object alLock = new object();
+
         private float baseGain = 1f;
-        private int lastMusicLevel = -1;
+        private int lastSoundLevel = -1;
+
+        private long suppressVanillaMusicListenerId;
 
         private const float FadeOutSeconds = 2f;
 
@@ -44,7 +56,7 @@ namespace VsQuest
 
             try
             {
-                api.Settings.Int.AddWatcher("musicLevel", _ =>
+                api.Settings.Int.AddWatcher("soundLevel", _ =>
                 {
                     UpdateGainFromSettings();
                 });
@@ -111,21 +123,36 @@ namespace VsQuest
 
             if (string.IsNullOrWhiteSpace(key) && string.IsNullOrWhiteSpace(url)) return;
 
+            string resolvedKey = string.IsNullOrWhiteSpace(key) ? null : key.Trim();
+            string resolvedUrl = NormalizeUrl(url);
+            if (string.IsNullOrWhiteSpace(resolvedUrl) && !string.IsNullOrWhiteSpace(resolvedKey))
+            {
+                resolvedUrl = ResolveUrl(resolvedKey);
+            }
+
+            if (string.IsNullOrWhiteSpace(resolvedKey) && string.IsNullOrWhiteSpace(resolvedUrl)) return;
+
             if (startAtSeconds < 0f) startAtSeconds = 0f;
 
-            bool sameKey = string.Equals(currentKey ?? "", key ?? "", StringComparison.OrdinalIgnoreCase);
-            bool sameUrl = string.Equals(currentUrl ?? "", url ?? "", StringComparison.OrdinalIgnoreCase);
+            bool sameKey = string.Equals(currentKey ?? "", resolvedKey ?? "", StringComparison.OrdinalIgnoreCase);
+            bool sameUrl = string.Equals(currentUrl ?? "", resolvedUrl ?? "", StringComparison.OrdinalIgnoreCase);
             bool sameStart = Math.Abs(currentStartAtSeconds - startAtSeconds) < 0.01f;
             if (sameKey && sameUrl && sameStart)
             {
                 return;
             }
 
-            currentKey = key;
-            currentUrl = url;
+            currentKey = resolvedKey;
+            currentUrl = resolvedUrl;
             currentStartAtSeconds = startAtSeconds;
 
-            capi.Logger.Notification("[alegacyvsquest] Boss music requested. key={0}, url={1}, startAtSeconds={2}", currentKey ?? "", currentUrl ?? "", currentStartAtSeconds);
+            try
+            {
+                capi?.Logger?.VerboseDebug("[alegacyvsquest] Boss music requested. key={0}, url={1}, startAtSeconds={2}", currentKey ?? "", currentUrl ?? "", currentStartAtSeconds);
+            }
+            catch
+            {
+            }
 
             RestartPlayback();
         }
@@ -136,13 +163,21 @@ namespace VsQuest
 
             if (string.IsNullOrWhiteSpace(currentKey) && string.IsNullOrWhiteSpace(currentUrl)) return;
 
-            capi.Logger.Notification("[alegacyvsquest] Boss music stop. key={0}", currentKey ?? "");
+            try
+            {
+                capi?.Logger?.VerboseDebug("[alegacyvsquest] Boss music stop. key={0}", currentKey ?? "");
+            }
+            catch
+            {
+            }
 
             currentKey = null;
             currentUrl = null;
             currentStartAtSeconds = 0f;
 
             FadeOutAndStop();
+
+            StopSuppressVanillaMusic();
         }
 
         public bool IsActive => !string.IsNullOrWhiteSpace(currentKey) || !string.IsNullOrWhiteSpace(currentUrl);
@@ -151,7 +186,25 @@ namespace VsQuest
 
         public string ResolveUrl(string key)
         {
+            if (string.IsNullOrWhiteSpace(key)) return null;
+
+            string trimmed = key.Trim();
+            if (UrlByKey.TryGetValue(trimmed, out var url))
+            {
+                return NormalizeUrl(url);
+            }
+
             return null;
+        }
+
+        private static string NormalizeUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return null;
+
+            // Guard against accidental spaces in JSON like "drive. google.com".
+            string trimmed = url.Trim();
+            trimmed = trimmed.Replace(" ", "");
+            return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
         }
 
         public override void Dispose()
@@ -166,8 +219,12 @@ namespace VsQuest
 
             if (string.IsNullOrWhiteSpace(currentUrl))
             {
+                StopSuppressVanillaMusic();
                 return;
             }
+
+            // While boss music plays, suppress vanilla music engine without touching user settings
+            StartSuppressVanillaMusic();
 
             cts = new CancellationTokenSource();
             var token = cts.Token;
@@ -220,7 +277,13 @@ namespace VsQuest
                     float fromGain = 0f;
                     try
                     {
-                        fromGain = AL.GetSource(sourceId, ALSourcef.Gain);
+                        lock (alLock)
+                        {
+                            if (sourceId >= 0)
+                            {
+                                fromGain = AL.GetSource(sourceId, ALSourcef.Gain);
+                            }
+                        }
                     }
                     catch
                     {
@@ -237,9 +300,12 @@ namespace VsQuest
                         float g = Math.Clamp(fromGain * (1f - t), 0f, 1f);
                         try
                         {
-                            if (sourceId >= 0)
+                            lock (alLock)
                             {
-                                AL.Source(sourceId, ALSourcef.Gain, g);
+                                if (sourceId >= 0)
+                                {
+                                    AL.Source(sourceId, ALSourcef.Gain, g);
+                                }
                             }
                         }
                         catch
@@ -274,39 +340,42 @@ namespace VsQuest
 
             try
             {
-                if (sourceId >= 0)
+                lock (alLock)
                 {
-                    try
+                    if (sourceId >= 0)
                     {
-                        AL.SourceStop(sourceId);
-                    }
-                    catch
-                    {
-                    }
-
-                    try
-                    {
-                        int queued;
-                        AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queued);
-                        if (queued > 0)
+                        try
                         {
-                            var unqueued = AL.SourceUnqueueBuffers(sourceId, queued);
-                            if (unqueued != null && unqueued.Length > 0)
+                            AL.SourceStop(sourceId);
+                        }
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            int queued;
+                            AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queued);
+                            if (queued > 0)
                             {
-                                AL.DeleteBuffers(unqueued);
+                                var unqueued = AL.SourceUnqueueBuffers(sourceId, queued);
+                                if (unqueued != null && unqueued.Length > 0)
+                                {
+                                    AL.DeleteBuffers(unqueued);
+                                }
                             }
                         }
-                    }
-                    catch
-                    {
-                    }
+                        catch
+                        {
+                        }
 
-                    try
-                    {
-                        AL.DeleteSource(sourceId);
-                    }
-                    catch
-                    {
+                        try
+                        {
+                            AL.DeleteSource(sourceId);
+                        }
+                        catch
+                        {
+                        }
                     }
                 }
             }
@@ -320,10 +389,14 @@ namespace VsQuest
         {
             if (sourceId >= 0) return;
 
-            sourceId = AL.GenSource();
-            AL.Source(sourceId, ALSourceb.Looping, false);
-            AL.Source(sourceId, ALSourceb.SourceRelative, true);
-            AL.Source(sourceId, ALSource3f.Position, 0f, 0f, 0f);
+            lock (alLock)
+            {
+                if (sourceId >= 0) return;
+                sourceId = AL.GenSource();
+                AL.Source(sourceId, ALSourceb.Looping, false);
+                AL.Source(sourceId, ALSourceb.SourceRelative, true);
+                AL.Source(sourceId, ALSource3f.Position, 0f, 0f, 0f);
+            }
 
             UpdateGainFromSettings(force: true);
         }
@@ -332,29 +405,86 @@ namespace VsQuest
         {
             if (capi == null) return;
 
-            int musicLevel = 100;
+            int soundLevel = 100;
             try
             {
-                musicLevel = capi.Settings.Int["musicLevel"];
+                soundLevel = capi.Settings.Int["soundLevel"];
             }
             catch
             {
-                musicLevel = 100;
+                soundLevel = 100;
             }
 
-            if (!force && musicLevel == lastMusicLevel) return;
-            lastMusicLevel = musicLevel;
+            if (!force && soundLevel == lastSoundLevel) return;
+            lastSoundLevel = soundLevel;
 
-            float gain = Math.Clamp((musicLevel / 100f) * baseGain, 0f, 1f);
+            // Boss music depends only on master sound volume
+            float gain = Math.Clamp((soundLevel / 100f) * baseGain, 0f, 1f);
             try
             {
-                if (sourceId >= 0)
+                lock (alLock)
                 {
-                    AL.Source(sourceId, ALSourcef.Gain, gain);
+                    if (sourceId >= 0)
+                    {
+                        AL.Source(sourceId, ALSourcef.Gain, gain);
+                    }
                 }
             }
             catch
             {
+            }
+        }
+
+        private void StartSuppressVanillaMusic()
+        {
+            if (capi == null) return;
+
+            if (suppressVanillaMusicListenerId != 0) return;
+
+            try
+            {
+                capi.CurrentMusicTrack?.FadeOut(0.5f);
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                suppressVanillaMusicListenerId = capi.Event.RegisterGameTickListener(_ =>
+                {
+                    try
+                    {
+                        // If vanilla music starts while boss music is active, fade it out.
+                        capi.CurrentMusicTrack?.FadeOut(0.5f);
+                    }
+                    catch
+                    {
+                    }
+                }, 500);
+            }
+            catch
+            {
+                suppressVanillaMusicListenerId = 0;
+            }
+        }
+
+        private void StopSuppressVanillaMusic()
+        {
+            if (capi == null) return;
+            try
+            {
+                if (suppressVanillaMusicListenerId != 0)
+                {
+                    capi.Event.UnregisterGameTickListener(suppressVanillaMusicListenerId);
+                }
+            }
+            catch
+            {
+            }
+            finally
+            {
+                suppressVanillaMusicListenerId = 0;
             }
         }
 
@@ -371,110 +501,224 @@ namespace VsQuest
 
                 token.ThrowIfCancellationRequested();
 
-                await using var mp3fs = new FileStream(cachedFile, FileMode.Open, FileAccess.Read, FileShare.Read);
-                using var mpeg = new MpegFile(mp3fs);
-
-                int channels = Math.Clamp(mpeg.Channels, 1, 2);
-                int sampleRate = mpeg.SampleRate;
-                if (sampleRate <= 0) sampleRate = 44100;
-
-                var format = channels == 2 ? ALFormat.Stereo16 : ALFormat.Mono16;
-
-                const int samplesPerBufferPerChannel = 4096;
-                var floatBuf = new float[samplesPerBufferPerChannel * channels];
-                var pcmBuf = new short[samplesPerBufferPerChannel * channels];
-
-                if (startAtSeconds > 0.01f)
-                {
-                    try
-                    {
-                        long samplesToSkip = (long)(startAtSeconds * sampleRate * channels);
-                        while (samplesToSkip > 0 && !token.IsCancellationRequested)
-                        {
-                            int toRead = (int)Math.Min(floatBuf.Length, samplesToSkip);
-                            int read = mpeg.ReadSamples(floatBuf, 0, toRead);
-                            if (read <= 0) break;
-                            samplesToSkip -= read;
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-
-                // Prebuffer a few chunks
-                for (int i = 0; i < 6; i++)
-                {
-                    token.ThrowIfCancellationRequested();
-                    int read = mpeg.ReadSamples(floatBuf, 0, floatBuf.Length);
-                    if (read <= 0) break;
-
-                    int shorts = FloatToPcm16(floatBuf, read, pcmBuf);
-                    int buffer = AL.GenBuffer();
-                    unsafe
-                    {
-                        fixed (short* ptr = pcmBuf)
-                        {
-                            AL.BufferData(buffer, format, (nint)ptr, shorts * sizeof(short), sampleRate);
-                        }
-                    }
-                    AL.SourceQueueBuffer(sourceId, buffer);
-                }
-
-                AL.SourcePlay(sourceId);
+                // Boss music should loop
+                float loopStartAtSeconds = startAtSeconds;
 
                 while (!token.IsCancellationRequested)
                 {
-                    int processed;
-                    AL.GetSource(sourceId, ALGetSourcei.BuffersProcessed, out processed);
-
-                    if (processed > 0)
+                    // If the requested track has changed, stop looping
+                    if (!string.Equals(currentUrl ?? "", url ?? "", StringComparison.OrdinalIgnoreCase))
                     {
-                        var unqueued = AL.SourceUnqueueBuffers(sourceId, processed);
-                        foreach (var buf in unqueued)
+                        break;
+                    }
+
+                    await using var mp3fs = new FileStream(cachedFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    using var mpeg = new MpegFile(mp3fs);
+
+                    int channels = Math.Clamp(mpeg.Channels, 1, 2);
+                    int sampleRate = mpeg.SampleRate;
+                    if (sampleRate <= 0) sampleRate = 44100;
+
+                    var format = channels == 2 ? ALFormat.Stereo16 : ALFormat.Mono16;
+
+                    const int samplesPerBufferPerChannel = 4096;
+                    var floatBuf = new float[samplesPerBufferPerChannel * channels];
+                    var pcmBuf = new short[samplesPerBufferPerChannel * channels];
+
+                    if (loopStartAtSeconds > 0.01f)
+                    {
+                        try
                         {
-                            token.ThrowIfCancellationRequested();
-
-                            int read = mpeg.ReadSamples(floatBuf, 0, floatBuf.Length);
-                            if (read <= 0)
+                            long samplesToSkip = (long)(loopStartAtSeconds * sampleRate * channels);
+                            while (samplesToSkip > 0 && !token.IsCancellationRequested)
                             {
-                                // end of stream
-                                AL.DeleteBuffer(buf);
-                                continue;
+                                int toRead = (int)Math.Min(floatBuf.Length, samplesToSkip);
+                                int read = mpeg.ReadSamples(floatBuf, 0, toRead);
+                                if (read <= 0) break;
+                                samplesToSkip -= read;
                             }
+                        }
+                        catch
+                        {
+                        }
+                    }
 
-                            int shorts = FloatToPcm16(floatBuf, read, pcmBuf);
+                    // Clear any queued buffers from a previous loop iteration
+                    lock (alLock)
+                    {
+                        try
+                        {
+                            if (sourceId >= 0)
+                            {
+                                int queued;
+                                AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queued);
+                                if (queued > 0)
+                                {
+                                    var unqueued = AL.SourceUnqueueBuffers(sourceId, queued);
+                                    if (unqueued != null && unqueued.Length > 0)
+                                    {
+                                        AL.DeleteBuffers(unqueued);
+                                    }
+                                }
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    // Prebuffer a few chunks
+                    for (int i = 0; i < 6; i++)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        int read = mpeg.ReadSamples(floatBuf, 0, floatBuf.Length);
+                        if (read <= 0) break;
+
+                        int shorts = FloatToPcm16(floatBuf, read, pcmBuf);
+                        int buffer;
+                        lock (alLock)
+                        {
+                            buffer = AL.GenBuffer();
                             unsafe
                             {
                                 fixed (short* ptr = pcmBuf)
                                 {
-                                    AL.BufferData(buf, format, (nint)ptr, shorts * sizeof(short), sampleRate);
+                                    AL.BufferData(buffer, format, (nint)ptr, shorts * sizeof(short), sampleRate);
                                 }
                             }
-                            AL.SourceQueueBuffer(sourceId, buf);
+                            if (sourceId >= 0)
+                            {
+                                AL.SourceQueueBuffer(sourceId, buffer);
+                            }
                         }
                     }
-                    else
-                    {
-                        await Task.Delay(50, token);
-                    }
 
-                    // keep playing if starved
-                    int state;
-                    AL.GetSource(sourceId, ALGetSourcei.SourceState, out state);
-                    if ((ALSourceState)state != ALSourceState.Playing)
+                    lock (alLock)
                     {
-                        int queued;
-                        AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queued);
-                        if (queued > 0)
+                        if (sourceId >= 0)
                         {
                             AL.SourcePlay(sourceId);
                         }
+                    }
+
+                    bool reachedEnd = false;
+                    while (!token.IsCancellationRequested)
+                    {
+                        // If the requested track has changed, stop looping
+                        if (!string.Equals(currentUrl ?? "", url ?? "", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return;
+                        }
+
+                        int processed;
+                        lock (alLock)
+                        {
+                            processed = 0;
+                            if (sourceId >= 0)
+                            {
+                                AL.GetSource(sourceId, ALGetSourcei.BuffersProcessed, out processed);
+                            }
+                        }
+
+                        if (processed > 0)
+                        {
+                            int[] unqueued;
+                            lock (alLock)
+                            {
+                                unqueued = sourceId >= 0 ? AL.SourceUnqueueBuffers(sourceId, processed) : Array.Empty<int>();
+                            }
+
+                            foreach (var buf in unqueued)
+                            {
+                                token.ThrowIfCancellationRequested();
+
+                                int read = mpeg.ReadSamples(floatBuf, 0, floatBuf.Length);
+                                if (read <= 0)
+                                {
+                                    reachedEnd = true;
+                                    lock (alLock)
+                                    {
+                                        try
+                                        {
+                                            AL.DeleteBuffer(buf);
+                                        }
+                                        catch
+                                        {
+                                        }
+                                    }
+                                    continue;
+                                }
+
+                                int shorts = FloatToPcm16(floatBuf, read, pcmBuf);
+                                lock (alLock)
+                                {
+                                    if (sourceId >= 0)
+                                    {
+                                        unsafe
+                                        {
+                                            fixed (short* ptr = pcmBuf)
+                                            {
+                                                AL.BufferData(buf, format, (nint)ptr, shorts * sizeof(short), sampleRate);
+                                            }
+                                        }
+                                        AL.SourceQueueBuffer(sourceId, buf);
+                                    }
+                                }
+                            }
+                        }
                         else
                         {
-                            // nothing left queued, we are done
-                            break;
+                            await Task.Delay(50, token);
                         }
+
+                        // keep playing if starved
+                        int state;
+                        lock (alLock)
+                        {
+                            state = (int)ALSourceState.Stopped;
+                            if (sourceId >= 0)
+                            {
+                                AL.GetSource(sourceId, ALGetSourcei.SourceState, out state);
+                            }
+                        }
+
+                        if ((ALSourceState)state != ALSourceState.Playing)
+                        {
+                            int queued;
+                            lock (alLock)
+                            {
+                                queued = 0;
+                                if (sourceId >= 0)
+                                {
+                                    AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queued);
+                                }
+                            }
+
+                            if (queued > 0)
+                            {
+                                lock (alLock)
+                                {
+                                    if (sourceId >= 0)
+                                    {
+                                        AL.SourcePlay(sourceId);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // Nothing left queued
+                                break;
+                            }
+                        }
+                    }
+
+                    // Next loop iteration should start at 0
+                    loopStartAtSeconds = 0f;
+
+                    if (!reachedEnd)
+                    {
+                        // We stopped for some other reason (e.g. source invalid), don't tight-loop.
+                        await Task.Delay(200, token);
                     }
                 }
             }

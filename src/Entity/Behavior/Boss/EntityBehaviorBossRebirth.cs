@@ -13,7 +13,7 @@ namespace VsQuest
     {
         private const string AnchorKeyPrefix = "alegacyvsquest:spawner:";
         private const string TargetIdKey = "alegacyvsquest:killaction:targetid";
-        private const string RespawnBlockAtHoursKey = "alegacyvsquest:bossrespawnAtTotalHours";
+        private const string RespawnBlockAtHoursKey = "alegacyvsquest:bossrebirthBlockSpawnUntilTotalHours";
 
         private ICoreServerAPI sapi;
         private string rebirthEntityCode;

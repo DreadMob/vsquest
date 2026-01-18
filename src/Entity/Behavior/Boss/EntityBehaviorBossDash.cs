@@ -32,6 +32,7 @@ namespace VsQuest
             public string sound;
             public float soundRange;
             public int soundStartMs;
+            public float soundVolume;
         }
 
         private ICoreServerAPI sapi;
@@ -41,11 +42,13 @@ namespace VsQuest
         private long dashEndsAtMs;
         private long dashStartedAtMs;
         private long dashStartCallbackId;
+        private long dashTickListenerId;
 
         private float lockedYaw;
         private bool yawLocked;
         private int activeStageIndex = -1;
 
+        private Entity targetEntity;
         private Vec3d dashDir;
 
         public EntityBehaviorBossDash(Entity entity) : base(entity)
@@ -84,6 +87,7 @@ namespace VsQuest
                         sound = stageObj["sound"].AsString(null),
                         soundRange = stageObj["soundRange"].AsFloat(24f),
                         soundStartMs = stageObj["soundStartMs"].AsInt(0),
+                        soundVolume = stageObj["soundVolume"].AsFloat(1f),
                     };
 
                     if (stage.cooldownSeconds < 0f) stage.cooldownSeconds = 0f;
@@ -92,6 +96,8 @@ namespace VsQuest
                     if (stage.windupMs < 0) stage.windupMs = 0;
                     if (stage.dashMs <= 0) stage.dashMs = 250;
                     if (stage.dashSpeed <= 0f) stage.dashSpeed = 0.08f;
+
+                    if (stage.soundVolume <= 0f) stage.soundVolume = 1f;
 
                     stages.Add(stage);
                 }
@@ -143,7 +149,7 @@ namespace VsQuest
             if (!BossBehaviorUtils.IsCooldownReady(sapi, entity, LastDashStartMsKey, activeStage.cooldownSeconds)) return;
 
             if (!TryFindTarget(activeStage, out var targetEntity, out float targetDist)) return;
-            if (targetDist < activeStage.minTargetRange) return;
+            if (targetDist < 0.75f) return;
             if (targetDist > activeStage.maxTargetRange) return;
 
             StartDash(activeStage, stageIndex, targetEntity);
@@ -198,8 +204,10 @@ namespace VsQuest
             dashActive = true;
             activeStageIndex = stageIndex;
             dashStartedAtMs = sapi.World.ElapsedMilliseconds;
+            targetEntity = target;
 
             BossBehaviorUtils.UnregisterCallbackSafe(sapi, ref dashStartCallbackId);
+            BossBehaviorUtils.UnregisterGameTickListenerSafe(sapi, ref dashTickListenerId);
 
             BossBehaviorUtils.StopAiAndFreeze(entity);
             BossBehaviorUtils.ApplyRotationLock(entity, ref yawLocked, ref lockedYaw);
@@ -237,25 +245,67 @@ namespace VsQuest
 
             TryPlayAnimation(stage.dashAnimation);
 
-            try
+            dashTickListenerId = sapi.Event.RegisterGameTickListener(_ =>
             {
-                double spd = stage.dashSpeed;
-                entity.ServerPos.Motion.X = dashDir.X * spd;
-                entity.ServerPos.Motion.Z = dashDir.Z * spd;
-            }
-            catch
-            {
-            }
+                try
+                {
+                    if (!dashActive)
+                    {
+                        StopDash();
+                        return;
+                    }
+
+                    if (sapi.World.ElapsedMilliseconds >= dashEndsAtMs)
+                    {
+                        StopDash();
+                        return;
+                    }
+
+                    if (entity == null || !entity.Alive)
+                    {
+                        StopDash();
+                        return;
+                    }
+
+                    if (targetEntity == null || !targetEntity.Alive)
+                    {
+                        StopDash();
+                        return;
+                    }
+
+                    if (targetEntity.ServerPos.Dimension != entity.ServerPos.Dimension)
+                    {
+                        StopDash();
+                        return;
+                    }
+
+                    dashDir.Set(targetEntity.ServerPos.X - entity.ServerPos.X, 0, targetEntity.ServerPos.Z - entity.ServerPos.Z);
+                    if (dashDir.Length() < 0.001) return;
+                    dashDir.Normalize();
+
+                    lockedYaw = (float)Math.Atan2(dashDir.X, dashDir.Z);
+                    yawLocked = true;
+
+                    double spd = stage.dashSpeed;
+                    entity.ServerPos.Motion.X = dashDir.X * spd;
+                    entity.ServerPos.Motion.Z = dashDir.Z * spd;
+                }
+                catch
+                {
+                }
+            }, 25);
         }
 
         private void StopDash()
         {
             BossBehaviorUtils.UnregisterCallbackSafe(sapi, ref dashStartCallbackId);
+            BossBehaviorUtils.UnregisterGameTickListenerSafe(sapi, ref dashTickListenerId);
 
             if (!dashActive && activeStageIndex < 0) return;
 
             dashActive = false;
             yawLocked = false;
+            targetEntity = null;
 
             dashStartedAtMs = 0;
             dashEndsAtMs = 0;
@@ -316,13 +366,51 @@ namespace VsQuest
             AssetLocation soundLoc = AssetLocation.Create(stage.sound, "game").WithPathPrefixOnce("sounds/");
             if (soundLoc == null) return;
 
+            float volume = stage.soundVolume;
+            try
+            {
+                Dictionary<string, float> volumeBySound = null;
+                try
+                {
+                    volumeBySound = entity?.Properties?.Attributes?["SoundVolumeMulBySound"]?.AsObject<Dictionary<string, float>>();
+                }
+                catch
+                {
+                }
+
+                if (volumeBySound != null && volumeBySound.Count > 0)
+                {
+                    string fullKey = soundLoc.ToString();
+                    string pathKey = soundLoc.Path;
+
+                    foreach (var entry in volumeBySound)
+                    {
+                        if (string.IsNullOrWhiteSpace(entry.Key)) continue;
+
+                        if (string.Equals(entry.Key, fullKey, StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(entry.Key, pathKey, StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(entry.Key, stage.sound, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (entry.Value > 0f)
+                            {
+                                volume *= entry.Value;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+
             if (stage.soundStartMs > 0)
             {
                 sapi.Event.RegisterCallback(_ =>
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                     }
                     catch
                     {
@@ -333,7 +421,7 @@ namespace VsQuest
             {
                 try
                 {
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
+                    sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                 }
                 catch
                 {

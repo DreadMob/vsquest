@@ -10,7 +10,7 @@
     "killedByInfoText": "deadcreature-vile",
     "reckless": true,
     "vsquestSoundPitchMul": 0.6,
-    "SoundVolumeMulBySound": { "albase:bosshunt_1": 0.36 },
+    "SoundVolumeMulBySound": { "albase:bosshunt_1": 0.36, "albase:magic-sparkling": 0.36, "albase:dark-magic-charge-up": 0.36, "albase:shock-sound-effect-horror": 0.36 },
     "alegacyvsquestHideInfoText": true,
     "oddsToAlter": 999999,
     "alternativeCollisionBox": [2.4, 2.2],
@@ -32,7 +32,7 @@
       { "code": "floatupwhenstuck", "onlyWhenDead": true },
       { "code": "interpolateposition" },
       { "code": "boss", "bossHpBarRange": 60 },
-      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_2", "musicUrl": "https://drive.google.com/uc?export=download&id=1JPczCvwS_ULq1ToWRuvcbc4woX-bIGNG", "range": 45, "combatTimeoutMs": 12000, "requireRecentDamage": false },
+      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_2_reborn", "range": 80, "combatTimeoutMs": 12000, "requireRecentDamage": false },
       { "code": "bossnametag", "nameLangKey": "item-creature-ossuarywarden-reborn", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 80 }
     ],
     "animations": [
@@ -52,7 +52,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 420, "maxhealth": 420 },
+      { "code": "health", "currenthealth": 270, "maxhealth": 270 },
       { "code": "bossrebirth", "isFinalStage": true },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "questtarget", "targetId": "albase:bosshunt:ossuarywarden", "leashRange": 80, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
@@ -76,9 +76,10 @@
             "dashSpeed": 0.48,
             "windupAnimation": "standcry",
             "dashAnimation": "standrun",
-            "sound": "game:creature/drifter-idle",
+            "sound": "albase:bosshunt_1",
             "soundRange": 20,
-            "soundStartMs": 0
+            "soundStartMs": 0,
+            "soundVolume": 0.18
           },
           {
             "whenHealthRelBelow": 0.35,
@@ -90,9 +91,10 @@
             "dashSpeed": 0.54,
             "windupAnimation": "standdespair",
             "dashAnimation": "standrun",
-            "sound": "game:creature/drifter-idle",
+            "sound": "albase:bosshunt_1",
             "soundRange": 22,
-            "soundStartMs": 0
+            "soundStartMs": 0,
+            "soundVolume": 0.18
           }
         ]
       },

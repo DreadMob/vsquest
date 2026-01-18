@@ -32,6 +32,11 @@ namespace VsQuest
         private long outOfRangeSinceMs;
         private const int OutOfRangeStopDelayMs = 800;
 
+        private long lastResolveMs;
+        private const int ResolveThrottleMs = 400;
+        private string lastResolvedUrl;
+        private float lastResolvedOffset;
+
         public EntityBehaviorBossMusicUrlController(Entity entity) : base(entity)
         {
         }
@@ -109,19 +114,10 @@ namespace VsQuest
 
             if (!inRange)
             {
-                long now = 0;
-                try
-                {
-                    now = capi.World.ElapsedMilliseconds;
-                }
-                catch
-                {
-                    now = 0;
-                }
-
+                long now = Environment.TickCount64;
                 if (outOfRangeSinceMs <= 0) outOfRangeSinceMs = now;
 
-                if (now <= 0 || now - outOfRangeSinceMs >= OutOfRangeStopDelayMs)
+                if (now - outOfRangeSinceMs >= OutOfRangeStopDelayMs)
                 {
                     ApplyShouldPlay(false);
                 }
@@ -174,6 +170,9 @@ namespace VsQuest
 
         private void ApplyShouldPlay(bool shouldPlay)
         {
+            // We intentionally allow resolving desired music while playing (for HP phases),
+            // but we must not spam Stop/Start each tick.
+
             try
             {
                 var sys = capi?.ModLoader?.GetModSystem<BossMusicUrlSystem>();
@@ -181,13 +180,33 @@ namespace VsQuest
 
                 if (shouldPlay)
                 {
-                    // Important: phases can depend on current HP, so we must recompute even while already playing.
-                    ResolveDesiredMusic(sys, out var url, out var offset);
-                    sys.Start(musicKey, url, offset);
+                    long now = Environment.TickCount64;
+                    if (!lastShouldPlay || now - lastResolveMs >= ResolveThrottleMs)
+                    {
+                        lastResolveMs = now;
+
+                        // Important: phases can depend on current HP, so we recompute while playing.
+                        ResolveDesiredMusic(sys, out var url, out var offset);
+
+                        bool changed = !string.Equals(lastResolvedUrl ?? "", url ?? "", StringComparison.OrdinalIgnoreCase)
+                                       || Math.Abs(lastResolvedOffset - offset) > 0.01f;
+
+                        if (!lastShouldPlay || changed)
+                        {
+                            lastResolvedUrl = url;
+                            lastResolvedOffset = offset;
+                            sys.Start(musicKey, url, offset);
+                        }
+                    }
                 }
                 else
                 {
-                    sys.Stop();
+                    if (lastShouldPlay)
+                    {
+                        lastResolvedUrl = null;
+                        lastResolvedOffset = 0f;
+                        sys.Stop();
+                    }
                 }
             }
             catch

@@ -417,13 +417,51 @@ namespace VsQuest
             AssetLocation soundLoc = AssetLocation.Create(stage.sound, "game").WithPathPrefixOnce("sounds/");
             if (soundLoc == null) return;
 
+            float volume = stage.soundVolume;
+            try
+            {
+                Dictionary<string, float> volumeBySound = null;
+                try
+                {
+                    volumeBySound = entity?.Properties?.Attributes?["SoundVolumeMulBySound"]?.AsObject<Dictionary<string, float>>();
+                }
+                catch
+                {
+                }
+
+                if (volumeBySound != null && volumeBySound.Count > 0)
+                {
+                    string fullKey = soundLoc.ToString();
+                    string pathKey = soundLoc.Path;
+
+                    foreach (var entry in volumeBySound)
+                    {
+                        if (string.IsNullOrWhiteSpace(entry.Key)) continue;
+
+                        if (string.Equals(entry.Key, fullKey, StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(entry.Key, pathKey, StringComparison.OrdinalIgnoreCase)
+                            || string.Equals(entry.Key, stage.sound, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (entry.Value > 0f)
+                            {
+                                volume *= entry.Value;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+
             if (stage.soundStartMs > 0)
             {
                 sapi.Event.RegisterCallback(_ =>
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, stage.soundVolume);
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                     }
                     catch
                     {
@@ -434,7 +472,7 @@ namespace VsQuest
             {
                 try
                 {
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, stage.soundVolume);
+                    sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                 }
                 catch
                 {

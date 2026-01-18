@@ -414,6 +414,20 @@ namespace VsQuest
             var world = Api?.World;
             if (world == null) return (0, false);
 
+            // Extra safety for boss-like spawns: if this spawner is configured to set a killId/targetId,
+            // never spawn another copy while a living entity with the same targetId exists anywhere loaded.
+            // This avoids duplicates when multi-phase bosses temporarily lose/skip spawner anchor during transitions.
+            string activeKillId = null;
+            try
+            {
+                var entry = SelectSpawnEntry();
+                activeKillId = entry?.killId;
+            }
+            catch
+            {
+                activeKillId = null;
+            }
+
             // Prefer scanning loaded entities to avoid duplicates when spawned mobs wander away from the spawner radius.
             // (Radius-based counting can miss living mobs that moved far, causing the spawner to create extra copies.)
             var sapi = Api as ICoreServerAPI;
@@ -427,6 +441,23 @@ namespace VsQuest
                 {
                     var wa = e?.WatchedAttributes;
                     if (wa == null) continue;
+
+                    if (!string.IsNullOrWhiteSpace(activeKillId) && e.Alive)
+                    {
+                        string tid = null;
+                        try
+                        {
+                            tid = wa.GetString("alegacyvsquest:killaction:targetid", null);
+                        }
+                        catch
+                        {
+                            tid = null;
+                        }
+                        if (string.Equals(tid, activeKillId, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return (maxAlive, true);
+                        }
+                    }
 
                     bool matchNew = wa.GetInt("alegacyvsquest:spawner:dim", int.MinValue) == Pos.dimension
                         && wa.GetInt("alegacyvsquest:spawner:x", int.MinValue) == Pos.X

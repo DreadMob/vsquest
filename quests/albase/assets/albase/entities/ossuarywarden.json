@@ -27,7 +27,7 @@
       { "code": "interpolateposition" },
       { "code": "harvestable", "duration": 999999 },
       { "code": "boss", "bossHpBarRange": 60 },
-      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_2", "musicUrl": "https://drive.google.com/uc?export=download&id=1Swpv0Jqsed7VFyCRefr7eglVLM1mfyKG", "range": 45, "combatTimeoutMs": 12000, "requireRecentDamage": false },
+      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_2", "range": 80, "combatTimeoutMs": 12000, "requireRecentDamage": false },
       { "code": "bossnametag", "nameLangKey": "item-creature-ossuarywarden", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 80 }
     ],
     "animations": [
@@ -47,7 +47,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 360, "maxhealth": 360 },
+      { "code": "health", "currenthealth": 210, "maxhealth": 210 },
       { "code": "bossrebirth", "rebirthEntityCode": "albase:ossuarywarden-reborn", "isFinalStage": false, "spawnDelayMs": 5500, "sound": "effect/translocate-active", "soundRange": 32, "soundStartMs": 0, "spawnSound": "weather/lightning-verynear", "spawnSoundRange": 48, "spawnSoundStartMs": 0, "loopSound": "effect/translocate-idle", "loopSoundRange": 24, "loopSoundIntervalMs": 250 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "questtarget", "targetId": "albase:bosshunt:ossuarywarden", "leashRange": 80, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
