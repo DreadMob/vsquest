@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.API.Datastructures;
@@ -29,36 +28,15 @@ namespace VsQuest
         private ICoreAPI api;
 
         private VsQuestDiscoveryHud discoveryHud;
-        private GuiDialog questJournalGui;
-        private const string JournalHotkeyCode = "alegacyvsquest-journal";
+        private QuestJournalHotkeyHandler journalHotkeyHandler;
+        private QuestSelectGuiManager questSelectGuiManager;
+        private QuestNotificationHandler notificationHandler;
 
         public override void StartPre(ICoreAPI api)
         {
             this.api = api;
             base.StartPre(api);
-
-            api.RegisterEntityBehaviorClass("questgiver", typeof(EntityBehaviorQuestGiver));
-            api.RegisterEntityBehaviorClass("questtarget", typeof(EntityBehaviorQuestTarget));
-            api.RegisterEntityBehaviorClass("bossnametag", typeof(EntityBehaviorBossNameTag));
-            api.RegisterEntityBehaviorClass("bossrespawn", typeof(EntityBehaviorBossRespawn));
-            api.RegisterEntityBehaviorClass("bossdespair", typeof(EntityBehaviorBossDespair));
-            api.RegisterEntityBehaviorClass("bosshuntcombatmarker", typeof(EntityBehaviorBossHuntCombatMarker));
-            api.RegisterEntityBehaviorClass("bosssummonritual", typeof(EntityBehaviorBossSummonRitual));
-            api.RegisterEntityBehaviorClass("bossgrowthritual", typeof(EntityBehaviorBossGrowthRitual));
-            api.RegisterEntityBehaviorClass("bossrebirth", typeof(EntityBehaviorBossRebirth));
-            api.RegisterEntityBehaviorClass("shiverdebug", typeof(EntityBehaviorShiverDebug));
-
-            api.RegisterItemClass("ItemDebugTool", typeof(ItemDebugTool));
-            api.RegisterItemClass("ItemEntitySpawner", typeof(ItemEntitySpawner));
-
-            api.RegisterBlockClass("BlockCooldownPlaceholder", typeof(BlockCooldownPlaceholder));
-            api.RegisterBlockEntityClass("CooldownPlaceholder", typeof(BlockEntityCooldownPlaceholder));
-
-            api.RegisterBlockClass("BlockQuestSpawner", typeof(BlockQuestSpawner));
-            api.RegisterBlockEntityClass("QuestSpawner", typeof(BlockEntityQuestSpawner));
-
-            api.RegisterBlockClass("BlockBossHuntAnchor", typeof(BlockBossHuntAnchor));
-            api.RegisterBlockEntityClass("BossHuntAnchor", typeof(BlockEntityBossHuntAnchor));
+            ModClassRegistry.RegisterAll(api);
         }
 
         public override void Start(ICoreAPI api)
@@ -74,7 +52,6 @@ namespace VsQuest
 
             VsQuest.Harmony.EntityInteractPatch.TryPatch(harmony);
 
-            // Register objectives
             objectiveRegistry = new QuestObjectiveRegistry(ActionObjectiveRegistry, api);
             objectiveRegistry.Register();
 
@@ -116,13 +93,8 @@ namespace VsQuest
 
             networkChannelRegistry.RegisterClient(capi);
 
-            capi.Input.RegisterHotKey(JournalHotkeyCode, Lang.Get("alegacyvsquest:hotkey-journal"), GlKeys.N, HotkeyType.GUIOrOtherControls);
-
-            capi.Input.SetHotKeyHandler(JournalHotkeyCode, _ =>
-            {
-                ToggleQuestJournalGui(capi);
-                return true;
-            });
+            journalHotkeyHandler = new QuestJournalHotkeyHandler(capi);
+            journalHotkeyHandler.Register();
 
             capi.RegisterVtmlTagConverter("qhover", (clientApi, token, fontStack, onClick) =>
             {
@@ -151,73 +123,9 @@ namespace VsQuest
             {
                 discoveryHud = null;
             }
-        }
 
-
-        private void ToggleQuestJournalGui(ICoreClientAPI capi)
-        {
-            if (questJournalGui == null)
-            {
-                questJournalGui = new Gui.Journal.QuestJournalDialog(capi);
-                questJournalGui.OnClosed += () =>
-                {
-                    if (questJournalGui != null && !questJournalGui.IsOpened())
-                    {
-                        questJournalGui = null;
-                    }
-                };
-                questJournalGui.TryOpen();
-                return;
-            }
-
-            if (questJournalGui.IsOpened())
-            {
-                questJournalGui.TryClose();
-                return;
-            }
-
-            (questJournalGui as Gui.Journal.QuestJournalDialog)?.Refresh();
-            questJournalGui.TryOpen();
-        }
-
-        internal void OnShowNotificationMessage(ShowNotificationMessage message, ICoreClientAPI capi)
-        {
-            if (message == null)
-            {
-                capi.ShowChatMessage(null);
-                return;
-            }
-
-            string text = null;
-
-            // Preferred path: server sends template + mob code, client localizes mob name in its own language.
-            text = NotificationTextUtil.Build(message, capi.Logger);
-
-            capi.ShowChatMessage(text);
-        }
-
-        internal void OnShowDiscoveryMessage(ShowDiscoveryMessage message, ICoreClientAPI capi)
-        {
-            if (message == null)
-            {
-                return;
-            }
-
-            string text = NotificationTextUtil.Build(new ShowNotificationMessage
-            {
-                Notification = message.Notification,
-                Template = message.Template,
-                Need = message.Need,
-                MobCode = message.MobCode
-            }, capi.Logger);
-
-            if (discoveryHud != null)
-            {
-                discoveryHud.Show(text);
-                return;
-            }
-
-            capi.TriggerIngameDiscovery(this, "alegacyvsquest", text);
+            notificationHandler = new QuestNotificationHandler(discoveryHud);
+            questSelectGuiManager = new QuestSelectGuiManager(Config);
         }
 
         public override void StartServerSide(ICoreServerAPI sapi)
@@ -226,7 +134,6 @@ namespace VsQuest
 
             sapi.Logger.VerboseDebug($"[alegacyvsquest] QuestSystem.StartServerSide loaded ({DateTime.UtcNow:O})");
 
-            // Initialize managers
             persistenceManager = new QuestPersistenceManager(sapi);
             lifecycleManager = new QuestLifecycleManager(QuestRegistry, ActionRegistry, api);
             eventHandler = new QuestEventHandler(QuestRegistry, persistenceManager, sapi);
@@ -239,7 +146,6 @@ namespace VsQuest
 
             networkChannelRegistry.RegisterServer(sapi);
 
-            // Register actions
             actionRegistry = new QuestActionRegistry(ActionRegistry, api, sapi, OnQuestAccepted);
             actionRegistry.Register();
 
@@ -334,7 +240,7 @@ namespace VsQuest
             {
                 if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
 
-                string normalized = NormalizeQuestId(quest.questId);
+                string normalized = QuestJournalMigration.NormalizeQuestId(quest.questId, QuestRegistry);
                 if (!string.Equals(normalized, quest.questId, StringComparison.OrdinalIgnoreCase))
                 {
                     quest.questId = normalized;
@@ -357,85 +263,18 @@ namespace VsQuest
 
         internal string NormalizeQuestId(string questId)
         {
-            if (string.IsNullOrWhiteSpace(questId)) return questId;
-            if (QuestRegistry == null) return questId;
-            if (QuestRegistry.ContainsKey(questId)) return questId;
-
-            const string legacyPrefix = "vsquest:";
-            const string currentPrefix = "alegacyvsquest:";
-
-            if (questId.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
-            {
-                string mapped = currentPrefix + questId.Substring(legacyPrefix.Length);
-                if (QuestRegistry.ContainsKey(mapped)) return mapped;
-            }
-
-            return questId;
+            return QuestJournalMigration.NormalizeQuestId(questId, QuestRegistry);
         }
 
         internal string[] GetNormalizedCompletedQuestIds(IPlayer player)
         {
-            var wa = player?.Entity?.WatchedAttributes;
-            if (wa == null) return new string[0];
-
-            var current = wa.GetStringArray("alegacyvsquest:playercompleted", new string[0]) ?? new string[0];
-            var legacy = wa.GetStringArray("vsquest:playercompleted", null);
-
-            var combined = new List<string>(current.Length + (legacy?.Length ?? 0));
-            combined.AddRange(current);
-            if (legacy != null) combined.AddRange(legacy);
-
-            var normalizedSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var questId in combined)
-            {
-                if (string.IsNullOrWhiteSpace(questId)) continue;
-                normalizedSet.Add(NormalizeQuestId(questId));
-            }
-
-            var normalized = normalizedSet.ToArray();
-
-            bool changed = legacy != null;
-            if (!changed)
-            {
-                if (current.Length != normalized.Length)
-                {
-                    changed = true;
-                }
-                else
-                {
-                    var currentSet = new HashSet<string>(current, StringComparer.OrdinalIgnoreCase);
-                    foreach (var id in normalized)
-                    {
-                        if (!currentSet.Contains(id))
-                        {
-                            changed = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (changed)
-            {
-                wa.SetStringArray("alegacyvsquest:playercompleted", normalized);
-                wa.MarkPathDirty("alegacyvsquest:playercompleted");
-
-                if (legacy != null)
-                {
-                    wa.RemoveAttribute("vsquest:playercompleted");
-                    wa.MarkPathDirty("vsquest:playercompleted");
-                }
-            }
-
-            return normalized;
+            return QuestJournalMigration.GetNormalizedCompletedQuestIds(player, QuestRegistry);
         }
 
         internal bool ForceCompleteQuestInternal(IServerPlayer player, QuestCompletedMessage message, ICoreServerAPI sapi)
         {
             return lifecycleManager.ForceCompleteQuest(player, message, sapi, GetPlayerQuests);
         }
-
-        private QuestSelectGui questSelectGui;
 
         internal void OnQuestAccepted(IServerPlayer fromPlayer, QuestAcceptedMessage message, ICoreServerAPI sapi)
         {
@@ -449,80 +288,32 @@ namespace VsQuest
 
         internal void OnQuestInfoMessage(QuestInfoMessage message, ICoreClientAPI capi)
         {
-            if (questSelectGui == null)
-            {
-                questSelectGui = CreateQuestSelectGui(message, capi);
-                questSelectGui.TryOpen();
-                return;
-            }
-
-            if (questSelectGui.IsOpened())
-            {
-                questSelectGui.UpdateFromMessage(message);
-                return;
-            }
-
-            questSelectGui = CreateQuestSelectGui(message, capi);
-            questSelectGui.TryOpen();
+            questSelectGuiManager.HandleQuestInfoMessage(message, capi);
         }
 
-        private QuestSelectGui CreateQuestSelectGui(QuestInfoMessage message, ICoreClientAPI capi)
+        internal void OnShowNotificationMessage(ShowNotificationMessage message, ICoreClientAPI capi)
         {
-            var gui = new QuestSelectGui(capi, message.questGiverId, message.availableQestIds, message.activeQuests, Config, message.noAvailableQuestDescLangKey, message.noAvailableQuestCooldownDescLangKey, message.noAvailableQuestCooldownDaysLeft);
-            gui.OnClosed += () =>
-            {
-                if (questSelectGui != null && !questSelectGui.IsOpened())
-                {
-                    questSelectGui = null;
-                }
-            };
-            return gui;
+            notificationHandler.HandleNotificationMessage(message, capi);
+        }
+
+        internal void OnShowDiscoveryMessage(ShowDiscoveryMessage message, ICoreClientAPI capi)
+        {
+            notificationHandler.HandleDiscoveryMessage(message, capi);
         }
 
         internal void OnExecutePlayerCommand(ExecutePlayerCommandMessage message, ICoreClientAPI capi)
         {
-            string command = message.Command;
-
-            if (command.StartsWith("."))
-            {
-                capi.TriggerChatMessage(command);
-            }
-            else
-            {
-                capi.SendChatMessage(command);
-            }
+            ClientCommandExecutor.Execute(message, capi);
         }
 
         internal void OnVanillaBlockInteract(IServerPlayer player, VanillaBlockInteractMessage message, ICoreServerAPI sapi)
         {
-            if (player == null || message == null)
-            {
-                return;
-            }
-
-            if (message?.BlockCode == "alegacyvsquest:cooldownplaceholder")
-            {
-                return;
-            }
-
-            int[] position = new int[] { message.Position.X, message.Position.Y, message.Position.Z };
-            var playerQuests = GetPlayerQuests(player.PlayerUID);
-            foreach (var quest in playerQuests.ToArray())
-            {
-                quest.OnBlockUsed(message.BlockCode, position, player, sapi);
-            }
+            eventHandler.HandleVanillaBlockInteract(player, message);
         }
 
         internal void OnShowQuestDialogMessage(ShowQuestDialogMessage message, ICoreClientAPI capi)
         {
-            new QuestFinalDialogGui(capi, message.TitleLangKey, message.TextLangKey, message.Option1LangKey, message.Option2LangKey).TryOpen();
+            QuestFinalDialogGui.ShowFromMessage(message, capi);
         }
-    }
-
-    public class QuestConfig
-    {
-        public bool CloseGuiAfterAcceptingAndCompleting { get; set; } = true;
-        public string defaultObjectiveCompletionSound { get; set; } = "sounds/tutorialstepsuccess";
-        public bool ShowCustomBossDeathMessage { get; set; } = false;
     }
 }

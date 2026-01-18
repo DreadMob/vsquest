@@ -72,5 +72,10 @@ namespace VsQuest
             textArea.Bounds.fixedY = -value;
             textArea.Bounds.CalcWorldBounds();
         }
+
+        public static void ShowFromMessage(ShowQuestDialogMessage message, ICoreClientAPI capi)
+        {
+            new QuestFinalDialogGui(capi, message.TitleLangKey, message.TextLangKey, message.Option1LangKey, message.Option2LangKey).TryOpen();
+        }
     }
 }

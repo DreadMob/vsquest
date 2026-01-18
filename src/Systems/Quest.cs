@@ -2,6 +2,12 @@ using System.Collections.Generic;
 
 namespace VsQuest
 {
+    public class QuestConfig
+    {
+        public bool CloseGuiAfterAcceptingAndCompleting { get; set; } = true;
+        public string defaultObjectiveCompletionSound { get; set; } = "sounds/tutorialstepsuccess";
+        public bool ShowCustomBossDeathMessage { get; set; } = false;
+    }
     public class Quest
     {
         public string id { get; set; }
@@ -56,4 +62,6 @@ namespace VsQuest
         public int minAmount { get; set; }
         public int maxAmount { get; set; }
     }
+
+
 }

@@ -163,5 +163,80 @@ namespace VsQuest
 
             return loreCode;
         }
+
+        public static string NormalizeQuestId(string questId, Dictionary<string, Quest> questRegistry)
+        {
+            if (string.IsNullOrWhiteSpace(questId)) return questId;
+            if (questRegistry == null) return questId;
+            if (questRegistry.ContainsKey(questId)) return questId;
+
+            const string legacyPrefix = "vsquest:";
+            const string currentPrefix = "alegacyvsquest:";
+
+            if (questId.StartsWith(legacyPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                string mapped = currentPrefix + questId.Substring(legacyPrefix.Length);
+                if (questRegistry.ContainsKey(mapped)) return mapped;
+            }
+
+            return questId;
+        }
+
+        public static string[] GetNormalizedCompletedQuestIds(Vintagestory.API.Common.IPlayer player, Dictionary<string, Quest> questRegistry)
+        {
+            var wa = player?.Entity?.WatchedAttributes;
+            if (wa == null) return new string[0];
+
+            var current = wa.GetStringArray("alegacyvsquest:playercompleted", new string[0]) ?? new string[0];
+            var legacy = wa.GetStringArray("vsquest:playercompleted", null);
+
+            var combined = new List<string>(current.Length + (legacy?.Length ?? 0));
+            combined.AddRange(current);
+            if (legacy != null) combined.AddRange(legacy);
+
+            var normalizedSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var questId in combined)
+            {
+                if (string.IsNullOrWhiteSpace(questId)) continue;
+                normalizedSet.Add(NormalizeQuestId(questId, questRegistry));
+            }
+
+            var normalized = normalizedSet.ToArray();
+
+            bool changed = legacy != null;
+            if (!changed)
+            {
+                if (current.Length != normalized.Length)
+                {
+                    changed = true;
+                }
+                else
+                {
+                    var currentSet = new HashSet<string>(current, StringComparer.OrdinalIgnoreCase);
+                    foreach (var id in normalized)
+                    {
+                        if (!currentSet.Contains(id))
+                        {
+                            changed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (changed)
+            {
+                wa.SetStringArray("alegacyvsquest:playercompleted", normalized);
+                wa.MarkPathDirty("alegacyvsquest:playercompleted");
+
+                if (legacy != null)
+                {
+                    wa.RemoveAttribute("vsquest:playercompleted");
+                    wa.MarkPathDirty("vsquest:playercompleted");
+                }
+            }
+
+            return normalized;
+        }
     }
 }

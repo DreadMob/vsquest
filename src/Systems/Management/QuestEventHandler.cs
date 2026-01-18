@@ -166,5 +166,25 @@ namespace VsQuest
 
             QuestTickUtil.HandleQuestTick(dt, questRegistry, questSystem.ActionObjectiveRegistry, players, persistenceManager.GetPlayerQuests, sapi);
         }
+
+        public void HandleVanillaBlockInteract(IServerPlayer player, VanillaBlockInteractMessage message)
+        {
+            if (player == null || message == null)
+            {
+                return;
+            }
+
+            if (message?.BlockCode == "alegacyvsquest:cooldownplaceholder")
+            {
+                return;
+            }
+
+            int[] position = new int[] { message.Position.X, message.Position.Y, message.Position.Z };
+            var playerQuests = persistenceManager.GetPlayerQuests(player.PlayerUID);
+            foreach (var quest in playerQuests.ToArray())
+            {
+                quest.OnBlockUsed(message.BlockCode, position, player, sapi);
+            }
+        }
     }
 }
