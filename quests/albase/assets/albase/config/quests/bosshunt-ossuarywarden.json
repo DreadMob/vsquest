@@ -1,6 +1,6 @@
 {
   "id": "albase:bosshunt-ossuarywarden",
-  "cooldown": 360,
+  "cooldown": 60,
   "perPlayer": true,
   "predecessor": "albase:bosshunt-intro",
   "onAcceptedActions": [
@@ -31,6 +31,12 @@
       "id": "notify",
       "args": [
         "albase:bosshunt-use-tracker"
+      ]
+    },
+    {
+      "id": "notify",
+      "args": [
+        "albase:bosshunt-rotation-info"
       ]
     }
   ],

@@ -7,6 +7,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
+using Vintagestory.API.Config;
 
 namespace VsQuest
 {
@@ -490,11 +491,20 @@ namespace VsQuest
                     var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
                     if (questSystem != null)
                     {
+                        bool anyReset = false;
                         foreach (var player in sapi.World.AllOnlinePlayers)
                         {
                             if (player is not IServerPlayer serverPlayer) continue;
 
-                            QuestSystemAdminUtils.ForgetOutdatedQuestsForPlayer(questSystem, serverPlayer, sapi);
+                            if (QuestSystemAdminUtils.ForgetOutdatedQuestsForPlayer(questSystem, serverPlayer, sapi) > 0)
+                            {
+                                anyReset = true;
+                            }
+                        }
+
+                        if (anyReset)
+                        {
+                            GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, Lang.Get("alegacyvsquest:bosshunt-rotation-reset-chat"), EnumChatType.Notification);
                         }
                     }
                 }

@@ -12,6 +12,7 @@ namespace VsQuest
     {
         private const string CloneStageKey = "alegacyvsquest:bossclonestage";
         private const string LastCloneStartMsKey = "alegacyvsquest:bossclone:lastStartMs";
+        private const string CloneOwnerIdKey = "alegacyvsquest:bossclone:ownerid";
 
         private const string TargetIdKey = "alegacyvsquest:killaction:targetid";
         private const string AnchorKeyPrefix = "alegacyvsquest:spawner:";
@@ -82,6 +83,12 @@ namespace VsQuest
 
             if (sapi == null || entity == null) return;
             if (stages.Count == 0) return;
+
+            if (IsCloneEntity())
+            {
+                DespawnIfOwnerMissing();
+                return;
+            }
 
             if (!entity.Alive)
             {
@@ -203,6 +210,15 @@ namespace VsQuest
 
             try
             {
+                clone.WatchedAttributes.SetLong(CloneOwnerIdKey, entity.EntityId);
+                clone.WatchedAttributes.MarkPathDirty(CloneOwnerIdKey);
+            }
+            catch
+            {
+            }
+
+            try
+            {
                 clone.WatchedAttributes.SetBool("alegacyvsquest:bossclone:invulnerable", stage.cloneInvulnerable);
                 clone.WatchedAttributes.MarkPathDirty("alegacyvsquest:bossclone:invulnerable");
             }
@@ -314,6 +330,44 @@ namespace VsQuest
             }
             catch
             {
+            }
+        }
+
+        private bool IsCloneEntity()
+        {
+            try
+            {
+                return entity?.WatchedAttributes?.GetBool("alegacyvsquest:bossclone", false) ?? false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void DespawnIfOwnerMissing()
+        {
+            if (sapi == null || entity == null) return;
+
+            long ownerId = 0;
+            try
+            {
+                ownerId = entity.WatchedAttributes.GetLong(CloneOwnerIdKey, 0);
+            }
+            catch
+            {
+            }
+
+            if (ownerId <= 0)
+            {
+                sapi.World.DespawnEntity(entity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
+                return;
+            }
+
+            var owner = sapi.World.GetEntityById(ownerId);
+            if (owner == null || !owner.Alive)
+            {
+                sapi.World.DespawnEntity(entity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
             }
         }
     }

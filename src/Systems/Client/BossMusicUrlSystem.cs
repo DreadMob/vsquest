@@ -17,13 +17,8 @@ namespace VsQuest
     {
         private ICoreClientAPI capi;
 
-        private static readonly Dictionary<string, string> UrlByKey = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "theme_bosshunt_1", "https://drive.google.com/uc?export=download&id=1SbLjPIKI4hIDmilOupbbha2iyesbhTRy" },
-            { "theme_bosshunt_2", "https://drive.google.com/uc?export=download&id=1Swpv0Jqsed7VFyCRefr7eglVLM1mfyKG" },
-            { "theme_bosshunt_2_reborn", "https://drive.google.com/uc?export=download&id=1JPczCvwS_ULq1ToWRuvcbc4woX-bIGNG" },
-            { "theme_bosshunt_3", "https://drive.google.com/uc?export=download&id=1l81SbymJR2rEStzKk-DWE6x6ycWytrZh" }
-        };
+        private static readonly Dictionary<string, string> DefaultUrlByKey = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> remoteUrlByKey = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         private string currentKey;
         private string currentUrl;
@@ -55,6 +50,16 @@ namespace VsQuest
         public override void StartClientSide(ICoreClientAPI api)
         {
             capi = api;
+
+            try
+            {
+                capi.Network.RegisterChannel("alegacyvsquestmusic")
+                    .RegisterMessageType<BossMusicUrlMapMessage>()
+                    .SetMessageHandler<BossMusicUrlMapMessage>(OnBossMusicUrlMapMessage);
+            }
+            catch
+            {
+            }
 
             try
             {
@@ -191,12 +196,36 @@ namespace VsQuest
             if (string.IsNullOrWhiteSpace(key)) return null;
 
             string trimmed = key.Trim();
-            if (UrlByKey.TryGetValue(trimmed, out var url))
+            if (remoteUrlByKey.TryGetValue(trimmed, out var url))
+            {
+                return NormalizeUrl(url);
+            }
+
+            if (DefaultUrlByKey.TryGetValue(trimmed, out url))
             {
                 return NormalizeUrl(url);
             }
 
             return null;
+        }
+
+        private void OnBossMusicUrlMapMessage(BossMusicUrlMapMessage message)
+        {
+            if (message?.Urls == null) return;
+
+            try
+            {
+                remoteUrlByKey.Clear();
+                foreach (var entry in message.Urls)
+                {
+                    if (string.IsNullOrWhiteSpace(entry.Key)) continue;
+                    if (string.IsNullOrWhiteSpace(entry.Value)) continue;
+                    remoteUrlByKey[entry.Key.Trim()] = NormalizeUrl(entry.Value);
+                }
+            }
+            catch
+            {
+            }
         }
 
         private static string NormalizeUrl(string url)

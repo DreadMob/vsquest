@@ -10,7 +10,12 @@
     "killedByInfoText": "deadcreature-vile",
     "reckless": true,
     "vsquestSoundPitchMul": 0.6,
-    "SoundVolumeMulBySound": { "albase:bosshunt_1": 0.36 },
+    "SoundVolumeMulBySound": {
+      "albase:bosshunt_1": 0.36,
+      "effect/translocate-active": 0.7,
+      "effect/translocate-idle": 0.6,
+      "weather/lightning-verynear": 0.6
+    },
     "alternativeCollisionBox": [2.4, 2.2],
     "alegacyvsquestHideInfoText": true
   },
@@ -48,7 +53,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 210, "maxhealth": 210 },
+      { "code": "health", "currenthealth": 360, "maxhealth": 360 },
       { "code": "bossrebirth", "rebirthEntityCode": "albase:ossuarywarden-reborn", "isFinalStage": false, "spawnDelayMs": 5500, "sound": "effect/translocate-active", "soundRange": 32, "soundStartMs": 0, "spawnSound": "weather/lightning-verynear", "spawnSoundRange": 48, "spawnSoundStartMs": 0, "loopSound": "effect/translocate-idle", "loopSoundRange": 24, "loopSoundIntervalMs": 250 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "questtarget", "targetId": "albase:bosshunt:ossuarywarden", "leashRange": 80, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
@@ -133,8 +138,8 @@
             "projectileDamageTier": 4,
             "maxDist": 16,
             "seekingRange": 16,
-            "mincooldown": 2600,
-            "maxcooldown": 3800,
+            "mincooldown": 6500,
+            "maxcooldown": 9000,
             "durationMs": 1400,
             "releaseAtMs": 900,
             "animation": "crawlthrowleft",
@@ -144,6 +149,25 @@
             "immobile": true,
             "maxTurnAngleDeg": 45,
             "maxOffAngleThrowDeg": 85,
+            "whenInEmotionState": "ossuarywarden-ritual|ossuarywarden-requiem"
+          },
+          {
+            "code": "meleeattack",
+            "entityCodes": ["player"],
+            "priority": 2.25,
+            "damage": 18,
+            "damageTier": 4,
+            "minDist": 3.6,
+            "minVerDist": 2.8,
+            "attackAngleRangeDeg": 240,
+            "mincooldown": 2200,
+            "maxcooldown": 3400,
+            "damagePlayerAtMs": 520,
+            "attackDurationMs": 1100,
+            "animation": "crawlattack",
+            "animationSpeed": 1.35,
+            "sound": "game:creature/drifter-hit",
+            "soundStartMs": 320,
             "whenInEmotionState": "ossuarywarden-ritual|ossuarywarden-requiem"
           },
           {

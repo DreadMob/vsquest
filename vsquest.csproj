@@ -5,6 +5,8 @@
 		<OutputPath>Release\build</OutputPath>
 		<ReleaseDir>$(MSBuildProjectDirectory)\Release</ReleaseDir>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	</PropertyGroup>
 
 	<ItemGroup>

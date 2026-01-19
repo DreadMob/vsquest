@@ -33,7 +33,7 @@ namespace VsQuest
 
         private QuestSelectGui CreateQuestSelectGui(QuestInfoMessage message, ICoreClientAPI capi)
         {
-            var gui = new QuestSelectGui(capi, message.questGiverId, message.availableQestIds, message.activeQuests, config, message.noAvailableQuestDescLangKey, message.noAvailableQuestCooldownDescLangKey, message.noAvailableQuestCooldownDaysLeft);
+            var gui = new QuestSelectGui(capi, message.questGiverId, message.availableQestIds, message.activeQuests, config, message.noAvailableQuestDescLangKey, message.noAvailableQuestCooldownDescLangKey, message.noAvailableQuestCooldownDaysLeft, message.noAvailableQuestRotationDaysLeft);
             gui.OnClosed += () =>
             {
                 if (questSelectGui != null && !questSelectGui.IsOpened())

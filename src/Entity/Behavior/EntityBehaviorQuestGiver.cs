@@ -270,6 +270,20 @@ namespace VsQuest
 
             var availableQuestIds = new List<string>();
             int? minCooldownDaysLeft = null;
+            int rotationDaysLeft = 0;
+
+            if (bossHuntActiveOnly)
+            {
+                var bossSystem = sapi?.ModLoader?.GetModSystem<BossHuntSystem>();
+                if (bossSystem != null && bossSystem.TryGetBossHuntStatus(out _, out _, out double hoursUntilRotation))
+                {
+                    if (hoursUntilRotation > 0)
+                    {
+                        rotationDaysLeft = (int)Math.Ceiling(hoursUntilRotation / 24.0);
+                        if (rotationDaysLeft < 0) rotationDaysLeft = 0;
+                    }
+                }
+            }
 
             // Optional chain cooldown: after completing any quest for this questgiver,
             // block offering any new quests for N days (independent of per-quest cooldown).
@@ -302,7 +316,8 @@ namespace VsQuest
                             activeQuests = activeQuests,
                             noAvailableQuestDescLangKey = noAvailableQuestDescLangKey,
                             noAvailableQuestCooldownDescLangKey = noAvailableQuestCooldownDescLangKey,
-                            noAvailableQuestCooldownDaysLeft = left
+                            noAvailableQuestCooldownDaysLeft = left,
+                            noAvailableQuestRotationDaysLeft = rotationDaysLeft
                         };
 
                         sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(msgChainCd, player.Player as IServerPlayer);
@@ -324,7 +339,8 @@ namespace VsQuest
                     activeQuests = activeQuests,
                     noAvailableQuestDescLangKey = noAvailableQuestDescLangKey,
                     noAvailableQuestCooldownDescLangKey = noAvailableQuestCooldownDescLangKey,
-                    noAvailableQuestCooldownDaysLeft = cooldownDaysLeftActive
+                    noAvailableQuestCooldownDaysLeft = cooldownDaysLeftActive,
+                    noAvailableQuestRotationDaysLeft = rotationDaysLeft
                 };
 
                 sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(msgActive, player.Player as IServerPlayer);
@@ -455,7 +471,8 @@ namespace VsQuest
                 activeQuests = activeQuests,
                 noAvailableQuestDescLangKey = noAvailableQuestDescLangKey,
                 noAvailableQuestCooldownDescLangKey = noAvailableQuestCooldownDescLangKey,
-                noAvailableQuestCooldownDaysLeft = cooldownDaysLeft
+                noAvailableQuestCooldownDaysLeft = cooldownDaysLeft,
+                noAvailableQuestRotationDaysLeft = rotationDaysLeft
             };
 
             sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);

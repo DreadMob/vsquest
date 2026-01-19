@@ -33,6 +33,11 @@ namespace VsQuest
             if (message == null) return null;
             if (string.IsNullOrEmpty(message.Notification)) return message.Notification;
 
+            if (message.Need != 0)
+            {
+                return LocalizationUtils.GetSafe(message.Notification, message.Need);
+            }
+
             return LocalizationUtils.GetSafe(message.Notification);
         }
 

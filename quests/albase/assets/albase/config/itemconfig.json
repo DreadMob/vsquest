@@ -263,6 +263,54 @@
         "healingeffectiveness"
       ],
       "hideVanillaTooltips": []
+    },
+    {
+      "id": "albase:bosshunt-reward-subduction-maw",
+      "itemCode": "game:clothes-shoulder-hunter-poncho",
+      "name": "<font color=\"#C084FC\">Пончо Сломанного Механика</font>",
+      "description": "<font color=\"#E9D5FF\">Плотное пончо, пропитанное запахом масла и дыма. Руки становятся чуть спокойнее, но мысли путаются от оставшегося дурмана.</font>",
+      "actions": [],
+      "attributes": {
+        "rangedaccuracy": 0.05,
+        "walkspeed": -0.03,
+        "hungerrate": 0.08
+      },
+      "showAttributes": [
+        "rangedaccuracy",
+        "walkspeed",
+        "hungerrate"
+      ],
+      "hideVanillaTooltips": [
+        "armor",
+        "protection",
+        "warmth",
+        "walkspeed",
+        "modsource"
+      ]
+    },
+    {
+      "id": "albase:bosshunt-reward-subduction-maw-buckle",
+      "itemCode": "game:clothes-waist-messenger-belt",
+      "name": "<font color=\"#DDD6FE\">Ремень Ржавых Шестерён</font>",
+      "description": "<font color=\"#F5F3FF\">Тяжёлый ремень с ржавыми шестернями. Держит стойку и ускоряет шаг, но быстро вытягивает силы.</font>",
+      "actions": [],
+      "attributes": {
+        "walkspeed": 0.04,
+        "rangedaccuracy": 0.04,
+        "hungerrate": 0.1
+      },
+      "showAttributes": [
+        "walkspeed",
+        "rangedaccuracy",
+        "hungerrate"
+      ],
+      "hideVanillaTooltips": [
+        "armor",
+        "protection",
+        "warmth",
+        "walkspeed",
+        "modsource"
+      ]
     }
   ]
 }

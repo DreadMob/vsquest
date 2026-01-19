@@ -62,6 +62,7 @@
     "alegacyvsquest:boss-defeated": "{0} defeated boss {1}",
     "alegacyvsquest:boss-defeated-multi": "{0} defeated boss {1}",
     "alegacyvsquest:quest-completed-broadcast": "{0} completed quest: {1}",
+    "alegacyvsquest:bosshunt-rotation-reset-chat": "Boss hunt target rotated. Active hunt reset.",
     "alegacyvsquest:trackboss-not-enough-health": "Not enough health to use the tracker.",
     "alegacyvsquest:trackboss-system-unavailable": "Boss hunt system is unavailable.",
     "alegacyvsquest:trackboss-no-active-target": "No active target to track.",

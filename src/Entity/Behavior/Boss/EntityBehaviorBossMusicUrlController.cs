@@ -28,6 +28,7 @@ namespace VsQuest
         private string musicUrl;
 
         private bool lastShouldPlay;
+        private bool hasPlayedOnce;
 
         private long outOfRangeSinceMs;
         private const int OutOfRangeStopDelayMs = 800;
@@ -105,7 +106,7 @@ namespace VsQuest
             bool inRange;
             try
             {
-                inRange = player.Pos.DistanceTo(entity.Pos) <= range;
+                inRange = (float)player.Pos.DistanceTo(entity.Pos) <= range;
             }
             catch
             {
@@ -126,28 +127,35 @@ namespace VsQuest
 
             outOfRangeSinceMs = 0;
 
+            long lastDamageMs = 0;
+            try
+            {
+                var wa = entity.WatchedAttributes;
+                if (wa != null)
+                {
+                    lastDamageMs = wa.GetLong(EntityBehaviorBossHuntCombatMarker.BossHuntLastDamageMsKey, 0);
+                    if (lastDamageMs <= 0)
+                    {
+                        lastDamageMs = wa.GetLong(EntityBehaviorBossCombatMarker.BossCombatLastDamageMsKey, 0);
+                    }
+                }
+            }
+            catch
+            {
+                lastDamageMs = 0;
+            }
+
+            bool hasTrigger = lastDamageMs > 0;
+            if (!hasPlayedOnce && !hasTrigger)
+            {
+                ApplyShouldPlay(false);
+                return;
+            }
+
             bool inCombat = true;
             if (requireRecentDamage)
             {
-                long lastDamageMs = 0;
-                try
-                {
-                    var wa = entity.WatchedAttributes;
-                    if (wa != null)
-                    {
-                        lastDamageMs = wa.GetLong(EntityBehaviorBossHuntCombatMarker.BossHuntLastDamageMsKey, 0);
-                        if (lastDamageMs <= 0)
-                        {
-                            lastDamageMs = wa.GetLong(EntityBehaviorBossCombatMarker.BossCombatLastDamageMsKey, 0);
-                        }
-                    }
-                }
-                catch
-                {
-                    lastDamageMs = 0;
-                }
-
-                if (lastDamageMs <= 0)
+                if (!hasTrigger)
                 {
                     inCombat = false;
                 }
@@ -180,6 +188,11 @@ namespace VsQuest
 
                 if (shouldPlay)
                 {
+                    if (!hasPlayedOnce)
+                    {
+                        hasPlayedOnce = true;
+                    }
+
                     long now = Environment.TickCount64;
                     if (!lastShouldPlay || now - lastResolveMs >= ResolveThrottleMs)
                     {

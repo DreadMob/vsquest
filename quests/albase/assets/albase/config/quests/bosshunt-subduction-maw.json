@@ -1,5 +1,5 @@
 {
-  "id": "albase:bosshunt-ashenlurker",
+  "id": "albase:bosshunt-subduction-maw",
   "cooldown": 60,
   "perPlayer": true,
   "predecessor": "albase:bosshunt-intro",
@@ -14,16 +14,16 @@
     {
       "id": "preloadbossmusic",
       "args": [
-        "https://drive.google.com/uc?export=download&id=1l81SbymJR2rEStzKk-DWE6x6ycWytrZh"
+        "https://drive.google.com/uc?export=download&id=1kR-As-lRZq7zPVuhVAtTKqXTDa0Io3fq"
       ]
     },
     {
       "id": "addjournalentry",
       "args": [
         "albase:bosshunt",
-        "albase:bosshunt-ashenlurker",
-        "albase:bosshunt-ashenlurker-title",
-        "albase:bosshunt-ashenlurker-journal-text"
+        "albase:bosshunt-subduction-maw",
+        "albase:bosshunt-subduction-maw-title",
+        "albase:bosshunt-subduction-maw-journal-text"
       ]
     },
     {
@@ -42,12 +42,12 @@
   "actionObjectives": [
     {
       "id": "killactiontarget",
-      "objectiveId": "ashenlurker",
-      "onCompleteActions": "addjournalentry albase:bosshunt albase:bosshunt-ashenlurker albase:bosshunt-ashenlurker-title overwrite albase:bosshunt-ashenlurker-reward-journal-text",
+      "objectiveId": "subduction-maw",
+      "onCompleteActions": "addjournalentry albase:bosshunt albase:bosshunt-subduction-maw albase:bosshunt-subduction-maw-title overwrite albase:bosshunt-subduction-maw-reward-journal-text",
       "args": [
-        "albase:bosshunt-ashenlurker",
-        "ashenlurker",
-        "albase:bosshunt:ashenlurker",
+        "albase:bosshunt-subduction-maw",
+        "subduction-maw",
+        "albase:bosshunt:subduction-maw",
         "1"
       ]
     }
@@ -58,19 +58,13 @@
     {
       "id": "questitem",
       "args": [
-        "albase:bosshunt-reward-ashenlurker"
+        "albase:bosshunt-reward-subduction-maw"
       ]
     },
     {
       "id": "questitem",
       "args": [
-        "albase:bosshunt-reward-ashenlurker-veil"
-      ]
-    },
-    {
-      "id": "questitem",
-      "args": [
-        "albase:bosshunt-reward-ashenlurker-lens"
+        "albase:bosshunt-reward-subduction-maw-buckle"
       ]
     },
     {
@@ -84,7 +78,7 @@
     {
       "id": "notify",
       "args": [
-        "albase:bosshunt-ashenlurker-reward"
+        "albase:bosshunt-subduction-maw-reward"
       ]
     }
   ]

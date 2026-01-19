@@ -12,5 +12,6 @@ namespace VsQuest
         public string noAvailableQuestDescLangKey { get; set; }
         public string noAvailableQuestCooldownDescLangKey { get; set; }
         public int noAvailableQuestCooldownDaysLeft { get; set; }
+        public int noAvailableQuestRotationDaysLeft { get; set; }
     }
 }

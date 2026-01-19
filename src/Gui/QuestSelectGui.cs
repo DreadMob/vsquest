@@ -25,14 +25,15 @@ namespace VsQuest
         private string noAvailableQuestDescLangKey;
         private string noAvailableQuestCooldownDescLangKey;
         private int noAvailableQuestCooldownDaysLeft;
+        private int noAvailableQuestRotationDaysLeft;
 
         private int curTab = 0;
         private bool closeGuiAfterAcceptingAndCompleting;
-        public QuestSelectGui(ICoreClientAPI capi, long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, QuestConfig questConfig, string noAvailableQuestDescLangKey = null, string noAvailableQuestCooldownDescLangKey = null, int noAvailableQuestCooldownDaysLeft = 0) : base(capi)
+        public QuestSelectGui(ICoreClientAPI capi, long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, QuestConfig questConfig, string noAvailableQuestDescLangKey = null, string noAvailableQuestCooldownDescLangKey = null, int noAvailableQuestCooldownDaysLeft = 0, int noAvailableQuestRotationDaysLeft = 0) : base(capi)
         {
             player = capi.World.Player;
             closeGuiAfterAcceptingAndCompleting = questConfig.CloseGuiAfterAcceptingAndCompleting;
-            ApplyData(questGiverId, availableQuestIds, activeQuests, noAvailableQuestDescLangKey, noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft);
+            ApplyData(questGiverId, availableQuestIds, activeQuests, noAvailableQuestDescLangKey, noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft, noAvailableQuestRotationDaysLeft);
             RequestRecompose();
         }
 
@@ -62,7 +63,7 @@ namespace VsQuest
             }, "alegacyvsquest-closedropdown");
         }
 
-        private void ApplyData(long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, string noAvailableQuestDescLangKey, string noAvailableQuestCooldownDescLangKey, int noAvailableQuestCooldownDaysLeft)
+        private void ApplyData(long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, string noAvailableQuestDescLangKey, string noAvailableQuestCooldownDescLangKey, int noAvailableQuestCooldownDaysLeft, int noAvailableQuestRotationDaysLeft)
         {
             this.questGiverId = questGiverId;
             this.availableQuestIds = availableQuestIds;
@@ -70,6 +71,7 @@ namespace VsQuest
             this.noAvailableQuestDescLangKey = noAvailableQuestDescLangKey;
             this.noAvailableQuestCooldownDescLangKey = noAvailableQuestCooldownDescLangKey;
             this.noAvailableQuestCooldownDaysLeft = noAvailableQuestCooldownDaysLeft;
+            this.noAvailableQuestRotationDaysLeft = noAvailableQuestRotationDaysLeft;
 
             if (activeQuests != null && activeQuests.Count > 0)
             {
@@ -167,7 +169,7 @@ namespace VsQuest
                 else
                 {
                     string noQuestText = (noAvailableQuestCooldownDaysLeft > 0 && !string.IsNullOrEmpty(noAvailableQuestCooldownDescLangKey))
-                        ? LocalizationUtils.GetSafe(noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft)
+                        ? LocalizationUtils.GetSafe(noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft, noAvailableQuestRotationDaysLeft)
                         : LocalizationUtils.GetFallback(noAvailableQuestDescLangKey, "alegacyvsquest:no-quest-available-desc");
 
                     SingleComposer.AddStaticText(noQuestText, CairoFont.WhiteSmallishText(), ElementBounds.Fixed(0, 60, 400, 500))
@@ -327,7 +329,7 @@ namespace VsQuest
             if (message == null) return;
 
             CloseOpenedDropDown();
-            ApplyData(message.questGiverId, message.availableQestIds, message.activeQuests, message.noAvailableQuestDescLangKey, message.noAvailableQuestCooldownDescLangKey, message.noAvailableQuestCooldownDaysLeft);
+            ApplyData(message.questGiverId, message.availableQestIds, message.activeQuests, message.noAvailableQuestDescLangKey, message.noAvailableQuestCooldownDescLangKey, message.noAvailableQuestCooldownDaysLeft, message.noAvailableQuestRotationDaysLeft);
 
             RequestRecompose();
         }
