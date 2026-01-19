@@ -40,7 +40,7 @@
         ]
       },
       { "code": "boss", "bossHpBarRange": 70 },
-      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_1", "range": 80, "combatTimeoutMs": 12000, "requireRecentDamage": false },
+      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_1", "range": 80, "combatTimeoutMs": 12000, "requireRecentDamage": false, "usePhases": true, "phaseSwitching": false, "phases": [ { "whenHealthRelBelow": 0.7, "startAtSeconds": 60 }, { "whenHealthRelBelow": 0.3, "startAtSeconds": 120 } ] },
       { "code": "bossnametag", "nameLangKey": "item-creature-bonecolossus", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 100 }
     ],
     "animations": [

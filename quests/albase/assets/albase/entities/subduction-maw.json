@@ -11,7 +11,7 @@
     "killedByInfoText": "deadcreature-vile",
     "reckless": true,
     "vsquestSoundPitchMul": 0.6,
-    "SoundVolumeMulBySound": { "albase:dark-magic-charge-up": 0.35, "albase:shock-sound-effect-horror": 0.35 },
+    "SoundVolumeMulBySound": { "albase:dark-magic-charge-up": 0.55, "albase:shock-sound-effect-horror": 0.55 },
     "alegacyvsquestHideInfoText": true
   },
   "drops": [],
@@ -33,7 +33,7 @@
       { "code": "floatupwhenstuck", "onlyWhenDead": true },
       { "code": "interpolateposition" },
       { "code": "boss", "bossHpBarRange": 90 },
-      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_subduction_maw", "range": 90, "combatTimeoutMs": 12000, "requireRecentDamage": false },
+      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_subduction_maw", "range": 160, "combatTimeoutMs": 12000, "requireRecentDamage": false, "usePhases": true, "phaseSwitching": false, "phases": [ { "whenHealthRelBelow": 0.7, "startAtSeconds": 60 }, { "whenHealthRelBelow": 0.3, "startAtSeconds": 120 } ] },
       { "code": "bossnametag", "nameLangKey": "item-creature-subduction-maw", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 120 }
     ],
     "animations": [
@@ -68,16 +68,17 @@
       {
         "code": "bosscloning",
         "stages": [
-          { "whenHealthRelBelow": 0.6, "cloneCount": 4, "durationMs": 9000, "cooldownSeconds": 14, "spawnRange": 6, "cloneDamageMult": 0.4, "cloneWalkSpeedMult": 0.85, "cloneInvulnerable": true },
-          { "whenHealthRelBelow": 0.4, "cloneCount": 5, "durationMs": 10000, "cooldownSeconds": 14, "spawnRange": 7, "cloneDamageMult": 0.45, "cloneWalkSpeedMult": 0.9, "cloneInvulnerable": true },
-          { "whenHealthRelBelow": 0.25, "cloneCount": 6, "durationMs": 11000, "cooldownSeconds": 12, "spawnRange": 8, "cloneDamageMult": 0.5, "cloneWalkSpeedMult": 0.95, "cloneInvulnerable": true }
+          { "whenHealthRelBelow": 0.8, "cloneCount": 2, "durationMs": 9000, "cooldownSeconds": 14, "spawnRange": 6, "cloneDamageMult": 0.4, "cloneWalkSpeedMult": 0.85, "cloneInvulnerable": true },
+          { "whenHealthRelBelow": 0.7, "cloneCount": 3, "durationMs": 9000, "cooldownSeconds": 14, "spawnRange": 6, "cloneDamageMult": 0.4, "cloneWalkSpeedMult": 0.85, "cloneInvulnerable": true },
+          { "whenHealthRelBelow": 0.5, "cloneCount": 5, "durationMs": 10000, "cooldownSeconds": 14, "spawnRange": 7, "cloneDamageMult": 0.45, "cloneWalkSpeedMult": 0.9, "cloneInvulnerable": true },
+          { "whenHealthRelBelow": 0.2, "cloneCount": 7, "durationMs": 11000, "cooldownSeconds": 12, "spawnRange": 8, "cloneDamageMult": 0.5, "cloneWalkSpeedMult": 0.95, "cloneInvulnerable": true }
         ]
       },
       {
         "code": "bossteleport",
         "stages": [
-          { "whenHealthRelBelow": 0.65, "cooldownSeconds": 7, "minTargetRange": 10, "maxTargetRange": 38, "minRadius": 4, "maxRadius": 8, "tries": 12, "windupMs": 250, "windupAnimation": "turret", "arriveAnimation": "stab", "sound": "albase:dark-magic-charge-up", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.12, "requireSolidGround": true },
-          { "whenHealthRelBelow": 0.35, "cooldownSeconds": 5, "minTargetRange": 8, "maxTargetRange": 36, "minRadius": 3, "maxRadius": 7, "tries": 12, "windupMs": 220, "windupAnimation": "load", "arriveAnimation": "stab", "sound": "albase:shock-sound-effect-horror", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.12, "requireSolidGround": true }
+          { "whenHealthRelBelow": 0.65, "cooldownSeconds": 12, "minTargetRange": 10, "maxTargetRange": 38, "minRadius": 6, "maxRadius": 12, "tries": 12, "windupMs": 250, "windupAnimation": "turret", "arriveAnimation": "stab", "sound": "albase:dark-magic-charge-up", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true },
+          { "whenHealthRelBelow": 0.35, "cooldownSeconds": 9, "minTargetRange": 8, "maxTargetRange": 36, "minRadius": 5, "maxRadius": 10, "tries": 12, "windupMs": 220, "windupAnimation": "load", "arriveAnimation": "stab", "sound": "albase:shock-sound-effect-horror", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true }
         ]
       },
       {
@@ -91,9 +92,10 @@
             "damageTier": 4,
             "mincooldown": 350,
             "maxcooldown": 900,
-            "maxAttackDistance": 4.2,
-            "maxAttackVerticalDistance": 2.6,
+            "maxAttackDistance": 6.5,
+            "maxAttackVerticalDistance": 3.5,
             "attackAngleRangeDeg": 120,
+            "retaliateAttacks": false,
             "damagePlayerAtMs": 400,
             "attackDurationMs": 1000,
             "animation": "stab",
@@ -117,6 +119,7 @@
             "targetRangeTolerance": 3,
             "ignoreDeepDayLight": true,
             "cancelOnHurt": true,
+            "retaliateAttacks": false,
             "executionChance": 0.05,
             "movespeed": 0.04,
             "animation": "walk",
@@ -133,6 +136,7 @@
             "projectileDamage": 12,
             "projectileDamageTier": 2,
             "projectileCode": "game:bowtornprojectile",
+            "retaliateAttacks": false,
             "throwAtMs": 400
           },
           {

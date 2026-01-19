@@ -10,8 +10,11 @@ namespace VsQuest
         private ICoreClientAPI capi;
 
         private float range;
+        private float startRange;
         private int combatTimeoutMs;
         private bool requireRecentDamage;
+        private bool usePhases;
+        private bool phaseSwitching;
 
         private float startAtSeconds;
 
@@ -51,8 +54,11 @@ namespace VsQuest
             capi = entity?.Api as ICoreClientAPI;
 
             range = attributes?["range"].AsFloat(60f) ?? 60f;
+            startRange = attributes?["startRange"].AsFloat(0f) ?? 0f;
             combatTimeoutMs = attributes?["combatTimeoutMs"].AsInt(12000) ?? 12000;
             requireRecentDamage = attributes?["requireRecentDamage"].AsBool(true) ?? true;
+            usePhases = attributes?["usePhases"].AsBool(true) ?? true;
+            phaseSwitching = attributes?["phaseSwitching"].AsBool(true) ?? true;
 
             startAtSeconds = attributes?["startAtSeconds"].AsFloat(0f) ?? 0f;
             if (startAtSeconds < 0f) startAtSeconds = 0f;
@@ -83,6 +89,8 @@ namespace VsQuest
             }
 
             if (range < 1f) range = 1f;
+            if (startRange < 0f) startRange = 0f;
+            if (startRange > 0f && startRange < 1f) startRange = 1f;
             if (combatTimeoutMs < 0) combatTimeoutMs = 0;
         }
 
@@ -104,12 +112,15 @@ namespace VsQuest
             }
 
             bool inRange;
+            double distanceToPlayer = 0;
             try
             {
-                inRange = (float)player.Pos.DistanceTo(entity.Pos) <= range;
+                distanceToPlayer = player.Pos.DistanceTo(entity.Pos);
+                inRange = (float)distanceToPlayer <= range;
             }
             catch
             {
+                distanceToPlayer = 0;
                 inRange = false;
             }
 
@@ -146,7 +157,9 @@ namespace VsQuest
             }
 
             bool hasTrigger = lastDamageMs > 0;
-            if (!hasPlayedOnce && !hasTrigger)
+            bool inStartRange = startRange > 0f ? distanceToPlayer <= startRange : inRange;
+            bool startTrigger = hasTrigger || !requireRecentDamage || inStartRange;
+            if (!hasPlayedOnce && !startTrigger)
             {
                 ApplyShouldPlay(false);
                 return;
@@ -194,7 +207,8 @@ namespace VsQuest
                     }
 
                     long now = Environment.TickCount64;
-                    if (!lastShouldPlay || now - lastResolveMs >= ResolveThrottleMs)
+                    bool allowResolve = !lastShouldPlay || phaseSwitching;
+                    if (allowResolve && (!lastShouldPlay || now - lastResolveMs >= ResolveThrottleMs))
                     {
                         lastResolveMs = now;
 
@@ -234,7 +248,7 @@ namespace VsQuest
             url = musicUrl;
             offset = startAtSeconds;
 
-            if (phases.Count > 0)
+            if (usePhases && phases.Count > 0)
             {
                 float frac = 1f;
                 try

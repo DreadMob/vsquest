@@ -13,6 +13,8 @@ namespace VsQuest
     {
         private const string TeleportStageKey = "alegacyvsquest:bossteleport:stage";
         private const string LastTeleportStartMsKey = "alegacyvsquest:bossteleport:lastStartMs";
+        private const string CloneOwnerIdKey = "alegacyvsquest:bossclone:ownerid";
+        private const string CloneFlagKey = "alegacyvsquest:bossclone";
 
         private class TeleportStage
         {
@@ -36,6 +38,9 @@ namespace VsQuest
             public float soundVolume;
 
             public bool requireSolidGround;
+
+            public bool teleportClones;
+            public bool swapWithClones;
         }
 
         private ICoreServerAPI sapi;
@@ -86,6 +91,9 @@ namespace VsQuest
                         soundVolume = stageObj["soundVolume"].AsFloat(1f),
 
                         requireSolidGround = stageObj["requireSolidGround"].AsBool(true),
+
+                        teleportClones = stageObj["teleportClones"].AsBool(false),
+                        swapWithClones = stageObj["swapWithClones"].AsBool(false),
                     };
 
                     if (stage.cooldownSeconds < 0f) stage.cooldownSeconds = 0f;
@@ -179,7 +187,7 @@ namespace VsQuest
             {
                 try
                 {
-                    DoTeleport(targetPos);
+                    DoTeleport(stage, targetPos);
                     TryPlayAnimation(stage.arriveAnimation);
                 }
                 catch
@@ -193,29 +201,112 @@ namespace VsQuest
             }, delay);
         }
 
-        private void DoTeleport(Vec3d pos)
+        private void DoTeleport(TeleportStage stage, Vec3d pos)
         {
             if (sapi == null || entity == null || pos == null) return;
 
             int dim = entity.ServerPos.Dimension;
 
+            var clones = (stage != null && (stage.teleportClones || stage.swapWithClones)) ? FindClones() : null;
+            Vec3d bossOldPos = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z);
+
+            if (stage?.swapWithClones == true && clones != null && clones.Count > 0)
+            {
+                var chosen = clones[sapi.World.Rand.Next(clones.Count)];
+                var clonePos = new Vec3d(chosen.ServerPos.X, chosen.ServerPos.Y, chosen.ServerPos.Z);
+
+                TeleportEntity(chosen, bossOldPos, dim);
+                TeleportEntity(entity, clonePos, dim);
+
+                clones.Remove(chosen);
+
+                if (stage.teleportClones && clones.Count > 0)
+                {
+                    TeleportClonesAround(clones, entity.ServerPos.XYZ, stage, dim);
+                }
+
+                return;
+            }
+
+            TeleportEntity(entity, pos, dim);
+
+            if (stage?.teleportClones == true && clones != null && clones.Count > 0)
+            {
+                TeleportClonesAround(clones, entity.ServerPos.XYZ, stage, dim);
+            }
+        }
+
+        private void TeleportEntity(Entity target, Vec3d pos, int dim)
+        {
+            if (target == null || pos == null) return;
+
             try
             {
-                entity.IsTeleport = true;
+                target.IsTeleport = true;
             }
             catch
             {
             }
 
-            entity.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
-            entity.Pos.SetFrom(entity.ServerPos);
+            target.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
+            target.Pos.SetFrom(target.ServerPos);
 
             try
             {
-                entity.ServerPos.Motion.Set(0, 0, 0);
+                target.ServerPos.Motion.Set(0, 0, 0);
             }
             catch
             {
+            }
+        }
+
+        private List<Entity> FindClones()
+        {
+            var result = new List<Entity>();
+            if (sapi == null || entity == null) return result;
+
+            var loaded = sapi.World?.LoadedEntities;
+            if (loaded == null) return result;
+
+            long ownerId = entity.EntityId;
+            foreach (var entry in loaded)
+            {
+                var e = entry.Value;
+                if (e == null || !e.Alive) continue;
+                if (e.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+
+                try
+                {
+                    var wa = e.WatchedAttributes;
+                    if (wa == null) continue;
+                    if (!wa.GetBool(CloneFlagKey, false)) continue;
+                    long cloneOwner = wa.GetLong(CloneOwnerIdKey, 0);
+                    if (cloneOwner != ownerId) continue;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                result.Add(e);
+            }
+
+            return result;
+        }
+
+        private void TeleportClonesAround(List<Entity> clones, Vec3d center, TeleportStage stage, int dim)
+        {
+            if (clones == null || clones.Count == 0 || stage == null || center == null) return;
+
+            for (int i = 0; i < clones.Count; i++)
+            {
+                var clone = clones[i];
+                if (clone == null || !clone.Alive) continue;
+
+                if (TryFindTeleportPos(stage, center, dim, out var pos))
+                {
+                    TeleportEntity(clone, pos, dim);
+                }
             }
         }
 
@@ -279,6 +370,25 @@ namespace VsQuest
 
             int dim = entity.ServerPos.Dimension;
             var targetPos = new Vec3d(target.ServerPos.X, target.ServerPos.Y, target.ServerPos.Z);
+            return TryFindTeleportPos(stage, targetPos, dim, out pos);
+        }
+
+        private bool TryFindTeleportPos(TeleportStage stage, Vec3d targetPos, int dim, out Vec3d pos)
+        {
+            pos = null;
+            if (sapi == null || entity == null || targetPos == null || stage == null) return false;
+
+            double minR = Math.Max(0.0, stage.minRadius);
+            double maxR = Math.Max(minR, stage.maxRadius);
+            if (maxR <= 0.01) maxR = 0.01;
+
+            var world = sapi.World;
+            if (world == null) return false;
+
+            var ba = world.BlockAccessor;
+            if (ba == null) return false;
+
+            int tries = Math.Max(1, stage.tries);
 
             for (int attempt = 0; attempt < tries; attempt++)
             {
