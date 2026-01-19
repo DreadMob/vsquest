@@ -18,6 +18,7 @@
   },
   "attributes": {
     "skinnableParts": [],
+    "alegacyvsquestNoUndress": true,
     "inventory": [
       { "type": "item", "code": "game:armor-head-antique-forlorn-damaged" },
       { "type": "item", "code": "game:armor-body-antique-forlorn-damaged" },

@@ -9,6 +9,7 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("questgiver", typeof(EntityBehaviorQuestGiver));
             api.RegisterEntityBehaviorClass("questtarget", typeof(EntityBehaviorQuestTarget));
             api.RegisterEntityBehaviorClass("bossnametag", typeof(EntityBehaviorBossNameTag));
+            api.RegisterEntityBehaviorClass("alegacyvsquestbosshealthbar", typeof(EntityBehaviorBossHealthbarOverride));
             api.RegisterEntityBehaviorClass("bossrespawn", typeof(EntityBehaviorBossRespawn));
             api.RegisterEntityBehaviorClass("bossdespair", typeof(EntityBehaviorBossDespair));
             api.RegisterEntityBehaviorClass("bosscombatmarker", typeof(EntityBehaviorBossCombatMarker));

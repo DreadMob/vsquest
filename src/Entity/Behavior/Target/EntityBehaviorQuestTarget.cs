@@ -3,6 +3,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
 namespace VsQuest
@@ -13,13 +14,13 @@ namespace VsQuest
 
         protected const double LeashNoDamageGraceHours = 2.0 / 60.0;
         protected const float BossRegenHpPerSecond = 3f;
-
         protected string id;
         protected float? maxHealthOverride;
         protected float leashRange;
         protected float returnMoveSpeed;
         protected int leashCheckMs;
         protected long lastLeashCheckMs;
+        protected ICoreServerAPI sapi;
 
         public string TargetId => id;
 
@@ -34,6 +35,7 @@ namespace VsQuest
         {
             base.Initialize(properties, attributes);
 
+            sapi = entity?.Api as ICoreServerAPI;
             id = attributes[JsonIdKey].AsString(null);
             maxHealthOverride = attributes.KeyExists("maxHealth") ? attributes["maxHealth"].AsFloat() : (float?)null;
 
@@ -98,6 +100,11 @@ namespace VsQuest
                             float newHealth = Math.Min(maxHealth, curHealth + BossRegenHpPerSecond * deltaTime);
                             healthTree.SetFloat("currenthealth", newHealth);
                             wa.MarkPathDirty("health");
+
+                            if (newHealth >= maxHealth)
+                            {
+                                ResetBossCombatProgress(wa);
+                            }
                         }
                     }
                 }
@@ -177,6 +184,47 @@ namespace VsQuest
         public static void SetSpawnerAnchor(Entity entity, BlockPos pos)
         {
             SetSpawnerAnchorStatic(entity, pos);
+        }
+
+        protected static void ResetBossCombatProgress(ITreeAttribute wa)
+        {
+            if (wa == null) return;
+
+            try
+            {
+                wa[EntityBehaviorBossCombatMarker.BossCombatAttackersKey] = new StringArrayAttribute(Array.Empty<string>());
+                if (wa is SyncedTreeAttribute synced)
+                {
+                    synced.MarkPathDirty(EntityBehaviorBossCombatMarker.BossCombatAttackersKey);
+                }
+
+                wa[EntityBehaviorBossCombatMarker.BossCombatDamageByPlayerKey] = new TreeAttribute();
+                if (wa is SyncedTreeAttribute synced2)
+                {
+                    synced2.MarkPathDirty(EntityBehaviorBossCombatMarker.BossCombatDamageByPlayerKey);
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                wa[EntityBehaviorBossHuntCombatMarker.BossHuntAttackersKey] = new StringArrayAttribute(Array.Empty<string>());
+                if (wa is SyncedTreeAttribute synced)
+                {
+                    synced.MarkPathDirty(EntityBehaviorBossHuntCombatMarker.BossHuntAttackersKey);
+                }
+
+                wa[EntityBehaviorBossHuntCombatMarker.BossHuntDamageByPlayerKey] = new TreeAttribute();
+                if (wa is SyncedTreeAttribute synced2)
+                {
+                    synced2.MarkPathDirty(EntityBehaviorBossHuntCombatMarker.BossHuntDamageByPlayerKey);
+                }
+            }
+            catch
+            {
+            }
         }
     }
 }

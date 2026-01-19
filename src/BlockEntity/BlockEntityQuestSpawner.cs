@@ -477,6 +477,12 @@ namespace VsQuest
                         {
                             blockSpawn = true;
                         }
+
+                        double rebirthBlockUntil = wa.GetDouble("alegacyvsquest:bossrebirthBlockSpawnUntilTotalHours", double.NaN);
+                        if (!double.IsNaN(rebirthBlockUntil) && Api.World.Calendar.TotalHours < rebirthBlockUntil)
+                        {
+                            blockSpawn = true;
+                        }
                     }
                 }
 
@@ -515,6 +521,12 @@ namespace VsQuest
                 {
                     double respawnAt = wa.GetDouble("alegacyvsquest:bossrespawnAtTotalHours", double.NaN);
                     if (!double.IsNaN(respawnAt))
+                    {
+                        blockSpawnRadius = true;
+                    }
+
+                    double rebirthBlockUntil = wa.GetDouble("alegacyvsquest:bossrebirthBlockSpawnUntilTotalHours", double.NaN);
+                    if (!double.IsNaN(rebirthBlockUntil) && Api.World.Calendar.TotalHours < rebirthBlockUntil)
                     {
                         blockSpawnRadius = true;
                     }

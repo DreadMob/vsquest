@@ -11,6 +11,16 @@ namespace VsQuest
 {
     public static class QuestSystemAdminUtils
     {
+        public static void ClearQuestCooldownForPlayer(IServerPlayer player, string questId)
+        {
+            if (player?.Entity?.WatchedAttributes == null) return;
+            if (string.IsNullOrWhiteSpace(questId)) return;
+
+            string cooldownKey = string.Format("alegacyvsquest:lastaccepted-{0}", questId);
+            player.Entity.WatchedAttributes.SetDouble(cooldownKey, -9999999);
+            player.Entity.WatchedAttributes.MarkPathDirty(cooldownKey);
+        }
+
         private static void ClearQuestGiverChainCooldowns(IServerPlayer player, ICoreServerAPI sapi)
         {
             if (sapi == null || player?.Entity?.WatchedAttributes == null) return;

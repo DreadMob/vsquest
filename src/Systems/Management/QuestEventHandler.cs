@@ -11,7 +11,8 @@ namespace VsQuest
 {
     public class QuestEventHandler
     {
-        private const double BossKillCreditMinShare = 0.25;
+        private const double BossKillCreditMinShareCeil = 0.5;
+        private const double BossKillCreditMinShareFloor = 0.08;
         private const float BossKillHealFraction = 0.10f;
 
         private readonly Dictionary<string, Quest> questRegistry;
@@ -124,13 +125,27 @@ namespace VsQuest
                             if (dmgTree != null && maxHp > 0)
                             {
                                 var attackers = wa.GetStringArray(EntityBehaviorBossCombatMarker.BossCombatAttackersKey, new string[0]) ?? new string[0];
+                                int attackersWithDamage = 0;
                                 for (int i = 0; i < attackers.Length; i++)
                                 {
                                     var uid = attackers[i];
                                     if (string.IsNullOrWhiteSpace(uid)) continue;
 
                                     double dmg = dmgTree.GetDouble(uid, 0);
-                                    if (dmg / maxHp >= BossKillCreditMinShare)
+                                    if (dmg > 0)
+                                    {
+                                        attackersWithDamage++;
+                                    }
+                                }
+
+                                double minShare = GetBossKillCreditMinShare(attackersWithDamage);
+                                for (int i = 0; i < attackers.Length; i++)
+                                {
+                                    var uid = attackers[i];
+                                    if (string.IsNullOrWhiteSpace(uid)) continue;
+
+                                    double dmg = dmgTree.GetDouble(uid, 0);
+                                    if (dmg > 0 && dmg / maxHp >= minShare)
                                     {
                                         credited.Add(uid);
                                     }
@@ -238,6 +253,20 @@ namespace VsQuest
             catch
             {
             }
+        }
+
+        private static double GetBossKillCreditMinShare(int attackersWithDamage)
+        {
+            if (attackersWithDamage <= 1)
+            {
+                return BossKillCreditMinShareCeil;
+            }
+
+            double share = BossKillCreditMinShareCeil / Math.Sqrt(Math.Max(1, attackersWithDamage));
+            if (share < BossKillCreditMinShareFloor) share = BossKillCreditMinShareFloor;
+            if (share > BossKillCreditMinShareCeil) share = BossKillCreditMinShareCeil;
+
+            return share;
         }
 
         private static bool IsBossEntity(Entity entity)

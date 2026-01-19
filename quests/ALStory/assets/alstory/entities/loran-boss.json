@@ -19,7 +19,7 @@
     "animations": [
       { "code": "walk", "animation": "walk", "blendMode": "Average", "mulWithWalkSpeed": true, "animationSpeed": 1.1 },
       { "code": "run", "animation": "run", "blendMode": "Average", "mulWithWalkSpeed": true, "animationSpeed": 1.2 },
-      { "code": "attack", "animation": "attack", "blendMode": "Average", "animationSpeed": 1.1 },
+      { "code": "hit", "animation": "hit", "blendMode": "Average", "animationSpeed": 1.1 },
       { "code": "sneakidle", "animation": "sneakidle", "blendMode": "Average" },
       { "code": "die", "animation": "die", "animationSpeed": 1.75, "weight": 10, "blendMode": "AddAverage" },
       { "code": "hurt", "animation": "hurt", "animationSpeed": 2, "blendMode": "AddAverage" },
@@ -28,6 +28,7 @@
   },
   "attributes": {
     "skinnableParts": [],
+    "alegacyvsquestNoUndress": true,
     "inventory": [
       { "type": "item", "code": "game:armor-head-antique-forlorn-damaged" },
       { "type": "item", "code": "game:armor-body-antique-forlorn-damaged" },
@@ -76,7 +77,7 @@
             "dashMs": 240,
             "dashSpeed": 1.3,
             "dashDirection": "side",
-            "windupAnimation": "attack",
+            "windupAnimation": "hit",
             "dashAnimation": "run",
             "sound": "game:creature/wolf/attack",
             "soundRange": 20,
@@ -92,7 +93,7 @@
             "dashMs": 280,
             "dashSpeed": 1.4,
             "dashDirection": "back",
-            "windupAnimation": "attack",
+            "windupAnimation": "hit",
             "dashAnimation": "run",
             "sound": "game:creature/wolf/attack",
             "soundRange": 22,
@@ -119,7 +120,7 @@
             "maxcooldown": 2200,
             "damagePlayerAtMs": 450,
             "attackDurationMs": 1000,
-            "animation": "attack",
+            "animation": "hit",
             "animationSpeed": 0.9,
             "sound": "game:creature/drifter-hit",
             "soundStartMs": 350
@@ -159,9 +160,11 @@
       { "code": "bossrespawn", "respawnInGameHours": 24, "spawnNewBoss": true, "respawnEntityCode": "alstory:loran" }
     ]
   },
+  "idleSoundRange": 14,
   "sounds": {
     "hurt": "creature/drifter-hurt",
     "death": "creature/drifter-death",
-    "idle": "creature/drifter-idle"
+    "idle": "creature/drifter-idle",
+    "attack": "creature/drifter-hit"
   }
 }

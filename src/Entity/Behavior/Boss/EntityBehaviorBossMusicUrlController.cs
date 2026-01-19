@@ -94,13 +94,15 @@ namespace VsQuest
             if (combatTimeoutMs < 0) combatTimeoutMs = 0;
         }
 
+        private const float DeathFadeOutSeconds = 4f;
+
         public override void OnGameTick(float dt)
         {
             base.OnGameTick(dt);
 
             if (capi == null || entity == null || !entity.Alive)
             {
-                ApplyShouldPlay(false);
+                ApplyShouldPlay(false, DeathFadeOutSeconds);
                 return;
             }
 
@@ -189,7 +191,7 @@ namespace VsQuest
             base.OnEntityDespawn(despawn);
         }
 
-        private void ApplyShouldPlay(bool shouldPlay)
+        private void ApplyShouldPlay(bool shouldPlay, float fadeOutSeconds = -1f)
         {
             // We intentionally allow resolving desired music while playing (for HP phases),
             // but we must not spam Stop/Start each tick.
@@ -218,7 +220,9 @@ namespace VsQuest
                         bool changed = !string.Equals(lastResolvedUrl ?? "", url ?? "", StringComparison.OrdinalIgnoreCase)
                                        || Math.Abs(lastResolvedOffset - offset) > 0.01f;
 
-                        if (!lastShouldPlay || changed)
+                        bool playbackStopped = sys.IsActive && !sys.IsPlaybackRunning;
+
+                        if (!lastShouldPlay || changed || playbackStopped)
                         {
                             lastResolvedUrl = url;
                             lastResolvedOffset = offset;
@@ -232,7 +236,7 @@ namespace VsQuest
                     {
                         lastResolvedUrl = null;
                         lastResolvedOffset = 0f;
-                        sys.Stop();
+                        sys.Stop(fadeOutSeconds);
                     }
                 }
             }

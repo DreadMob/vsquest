@@ -9,7 +9,6 @@
     "vsquestSoundPitchMul": 0.55,
     "alegacyvsquestHideInfoText": true
   },
-  "drops": [],
   "client": {
     "renderer": "Shape",
     "shape": { "base": "game:entity/lore/eidolon/immobilized" },
@@ -32,6 +31,7 @@
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "reviveondeath", "minHours": 168, "maxHours": 192 },
       { "code": "health", "currenthealth": 650, "maxhealth": 650 },
+      { "code": "alegacyvsquestbosshealthbar", "show": true },
       { "code": "bosscombatmarker" },
       { "code": "questtarget", "targetId": "alstory:echo-proklyatiya:eidolon", "leashRange": 70, "returnMoveSpeed": 0.04, "leashCheckMs": 1000 },
       {
@@ -80,7 +80,7 @@
           {
             "code": "throwatentity",
             "entityCodes": ["player"],
-            "projectileCode": "thrownboulder-granite",
+            "projectileCode": "game:thrownboulder-granite",
             "projectileDamage": 9,
             "projectileDamageTier": 2,
             "priority": 1.6,
@@ -102,7 +102,7 @@
           {
             "code": "eidolonslam",
             "entityCodes": ["player"],
-            "projectileCode": "thrownboulder-granite",
+            "projectileCode": "game:thrownboulder-granite",
             "creatureCode": "locust-bronze",
             "projectileDamage": 8,
             "projectileDamageTier": 1,

@@ -115,7 +115,7 @@
             "victimWalkSpeedMult": 0.08,
             "damageIntervalMs": 550,
             "damage": 1.8,
-            "damageTier": 3,
+            "damageTier": 4,
             "damageType": "PiercingAttack",
             "windupAnimation": "run",
             "grabAnimation": "attack",
@@ -168,6 +168,43 @@
         ]
       },
       {
+        "code": "bosssummonritual",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.75,
+            "entityCode": "wolf",
+            "maxNearby": 6,
+            "nearbyRange": 35,
+            "minCount": 3,
+            "maxCount": 4,
+            "ritualMs": 2600,
+            "cooldownSeconds": 26,
+            "spawnRange": 9,
+            "animation": "howl",
+            "sound": "game:creature/wolf/howl",
+            "soundRange": 40,
+            "soundStartMs": 0,
+            "spawnDelayMs": 400
+          },
+          {
+            "whenHealthRelBelow": 0.4,
+            "entityCode": "wolf",
+            "maxNearby": 8,
+            "nearbyRange": 35,
+            "minCount": 4,
+            "maxCount": 6,
+            "ritualMs": 2800,
+            "cooldownSeconds": 22,
+            "spawnRange": 11,
+            "animation": "howl",
+            "sound": "game:creature/wolf/howl",
+            "soundRange": 45,
+            "soundStartMs": 0,
+            "spawnDelayMs": 350
+          }
+        ]
+      },
+      {
         "code": "bossgrowthritual",
         "stages": [
           {
@@ -204,7 +241,7 @@
             "entityCodes": ["player"],
             "priority": 2,
             "damage": 20,
-            "damageTier": 3,
+            "damageTier": 4,
             "minDist": 3.5,
             "minVerDist": 2.8,
             "attackAngleRangeDeg": 120,

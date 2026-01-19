@@ -207,7 +207,7 @@
             "entityCodes": ["player"],
             "priority": 2.2,
             "damage": 26,
-            "damageTier": 3,
+            "damageTier": 4,
             "minDist": 9.0,
             "minVerDist": 4.8,
             "attackAngleRangeDeg": 120,

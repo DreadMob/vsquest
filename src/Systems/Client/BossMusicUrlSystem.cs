@@ -44,7 +44,7 @@ namespace VsQuest
 
         private const float BossMusicVolumeMul = 0.22f;
 
-        private const float FadeOutSeconds = 2f;
+        private const float DefaultFadeOutSeconds = 2f;
 
         public override bool ShouldLoad(EnumAppSide forSide) => forSide == EnumAppSide.Client;
 
@@ -152,7 +152,10 @@ namespace VsQuest
 
                 if (sameStart)
                 {
-                    return;
+                    if (playTask != null && !playTask.IsCompleted)
+                    {
+                        return;
+                    }
                 }
 
                 if (playTask != null && !playTask.IsCompleted)
@@ -178,7 +181,7 @@ namespace VsQuest
             RestartPlayback();
         }
 
-        public void Stop()
+        public void Stop(float fadeOutSeconds = -1f)
         {
             if (capi == null) return;
 
@@ -196,12 +199,35 @@ namespace VsQuest
             currentUrl = null;
             currentStartAtSeconds = 0f;
 
-            FadeOutAndStop();
+            float fadeSeconds = fadeOutSeconds > 0f ? fadeOutSeconds : DefaultFadeOutSeconds;
+            if (fadeSeconds <= 0f)
+            {
+                StopPlayback(immediate: true);
+            }
+            else
+            {
+                FadeOutAndStop(fadeSeconds);
+            }
 
             StopSuppressVanillaMusic();
         }
 
         public bool IsActive => !string.IsNullOrWhiteSpace(currentKey) || !string.IsNullOrWhiteSpace(currentUrl);
+
+        public bool IsPlaybackRunning
+        {
+            get
+            {
+                try
+                {
+                    return playTask != null && !playTask.IsCompleted;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
 
         public (string key, string url) Current => (currentKey, currentUrl);
 
@@ -296,7 +322,7 @@ namespace VsQuest
             }, token);
         }
 
-        private void FadeOutAndStop()
+        private void FadeOutAndStop(float fadeOutSeconds)
         {
             try
             {
@@ -336,7 +362,7 @@ namespace VsQuest
                     }
 
                     int steps = 20;
-                    int delayMs = (int)Math.Max(10, (FadeOutSeconds * 1000f) / steps);
+                    int delayMs = (int)Math.Max(10, (fadeOutSeconds * 1000f) / steps);
 
                     for (int i = 0; i < steps; i++)
                     {

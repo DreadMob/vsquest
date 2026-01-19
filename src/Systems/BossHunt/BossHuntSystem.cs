@@ -491,6 +491,12 @@ namespace VsQuest
                     var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
                     if (questSystem != null)
                     {
+                        foreach (var player in sapi.World.AllOnlinePlayers)
+                        {
+                            if (player is not IServerPlayer serverPlayer) continue;
+                            QuestSystemAdminUtils.ClearQuestCooldownForPlayer(serverPlayer, previousQuestId);
+                        }
+
                         bool anyReset = false;
                         foreach (var player in sapi.World.AllOnlinePlayers)
                         {
