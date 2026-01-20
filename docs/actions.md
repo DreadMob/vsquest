@@ -1,6 +1,6 @@
 # Alegacy VS Quest Actions
 
-> **Documentation Version:** v1.2.0
+> **Documentation Version:** v1.3.0
 
 ---
 
@@ -145,6 +145,19 @@ Opens the quest selection GUI for the player, showing available quests from the 
 
 ---
 
+### `trackboss`
+
+Shows the distance to the active boss hunt target (or a specific boss key). Consumes HP and enforces a short cooldown per boss key.
+
+**Arguments:**
+- `[bossKey]` — Optional boss key to track. If omitted, uses the active boss hunt target.
+
+**Notes:**
+- Requires the player to have the active boss hunt quest (if configured).
+- Costs **3 HP** and has a **1 minute** cooldown per boss key.
+
+---
+
 ### `playsound`
 
 Plays a sound effect for the player.
@@ -152,6 +165,16 @@ Plays a sound effect for the player.
 **Arguments:**
 - `<soundLocation>` — Asset location of the sound (required)
 - `[volume]` — Volume level as float, default 1.0 (optional)
+
+---
+
+### `preloadbossmusic`
+
+Preloads (caches) one or more boss music URLs on the player's client. Useful before a boss encounter to avoid streaming hiccups.
+
+**Arguments:**
+- `<url1>` — First music URL to preload (required)
+- `[url2...]` — Additional URLs to preload
 
 ---
 
@@ -219,6 +242,15 @@ Adds or updates a journal entry for the player.
 
 - **Legacy format:** `addjournalentry <loreCode> <chapter1> [chapter2...]`
   - Title defaults to `loreCode`.
+
+---
+
+### `addvanillajournalentry`
+
+Adds or updates an entry in the vanilla `ModJournal` system (server-side). Useful when you want to show entries in the vanilla journal UI.
+
+**Arguments:**
+- `addvanillajournalentry <loreCode> <chapter1> [chapter2...]`
 
 ---
 
@@ -290,11 +322,59 @@ Removes one or more character traits from the player's `extraTraits` attribute.
 
 ---
 
+## Objective Helper Category
+
+### `resetwalkdistance`
+
+Resets the internal walk distance tracking for `walkdistance` objectives.
+
+**Arguments:**
+- `<questId>` — Quest ID used for tracking (required)
+- `[slot]` — Objective slot for multiple walk objectives (optional)
+
+---
+
+### `checkobjective`
+
+Forces a re-check of quest objectives (useful if progress is driven by manual actions rather than events).
+
+**Arguments:** None
+
+---
+
+### `markinteraction`
+
+Marks a coordinate string as interacted for objectives like `interactat`.
+
+**Arguments:**
+- `<x,y,z>` — Coordinate string to mark (required)
+
+---
+
+### `markentityinteraction`
+
+Marks an entity interaction for objectives like `interactwithentity`.
+
+**Arguments:**
+- `<entityId>` — Entity id as integer/long (required)
+
+---
+
 ## Entity Spawning Category
 
 ### `spawnentities`
 
 Spawns one or more entities at the quest giver's position. Each argument is treated as an entity code and spawned.
+
+**Arguments:**
+- `<entityCode1>` — First entity code to spawn (required)
+- `[entityCode2...]` — Additional entity codes, each spawned separately
+
+---
+
+### `spawnentitiesatplayer`
+
+Spawns one or more entities at the player's position.
 
 **Arguments:**
 - `<entityCode1>` — First entity code to spawn (required)
@@ -326,6 +406,33 @@ Spawns a smoke particle effect at the quest giver's position. Useful for dramati
 Recruits the current quest giver entity as a companion/guard for the player. Sets the `guardedPlayerUid` and `employedSince` attributes on the entity.
 
 **Arguments:** None
+
+---
+
+## Entity Control Category
+
+### `cycleentityanimation`
+
+Cycles a selected entity through an animation list, forcing the animation to loop.
+
+**Arguments:**
+- `[entityCode]` — Optional entity code filter; if set, only allows cycling when the selected entity matches
+- `[anim1...]` — Optional animation list; if omitted, uses the built-in boss animation list
+
+**Notes:**
+- The entity must be selected (targeted) by the player.
+
+---
+
+### `damageentity`
+
+Deals direct damage to the selected entity.
+
+**Arguments:**
+- `[damage]` — Damage amount (float). Defaults to 50.
+
+**Notes:**
+- The entity must be selected (targeted) by the player.
 
 ---
 

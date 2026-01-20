@@ -1,6 +1,6 @@
 # Alegacy VS Quest Chat Commands
 
-> **Documentation Version:** v1.2.0
+> **Documentation Version:** v1.3.0
 
 All commands require **`give` privilege** and are accessed via the `/vsq` command.
 
@@ -34,8 +34,11 @@ All commands require **`give` privilege** and are accessed via the `/vsq` comman
 | `/vsq qcheck` | `<playerName>` | Shows active/completed quests and progress for a player |
 | `/vsq qcomplete` | `<questId> <playerName>` | Force-completes a specific active quest for a player |
 | `/vsq qcompleteactive` | `[playerName]` | Force-completes the player's currently active quest |
+| `/vsq qca` | `[playerName]` | Alias for `/vsq qcompleteactive` |
 | `/vsq qstart` | `<questId> <playerName>` | Starts a quest for a player |
 | `/vsq qforgive` | `<modeOrQuestId> [playerName]` | Resets quests or notes for a player: `all`, `notes`, `active`, or a specific quest id |
+| `/vsq qfa` | `[playerName]` | Alias for `/vsq qforgive active` |
+| `/vsq qfall` | `[playerName]` | Alias for `/vsq qforgive all` |
 | `/vsq nforgive` | `[playerName]` | Removes all note entries from the journal for a player |
 | `/vsq exec` | `[playerName] <actionString>` | Executes an action string on a player. If no player is given, uses the caller |
 
@@ -50,6 +53,15 @@ Player attributes are persistent flags used for quest progress tracking.
 | `/vsq attr list` | `<playerName>` | Lists all watched quest attributes for an online player |
 | `/vsq attr set` | `<playerName> <key> <value>` | Sets a string attribute on an online player |
 | `/vsq attr remove` | `<playerName> <key>` | Removes an attribute from an online player |
+
+---
+
+### Boss Hunt
+
+| Command | Arguments | Description |
+|---------|-----------|-------------|
+| `/vsq bosshunt status` | — | Shows the current active boss key and time until rotation |
+| `/vsq bosshunt skip` | — | Forces rotation to the next boss entry |
 
 ### WatchedAttributes
 

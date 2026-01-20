@@ -249,7 +249,8 @@ namespace VsQuest
 
         private void ResolveDesiredMusic(BossMusicUrlSystem sys, out string url, out float offset)
         {
-            url = musicUrl;
+            bool preferKey = !string.IsNullOrWhiteSpace(musicKey);
+            url = preferKey ? null : musicUrl;
             offset = startAtSeconds;
 
             if (usePhases && phases.Count > 0)
@@ -285,7 +286,7 @@ namespace VsQuest
 
                 if (best != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(best.url)) url = best.url;
+                    if (!preferKey && !string.IsNullOrWhiteSpace(best.url)) url = best.url;
                     offset = best.startAtSeconds;
                 }
             }

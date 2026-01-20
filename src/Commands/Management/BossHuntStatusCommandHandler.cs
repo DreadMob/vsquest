@@ -27,7 +27,13 @@ namespace VsQuest
             }
 
             double daysLeft = hoursLeft / 24.0;
-            string msg = $"Bosshunt: '{bossKey}' (quest '{questId}'), rotation in {hoursLeft:0.0}h (~{daysLeft:0.0}d).";
+            string anchorInfo = "";
+            if (bossSystem.TryGetActiveBossAnchor(out var pos, out int dim, out string anchorId))
+            {
+                anchorInfo = $" Anchor: {anchorId ?? "(unnamed)"} @ x={pos.X:0.0} y={pos.Y:0.0} z={pos.Z:0.0} dim={dim}.";
+            }
+
+            string msg = $"Bosshunt: '{bossKey}' (quest '{questId}'), rotation in {hoursLeft:0.0}h (~{daysLeft:0.0}d).{anchorInfo}";
             return TextCommandResult.Success(msg);
         }
     }

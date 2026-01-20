@@ -15,6 +15,7 @@ namespace VsQuest
         protected const double LeashNoDamageGraceHours = 2.0 / 60.0;
         protected const float BossRegenHpPerSecond = 3f;
         protected const float DefaultBossOutOfCombatLeashRange = 10f;
+        protected const float LeashReturnStopDistance = 5f;
         public const string LeashRangeKey = "alegacyvsquest:spawner:leashRange";
         public const string OutOfCombatLeashRangeKey = "alegacyvsquest:spawner:outOfCombatLeashRange";
         protected string id;
@@ -154,7 +155,8 @@ namespace VsQuest
             var taskAi = agent.GetBehavior<EntityBehaviorTaskAI>();
             if (taskAi?.PathTraverser != null && taskAi.PathTraverser.Ready)
             {
-                taskAi.PathTraverser.NavigateTo_Async(anchor, returnMoveSpeed, 0.5f, null, null, null, 1000, 1, null);
+                float stopDistance = Math.Min(LeashReturnStopDistance, effectiveLeashRange);
+                taskAi.PathTraverser.NavigateTo_Async(anchor, returnMoveSpeed, stopDistance, null, null, null, 1000, 1, null);
             }
         }
 

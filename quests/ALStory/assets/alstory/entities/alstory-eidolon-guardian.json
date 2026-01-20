@@ -9,6 +9,35 @@
     "vsquestSoundPitchMul": 0.55,
     "alegacyvsquestHideInfoText": true
   },
+  "drops": [
+    {
+      "type": "item",
+      "code": "game:rustypart-eidolon2tr",
+      "quantity": { "avg": 1 }
+    },
+    {
+      "type": "item",
+      "code": "game:gear-temporal",
+      "dropModbyStat": "rustyGearDropRate",
+      "quantity": { "avg": 1.5, "var": 2, "dist": "invexp" }
+    },
+    {
+      "type": "item",
+      "code": "game:gear-rusty",
+      "dropModbyStat": "rustyGearDropRate",
+      "quantity": { "avg": 12, "var": 30, "dist": "invexp" }
+    },
+    {
+      "type": "block",
+      "code": "game:metal-parts",
+      "quantity": { "avg": 4.5, "var": 0.5 }
+    },
+    {
+      "type": "block",
+      "code": "game:metal-scraps",
+      "quantity": { "avg": 3, "var": 5, "dist": "invexp" }
+    }
+  ],
   "client": {
     "renderer": "Shape",
     "shape": { "base": "game:entity/lore/eidolon/immobilized" },
