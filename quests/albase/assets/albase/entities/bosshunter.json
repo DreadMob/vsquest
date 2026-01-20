@@ -7,7 +7,7 @@
       "base": "game:entity/humanoid/trader"
     },
     "texture": {
-      "base": "game:entity/humanoid/traderclothes/set4"
+      "base": "albase:bosshunter1"
     },
     "behaviors": [
       { "code": "nametag", "showtagonlywhentargeted": true },
@@ -16,10 +16,16 @@
       { "code": "interpolateposition" },
       { "code": "conversable", "dialogue": "config/dialogue/bosshunter" },
       { "code": "questgiver" }
+    ],
+    "animations": [
+      { "code": "idle", "animation": "SitFloorIdle", "blendMode": "AddAverage", "triggeredBy": { "defaultAnim": true } }
     ]
   },
   "code": "bosshunter",
-  "hitboxSize": { "x": 0.6, "y": 1.75 },
+  "hitboxSize": { "x": 0.6, "y": 1.2 },
+  "attributes": {
+    "alternativeCollisionBox": [0.6, 1.2]
+  },
   "server": {
     "behaviors": [
       {

@@ -12,6 +12,11 @@ namespace VsQuest
         private const string AttrBossKey = "alegacyvsquest:bosshuntanchor:bossKey";
         private const string AttrAnchorId = "alegacyvsquest:bosshuntanchor:anchorId";
         private const string AttrPointOrder = "alegacyvsquest:bosshuntanchor:pointOrder";
+        private const string AttrLeashRange = "alegacyvsquest:bosshuntanchor:leashRange";
+        private const string AttrOutOfCombatLeashRange = "alegacyvsquest:bosshuntanchor:outOfCombatLeashRange";
+        private const string AttrYOffset = "alegacyvsquest:bosshuntanchor:yOffset";
+
+        private const float DefaultOutOfCombatLeashRange = 10f;
 
         private const int PacketOpenGui = 2000;
         private const int PacketSave = 2001;
@@ -19,6 +24,9 @@ namespace VsQuest
         private string bossKey;
         private string anchorId;
         private int pointOrder;
+        private float leashRange;
+        private float outOfCombatLeashRange = DefaultOutOfCombatLeashRange;
+        private float yOffset;
 
         private BossHuntAnchorConfigGui dlg;
 
@@ -42,6 +50,9 @@ namespace VsQuest
             bossKey = attrs?["bossKey"].AsString(bossKey);
             anchorId = attrs?["anchorId"].AsString(anchorId);
             pointOrder = attrs?["pointOrder"].AsInt(pointOrder) ?? pointOrder;
+            leashRange = attrs?["leashRange"].AsFloat(leashRange) ?? leashRange;
+            outOfCombatLeashRange = attrs?["outOfCombatLeashRange"].AsFloat(outOfCombatLeashRange) ?? outOfCombatLeashRange;
+            yOffset = attrs?["yOffset"].AsFloat(yOffset) ?? yOffset;
 
             TryRegisterAnchor();
             MarkDirty(true);
@@ -54,6 +65,9 @@ namespace VsQuest
             bossKey = tree.GetString(AttrBossKey, bossKey);
             anchorId = tree.GetString(AttrAnchorId, anchorId);
             pointOrder = tree.GetInt(AttrPointOrder, pointOrder);
+            leashRange = tree.GetFloat(AttrLeashRange, leashRange);
+            outOfCombatLeashRange = tree.GetFloat(AttrOutOfCombatLeashRange, outOfCombatLeashRange);
+            yOffset = tree.GetFloat(AttrYOffset, yOffset);
         }
 
         public override void ToTreeAttributes(ITreeAttribute tree)
@@ -63,6 +77,9 @@ namespace VsQuest
             if (!string.IsNullOrWhiteSpace(bossKey)) tree.SetString(AttrBossKey, bossKey);
             if (!string.IsNullOrWhiteSpace(anchorId)) tree.SetString(AttrAnchorId, anchorId);
             tree.SetInt(AttrPointOrder, pointOrder);
+            tree.SetFloat(AttrLeashRange, leashRange);
+            tree.SetFloat(AttrOutOfCombatLeashRange, outOfCombatLeashRange);
+            tree.SetFloat(AttrYOffset, yOffset);
         }
 
         internal void OnInteract(IPlayer byPlayer)
@@ -151,6 +168,9 @@ namespace VsQuest
                 bossKey = bossKey,
                 anchorId = anchorId,
                 pointOrder = pointOrder,
+                leashRange = leashRange,
+                outOfCombatLeashRange = outOfCombatLeashRange,
+                yOffset = yOffset,
                 knownBossKeys = keys
             };
         }
@@ -162,6 +182,9 @@ namespace VsQuest
             bossKey = data.bossKey;
             anchorId = data.anchorId;
             pointOrder = data.pointOrder;
+            leashRange = data.leashRange;
+            outOfCombatLeashRange = data.outOfCombatLeashRange;
+            yOffset = data.yOffset;
 
             TryRegisterAnchor();
 
@@ -185,7 +208,7 @@ namespace VsQuest
             try
             {
                 var system = Api.ModLoader.GetModSystem<BossHuntSystem>();
-                system?.SetAnchorPoint(bossKey, anchorId, pointOrder, new BlockPos(Pos.X, Pos.Y, Pos.Z, Pos.dimension));
+                system?.SetAnchorPoint(bossKey, anchorId, pointOrder, new BlockPos(Pos.X, Pos.Y, Pos.Z, Pos.dimension), leashRange, outOfCombatLeashRange, yOffset);
             }
             catch
             {

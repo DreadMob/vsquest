@@ -266,6 +266,22 @@ namespace VsQuest
             catch
             {
             }
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(currentKey))
+                {
+                    var resolved = ResolveUrl(currentKey);
+                    if (!string.IsNullOrWhiteSpace(resolved)
+                        && !string.Equals(currentUrl ?? "", resolved ?? "", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Start(currentKey, resolved, currentStartAtSeconds);
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         private static string NormalizeUrl(string url)

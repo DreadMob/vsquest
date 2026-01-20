@@ -16,7 +16,7 @@
       { "code": "repulseagents", "movable": false },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "interpolateposition" },
-      { "code": "boss", "bossHpBarRange": 45, "musicTrack": "theresonancearchives-eidolon" },
+      { "code": "boss", "bossHpBarRange": 45, "musicTrack": "survival:music/theresonancearchives-eidolon" },
       { "code": "bossnametag", "nameLangKey": "alstory:item-creature-eidolon-guardian", "color": "#ff4d4d", "backgroundColor": "#120b0b", "backgroundOpacity": 0.45, "renderRange": 90 }
     ],
     "animations": [
@@ -72,7 +72,7 @@
             "attackAngleRangeDeg": 360,
             "animation": "slash",
             "animationSpeed": 1,
-            "sound": "creature/drifter-hit",
+            "sound": "game:creature/drifter-hit",
             "soundStartMs": 350,
             "minDist": 4,
             "minVerDist": 4

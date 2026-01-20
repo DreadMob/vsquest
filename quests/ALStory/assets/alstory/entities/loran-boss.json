@@ -19,7 +19,8 @@
     "animations": [
       { "code": "walk", "animation": "walk", "blendMode": "Average", "mulWithWalkSpeed": true, "animationSpeed": 1.1 },
       { "code": "run", "animation": "run", "blendMode": "Average", "mulWithWalkSpeed": true, "animationSpeed": 1.2 },
-      { "code": "hit", "animation": "hit", "blendMode": "Average", "animationSpeed": 1.1 },
+      { "code": "hit", "animation": "swordhit", "blendMode": "Average", "animationSpeed": 1.1 },
+      { "code": "attack", "animation": "lazy-attack", "blendMode": "Average", "weight": 10, "animationSpeed": 1.2 },
       { "code": "sneakidle", "animation": "sneakidle", "blendMode": "Average" },
       { "code": "die", "animation": "die", "animationSpeed": 1.75, "weight": 10, "blendMode": "AddAverage" },
       { "code": "hurt", "animation": "hurt", "animationSpeed": 2, "blendMode": "AddAverage" },
@@ -50,12 +51,16 @@
         "code": "bossdamageshield",
         "stages": [
           {
-            "whenHealthRelBelow": 0.6,
-            "shieldMs": 2000,
-            "windupMs": 150,
-            "cooldownSeconds": 18,
+            "whenHealthRelBelow": 1,
+            "shieldMs": 650,
+            "windupMs": 100,
+            "cooldownSeconds": 9,
             "incomingDamageMultiplier": 0.2,
             "animation": "sneakidle",
+            "animationStopMs": 600,
+            "repeatable": true,
+            "immobile": true,
+            "lockYaw": true,
             "sound": "game:effect/translocate-active",
             "soundRange": 24,
             "soundStartMs": 0,
@@ -120,7 +125,7 @@
             "maxcooldown": 2200,
             "damagePlayerAtMs": 450,
             "attackDurationMs": 1000,
-            "animation": "hit",
+            "animation": "swordhit",
             "animationSpeed": 0.9,
             "sound": "game:creature/drifter-hit",
             "soundStartMs": 350
@@ -162,9 +167,9 @@
   },
   "idleSoundRange": 14,
   "sounds": {
-    "hurt": "creature/drifter-hurt",
-    "death": "creature/drifter-death",
-    "idle": "creature/drifter-idle",
-    "attack": "creature/drifter-hit"
+    "hurt": "game:creature/drifter-hurt",
+    "death": "game:creature/drifter-death",
+    "idle": "game:creature/drifter-idle",
+    "attack": "game:creature/drifter-hit"
   }
 }

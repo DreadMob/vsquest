@@ -1,0 +1,49 @@
+{
+  "components": [
+    {
+      "code": "intro",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-witness-intro" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "main",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-witness-openquests", "jumpTo": "openquests" },
+        { "value": "albase:dialogue-witness-whoareyou", "jumpTo": "whoareyou" },
+        { "value": "albase:dialogue-witness-closechoice", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "whoareyou",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-witness-whoareyou-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "openquests",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "openquests",
+      "text": [
+        { "value": "albase:dialogue-witness-openquests-confirm" }
+      ]
+    },
+    {
+      "code": "close",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-witness-close-answer" }
+      ]
+    }
+  ]
+}

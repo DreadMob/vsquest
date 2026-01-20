@@ -12,6 +12,9 @@ namespace VsQuest
         public string bossKey;
         public string anchorId;
         public int pointOrder;
+        public float leashRange;
+        public float outOfCombatLeashRange;
+        public float yOffset;
         public string[] knownBossKeys;
     }
 
@@ -20,6 +23,9 @@ namespace VsQuest
         private const string KeyBossKey = "bossKey";
         private const string KeyAnchorId = "anchorId";
         private const string KeyPointOrder = "pointOrder";
+        private const string KeyLeashRange = "leashRange";
+        private const string KeyOutOfCombatLeashRange = "outOfCombatLeashRange";
+        private const string KeyYOffset = "yOffset";
 
         private readonly BlockPos bePos;
         private bool updating;
@@ -77,6 +83,18 @@ namespace VsQuest
                 .AddNumberInput(cur = fullRow.BelowCopy(0, -10).WithFixedSize(120, 29), null, CairoFont.WhiteDetailText(), KeyPointOrder);
 
             SingleComposer
+                .AddStaticText("Leash range", CairoFont.WhiteDetailText(), fullRow = cur.BelowCopy(0, 10).WithFixedSize(420, 30))
+                .AddNumberInput(cur = fullRow.BelowCopy(0, -10).WithFixedSize(120, 29), null, CairoFont.WhiteDetailText(), KeyLeashRange);
+
+            SingleComposer
+                .AddStaticText("Out-of-combat leash", CairoFont.WhiteDetailText(), fullRow = cur.BelowCopy(0, 10).WithFixedSize(420, 30))
+                .AddNumberInput(cur = fullRow.BelowCopy(0, -10).WithFixedSize(120, 29), null, CairoFont.WhiteDetailText(), KeyOutOfCombatLeashRange);
+
+            SingleComposer
+                .AddStaticText("Y offset (surface + offset)", CairoFont.WhiteDetailText(), fullRow = cur.BelowCopy(0, 10).WithFixedSize(420, 30))
+                .AddNumberInput(cur = fullRow.BelowCopy(0, -10).WithFixedSize(120, 29), null, CairoFont.WhiteDetailText(), KeyYOffset);
+
+            SingleComposer
                 .AddSmallButton("Close", OnButtonClose, closeButtonBounds.FixedUnder(cur, 10))
                 .AddSmallButton("Save", OnButtonSave, saveButtonBounds.FixedUnder(cur, 10))
                 .EndChildElements()
@@ -106,6 +124,9 @@ namespace VsQuest
             data.knownBossKeys = Data?.knownBossKeys;
             data.anchorId = SingleComposer.GetTextInput(KeyAnchorId).GetText();
             data.pointOrder = (int)SingleComposer.GetNumberInput(KeyPointOrder).GetValue();
+            data.leashRange = (float)SingleComposer.GetNumberInput(KeyLeashRange).GetValue();
+            data.outOfCombatLeashRange = (float)SingleComposer.GetNumberInput(KeyOutOfCombatLeashRange).GetValue();
+            data.yOffset = (float)SingleComposer.GetNumberInput(KeyYOffset).GetValue();
 
             capi.Network.SendBlockEntityPacket(bePos, 2001, SerializerUtil.Serialize(data));
             return true;
@@ -131,6 +152,9 @@ namespace VsQuest
 
             SingleComposer.GetTextInput(KeyAnchorId).SetValue(data.anchorId ?? "");
             SingleComposer.GetNumberInput(KeyPointOrder).SetValue(data.pointOrder);
+            SingleComposer.GetNumberInput(KeyLeashRange).SetValue(data.leashRange);
+            SingleComposer.GetNumberInput(KeyOutOfCombatLeashRange).SetValue(data.outOfCombatLeashRange);
+            SingleComposer.GetNumberInput(KeyYOffset).SetValue(data.yOffset);
 
             updating = false;
         }

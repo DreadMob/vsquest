@@ -193,7 +193,7 @@ namespace VsQuest
             return list.ToArray();
         }
 
-        public void SetAnchorPoint(string bossKey, string anchorId, int pointOrder, BlockPos pos)
+        public void SetAnchorPoint(string bossKey, string anchorId, int pointOrder, BlockPos pos, float leashRange, float outOfCombatLeashRange, float yOffset)
         {
             if (sapi == null) return;
             if (string.IsNullOrWhiteSpace(bossKey)) return;
@@ -234,6 +234,9 @@ namespace VsQuest
             existing.y = pos.Y;
             existing.z = pos.Z;
             existing.dim = pos.dimension;
+            existing.leashRange = leashRange;
+            existing.outOfCombatLeashRange = outOfCombatLeashRange;
+            existing.yOffset = yOffset;
 
             stateDirty = true;
             orderedAnchorsDirty.Add(bossKey);
@@ -299,7 +302,7 @@ namespace VsQuest
                 return true;
             }
 
-            if (!TryGetPoint(cfg, st, st.currentPointIndex, out var p, out int dim)) return false;
+            if (!TryGetPoint(cfg, st, st.currentPointIndex, out var p, out int dim, out _)) return false;
             pos = p;
             dimension = dim;
             isLiveEntity = false;
@@ -659,6 +662,7 @@ namespace VsQuest
             // Handle respawn timer
             if (st.deadUntilTotalHours > nowHours)
             {
+                st.spawnScheduledAtTotalHours = 0;
                 SaveStateIfDirty();
                 return;
             }
@@ -666,12 +670,41 @@ namespace VsQuest
             // Ensure boss is spawned when a player comes close to its current point.
             if (!bossAlive)
             {
-                if (TryGetPoint(cfg, st, st.currentPointIndex, out var point, out int pointDim)
+                if (st.spawnScheduledAtTotalHours > 0 && nowHours < st.spawnScheduledAtTotalHours)
+                {
+                    SaveStateIfDirty();
+                    return;
+                }
+
+                if (TryGetPoint(cfg, st, st.currentPointIndex, out var point, out int pointDim, out var anchorPoint)
                     && AnyPlayerNear(point.X, point.Y, point.Z, pointDim, cfg.GetActivationRange()))
                 {
+                    if (st.spawnScheduledAtTotalHours <= 0)
+                    {
+                        double delayHours = cfg.GetSpawnDelayHours();
+                        st.spawnScheduledAtTotalHours = nowHours + delayHours;
+                        stateDirty = true;
+                        SaveStateIfDirty();
+                        return;
+                    }
+
+                    st.spawnScheduledAtTotalHours = 0;
                     DebugLog($"Spawn attempt: bossKey={bossKey} point={point.X:0.0},{point.Y:0.0},{point.Z:0.0} dim={pointDim} anchors={st.anchorPoints?.Count ?? 0} deadUntil={st.deadUntilTotalHours:0.00} now={nowHours:0.00}");
-                    TrySpawnBoss(cfg, point, pointDim);
+                    TrySpawnBoss(cfg, point, pointDim, anchorPoint);
                 }
+                else
+                {
+                    if (st.spawnScheduledAtTotalHours > 0)
+                    {
+                        st.spawnScheduledAtTotalHours = 0;
+                        stateDirty = true;
+                    }
+                }
+            }
+            else if (st.spawnScheduledAtTotalHours > 0)
+            {
+                st.spawnScheduledAtTotalHours = 0;
+                stateDirty = true;
             }
 
             SaveStateIfDirty();
@@ -797,7 +830,7 @@ namespace VsQuest
             return null;
         }
 
-        private void TrySpawnBoss(BossHuntConfig cfg, Vec3d point, int dim)
+        private void TrySpawnBoss(BossHuntConfig cfg, Vec3d point, int dim, BossHuntAnchorPoint anchorPoint)
         {
             if (cfg == null) return;
             if (point == null) return;
@@ -834,13 +867,36 @@ namespace VsQuest
 
                 if (entity.WatchedAttributes != null)
                 {
-                    entity.WatchedAttributes.SetString("alegacyvsquest:killaction:targetid", cfg.bossKey);
-                    entity.WatchedAttributes.MarkPathDirty("alegacyvsquest:killaction:targetid");
+                    var wa = entity.WatchedAttributes;
+                    wa.SetString("alegacyvsquest:killaction:targetid", cfg.bossKey);
+                    wa.MarkPathDirty("alegacyvsquest:killaction:targetid");
+
+                    if (anchorPoint != null)
+                    {
+                        if (anchorPoint.leashRange > 0f)
+                        {
+                            wa.SetFloat(EntityBehaviorQuestTarget.LeashRangeKey, anchorPoint.leashRange);
+                            wa.MarkPathDirty(EntityBehaviorQuestTarget.LeashRangeKey);
+                        }
+
+                        if (anchorPoint.outOfCombatLeashRange > 0f)
+                        {
+                            wa.SetFloat(EntityBehaviorQuestTarget.OutOfCombatLeashRangeKey, anchorPoint.outOfCombatLeashRange);
+                            wa.MarkPathDirty(EntityBehaviorQuestTarget.OutOfCombatLeashRangeKey);
+                        }
+                    }
                 }
 
-                EntityBehaviorQuestTarget.SetSpawnerAnchor(entity, new BlockPos((int)point.X, (int)point.Y, (int)point.Z, dim));
+                double spawnY = point.Y;
+                if (anchorPoint != null)
+                {
+                    int surfaceY = sapi.World.BlockAccessor.GetRainMapHeightAt((int)point.X, (int)point.Z);
+                    spawnY = surfaceY + anchorPoint.yOffset;
+                }
 
-                entity.ServerPos.SetPosWithDimension(new Vec3d(point.X, point.Y + dim * 32768.0, point.Z));
+                EntityBehaviorQuestTarget.SetSpawnerAnchor(entity, new BlockPos((int)point.X, (int)spawnY, (int)point.Z, dim));
+
+                entity.ServerPos.SetPosWithDimension(new Vec3d(point.X, spawnY + dim * 32768.0, point.Z));
                 entity.Pos.SetFrom(entity.ServerPos);
 
                 sapi.World.SpawnEntity(entity);
@@ -902,10 +958,11 @@ namespace VsQuest
             return cfg?.points?.Count ?? 0;
         }
 
-        private bool TryGetPoint(BossHuntConfig cfg, BossHuntStateEntry st, int index, out Vec3d point, out int dim)
+        private bool TryGetPoint(BossHuntConfig cfg, BossHuntStateEntry st, int index, out Vec3d point, out int dim, out BossHuntAnchorPoint anchorPoint)
         {
             point = null;
             dim = 0;
+            anchorPoint = null;
 
             if (st?.anchorPoints != null && st.anchorPoints.Count > 0)
             {
@@ -915,6 +972,7 @@ namespace VsQuest
                     var ap = ordered[index];
                     point = new Vec3d(ap.x, ap.y, ap.z);
                     dim = ap.dim;
+                    anchorPoint = ap;
                     return true;
                 }
             }
@@ -1110,6 +1168,7 @@ namespace VsQuest
             public double relocateIntervalHours;
             public double respawnInGameHours;
             public double noRelocateAfterDamageMinutes;
+            public double spawnDelaySeconds;
 
             public float activationRange;
             public float playerLockRange;
@@ -1143,6 +1202,7 @@ namespace VsQuest
             public double GetRelocateIntervalHours() => relocateIntervalHours > 0 ? relocateIntervalHours : 72;
             public double GetRespawnHours() => respawnInGameHours > 0 ? respawnInGameHours : 24;
             public double GetNoRelocateAfterDamageHours() => noRelocateAfterDamageMinutes > 0 ? (noRelocateAfterDamageMinutes / 60.0) : (10.0 / 60.0);
+            public double GetSpawnDelayHours() => spawnDelaySeconds > 0 ? (spawnDelaySeconds / 3600.0) : (10.0 / 3600.0);
             public float GetActivationRange() => activationRange > 0 ? activationRange : 160f;
             public float GetPlayerLockRange() => playerLockRange > 0 ? playerLockRange : 40f;
 
@@ -1174,6 +1234,7 @@ namespace VsQuest
             public int currentPointIndex;
             public double nextRelocateAtTotalHours;
             public double deadUntilTotalHours;
+            public double spawnScheduledAtTotalHours;
 
             public List<BossHuntAnchorPoint> anchorPoints;
         }
@@ -1187,6 +1248,9 @@ namespace VsQuest
             public int y;
             public int z;
             public int dim;
+            public float leashRange;
+            public float outOfCombatLeashRange;
+            public float yOffset;
         }
     }
 }

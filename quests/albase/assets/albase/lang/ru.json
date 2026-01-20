@@ -40,6 +40,16 @@
   "albase:tradingwindow-priest": "Священник",
   "item-creature-priest": "Священник",
 
+  "albase:witness-title": "Свидетель",
+  "albase:dialogue-witness-intro": "Свидетель молчит, но его взгляд тяжелее слов.",
+  "albase:dialogue-witness-openquests": "Мне нужна работа.",
+  "albase:dialogue-witness-openquests-confirm": "Скажи, что нужно сделать.",
+  "albase:dialogue-witness-whoareyou": "Кто ты?",
+  "albase:dialogue-witness-whoareyou-answer": "Я наблюдаю и запоминаю. Этого достаточно.",
+  "albase:dialogue-witness-closechoice": "Я вернусь позже.",
+  "albase:dialogue-witness-close-answer": "Иди. Я подожду.",
+  "albase:no-quest-available-witness": "Сейчас у свидетеля нет дел.",
+
   "albase:bosshunt-intro-title": "Охота на Боссов",
   "albase:bosshunt-title": "Скиталец",
   "albase:bosshunt-intro-desc": "Угрюмый мужчина в углу таверны предлагает опасную работу. Он ищет тех, кто готов спуститься в древние крипты и бросить вызов их стражам. Это не погоня за славой, а жестокий труд, где выживание — единственная награда.",

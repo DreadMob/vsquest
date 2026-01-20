@@ -14,9 +14,13 @@ namespace VsQuest
 
         protected const double LeashNoDamageGraceHours = 2.0 / 60.0;
         protected const float BossRegenHpPerSecond = 3f;
+        protected const float DefaultBossOutOfCombatLeashRange = 10f;
+        public const string LeashRangeKey = "alegacyvsquest:spawner:leashRange";
+        public const string OutOfCombatLeashRangeKey = "alegacyvsquest:spawner:outOfCombatLeashRange";
         protected string id;
         protected float? maxHealthOverride;
         protected float leashRange;
+        protected float bossOutOfCombatLeashRange;
         protected float returnMoveSpeed;
         protected int leashCheckMs;
         protected long lastLeashCheckMs;
@@ -42,11 +46,25 @@ namespace VsQuest
             leashRange = attributes["leashRange"].AsFloat(0);
             returnMoveSpeed = attributes["returnMoveSpeed"].AsFloat(0.04f);
             leashCheckMs = attributes["leashCheckMs"].AsInt(1000);
+            bossOutOfCombatLeashRange = DefaultBossOutOfCombatLeashRange;
 
             if (entity?.WatchedAttributes != null)
             {
-                string waId = entity.WatchedAttributes.GetString(WatchedIdKey, null);
+                var wa = entity.WatchedAttributes;
+                string waId = wa.GetString(WatchedIdKey, null);
                 if (!string.IsNullOrWhiteSpace(waId)) id = waId;
+
+                float waLeashRange = wa.GetFloat(LeashRangeKey, float.NaN);
+                if (!float.IsNaN(waLeashRange) && waLeashRange > 0f)
+                {
+                    leashRange = waLeashRange;
+                }
+
+                float waOutOfCombatLeashRange = wa.GetFloat(OutOfCombatLeashRangeKey, float.NaN);
+                if (!float.IsNaN(waOutOfCombatLeashRange))
+                {
+                    bossOutOfCombatLeashRange = waOutOfCombatLeashRange;
+                }
             }
 
             if (entity?.Api?.Side == EnumAppSide.Server)
@@ -122,10 +140,16 @@ namespace VsQuest
 
             if (!TryGetAnchor(out var anchor)) return;
 
+            float effectiveLeashRange = leashRange;
+            if (!noDamageGraceActive && agent.HasBehavior<EntityBehaviorBossCombatMarker>() && bossOutOfCombatLeashRange > 0f)
+            {
+                effectiveLeashRange = Math.Min(effectiveLeashRange, bossOutOfCombatLeashRange);
+            }
+
             double dx = agent.ServerPos.X - anchor.X;
             double dy = agent.ServerPos.Y - anchor.Y;
             double dz = agent.ServerPos.Z - anchor.Z;
-            if ((dx * dx + dy * dy + dz * dz) <= leashRange * leashRange) return;
+            if ((dx * dx + dy * dy + dz * dz) <= effectiveLeashRange * effectiveLeashRange) return;
 
             var taskAi = agent.GetBehavior<EntityBehaviorTaskAI>();
             if (taskAi?.PathTraverser != null && taskAi.PathTraverser.Ready)

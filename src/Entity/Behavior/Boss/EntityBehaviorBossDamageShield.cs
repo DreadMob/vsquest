@@ -20,6 +20,10 @@ namespace VsQuest
             public int windupMs;
             public float cooldownSeconds;
 
+            public bool repeatable;
+            public bool immobileDuringShield;
+            public bool lockYawDuringShield;
+
             public float incomingDamageMultiplier;
 
             public string animation;
@@ -45,6 +49,11 @@ namespace VsQuest
         private long startShieldCallbackId;
         private readonly BossBehaviorUtils.LoopSound loopSoundPlayer = new BossBehaviorUtils.LoopSound();
 
+        private bool immobileDuringShield;
+        private bool lockYawDuringShield;
+        private bool yawLocked;
+        private float lockedYaw;
+
         public EntityBehaviorBossDamageShield(Entity entity) : base(entity)
         {
         }
@@ -69,6 +78,10 @@ namespace VsQuest
                         shieldMs = stageObj["shieldMs"].AsInt(2500),
                         windupMs = stageObj["windupMs"].AsInt(0),
                         cooldownSeconds = stageObj["cooldownSeconds"].AsFloat(0f),
+
+                        repeatable = stageObj["repeatable"].AsBool(false),
+                        immobileDuringShield = stageObj["immobile"].AsBool(false),
+                        lockYawDuringShield = stageObj["lockYaw"].AsBool(false),
 
                         incomingDamageMultiplier = stageObj["incomingDamageMultiplier"].AsFloat(0.25f),
 
@@ -113,6 +126,16 @@ namespace VsQuest
 
             if (shieldActive)
             {
+                if (immobileDuringShield)
+                {
+                    BossBehaviorUtils.StopAiAndFreeze(entity);
+                }
+
+                if (lockYawDuringShield)
+                {
+                    BossBehaviorUtils.ApplyRotationLock(entity, ref yawLocked, ref lockedYaw);
+                }
+
                 if (sapi.World.ElapsedMilliseconds >= shieldEndsAtMs)
                 {
                     StopShield();
@@ -131,8 +154,11 @@ namespace VsQuest
                 {
                     if (!BossBehaviorUtils.IsCooldownReady(sapi, entity, LastShieldStartMsKey, stage.cooldownSeconds)) return;
 
-                    entity.WatchedAttributes.SetInt(ShieldStageKey, i + 1);
-                    entity.WatchedAttributes.MarkPathDirty(ShieldStageKey);
+                    if (!stage.repeatable)
+                    {
+                        entity.WatchedAttributes.SetInt(ShieldStageKey, i + 1);
+                        entity.WatchedAttributes.MarkPathDirty(ShieldStageKey);
+                    }
 
                     StartShield(stage, i);
                     break;
@@ -174,6 +200,9 @@ namespace VsQuest
 
             shieldActive = true;
             activeStageIndex = stageIndex;
+            immobileDuringShield = stage.immobileDuringShield;
+            lockYawDuringShield = stage.lockYawDuringShield;
+            yawLocked = false;
 
             shieldStartedAtMs = sapi.World.ElapsedMilliseconds;
             shieldEndsAtMs = shieldStartedAtMs + Math.Max(200, stage.windupMs + stage.shieldMs);
@@ -182,6 +211,16 @@ namespace VsQuest
 
             TryPlaySound(stage);
             TryStartLoopSound(stage);
+
+            if (immobileDuringShield)
+            {
+                BossBehaviorUtils.StopAiAndFreeze(entity);
+            }
+
+            if (lockYawDuringShield)
+            {
+                BossBehaviorUtils.ApplyRotationLock(entity, ref yawLocked, ref lockedYaw);
+            }
 
             if (stage.windupMs > 0)
             {
@@ -201,6 +240,9 @@ namespace VsQuest
             BossBehaviorUtils.UnregisterCallbackSafe(sapi, ref startShieldCallbackId);
 
             shieldActive = false;
+            immobileDuringShield = false;
+            lockYawDuringShield = false;
+            yawLocked = false;
 
             shieldStartedAtMs = 0;
             shieldEndsAtMs = 0;

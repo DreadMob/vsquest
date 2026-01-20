@@ -45,8 +45,8 @@
     ]
   },
   "sounds": {
-    "hurt": "creature/drifter-hurt",
-    "death": "creature/drifter-death",
-    "idle": "creature/drifter-idle"
+    "hurt": "game:creature/drifter-hurt",
+    "death": "game:creature/drifter-death",
+    "idle": "game:creature/drifter-idle"
   }
 }

@@ -1,4 +1,5 @@
 using HarmonyLib;
+using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
@@ -8,9 +9,21 @@ namespace VsQuest.Harmony
     [HarmonyPatch]
     public static class EntityPlayerBotInteractPatch
     {
+        private static Type ResolveTargetType()
+        {
+            return AccessTools.TypeByName("Vintagestory.API.Common.Entities.EntityPlayerBot")
+                   ?? AccessTools.TypeByName("Vintagestory.GameContent.EntityPlayerBot");
+        }
+
+        public static bool Prepare()
+        {
+            var type = ResolveTargetType();
+            return type != null && AccessTools.Method(type, "OnInteract") != null;
+        }
+
         public static System.Reflection.MethodBase TargetMethod()
         {
-            var type = AccessTools.TypeByName("Vintagestory.API.Common.Entities.EntityPlayerBot");
+            var type = ResolveTargetType();
             return type == null ? null : AccessTools.Method(type, "OnInteract");
         }
 
@@ -28,7 +41,6 @@ namespace VsQuest.Harmony
                 if (!eplr.Controls.Sneak) return true;
                 if (mode != EnumInteractMode.Interact) return true;
                 if (byEntity.World.Side != EnumAppSide.Server) return true;
-                if (eplr.Player?.WorldData?.CurrentGameMode != EnumGameMode.Creative) return true;
 
                 return false;
             }

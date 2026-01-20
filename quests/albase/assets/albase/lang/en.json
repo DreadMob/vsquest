@@ -39,6 +39,16 @@
   "albase:tradingwindow-priest": "Priest",
   "item-creature-priest": "Priest",
 
+  "albase:witness-title": "Witness",
+  "albase:dialogue-witness-intro": "The witness keeps silent, but the gaze is heavier than words.",
+  "albase:dialogue-witness-openquests": "I need work.",
+  "albase:dialogue-witness-openquests-confirm": "Tell me what must be done.",
+  "albase:dialogue-witness-whoareyou": "Who are you?",
+  "albase:dialogue-witness-whoareyou-answer": "I observe and remember. That is enough.",
+  "albase:dialogue-witness-closechoice": "I'll return later.",
+  "albase:dialogue-witness-close-answer": "Go. I will wait.",
+  "albase:no-quest-available-witness": "The witness has no work right now.",
+
   "albase:bosshunt-intro-title": "Wanderer: Prologue",
   "albase:bosshunt-intro-desc": "A grim wanderer offers you a path into the crypts. Prove you can follow a trail without flinching when the dark answers back.\n\nThe tracker crystal will not guide you—only whisper distance. Every whisper costs blood.",
   "albase:bosshunt-intro-journal-text": "A wanderer in the tavern spoke of ancient wardens and their shifting trails. He promised a crystal that can reveal the distance to the target—at a price.\n\nHe speaks calmly, but his stare feels like he has already watched you die—he is only measuring how long it will take.",
