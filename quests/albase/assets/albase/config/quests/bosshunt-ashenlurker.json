@@ -1,6 +1,6 @@
 {
   "id": "albase:bosshunt-ashenlurker",
-  "cooldown": 60,
+  "cooldown": 90,
   "perPlayer": true,
   "predecessor": "albase:bosshunt-intro",
   "onAcceptedActions": [

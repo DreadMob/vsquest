@@ -276,6 +276,47 @@ Adds an integer delta to a player's watched attribute.
 
 ---
 
+### `addreputation`
+
+Adds reputation for an NPC or faction. Rewards are **claimed manually** in the reputation UI when rank thresholds are met.
+
+**Arguments:**
+- `<scope>` — `npc` or `faction`
+- `<id>` — Reputation id (e.g., `albase:bosshunter`)
+- `<delta>` — Integer delta to add
+- `[max]` — Optional maximum value clamp
+- `[onceKey]` — Optional WatchedAttributes key to prevent repeated changes
+
+---
+
+## Reputation Rank Rewards (config/reputation.json)
+
+Rank rewards are configured in `assets/<modid>/config/reputation.json` on each faction/NPC rank. Rewards are **claimed manually** from the reputation tab in the quest UI (button appears when rewards are available).
+
+**Rank fields:**
+- `rewardAction` — Action string executed when the reward is claimed
+- `rewardOnceKey` — Optional WatchedAttributes key to prevent multiple claims (auto-generated if omitted)
+
+**Example:**
+```json
+{
+  "factions": {
+    "albase:hunterguild": {
+      "ranks": [
+        {
+          "min": 50,
+          "rankLangKey": "albase:rank-hunter",
+          "rewardAction": "giveitem albase:hunterbadge 1",
+          "rewardOnceKey": "albase:rep-reward:hunter"
+        }
+      ]
+    }
+  }
+}
+```
+
+---
+
 ### `removeplayerattribute`
 
 Removes a persistent attribute from the player's watched attributes.

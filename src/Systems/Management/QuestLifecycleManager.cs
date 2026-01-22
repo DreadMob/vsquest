@@ -173,6 +173,23 @@ namespace VsQuest
                 RewardPlayer(fromPlayer, message, sapi, questgiver);
                 MarkQuestCompleted(fromPlayer, message, questgiver);
 
+                // Standard reputation gain for any completed quest
+                try
+                {
+                    var repSystem = sapi?.ModLoader?.GetModSystem<ReputationSystem>();
+                    if (repSystem != null
+                        && message.questGiverId != 0
+                        && repSystem.TryResolveQuestGiverReputation(sapi, message.questGiverId, out string repNpcId, out _)
+                        && !string.IsNullOrWhiteSpace(repNpcId))
+                    {
+                        int current = repSystem.GetReputationValue(fromPlayer as IPlayer, ReputationScope.Npc, repNpcId);
+                        repSystem.ApplyReputationChange(sapi, fromPlayer, ReputationScope.Npc, repNpcId, current + 50, false);
+                    }
+                }
+                catch
+                {
+                }
+
                 try
                 {
                     string title = LocalizationUtils.GetSafe(message.questId + "-title");

@@ -1,0 +1,36 @@
+{
+  "factions": {
+    "alegacyvsquest:default": {
+      "titleLangKey": "alegacyvsquest:reputation-default-title",
+      "ranks": [
+        { "min": 0, "rankLangKey": "alegacyvsquest:reputation-rank-neutral" }
+      ]
+    }
+  },
+  "npcs": {
+    "alegacyvsquest:default": {
+      "titleLangKey": "alegacyvsquest:reputation-default-title",
+      "ranks": [
+        { "min": 0, "rankLangKey": "alegacyvsquest:reputation-rank-neutral" }
+      ]
+    },
+    "albase:bosshunter": {
+      "titleLangKey": "alegacyvsquest:reputation-npc-bosshunter-title",
+      "ranks": [
+        { "min": 0, "rankLangKey": "alegacyvsquest:reputation-rank-neutral" },
+        { "min": 50, "rankLangKey": "alegacyvsquest:reputation-rank-friendly" },
+        { "min": 150, "rankLangKey": "alegacyvsquest:reputation-rank-honored" },
+        { "min": 300, "rankLangKey": "alegacyvsquest:reputation-rank-revered" }
+      ]
+    },
+    "albase:innkeeper": {
+      "titleLangKey": "alegacyvsquest:reputation-npc-innkeeper-title",
+      "ranks": [
+        { "min": 0, "rankLangKey": "alegacyvsquest:reputation-rank-neutral" },
+        { "min": 25, "rankLangKey": "alegacyvsquest:reputation-rank-friendly" },
+        { "min": 100, "rankLangKey": "alegacyvsquest:reputation-rank-honored" },
+        { "min": 250, "rankLangKey": "alegacyvsquest:reputation-rank-revered" }
+      ]
+    }
+  }
+}

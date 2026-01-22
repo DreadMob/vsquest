@@ -27,13 +27,26 @@ namespace VsQuest
         private int noAvailableQuestCooldownDaysLeft;
         private int noAvailableQuestRotationDaysLeft;
 
+        private string reputationNpcId;
+        private string reputationFactionId;
+        private int reputationNpcValue;
+        private int reputationFactionValue;
+        private string reputationNpcRankLangKey;
+        private string reputationFactionRankLangKey;
+        private string reputationNpcTitleLangKey;
+        private string reputationFactionTitleLangKey;
+        private bool reputationNpcHasRewards;
+        private bool reputationFactionHasRewards;
+        private int reputationNpcRewardsCount;
+        private int reputationFactionRewardsCount;
+
         private int curTab = 0;
         private bool closeGuiAfterAcceptingAndCompleting;
-        public QuestSelectGui(ICoreClientAPI capi, long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, QuestConfig questConfig, string noAvailableQuestDescLangKey = null, string noAvailableQuestCooldownDescLangKey = null, int noAvailableQuestCooldownDaysLeft = 0, int noAvailableQuestRotationDaysLeft = 0) : base(capi)
+        public QuestSelectGui(ICoreClientAPI capi, long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, QuestConfig questConfig, string noAvailableQuestDescLangKey = null, string noAvailableQuestCooldownDescLangKey = null, int noAvailableQuestCooldownDaysLeft = 0, int noAvailableQuestRotationDaysLeft = 0, string reputationNpcId = null, string reputationFactionId = null, int reputationNpcValue = 0, int reputationFactionValue = 0, string reputationNpcRankLangKey = null, string reputationFactionRankLangKey = null, string reputationNpcTitleLangKey = null, string reputationFactionTitleLangKey = null, bool reputationNpcHasRewards = false, bool reputationFactionHasRewards = false, int reputationNpcRewardsCount = 0, int reputationFactionRewardsCount = 0) : base(capi)
         {
             player = capi.World.Player;
             closeGuiAfterAcceptingAndCompleting = questConfig.CloseGuiAfterAcceptingAndCompleting;
-            ApplyData(questGiverId, availableQuestIds, activeQuests, noAvailableQuestDescLangKey, noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft, noAvailableQuestRotationDaysLeft);
+            ApplyData(questGiverId, availableQuestIds, activeQuests, noAvailableQuestDescLangKey, noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft, noAvailableQuestRotationDaysLeft, reputationNpcId, reputationFactionId, reputationNpcValue, reputationFactionValue, reputationNpcRankLangKey, reputationFactionRankLangKey, reputationNpcTitleLangKey, reputationFactionTitleLangKey, reputationNpcHasRewards, reputationFactionHasRewards, reputationNpcRewardsCount, reputationFactionRewardsCount);
             RequestRecompose();
         }
 
@@ -63,15 +76,28 @@ namespace VsQuest
             }, "alegacyvsquest-closedropdown");
         }
 
-        private void ApplyData(long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, string noAvailableQuestDescLangKey, string noAvailableQuestCooldownDescLangKey, int noAvailableQuestCooldownDaysLeft, int noAvailableQuestRotationDaysLeft)
+        private void ApplyData(long questGiverId, List<string> availableQuestIds, List<ActiveQuest> activeQuests, string noAvailableQuestDescLangKey, string noAvailableQuestCooldownDescLangKey, int noAvailableQuestCooldownDaysLeft, int noAvailableQuestRotationDaysLeft, string reputationNpcId, string reputationFactionId, int reputationNpcValue, int reputationFactionValue, string reputationNpcRankLangKey, string reputationFactionRankLangKey, string reputationNpcTitleLangKey, string reputationFactionTitleLangKey, bool reputationNpcHasRewards, bool reputationFactionHasRewards, int reputationNpcRewardsCount, int reputationFactionRewardsCount)
         {
             this.questGiverId = questGiverId;
             this.availableQuestIds = availableQuestIds;
             this.activeQuests = activeQuests;
+
             this.noAvailableQuestDescLangKey = noAvailableQuestDescLangKey;
             this.noAvailableQuestCooldownDescLangKey = noAvailableQuestCooldownDescLangKey;
             this.noAvailableQuestCooldownDaysLeft = noAvailableQuestCooldownDaysLeft;
             this.noAvailableQuestRotationDaysLeft = noAvailableQuestRotationDaysLeft;
+            this.reputationNpcId = reputationNpcId;
+            this.reputationFactionId = reputationFactionId;
+            this.reputationNpcValue = reputationNpcValue;
+            this.reputationFactionValue = reputationFactionValue;
+            this.reputationNpcRankLangKey = reputationNpcRankLangKey;
+            this.reputationFactionRankLangKey = reputationFactionRankLangKey;
+            this.reputationNpcTitleLangKey = reputationNpcTitleLangKey;
+            this.reputationFactionTitleLangKey = reputationFactionTitleLangKey;
+            this.reputationNpcHasRewards = reputationNpcHasRewards;
+            this.reputationFactionHasRewards = reputationFactionHasRewards;
+            this.reputationNpcRewardsCount = reputationNpcRewardsCount;
+            this.reputationFactionRewardsCount = reputationFactionRewardsCount;
 
             if (activeQuests != null && activeQuests.Count > 0)
             {
@@ -97,6 +123,7 @@ namespace VsQuest
             // Only switch tabs if the current tab has no content.
             bool hasAvailable = availableQuestIds != null && availableQuestIds.Count > 0;
             bool hasActive = activeQuests != null && activeQuests.Count > 0;
+            bool hasReputation = !string.IsNullOrWhiteSpace(reputationNpcId) || !string.IsNullOrWhiteSpace(reputationFactionId);
 
             if (curTab == 0 && !hasAvailable && hasActive)
             {
@@ -106,10 +133,14 @@ namespace VsQuest
             {
                 curTab = 0;
             }
-            else if (curTab != 0 && curTab != 1)
+            else if (curTab == 2 && !hasReputation)
+            {
+                curTab = hasAvailable ? 0 : (hasActive ? 1 : 0);
+            }
+            else if (curTab != 0 && curTab != 1 && curTab != 2)
             {
                 // Initial state fallback
-                curTab = hasAvailable ? 0 : (hasActive ? 1 : 0);
+                curTab = hasAvailable ? 0 : (hasActive ? 1 : (hasReputation ? 2 : 0));
             }
         }
 
@@ -130,17 +161,19 @@ namespace VsQuest
             ElementBounds clippingBounds = questTextBounds.ForkBoundingParent();
             ElementBounds bottomLeftButtonBounds = ElementBounds.Fixed(10, 570, 200, 20);
             ElementBounds bottomRightButtonBounds = ElementBounds.Fixed(220, 570, 200, 20);
+            ElementBounds bottomRightSecondaryButtonBounds = ElementBounds.Fixed(220, 545, 200, 20);
 
             GuiTab[] tabs = new GuiTab[] {
                 new GuiTab() { Name = Lang.Get("alegacyvsquest:tab-available-quests"), DataInt = 0 },
-                new GuiTab() { Name = Lang.Get("alegacyvsquest:tab-active-quests"), DataInt = 1 }
+                new GuiTab() { Name = Lang.Get("alegacyvsquest:tab-active-quests"), DataInt = 1 },
+                new GuiTab() { Name = Lang.Get("alegacyvsquest:tab-reputation"), DataInt = 2 }
             };
 
             bgBounds.BothSizing = ElementSizing.FitToChildren;
             SingleComposer = capi.Gui.CreateCompo("QuestSelectDialog-", dialogBounds)
                             .AddShadedDialogBG(bgBounds)
                             .AddDialogTitleBar(Lang.Get("alegacyvsquest:quest-select-title"), () => TryClose())
-                            .AddVerticalTabs(tabs, ElementBounds.Fixed(-200, 35, 200, 200), OnTabClicked, "tabs")
+                            .AddVerticalTabs(tabs, ElementBounds.Fixed(-200, 35, 200, 260), OnTabClicked, "tabs")
                             .BeginChildElements(bgBounds);
 
             // GuiElementVerticalTabs constructor forces tabs[0].Active = true.
@@ -176,7 +209,7 @@ namespace VsQuest
                         .AddButton(Lang.Get("alegacyvsquest:button-cancel"), TryClose, ElementBounds.FixedOffseted(EnumDialogArea.CenterBottom, 0, -10, 200, 20));
                 }
             }
-            else
+            else if (curTab == 1)
             {
                 if (activeQuests != null && activeQuests.Count > 0)
                 {
@@ -206,6 +239,26 @@ namespace VsQuest
                     SingleComposer.AddStaticText(Lang.Get("alegacyvsquest:no-quest-active-desc"), CairoFont.WhiteSmallishText(), ElementBounds.Fixed(0, 60, 400, 500))
                         .AddButton(Lang.Get("alegacyvsquest:button-cancel"), TryClose, ElementBounds.FixedOffseted(EnumDialogArea.CenterBottom, 0, -10, 200, 20));
                 }
+            }
+            else
+            {
+                string repText = reputationText();
+                bool hasNpcRewards = reputationNpcHasRewards;
+                bool hasFactionRewards = reputationFactionHasRewards;
+                bool hasRewards = hasNpcRewards || hasFactionRewards;
+                SingleComposer.AddButton(Lang.Get("alegacyvsquest:button-cancel"), TryClose, bottomLeftButtonBounds)
+                    .AddIf(hasRewards)
+                        .AddIf(hasNpcRewards)
+                            .AddButton(Lang.Get("alegacyvsquest:button-claim-rewards-npc"), claimNpcRewards, hasFactionRewards ? bottomRightSecondaryButtonBounds : bottomRightButtonBounds)
+                        .EndIf()
+                        .AddIf(hasFactionRewards)
+                            .AddButton(Lang.Get("alegacyvsquest:button-claim-rewards-faction"), claimFactionRewards, bottomRightButtonBounds)
+                        .EndIf()
+                    .EndIf()
+                    .BeginClip(clippingBounds)
+                        .AddRichtext(repText, CairoFont.WhiteSmallishText(), questTextBounds, "questtext")
+                    .EndClip()
+                    .AddVerticalScrollbar(OnNewScrollbarvalue, scrollbarBounds, "scrollbar");
             }
             ;
             SingleComposer.GetScrollbar("scrollbar")?.SetHeights((float)questTextBounds.fixedHeight, (float)questTextBounds.fixedHeight);
@@ -238,6 +291,55 @@ namespace VsQuest
         private string activeQuestText(ActiveQuest quest)
         {
             return quest.ProgressText;
+        }
+
+        private string reputationText()
+        {
+            var lines = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(reputationNpcId))
+            {
+                string title = !string.IsNullOrWhiteSpace(reputationNpcTitleLangKey)
+                    ? Lang.Get(reputationNpcTitleLangKey)
+                    : reputationNpcId;
+                string rank = !string.IsNullOrWhiteSpace(reputationNpcRankLangKey)
+                    ? Lang.Get(reputationNpcRankLangKey)
+                    : Lang.Get("alegacyvsquest:reputation-rank-unknown");
+
+                lines.Add(Lang.Get("alegacyvsquest:reputation-npc-header", title));
+                lines.Add(Lang.Get("alegacyvsquest:reputation-value", reputationNpcValue));
+                lines.Add(Lang.Get("alegacyvsquest:reputation-rank", rank));
+                if (reputationNpcRewardsCount > 0)
+                {
+                    lines.Add(Lang.Get("alegacyvsquest:reputation-rewards-count", reputationNpcRewardsCount));
+                }
+                lines.Add("");
+            }
+
+            if (!string.IsNullOrWhiteSpace(reputationFactionId))
+            {
+                string title = !string.IsNullOrWhiteSpace(reputationFactionTitleLangKey)
+                    ? Lang.Get(reputationFactionTitleLangKey)
+                    : reputationFactionId;
+                string rank = !string.IsNullOrWhiteSpace(reputationFactionRankLangKey)
+                    ? Lang.Get(reputationFactionRankLangKey)
+                    : Lang.Get("alegacyvsquest:reputation-rank-unknown");
+
+                lines.Add(Lang.Get("alegacyvsquest:reputation-faction-header", title));
+                lines.Add(Lang.Get("alegacyvsquest:reputation-value", reputationFactionValue));
+                lines.Add(Lang.Get("alegacyvsquest:reputation-rank", rank));
+                if (reputationFactionRewardsCount > 0)
+                {
+                    lines.Add(Lang.Get("alegacyvsquest:reputation-rewards-count", reputationFactionRewardsCount));
+                }
+            }
+
+            if (lines.Count == 0)
+            {
+                return Lang.Get("alegacyvsquest:reputation-empty");
+            }
+
+            return string.Join("\n", lines);
         }
 
         private bool acceptQuest()
@@ -277,6 +379,28 @@ namespace VsQuest
                 activeQuests.RemoveAll(quest => quest != null && selectedActiveQuest != null && quest.questId == selectedActiveQuest.questId && quest.questGiverId == selectedActiveQuest.questGiverId);
                 RequestRecompose();
             }
+            return true;
+        }
+
+        private bool claimNpcRewards()
+        {
+            var message = new ClaimReputationRewardsMessage()
+            {
+                questGiverId = questGiverId,
+                scope = "npc"
+            };
+            capi.Network.GetChannel("alegacyvsquest").SendPacket(message);
+            return true;
+        }
+
+        private bool claimFactionRewards()
+        {
+            var message = new ClaimReputationRewardsMessage()
+            {
+                questGiverId = questGiverId,
+                scope = "faction"
+            };
+            capi.Network.GetChannel("alegacyvsquest").SendPacket(message);
             return true;
         }
 
@@ -329,7 +453,7 @@ namespace VsQuest
             if (message == null) return;
 
             CloseOpenedDropDown();
-            ApplyData(message.questGiverId, message.availableQestIds, message.activeQuests, message.noAvailableQuestDescLangKey, message.noAvailableQuestCooldownDescLangKey, message.noAvailableQuestCooldownDaysLeft, message.noAvailableQuestRotationDaysLeft);
+            ApplyData(message.questGiverId, message.availableQestIds, message.activeQuests, message.noAvailableQuestDescLangKey, message.noAvailableQuestCooldownDescLangKey, message.noAvailableQuestCooldownDaysLeft, message.noAvailableQuestRotationDaysLeft, message.reputationNpcId, message.reputationFactionId, message.reputationNpcValue, message.reputationFactionValue, message.reputationNpcRankLangKey, message.reputationFactionRankLangKey, message.reputationNpcTitleLangKey, message.reputationFactionTitleLangKey, message.reputationNpcHasRewards, message.reputationFactionHasRewards, message.reputationNpcRewardsCount, message.reputationFactionRewardsCount);
 
             RequestRecompose();
         }

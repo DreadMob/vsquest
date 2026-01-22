@@ -47,6 +47,8 @@ namespace VsQuest
 
             actionRegistry.Add("acceptquest", new AcceptQuestAction(sapi, onQuestAcceptedCallback));
 
+            actionRegistry.Add("addreputation", new AddReputationAction());
+
             actionRegistry.Add("addjournalentry", new AddJournalEntryQuestAction());
             actionRegistry.Add("addvanillajournalentry", new AddVanillaJournalEntryQuestAction());
 
@@ -79,6 +81,7 @@ namespace VsQuest
             actionRegistry.Add("notify", new NotifyQuestAction());
             actionRegistry.Add("discover", new DiscoverQuestAction());
             actionRegistry.Add("showquestfinaldialog", new ShowQuestFinalDialogQuestAction());
+            actionRegistry.Add("showquestquestion", new ShowQuestQuestionAction());
             actionRegistry.Add("closedialogue", new CloseDialogueAction());
             actionRegistry.Add("revealname", new RevealNameAction());
         }

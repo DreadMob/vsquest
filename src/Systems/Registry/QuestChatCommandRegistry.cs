@@ -42,6 +42,8 @@ namespace VsQuest
 
             var questExecActionStringHandler = new QuestExecActionStringCommandHandler(sapi);
 
+            var questRepHandler = new QuestRepCommandHandler(sapi);
+
             var questEntityHandler = new QuestEntityCommandHandler(sapi, questSystem);
             var questNoteForgiveHandler = new QuestNoteForgiveCommandHandler(sapi);
             var questForgiveActiveAliasHandler = new QuestForgiveAliasCommandHandler(sapi, questSystem, "active");
@@ -242,6 +244,42 @@ namespace VsQuest
                         .WithDescription("Shows the current bosshunt target and time until rotation.")
                         .RequiresPrivilege(Privilege.give)
                         .HandleWith(bossHuntStatusHandler.Handle)
+                    .EndSubCommand()
+                .EndSubCommand()
+                .BeginSubCommand("rep")
+                    .WithDescription("Admin reputation commands")
+                    .RequiresPrivilege(Privilege.give)
+                    .BeginSubCommand("set")
+                        .WithDescription("Sets reputation value.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.Word("scope"),
+                            sapi.ChatCommands.Parsers.Word("id"),
+                            sapi.ChatCommands.Parsers.Int("value"),
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName")
+                        )
+                        .HandleWith(questRepHandler.Set)
+                    .EndSubCommand()
+                    .BeginSubCommand("add")
+                        .WithDescription("Adds delta to reputation value.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.Word("scope"),
+                            sapi.ChatCommands.Parsers.Word("id"),
+                            sapi.ChatCommands.Parsers.Int("delta"),
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName")
+                        )
+                        .HandleWith(questRepHandler.Add)
+                    .EndSubCommand()
+                    .BeginSubCommand("get")
+                        .WithDescription("Shows reputation value.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.Word("scope"),
+                            sapi.ChatCommands.Parsers.Word("id"),
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName")
+                        )
+                        .HandleWith(questRepHandler.Get)
                     .EndSubCommand()
                 .EndSubCommand()
                 ;

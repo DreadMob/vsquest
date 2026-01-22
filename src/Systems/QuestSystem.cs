@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.API.Datastructures;
@@ -316,6 +317,11 @@ namespace VsQuest
             QuestFinalDialogGui.ShowFromMessage(message, capi);
         }
 
+        internal void OnShowQuestQuestionMessage(ShowQuestQuestionMessage message, ICoreClientAPI capi)
+        {
+            QuestQuestionDialogGui.ShowFromMessage(message, capi);
+        }
+
         internal void OnPreloadBossMusicMessage(PreloadBossMusicMessage message, ICoreClientAPI capi)
         {
             try
@@ -325,6 +331,98 @@ namespace VsQuest
             }
             catch
             {
+            }
+        }
+
+        internal void OnQuestQuestionAnswerMessage(IServerPlayer player, QuestQuestionAnswerMessage message, ICoreServerAPI sapi)
+        {
+            if (sapi == null || player == null || message == null) return;
+
+            var wa = player.Entity?.WatchedAttributes;
+            if (wa == null) return;
+
+            string token = message.Token;
+            if (string.IsNullOrWhiteSpace(token)) return;
+
+            string answeredKey = QuestQuestionStateUtil.AnsweredKey(token);
+            if (wa.GetBool(answeredKey, false)) return;
+
+            int correctIndex = wa.GetInt(QuestQuestionStateUtil.CorrectIndexKey(token), -1);
+            bool isCorrect = message.SelectedIndex == correctIndex;
+
+            wa.SetBool(answeredKey, true);
+            wa.MarkPathDirty(answeredKey);
+
+            wa.SetBool(QuestQuestionStateUtil.CorrectKey(token), isCorrect);
+            wa.MarkPathDirty(QuestQuestionStateUtil.CorrectKey(token));
+
+            string correctValueKey = QuestQuestionStateUtil.CorrectValueKey(token);
+            if (wa.GetInt(correctValueKey, 0) != (isCorrect ? 1 : 0))
+            {
+                wa.SetInt(correctValueKey, isCorrect ? 1 : 0);
+                wa.MarkPathDirty(correctValueKey);
+            }
+
+            string correctStringKey = QuestQuestionStateUtil.CorrectStringKey(token);
+            string correctStringValue = isCorrect ? "1" : "0";
+            if (wa.GetString(correctStringKey, null) != correctStringValue)
+            {
+                wa.SetString(correctStringKey, correctStringValue);
+                wa.MarkPathDirty(correctStringKey);
+            }
+
+            string actionString = isCorrect
+                ? wa.GetString(QuestQuestionStateUtil.SuccessActionsKey(token), null)
+                : wa.GetString(QuestQuestionStateUtil.FailActionsKey(token), null);
+
+            if (!string.IsNullOrWhiteSpace(actionString))
+            {
+                string questId = wa.GetString(QuestQuestionStateUtil.QuestIdKey(token), null);
+                long questGiverId = wa.GetLong(QuestQuestionStateUtil.QuestGiverIdKey(token), 0L);
+
+                var execMessage = new QuestAcceptedMessage
+                {
+                    questGiverId = questGiverId,
+                    questId = string.IsNullOrWhiteSpace(questId) ? "dialog-action" : questId
+                };
+
+                ActionStringExecutor.Execute(sapi, execMessage, player, actionString);
+            }
+        }
+
+        internal void OnClaimReputationRewardsMessage(IServerPlayer player, ClaimReputationRewardsMessage message, ICoreServerAPI sapi)
+        {
+            if (sapi == null || player == null || message == null) return;
+
+            var repSystem = sapi.ModLoader.GetModSystem<ReputationSystem>();
+            if (repSystem == null) return;
+
+            if (!repSystem.TryResolveQuestGiverReputation(sapi, message.questGiverId, out string repNpcId, out string repFactionId))
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(message.scope) || string.Equals(message.scope, "npc", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(repNpcId))
+                {
+                    repSystem.ClaimPendingRewards(sapi, player, ReputationScope.Npc, repNpcId);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(message.scope) || string.Equals(message.scope, "faction", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(repFactionId))
+                {
+                    repSystem.ClaimPendingRewards(sapi, player, ReputationScope.Faction, repFactionId);
+                }
+            }
+
+            var questGiver = sapi.World.GetEntityById(message.questGiverId);
+            var questGiverBehavior = questGiver?.GetBehavior<EntityBehaviorQuestGiver>();
+            if (questGiverBehavior != null && player.Entity is EntityPlayer entityPlayer)
+            {
+                questGiverBehavior.SendQuestInfoMessageToClient(sapi, entityPlayer);
             }
         }
     }

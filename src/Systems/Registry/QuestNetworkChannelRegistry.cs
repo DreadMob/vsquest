@@ -23,6 +23,8 @@ namespace VsQuest
                 .RegisterMessageType<ShowNotificationMessage>().SetMessageHandler<ShowNotificationMessage>(message => questSystem.OnShowNotificationMessage(message, capi))
                 .RegisterMessageType<ShowDiscoveryMessage>().SetMessageHandler<ShowDiscoveryMessage>(message => questSystem.OnShowDiscoveryMessage(message, capi))
                 .RegisterMessageType<ShowQuestDialogMessage>().SetMessageHandler<ShowQuestDialogMessage>(message => questSystem.OnShowQuestDialogMessage(message, capi))
+                .RegisterMessageType<ShowQuestQuestionMessage>().SetMessageHandler<ShowQuestQuestionMessage>(message => questSystem.OnShowQuestQuestionMessage(message, capi))
+                .RegisterMessageType<ClaimReputationRewardsMessage>()
                 .RegisterMessageType<PreloadBossMusicMessage>().SetMessageHandler<PreloadBossMusicMessage>(message => questSystem.OnPreloadBossMusicMessage(message, capi));
         }
 
@@ -37,6 +39,9 @@ namespace VsQuest
                 .RegisterMessageType<ShowNotificationMessage>()
                 .RegisterMessageType<ShowDiscoveryMessage>()
                 .RegisterMessageType<ShowQuestDialogMessage>()
+                .RegisterMessageType<ShowQuestQuestionMessage>()
+                .RegisterMessageType<QuestQuestionAnswerMessage>().SetMessageHandler<QuestQuestionAnswerMessage>((player, message) => questSystem.OnQuestQuestionAnswerMessage(player, message, sapi))
+                .RegisterMessageType<ClaimReputationRewardsMessage>().SetMessageHandler<ClaimReputationRewardsMessage>((player, message) => questSystem.OnClaimReputationRewardsMessage(player, message, sapi))
                 .RegisterMessageType<PreloadBossMusicMessage>();
         }
     }

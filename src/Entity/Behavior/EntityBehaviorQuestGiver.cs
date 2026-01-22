@@ -32,8 +32,13 @@ namespace VsQuest
         private string noAvailableQuestDescLangKey;
         private string noAvailableQuestCooldownDescLangKey;
         private bool bossHuntActiveOnly;
+        private string reputationNpcId;
+        private string reputationFactionId;
 
         public static string ChainCooldownLastCompletedKey(long questGiverEntityId) => $"vsquest:questgiver:lastcompleted-{questGiverEntityId}";
+
+        public string ReputationNpcId => reputationNpcId;
+        public string ReputationFactionId => reputationFactionId;
 
         public EntityBehaviorQuestGiver(Entity entity) : base(entity)
         {
@@ -72,6 +77,8 @@ namespace VsQuest
             excludeQuestPrefixes = attributes["excludequestprefixes"].AsArray<string>() ?? Array.Empty<string>();
             noAvailableQuestDescLangKey = attributes["noAvailableQuestDescLangKey"].AsString(null);
             noAvailableQuestCooldownDescLangKey = attributes["noAvailableQuestCooldownDescLangKey"].AsString(null);
+            reputationNpcId = attributes["reputationnpc"].AsString(null);
+            reputationFactionId = attributes["reputationfaction"].AsString(null);
 
             if (selectRandom)
             {
@@ -474,6 +481,37 @@ namespace VsQuest
                 noAvailableQuestCooldownDaysLeft = cooldownDaysLeft,
                 noAvailableQuestRotationDaysLeft = rotationDaysLeft
             };
+
+            // Reputation info for this questgiver (used by the client UI)
+            message.reputationNpcId = reputationNpcId;
+            message.reputationFactionId = reputationFactionId;
+
+            if (serverPlayer != null && (!string.IsNullOrWhiteSpace(reputationNpcId) || !string.IsNullOrWhiteSpace(reputationFactionId)))
+            {
+                var repSystem = sapi?.ModLoader?.GetModSystem<ReputationSystem>();
+                if (repSystem != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(reputationNpcId))
+                    {
+                        message.reputationNpcValue = repSystem.GetReputationValue(serverPlayer as IPlayer, ReputationScope.Npc, reputationNpcId);
+                        var def = repSystem.GetNpcDefinition(reputationNpcId);
+                        message.reputationNpcRankLangKey = repSystem.GetRankLangKey(def, message.reputationNpcValue);
+                        message.reputationNpcTitleLangKey = def?.titleLangKey;
+                        message.reputationNpcHasRewards = repSystem.HasPendingRewards(serverPlayer, ReputationScope.Npc, reputationNpcId);
+                        message.reputationNpcRewardsCount = repSystem.GetPendingRewardsCount(serverPlayer, ReputationScope.Npc, reputationNpcId);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(reputationFactionId))
+                    {
+                        message.reputationFactionValue = repSystem.GetReputationValue(serverPlayer as IPlayer, ReputationScope.Faction, reputationFactionId);
+                        var def = repSystem.GetFactionDefinition(reputationFactionId);
+                        message.reputationFactionRankLangKey = repSystem.GetRankLangKey(def, message.reputationFactionValue);
+                        message.reputationFactionTitleLangKey = def?.titleLangKey;
+                        message.reputationFactionHasRewards = repSystem.HasPendingRewards(serverPlayer, ReputationScope.Faction, reputationFactionId);
+                        message.reputationFactionRewardsCount = repSystem.GetPendingRewardsCount(serverPlayer, ReputationScope.Faction, reputationFactionId);
+                    }
+                }
+            }
 
             sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);
         }

@@ -13,5 +13,17 @@ namespace VsQuest
         public string noAvailableQuestCooldownDescLangKey { get; set; }
         public int noAvailableQuestCooldownDaysLeft { get; set; }
         public int noAvailableQuestRotationDaysLeft { get; set; }
+        public string reputationNpcId { get; set; }
+        public string reputationFactionId { get; set; }
+        public int reputationNpcValue { get; set; }
+        public int reputationFactionValue { get; set; }
+        public string reputationNpcRankLangKey { get; set; }
+        public string reputationFactionRankLangKey { get; set; }
+        public string reputationNpcTitleLangKey { get; set; }
+        public string reputationFactionTitleLangKey { get; set; }
+        public bool reputationNpcHasRewards { get; set; }
+        public bool reputationFactionHasRewards { get; set; }
+        public int reputationNpcRewardsCount { get; set; }
+        public int reputationFactionRewardsCount { get; set; }
     }
 }

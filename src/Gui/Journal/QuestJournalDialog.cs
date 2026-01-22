@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vintagestory.API.Client;
+using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 
 namespace VsQuest.Gui.Journal
 {
@@ -142,6 +146,7 @@ namespace VsQuest.Gui.Journal
             BuildQuestPages(questEntries);
             BuildNoteGiverPages(noteEntries);
             BuildNotePages(noteEntries);
+            BuildQuestMapPage(questSystem, questEntries);
 
             for (int i = 0; i < allPages.Count; i++)
             {
@@ -204,6 +209,203 @@ namespace VsQuest.Gui.Journal
                     notePagesByLoreCode[entry.LoreCode] = page;
                 }
             }
+        }
+
+        private void BuildQuestMapPage(QuestSystem questSystem, List<QuestJournalEntry> entries)
+        {
+            if (questSystem?.QuestRegistry == null || questSystem.QuestRegistry.Count == 0)
+            {
+                return;
+            }
+
+            var quests = questSystem.QuestRegistry.Values
+                .Where(q => q != null && !string.IsNullOrWhiteSpace(q.id) && !IsDebuggingQuestId(q.id))
+                .OrderBy(q => q.id, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (quests.Count == 0) return;
+
+            var completed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (player is IPlayer iPlayer)
+            {
+                completed = new HashSet<string>(questSystem.GetNormalizedCompletedQuestIds(iPlayer), StringComparer.OrdinalIgnoreCase);
+            }
+
+            var activeQuestIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                var active = questSystem.GetPlayerQuests(player.PlayerUID);
+                if (active != null)
+                {
+                    foreach (var aq in active)
+                    {
+                        if (!string.IsNullOrWhiteSpace(aq?.questId))
+                        {
+                            activeQuestIds.Add(aq.questId);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            string mapTitle = Lang.Get("alegacyvsquest:journal-map-title");
+            var questGiverByQuestId = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (entries != null)
+            {
+                foreach (var entry in entries)
+                {
+                    string questId = entry?.LoreCode ?? entry?.QuestId;
+                    if (string.IsNullOrWhiteSpace(questId) || string.IsNullOrWhiteSpace(entry?.QuestId)) continue;
+                    string normalized = questSystem.NormalizeQuestId(questId);
+                    if (!questGiverByQuestId.ContainsKey(normalized))
+                    {
+                        questGiverByQuestId[normalized] = entry.QuestId;
+                    }
+                }
+            }
+
+            var questIdsByNpc = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var pair in questGiverByQuestId)
+            {
+                string giverId = pair.Value;
+                if (string.IsNullOrWhiteSpace(giverId)) continue;
+                if (!questIdsByNpc.TryGetValue(giverId, out var questIds))
+                {
+                    questIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    questIdsByNpc[giverId] = questIds;
+                }
+                questIds.Add(pair.Key);
+            }
+
+            var npcNodes = new List<QuestMapNode>();
+            var npcIds = questIdsByNpc.Keys.OrderBy(id => id, StringComparer.OrdinalIgnoreCase).ToList();
+            if (npcIds.Count > 0)
+            {
+                for (int i = 0; i < npcIds.Count; i++)
+                {
+                    string npcId = npcIds[i];
+                    float x = (float)((i + 1.0) / (npcIds.Count + 1.0));
+                    npcNodes.Add(new QuestMapNode
+                    {
+                        QuestId = "npc-" + npcId,
+                        TargetId = npcId,
+                        Title = GetQuestGiverTitle(npcId),
+                        X = x,
+                        Y = 0.12f,
+                        Status = QuestMapNodeStatus.Available,
+                        Kind = QuestMapNodeKind.Npc
+                    });
+                }
+            }
+
+            int columns = Math.Min(4, Math.Max(1, (int)Math.Ceiling(Math.Sqrt(quests.Count))));
+            int rows = (int)Math.Ceiling(quests.Count / (double)columns);
+            if (rows <= 0) rows = 1;
+
+            float questYStart = npcNodes.Count > 0 ? 0.25f : 0.1f;
+            float questYSpan = npcNodes.Count > 0 ? 0.7f : 0.8f;
+
+            var questNodes = new List<QuestMapNode>();
+            var edges = new List<(string FromId, string ToId)>();
+
+            for (int i = 0; i < quests.Count; i++)
+            {
+                int col = i % columns;
+                int row = i / columns;
+
+                float x = (float)((col + 0.5) / columns);
+                float y = questYStart + (float)((row + 0.5) / rows * questYSpan);
+
+                var quest = quests[i];
+                string title = Lang.Get(quest.id + "-title");
+                if (title == quest.id + "-title")
+                {
+                    title = quest.id;
+                }
+
+                QuestMapNodeStatus status = QuestMapNodeStatus.Locked;
+                if (completed.Contains(quest.id))
+                {
+                    status = QuestMapNodeStatus.Completed;
+                }
+                else if (activeQuestIds.Contains(quest.id))
+                {
+                    status = QuestMapNodeStatus.Current;
+                }
+                else if (PredecessorsCompleted(questSystem, quest, completed))
+                {
+                    status = QuestMapNodeStatus.Available;
+                }
+
+                questNodes.Add(new QuestMapNode
+                {
+                    QuestId = quest.id,
+                    TargetId = quest.id,
+                    Title = title,
+                    X = x,
+                    Y = y,
+                    Status = status,
+                    Kind = QuestMapNodeKind.Quest
+                });
+            }
+
+            foreach (var quest in quests)
+            {
+                if (quest == null || string.IsNullOrWhiteSpace(quest.id)) continue;
+
+                IEnumerable<string> predecessors = Enumerable.Empty<string>();
+                if (!string.IsNullOrWhiteSpace(quest.predecessor))
+                {
+                    predecessors = predecessors.Concat(new[] { quest.predecessor });
+                }
+                if (quest.predecessors != null && quest.predecessors.Count > 0)
+                {
+                    predecessors = predecessors.Concat(quest.predecessors);
+                }
+
+                foreach (var pred in predecessors)
+                {
+                    if (string.IsNullOrWhiteSpace(pred)) continue;
+                    string normalized = questSystem.NormalizeQuestId(pred);
+                    edges.Add((normalized, quest.id));
+                }
+            }
+
+            var mapPage = new QuestProgressMapPage(capi, mapTitle, npcNodes, questNodes, edges, questIdsByNpc);
+            allPages.Add(mapPage);
+        }
+
+        private static bool IsDebuggingQuestId(string questId)
+        {
+            if (string.IsNullOrWhiteSpace(questId)) return true;
+            return questId.StartsWith("vsquestdebugging", StringComparison.OrdinalIgnoreCase)
+                || questId.StartsWith("debugging", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool PredecessorsCompleted(QuestSystem questSystem, Quest quest, HashSet<string> completed)
+        {
+            if (quest == null) return false;
+            if (completed == null) return false;
+
+            if (!string.IsNullOrWhiteSpace(quest.predecessor))
+            {
+                string pred = questSystem.NormalizeQuestId(quest.predecessor);
+                if (!completed.Contains(pred)) return false;
+            }
+
+            if (quest.predecessors != null)
+            {
+                foreach (var pred in quest.predecessors)
+                {
+                    if (string.IsNullOrWhiteSpace(pred)) continue;
+                    string normalized = questSystem.NormalizeQuestId(pred);
+                    if (!completed.Contains(normalized)) return false;
+                }
+            }
+
+            return true;
         }
 
         private string GetQuestGiverTitle(string questId)
@@ -273,7 +475,8 @@ namespace VsQuest.Gui.Journal
             {
                 new JournalTab { Name = Lang.Get("alegacyvsquest:tab-all"), CategoryCode = "all" },
                 new JournalTab { Name = Lang.Get("alegacyvsquest:tab-quests"), CategoryCode = "quests" },
-                new JournalTab { Name = Lang.Get("alegacyvsquest:tab-notes"), CategoryCode = "notes" }
+                new JournalTab { Name = Lang.Get("alegacyvsquest:tab-notes"), CategoryCode = "notes" },
+                new JournalTab { Name = Lang.Get("alegacyvsquest:tab-map"), CategoryCode = "map" }
             };
 
             for (int i = 0; i < tabList.Count; i++)
@@ -425,6 +628,11 @@ namespace VsQuest.Gui.Journal
             currentCategoryCode = journalTab?.CategoryCode ?? "all";
             currentQuestGiverFilter = null;
             browseHistory.Clear();
+            if (currentCategoryCode == "map")
+            {
+                OpenMapPage();
+                return;
+            }
             FilterItems();
         }
 
@@ -462,11 +670,39 @@ namespace VsQuest.Gui.Journal
                 }
                 return;
             }
+
+            if (page is QuestProgressMapPage mapPage)
+            {
+                browseHistory.Push(new BrowseHistoryElement { Page = mapPage });
+                InitDetailGui();
+                return;
+            }
         }
 
         private bool OpenDetailPageFor(string pageCode)
         {
-            return true;
+            if (string.IsNullOrWhiteSpace(pageCode)) return false;
+            const string entryPrefix = "entry-";
+
+            if (pageCode.StartsWith(entryPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                string questId = pageCode.Substring(entryPrefix.Length);
+                if (string.IsNullOrWhiteSpace(questId)) return false;
+
+                var entry = allEntries.FirstOrDefault(e =>
+                    string.Equals(e.QuestId, questId, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(e.LoreCode, questId, StringComparison.OrdinalIgnoreCase));
+
+                if (entry != null)
+                {
+                    var entryPage = new QuestEntryPage(capi, entry.QuestId, GetEntryTitle(entry), entry.Chapters);
+                    browseHistory.Push(new BrowseHistoryElement { Page = entryPage });
+                    InitDetailGui();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void FilterItemsBySearchText(string text)
@@ -565,6 +801,10 @@ namespace VsQuest.Gui.Journal
                     }
                 }
             }
+            else if (currentCategoryCode == "map")
+            {
+                // Map opens directly; nothing to list here.
+            }
 
             var stacklist = overviewGui?.GetElement("stacklist") as JournalFlatList;
             if (stacklist != null)
@@ -648,6 +888,20 @@ namespace VsQuest.Gui.Journal
             currentQuestGiverFilter = null;
             FilterItems();
             return true;
+        }
+
+        private void OpenMapPage()
+        {
+            var mapPage = allPages.OfType<QuestProgressMapPage>().FirstOrDefault();
+            if (mapPage == null)
+            {
+                FilterItems();
+                return;
+            }
+
+            browseHistory.Clear();
+            browseHistory.Push(new BrowseHistoryElement { Page = mapPage });
+            InitDetailGui();
         }
 
         public override void OnRenderGUI(float deltaTime)

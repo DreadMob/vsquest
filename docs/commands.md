@@ -75,6 +75,16 @@ Player attributes are persistent flags used for quest progress tracking.
 
 ---
 
+### Reputation
+
+| Command | Arguments | Description |
+|---------|-----------|-------------|
+| `/vsq rep set` | `<scope> <id> <value> [playerName]` | Sets reputation value (`scope` = `npc` or `faction`) |
+| `/vsq rep add` | `<scope> <id> <delta> [playerName]` | Adds delta to reputation value |
+| `/vsq rep get` | `<scope> <id> [playerName]` | Shows reputation value and current rank |
+
+---
+
 ## Examples
 
 ```
@@ -104,6 +114,15 @@ Player attributes are persistent flags used for quest progress tracking.
 
 # View player's attributes
 /vsq attr list PlayerName
+
+# Set reputation
+/vsq rep set faction albase:hunterguild 80 PlayerName
+
+# Add reputation
+/vsq rep add npc albase:bosshunter 10 PlayerName
+
+# View reputation
+/vsq rep get faction albase:hunterguild PlayerName
 ```
 
 ---
