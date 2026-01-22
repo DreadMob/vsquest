@@ -43,6 +43,7 @@
       {
         "code": "questgiver",
         "bosshuntactiveonly": true,
+        "reputationnpc": "albase:bosshunter",
         "alwaysquests": [
           "albase:bosshunt-intro"
         ],

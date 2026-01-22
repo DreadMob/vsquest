@@ -9,7 +9,7 @@
   "relocateIntervalHours": 72,
   "respawnInGameHours": 24,
   "noRelocateAfterDamageMinutes": 10,
-  "rotationDays": 360,
+  "rotationDays": 720,
   "activationRange": 160,
   "playerLockRange": 0
 }
