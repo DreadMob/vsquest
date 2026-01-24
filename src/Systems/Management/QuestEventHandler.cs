@@ -13,7 +13,7 @@ namespace VsQuest
     {
         private const double BossKillCreditMinShareCeil = 0.5;
         private const double BossKillCreditMinShareFloor = 0.08;
-        private const float BossKillHealFraction = 0.10f;
+        private const float BossKillHealFraction = 0.17f;
 
         private readonly Dictionary<string, Quest> questRegistry;
         private readonly QuestPersistenceManager persistenceManager;
