@@ -102,7 +102,13 @@ namespace VsQuest
 
             if (attributeName == AttrHungerRate) return value;
 
-            return value;
+            // Debuffs should not scale with item condition/durability.
+            // Only positive bonuses are reduced when the item is in poor condition.
+            if (value < 0f) return value;
+
+            float mult = GetConditionMultiplier(stack);
+            mult = GameMath.Clamp(mult, 0.3f, 1f);
+            return value * mult;
         }
 
         public static string GetDisplayName(string shortKey)
