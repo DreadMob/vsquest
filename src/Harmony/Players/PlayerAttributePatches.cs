@@ -13,6 +13,9 @@ namespace VsQuest.Harmony
         private const string SecondChanceDebuffUntilKey = "alegacyvsquest:secondchance:debuffuntil";
         private const string SecondChanceDebuffStatKey = "alegacyvsquest:secondchance:debuff";
 
+        private const string SecondChanceProcSound = "albase:sounds/atmospheric-metallic-swipe";
+        private const float SecondChanceProcSoundRange = 24f;
+
         private const float SecondChanceDebuffWalkspeed = -0.2f;
         private const float SecondChanceDebuffHungerRate = 0.4f;
         private const float SecondChanceDebuffHealing = -0.3f;
@@ -66,6 +69,7 @@ namespace VsQuest.Harmony
                 slot.MarkDirty();
 
                 ApplySecondChanceDebuff(player);
+                TryPlaySecondChanceSound(player);
             }
         }
 
@@ -153,6 +157,21 @@ namespace VsQuest.Harmony
             double until = player.World.Calendar.TotalHours + (2d / 60d);
             player.WatchedAttributes.SetDouble(SecondChanceDebuffUntilKey, until);
             ApplyDebuffStats(player);
+        }
+
+        private static void TryPlaySecondChanceSound(EntityPlayer player)
+        {
+            if (player?.World == null) return;
+            if (string.IsNullOrWhiteSpace(SecondChanceProcSound)) return;
+
+            try
+            {
+                AssetLocation soundLoc = AssetLocation.Create(SecondChanceProcSound, "game").WithPathPrefixOnce("sounds/");
+                player.World.PlaySoundAt(soundLoc, player.ServerPos.X, player.ServerPos.Y, player.ServerPos.Z, null, randomizePitch: true, SecondChanceProcSoundRange);
+            }
+            catch
+            {
+            }
         }
 
         private static void ApplyDebuffStats(EntityPlayer player)

@@ -277,15 +277,17 @@ namespace VsQuest.Harmony
                 var oxygenBehavior = player.Entity.GetBehavior<EntityBehaviorBreathe>();
                 if (oxygenBehavior != null)
                 {
-                    const string BaseOxygenKey = "vsquestmod:attr:maxoxygenbase";
-                    float baseOxygen = player.Entity.WatchedAttributes.GetFloat(BaseOxygenKey, 0f);
-                    if (baseOxygen <= 0f)
-                    {
-                        baseOxygen = oxygenBehavior.MaxOxygen;
-                        player.Entity.WatchedAttributes.SetFloat(BaseOxygenKey, baseOxygen);
-                    }
+                    const string AppliedBonusKey = "alegacyvsquest:attr:maxoxygenbonusapplied";
+
+                    float lastAppliedBonus = player.Entity.WatchedAttributes.GetFloat(AppliedBonusKey, 0f);
+
+                    // Calculate a stable base that doesn't stack when updateWearableStats runs multiple times.
+                    // We treat the current MaxOxygen as (base + lastAppliedBonus).
+                    float baseOxygen = oxygenBehavior.MaxOxygen - lastAppliedBonus;
+                    if (baseOxygen < 1f) baseOxygen = 1f;
 
                     oxygenBehavior.MaxOxygen = Math.Max(1f, baseOxygen + maxOxygenBonus);
+                    player.Entity.WatchedAttributes.SetFloat(AppliedBonusKey, maxOxygenBonus);
                 }
 
                 float weightLimit = GetWeightLimit(inv);
