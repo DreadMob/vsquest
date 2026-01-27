@@ -74,14 +74,10 @@
       ]
     },
     {
-      "id": "questitem",
+      "id": "randomquestitem",
       "args": [
-        "albase:bosshunt-reward-duelist"
-      ]
-    },
-    {
-      "id": "questitem",
-      "args": [
+        "1",
+        "albase:bosshunt-reward-duelist",
         "albase:bosshunt-reward-subduction-filter"
       ]
     },

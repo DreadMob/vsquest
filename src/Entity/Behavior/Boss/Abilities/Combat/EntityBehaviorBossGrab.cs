@@ -13,6 +13,7 @@ namespace VsQuest
     {
         private const string GrabStageKey = "alegacyvsquest:bossgrab:stage";
         private const string LastGrabStartMsKey = "alegacyvsquest:bossgrab:lastStartMs";
+        private const string VictimNoSneakUntilKey = "alegacyvsquest:bossgrab:nosneakuntil";
         private const string WalkSpeedStatCode = "alegacyvsquest:bossgrab";
         private const string WalkSpeedStatCodeLegacy = "alegacyvsquest";
 
@@ -242,6 +243,18 @@ namespace VsQuest
 
             ApplyVictimMoveSlow(stage);
 
+            try
+            {
+                if (targetPlayer?.WatchedAttributes != null)
+                {
+                    targetPlayer.WatchedAttributes.SetLong(VictimNoSneakUntilKey, grabEndsAtMs);
+                    targetPlayer.WatchedAttributes.MarkPathDirty(VictimNoSneakUntilKey);
+                }
+            }
+            catch
+            {
+            }
+
             nextDamageAtMs = sapi.World.ElapsedMilliseconds;
 
             grabTickListenerId = sapi.Event.RegisterGameTickListener(_ =>
@@ -370,6 +383,18 @@ namespace VsQuest
             grabActive = false;
 
             RestoreVictimMoveSpeed();
+
+            try
+            {
+                if (targetPlayer?.WatchedAttributes != null)
+                {
+                    targetPlayer.WatchedAttributes.SetLong(VictimNoSneakUntilKey, 0);
+                    targetPlayer.WatchedAttributes.MarkPathDirty(VictimNoSneakUntilKey);
+                }
+            }
+            catch
+            {
+            }
 
             targetPlayer = null;
 

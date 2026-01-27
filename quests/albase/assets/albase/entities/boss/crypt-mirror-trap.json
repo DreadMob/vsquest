@@ -1,0 +1,33 @@
+{
+  "code": "crypt-mirror-trap",
+  "class": "EntityAgent",
+  "tags": ["habitat-land"],
+  "hitboxSize": { "x": 0.4, "y": 0.9 },
+  "eyeHeight": 0.5,
+  "drops": [],
+  "attributes": {
+    "alegacyvsquestHideInfoText": true
+  },
+  "client": {
+    "renderer": "Shape",
+    "size": 0.45,
+    "shape": { "base": "game:entity/humanoid/seraph-faceless" },
+    "texture": { "base": "game:entity/humanoid/seraph-naked-hairless" },
+    "behaviors": [
+      { "code": "interpolateposition" },
+      { "code": "alegacyvsquestbosshealthbar", "show": false }
+    ],
+    "animations": [
+      { "code": "idle", "animation": "idle", "blendMode": "AddAverage", "triggeredBy": { "defaultAnim": true } }
+    ]
+  },
+  "server": {
+    "behaviors": [
+      { "code": "controlledphysics", "stepHeight": 1.01 },
+      { "code": "health", "currenthealth": 18, "maxhealth": 18 },
+      { "code": "bosstrapclone" }
+    ]
+  },
+  "idleSoundRange": 0,
+  "sounds": {}
+}

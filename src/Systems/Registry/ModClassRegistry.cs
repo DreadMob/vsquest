@@ -22,16 +22,22 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("bosscastphase", typeof(EntityBehaviorBossCastPhase));
             api.RegisterEntityBehaviorClass("bossdash", typeof(EntityBehaviorBossDash));
             api.RegisterEntityBehaviorClass("bossteleport", typeof(EntityBehaviorBossTeleport));
+            api.RegisterEntityBehaviorClass("bossfaketeleport", typeof(EntityBehaviorBossFakeTeleport));
+            api.RegisterEntityBehaviorClass("bossrepulsestun", typeof(EntityBehaviorBossRepulseStun));
             api.RegisterEntityBehaviorClass("bosshook", typeof(EntityBehaviorBossHook));
             api.RegisterEntityBehaviorClass("bossgrab", typeof(EntityBehaviorBossGrab));
+            api.RegisterEntityBehaviorClass("bossanticheese", typeof(EntityBehaviorBossAntiCheese));
             api.RegisterEntityBehaviorClass("bossdamageshield", typeof(EntityBehaviorBossDamageShield));
             api.RegisterEntityBehaviorClass("bossintoxaura", typeof(EntityBehaviorBossIntoxicationAura));
             api.RegisterEntityBehaviorClass("bossoxygendrainaura", typeof(EntityBehaviorBossOxygenDrainAura));
             api.RegisterEntityBehaviorClass("bosscloning", typeof(EntityBehaviorBossCloning));
             api.RegisterEntityBehaviorClass("bossrandomlightning", typeof(EntityBehaviorBossRandomLightning));
             api.RegisterEntityBehaviorClass("bossplayerclone", typeof(EntityBehaviorBossPlayerClone));
+            api.RegisterEntityBehaviorClass("bosstrapclone", typeof(EntityBehaviorBossTrapClone));
             api.RegisterEntityBehaviorClass("bossformswap", typeof(EntityBehaviorBossFormSwap));
             api.RegisterEntityBehaviorClass("bossformswaplist", typeof(EntityBehaviorBossFormSwapList));
+            api.RegisterEntityBehaviorClass("bossintermissiondispel", typeof(EntityBehaviorBossIntermissionDispel));
+            api.RegisterEntityBehaviorClass("bossparasiteleech", typeof(EntityBehaviorBossParasiteLeech));
             api.RegisterEntityBehaviorClass("shiverdebug", typeof(EntityBehaviorShiverDebug));
 
             api.RegisterItemClass("ItemDebugTool", typeof(ItemDebugTool));
@@ -45,6 +51,9 @@ namespace VsQuest
 
             api.RegisterBlockClass("BlockBossHuntAnchor", typeof(BlockBossHuntAnchor));
             api.RegisterBlockEntityClass("BossHuntAnchor", typeof(BlockEntityBossHuntAnchor));
+
+            api.RegisterBlockClass("BlockBossHuntArena", typeof(BlockBossHuntArena));
+            api.RegisterBlockEntityClass("BossHuntArena", typeof(BlockEntityBossHuntArena));
         }
     }
 }

@@ -126,10 +126,11 @@
     "alegacyvsquest:entry-no-content": "Эта запись не имеет содержимого.",
     "alegacyvsquest:tab-all": "Все",
     "alegacyvsquest:tab-quests": "Квесты",
-    "alegacyvsquest:tab-notes": "Записки",
+    "alegacyvsquest:tab-notes": "Заметки",
     "alegacyvsquest:button-close-journal": "Закрыть журнал",
     "alegacyvsquest:button-overview": "Обзор",
     "alegacyvsquest:entry-count-single": "{0} запись",
     "alegacyvsquest:entry-count-plural": "{0} записей",
-    "alegacyvsquest:notes-coming-soon": "Функция заметок скоро появится..."
+    "alegacyvsquest:notes-coming-soon": "Функция заметок скоро появится...",
+    "block-alegacyvsquest:bosshuntarena": "Арена охоты на боссов"
 }

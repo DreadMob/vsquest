@@ -24,7 +24,7 @@
     },
     {
       "id": "albase:bosshunt-reward-miner-belt",
-      "itemCode": "game:clothes-nadiya-waist-miner-accessor",
+      "itemCode": "game:clothes-nadiya-waist-miner-accessories",
       "name": "<font color=\"#F59E0B\">Пояс Оссуария</font>",
       "description": "<font color=\"#FBBF24\">Тугой ремень с холодной пряжкой, обсыпанной костяной крошкой. На коже — следы когтей и каменной пыли, будто кто-то цеплялся за своды в темноте.</font>",
       "actions": [],
@@ -63,7 +63,7 @@
         "healingeffectiveness": 0.15,
         "hungerrate": 0.22,
         "attackpower": 2.5,
-        "maxhealthflat": -4.0
+        "maxhealthflat": -5.0
       },
       "showAttributes": [
         "healingeffectiveness",
@@ -120,7 +120,7 @@
         "hungerrate": 0.12,
         "walkspeed": -0.03,
         "protectionperc": -0.05,
-        "maxhealthflat": 2.0
+        "maxhealthflat": 3.5
       },
       "showAttributes": [
         "healingeffectiveness",
@@ -174,12 +174,14 @@
       "description": "<font color=\"#FDE68A\">Латунные пластины с мелкими насечками, как у зубчатых колёс. В тишине от них идёт слабый скрежет, будто где-то рядом шевелится рой пил.</font>",
       "actions": [],
       "attributes": {
-        "rangedaccuracy": 0.15,
-        "rangedchargspeed": 0.35,
+        "maxhealthflat": -3.0,
+        "rangedaccuracy": 0.2,
+        "rangedchargspeed": 0.4,
         "protectionperc": -0.15,
         "hungerrate": 0.4
       },
       "showAttributes": [
+        "maxhealthflat",
         "rangedaccuracy",
         "rangedchargspeed",
         "protectionperc",
@@ -232,7 +234,7 @@
       "actions": [],
       "attributes": {
         "attackpower": 1.2,
-        "hungerrate": 0.1,
+        "hungerrate": 0.12,
         "walkspeed": -0.06,
         "protectionperc": -0.04,
         "meleeattackspeed": 0.12
@@ -288,15 +290,11 @@
       "actions": [],
       "attributes": {
         "rangedaccuracy": 0.05,
-        "rangedchargspeed": 0.05,
-        "hungerrate": 0.15,
-        "protectionperc": -0.03
+        "rangedchargspeed": 0.05
       },
       "showAttributes": [
         "rangedaccuracy",
-        "rangedchargspeed",
-        "hungerrate",
-        "protectionperc"
+        "rangedchargspeed"
       ],
       "hideVanillaTooltips": [
         "armor",

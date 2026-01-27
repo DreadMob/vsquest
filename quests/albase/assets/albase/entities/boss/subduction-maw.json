@@ -59,11 +59,103 @@
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:subduction-maw", "leashRange": 120, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
       {
+        "code": "bossintermissiondispel",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.7,
+            "cooldownSeconds": 35,
+            "intermissionMaxMs": 7500,
+            "freezeBoss": true,
+            "lockYaw": true,
+            "incomingDamageMultiplier": 0.25,
+            "spawnRange": 10,
+            "adds": [
+              {
+                "entityCode": "game:shiver",
+                "maxNearby": 6,
+                "nearbyRange": 28,
+                "minCount": 1,
+                "maxCount": 2,
+                "chance": 1.0,
+                "spawnDelayMs": 300
+              }
+            ],
+            "animation": "turret",
+            "animationStopMs": 2400,
+            "sound": "albase:dark-magic-charge-up",
+            "soundRange": 40,
+            "soundStartMs": 0,
+            "loopSound": "albase:dark-magic-charge-up",
+            "loopSoundRange": 22,
+            "loopSoundIntervalMs": 900
+          },
+          {
+            "whenHealthRelBelow": 0.3,
+            "cooldownSeconds": 28,
+            "intermissionMaxMs": 9000,
+            "freezeBoss": true,
+            "lockYaw": true,
+            "incomingDamageMultiplier": 0.15,
+            "spawnRange": 12,
+            "adds": [
+              {
+                "entityCode": "game:shiver",
+                "maxNearby": 8,
+                "nearbyRange": 30,
+                "minCount": 2,
+                "maxCount": 3,
+                "chance": 1.0,
+                "spawnDelayMs": 250
+              }
+            ],
+            "animation": "load",
+            "animationStopMs": 2600,
+            "sound": "albase:shock-sound-effect-horror",
+            "soundRange": 40,
+            "soundStartMs": 0,
+            "loopSound": "albase:dark-magic-charge-up",
+            "loopSoundRange": 22,
+            "loopSoundIntervalMs": 850
+          }
+        ]
+      },
+      {
         "code": "bossintoxaura",
         "stages": [
           { "whenHealthRelBelow": 0.75, "range": 26, "intoxication": 0.25, "intervalMs": 500 },
           { "whenHealthRelBelow": 0.45, "range": 32, "intoxication": 0.5, "intervalMs": 450 },
           { "whenHealthRelBelow": 0.2, "range": 38, "intoxication": 0.75, "intervalMs": 400 }
+        ]
+      },
+      {
+        "code": "bossrepulsestun",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.9,
+            "cooldownSeconds": 6,
+            "range": 4.6,
+            "knockbackStrength": 0.45,
+            "maxPlayerMotion": 0.75,
+            "stunMs": 1400,
+            "victimWalkSpeedMult": 0.0,
+            "sound": "game:creature/wolf/attack",
+            "soundRange": 24,
+            "soundStartMs": 0,
+            "soundVolume": 0.2
+          },
+          {
+            "whenHealthRelBelow": 0.35,
+            "cooldownSeconds": 5,
+            "range": 5.2,
+            "knockbackStrength": 0.55,
+            "maxPlayerMotion": 0.9,
+            "stunMs": 1600,
+            "victimWalkSpeedMult": 0.0,
+            "sound": "albase:shock-sound-effect-horror",
+            "soundRange": 26,
+            "soundStartMs": 0,
+            "soundVolume": 0.2
+          }
         ]
       },
       {
@@ -77,8 +169,61 @@
       {
         "code": "bossteleport",
         "stages": [
-          { "whenHealthRelBelow": 0.6, "cooldownSeconds": 12, "minTargetRange": 10, "maxTargetRange": 38, "minRadius": 3, "maxRadius": 8, "tries": 12, "windupMs": 250, "windupAnimation": "turret", "arriveAnimation": "stab", "sound": "albase:dark-magic-charge-up", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true },
-          { "whenHealthRelBelow": 0.3, "cooldownSeconds": 10, "minTargetRange": 8, "maxTargetRange": 36, "minRadius": 5, "maxRadius": 8, "tries": 12, "windupMs": 220, "windupAnimation": "load", "arriveAnimation": "stab", "sound": "albase:shock-sound-effect-horror", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true }
+          { "whenHealthRelBelow": 0.6, "cooldownSeconds": 10, "minTargetRange": 10, "maxTargetRange": 42, "minRadius": 3, "maxRadius": 8, "tries": 12, "windupMs": 250, "windupAnimation": "turret", "arriveAnimation": "stab", "sound": "albase:dark-magic-charge-up", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true },
+          { "whenHealthRelBelow": 0.3, "cooldownSeconds": 8, "minTargetRange": 8, "maxTargetRange": 40, "minRadius": 5, "maxRadius": 8, "tries": 12, "windupMs": 220, "windupAnimation": "load", "arriveAnimation": "stab", "sound": "albase:shock-sound-effect-horror", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true }
+        ]
+      },
+      {
+        "code": "bosstrapclone",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.8,
+            "cooldownSeconds": 14,
+            "minTargetRange": 6,
+            "maxTargetRange": 32,
+            "trapEntityCode": "albase:subduction-maw-trap",
+            "spawnRange": 6,
+            "trapCount": 1,
+            "windupMs": 160,
+            "windupAnimation": "load",
+            "fuseMs": 3000,
+            "explosionRadius": 4.2,
+            "explosionDamage": 18,
+            "damageTier": 3,
+            "damageType": "PiercingAttack",
+            "trapInvulnerable": true,
+            "sound": "albase:dark-magic-charge-up",
+            "soundRange": 32,
+            "soundStartMs": 0,
+            "soundVolume": 0.12,
+            "explodeSound": "albase:shock-sound-effect-horror",
+            "explodeSoundRange": 34,
+            "explodeSoundVolume": 0.14
+          },
+          {
+            "whenHealthRelBelow": 0.35,
+            "cooldownSeconds": 11,
+            "minTargetRange": 5,
+            "maxTargetRange": 36,
+            "trapEntityCode": "albase:subduction-maw-trap",
+            "spawnRange": 7,
+            "trapCount": 2,
+            "windupMs": 140,
+            "windupAnimation": "reload",
+            "fuseMs": 2600,
+            "explosionRadius": 4.8,
+            "explosionDamage": 22,
+            "damageTier": 4,
+            "damageType": "PiercingAttack",
+            "trapInvulnerable": true,
+            "sound": "albase:dark-magic-charge-up",
+            "soundRange": 34,
+            "soundStartMs": 0,
+            "soundVolume": 0.12,
+            "explodeSound": "albase:shock-sound-effect-horror",
+            "explodeSoundRange": 36,
+            "explodeSoundVolume": 0.14
+          }
         ]
       },
       {
@@ -88,7 +233,7 @@
             "whenHealthRelBelow": 0.8,
             "minCount": 1,
             "maxCount": 2,
-            "cooldownSeconds": 10,
+            "cooldownSeconds": 12,
             "minRadius": 4,
             "maxRadius": 16,
             "warningSound": "effect/translocate-idle",
@@ -100,7 +245,7 @@
             "whenHealthRelBelow": 0.5,
             "minCount": 2,
             "maxCount": 3,
-            "cooldownSeconds": 8,
+            "cooldownSeconds": 10,
             "minRadius": 4,
             "maxRadius": 18,
             "warningSound": "effect/translocate-idle",
@@ -112,7 +257,7 @@
             "whenHealthRelBelow": 0.25,
             "minCount": 2,
             "maxCount": 4,
-            "cooldownSeconds": 7,
+            "cooldownSeconds": 9,
             "minRadius": 3,
             "maxRadius": 20,
             "warningSound": "effect/translocate-idle",
@@ -166,10 +311,10 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 4,
-            "damage": 30,
+            "damage": 28,
             "damageTier": 4,
-            "mincooldown": 250,
-            "maxcooldown": 700,
+            "mincooldown": 220,
+            "maxcooldown": 620,
             "maxAttackDistance": 9.5,
             "maxAttackVerticalDistance": 4.8,
             "attackAngleRangeDeg": 160,
@@ -207,9 +352,9 @@
             "code": "turretmode",
             "priority": 1.5,
             "priorityForCancel": 3.5,
-            "sensingRange": 24,
+            "sensingRange": 28,
             "firingRangeMin": 8,
-            "firingRangeMax": 18,
+            "firingRangeMax": 22,
             "abortRange": 9,
             "projectileDamage": 12,
             "projectileDamageTier": 2,

@@ -70,6 +70,18 @@ namespace VsQuest
             UpdateClones();
         }
 
+        public override void OnInteract(EntityAgent byEntity, ItemSlot itemslot, Vec3d hitPosition, EnumInteractMode mode, ref EnumHandling handled)
+        {
+            if (mode != EnumInteractMode.Interact) return;
+            if (handled == EnumHandling.Handled) return;
+            if (sapi == null || entity == null) return;
+            if (byEntity is not EntityPlayer) return;
+
+            // Prevent any debug/selection messages on right-click for Crypt Mirror and its clones.
+            // This behavior is attached to those entities, so we can safely consume the interaction.
+            handled = EnumHandling.Handled;
+        }
+
         public override void OnEntityReceiveDamage(DamageSource damageSource, ref float damage)
         {
             base.OnEntityReceiveDamage(damageSource, ref damage);
@@ -285,6 +297,12 @@ namespace VsQuest
             TryCopyTreeAttribute(player.Entity, clone, "skinConfig");
             TryCopyTreeAttribute(player.Entity, clone, "skinParts");
             TryCopyTreeAttribute(player.Entity, clone, "skinnableParts");
+
+            // Some mods / versions store these keys with different casing.
+            TryCopyTreeAttribute(player.Entity, clone, "wearablesinv");
+            TryCopyTreeAttribute(player.Entity, clone, "skinconfig");
+            TryCopyTreeAttribute(player.Entity, clone, "skinparts");
+            TryCopyTreeAttribute(player.Entity, clone, "skinnableparts");
         }
 
         private void TryCopyTreeAttribute(Entity source, Entity target, string key)

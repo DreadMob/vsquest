@@ -131,5 +131,6 @@
     "alegacyvsquest:button-overview": "Overview",
     "alegacyvsquest:entry-count-single": "{0} entry",
     "alegacyvsquest:entry-count-plural": "{0} entries",
-    "alegacyvsquest:notes-coming-soon": "Notes feature coming soon..."
+    "alegacyvsquest:notes-coming-soon": "Notes feature coming soon...",
+    "block-alegacyvsquest:bosshuntarena": "Boss hunt arena"
 }

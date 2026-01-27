@@ -11,6 +11,13 @@ namespace VsQuest.Harmony
     public class QuestItemNoDropOnDeathPatch
     {
         private static readonly Dictionary<string, List<(IInventory inv, int slotIndex, ItemStack stack)>> savedByPlayer = new();
+        private static readonly HashSet<string> keepInventoryOnceByPlayer = new(StringComparer.Ordinal);
+
+        public static void SetKeepInventoryOnce(string playerUid)
+        {
+            if (string.IsNullOrWhiteSpace(playerUid)) return;
+            keepInventoryOnceByPlayer.Add(playerUid);
+        }
 
         private static bool IsProtected(ItemStack stack)
         {
@@ -28,20 +35,25 @@ namespace VsQuest.Harmony
                 return AccessTools.Method(t, "OnDeath");
             }
 
-            public static void Prefix(object __instance)
+            public static bool Prefix(object __instance)
             {
                 try
                 {
                     var playerField = __instance.GetType().GetField("player", BindingFlags.Instance | BindingFlags.Public);
-                    if (playerField == null) return;
+                    if (playerField == null) return true;
                     var player = playerField.GetValue(__instance) as IPlayer;
-                    if (player == null) return;
+                    if (player == null) return true;
 
                     string uid = player.PlayerUID;
-                    if (string.IsNullOrWhiteSpace(uid)) return;
+                    if (string.IsNullOrWhiteSpace(uid)) return true;
+
+                    if (keepInventoryOnceByPlayer.Remove(uid))
+                    {
+                        return false;
+                    }
 
                     var invMgr = player.InventoryManager;
-                    if (invMgr?.Inventories == null) return;
+                    if (invMgr?.Inventories == null) return true;
 
                     var saved = new List<(IInventory inv, int slotIndex, ItemStack stack)>();
 
@@ -72,6 +84,8 @@ namespace VsQuest.Harmony
                 catch
                 {
                 }
+
+                return true;
             }
 
             public static void Postfix(object __instance)

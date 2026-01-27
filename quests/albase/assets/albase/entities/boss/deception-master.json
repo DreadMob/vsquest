@@ -297,41 +297,6 @@
         "checkIntervalMs": 500
       },
       {
-        "code": "bossformswaplist",
-        "stages": [
-          {
-            "whenHealthRelBelow": 0.85,
-            "entityCode": "albase:crypt-mirror-ashenlurker",
-            "cooldownSeconds": 0,
-            "requireTarget": true,
-            "keepHealthFraction": true,
-            "sound": "game:effect/translocate-active",
-            "soundRange": 24,
-            "soundStartMs": 0
-          },
-          {
-            "whenHealthRelBelow": 0.6,
-            "entityCode": "albase:crypt-mirror-bonecolossus",
-            "cooldownSeconds": 0,
-            "requireTarget": true,
-            "keepHealthFraction": true,
-            "sound": "game:effect/translocate-active",
-            "soundRange": 24,
-            "soundStartMs": 0
-          },
-          {
-            "whenHealthRelBelow": 0.35,
-            "entityCode": "albase:crypt-mirror-ossuarywarden",
-            "cooldownSeconds": 0,
-            "requireTarget": true,
-            "keepHealthFraction": true,
-            "sound": "game:effect/translocate-active",
-            "soundRange": 24,
-            "soundStartMs": 0
-          }
-        ]
-      },
-      {
         "code": "bosshook",
         "stages": [
           {
@@ -380,7 +345,7 @@
             "grabMs": 2200,
             "victimWalkSpeedMult": 0.08,
             "damageIntervalMs": 550,
-            "damage": 2.2,
+            "damage": 0.2,
             "damageTier": 4,
             "damageType": "PiercingAttack",
             "windupAnimation": "hit",
@@ -399,7 +364,7 @@
             "grabMs": 2600,
             "victimWalkSpeedMult": 0.05,
             "damageIntervalMs": 500,
-            "damage": 2.8,
+            "damage": 0.8,
             "damageTier": 4,
             "damageType": "PiercingAttack",
             "windupAnimation": "hit",
@@ -448,6 +413,108 @@
           }
         ]
       },
+      {
+        "code": "bossparasiteleech",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.8,
+            "cooldownSeconds": 14,
+            "minTargetRange": 3,
+            "maxTargetRange": 24,
+            "durationMs": 6500,
+            "tickIntervalMs": 800,
+            "damagePerTick": 1.5,
+            "damageTier": 2,
+            "damageType": "PiercingAttack",
+            "healBossPerTick": 0,
+            "healBossRelPerTick": 0.004,
+            "victimWalkSpeedDelta": -0.12,
+            "victimHealingDelta": -0.25,
+            "victimHungerRateDelta": 0.18,
+            "sound": "albase:shock-sound-effect-horror",
+            "soundRange": 24,
+            "soundStartMs": 0,
+            "loopSound": "albase:dark-magic-charge-up",
+            "loopSoundRange": 18,
+            "loopSoundIntervalMs": 950
+          },
+          {
+            "whenHealthRelBelow": 0.4,
+            "cooldownSeconds": 12,
+            "minTargetRange": 3,
+            "maxTargetRange": 26,
+            "durationMs": 7500,
+            "tickIntervalMs": 750,
+            "damagePerTick": 2.0,
+            "damageTier": 3,
+            "damageType": "PiercingAttack",
+            "healBossPerTick": 0,
+            "healBossRelPerTick": 0.006,
+            "victimWalkSpeedDelta": -0.16,
+            "victimHealingDelta": -0.32,
+            "victimHungerRateDelta": 0.24,
+            "sound": "albase:shock-sound-effect-horror",
+            "soundRange": 26,
+            "soundStartMs": 0,
+            "loopSound": "albase:dark-magic-charge-up",
+            "loopSoundRange": 18,
+            "loopSoundIntervalMs": 900
+          }
+        ]
+      },
+      {
+        "code": "bosstrapclone",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.7,
+            "cooldownSeconds": 16,
+            "minTargetRange": 6,
+            "maxTargetRange": 28,
+            "trapEntityCode": "albase:crypt-mirror-trap",
+            "spawnRange": 4.5,
+            "trapCount": 1,
+            "windupMs": 200,
+            "windupAnimation": "hit",
+            "fuseMs": 1400,
+            "explosionRadius": 3.2,
+            "explosionDamage": 7.5,
+            "damageTier": 3,
+            "damageType": "PiercingAttack",
+            "trapInvulnerable": false,
+            "sound": "game:creature/wolf/attack",
+            "soundRange": 22,
+            "soundStartMs": 120,
+            "soundVolume": 0.18,
+            "explodeSound": "albase:shock-sound-effect-horror",
+            "explodeSoundRange": 28,
+            "explodeSoundVolume": 0.2
+          },
+          {
+            "whenHealthRelBelow": 0.35,
+            "cooldownSeconds": 14,
+            "minTargetRange": 6,
+            "maxTargetRange": 30,
+            "trapEntityCode": "albase:crypt-mirror-trap",
+            "spawnRange": 5.5,
+            "trapCount": 2,
+            "windupMs": 150,
+            "windupAnimation": "hit",
+            "fuseMs": 1300,
+            "explosionRadius": 3.6,
+            "explosionDamage": 8.5,
+            "damageTier": 4,
+            "damageType": "PiercingAttack",
+            "trapInvulnerable": false,
+            "sound": "game:creature/wolf/attack",
+            "soundRange": 22,
+            "soundStartMs": 100,
+            "soundVolume": 0.18,
+            "explodeSound": "albase:shock-sound-effect-horror",
+            "explodeSoundRange": 30,
+            "explodeSoundVolume": 0.22
+          }
+        ]
+      },
       { "code": "extraskinnable" },
       { "code": "seraphinventory" },
       {
@@ -457,7 +524,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 12,
+            "damage": 10,
             "damageTier": 4,
             "minDist": 2.8,
             "minVerDist": 2.8,

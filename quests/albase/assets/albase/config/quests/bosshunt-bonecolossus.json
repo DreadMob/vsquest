@@ -74,20 +74,11 @@
       ]
     },
     {
-      "id": "questitem",
+      "id": "randomquestitem",
       "args": [
-        "albase:bosshunt-reward-sea-spirit"
-      ]
-    },
-    {
-      "id": "questitem",
-      "args": [
-        "albase:bosshunt-reward-life-amulet"
-      ]
-    },
-    {
-      "id": "questitem",
-      "args": [
+        "1",
+        "albase:bosshunt-reward-sea-spirit",
+        "albase:bosshunt-reward-life-amulet",
         "albase:bosshunt-reward-ultrawarm-coat"
       ]
     },

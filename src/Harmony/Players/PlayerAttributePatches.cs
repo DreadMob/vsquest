@@ -13,6 +13,8 @@ namespace VsQuest.Harmony
         private const string SecondChanceDebuffUntilKey = "alegacyvsquest:secondchance:debuffuntil";
         private const string SecondChanceDebuffStatKey = "alegacyvsquest:secondchance:debuff";
 
+        private const string BossGrabNoSneakUntilKey = "alegacyvsquest:bossgrab:nosneakuntil";
+
         private const string SecondChanceProcSound = "albase:sounds/atmospheric-metallic-swipe";
         private const float SecondChanceProcSoundRange = 24f;
 
@@ -92,6 +94,17 @@ namespace VsQuest.Harmony
             {
                 if (__instance?.entity is not EntityPlayer player) return;
                 if (player.Player?.InventoryManager == null) return;
+
+                try
+                {
+                    if (player.Api?.Side != EnumAppSide.Server) return;
+                    var sapi = player.Api as Vintagestory.API.Server.ICoreServerAPI;
+                    var system = sapi?.ModLoader?.GetModSystem<VsQuest.BossHuntArenaSystem>();
+                    system?.TryHandlePlayerDeath(player);
+                }
+                catch
+                {
+                }
 
                 if (!TryGetSecondChanceSlot(player, out var slot)) return;
                 SetSecondChanceCharges(slot.Itemstack, 0f);
@@ -429,6 +442,50 @@ namespace VsQuest.Harmony
 
                 __instance.Stats.Set("walkspeed", "alegacyvsquest", baseWalkSpeed * mult, true);
                 __instance.WatchedAttributes.SetFloat(AppliedKey, mult);
+            }
+        }
+
+        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
+        public class EntityAgent_OnGameTick_BossGrabDisableSneak_Client_Patch
+        {
+            public static void Prefix(EntityAgent __instance)
+            {
+                if (__instance is not EntityPlayer player) return;
+                if (player.World?.Side != EnumAppSide.Client) return;
+                if (player.WatchedAttributes == null) return;
+
+                long until;
+                try
+                {
+                    until = player.WatchedAttributes.GetLong(BossGrabNoSneakUntilKey, 0);
+                }
+                catch
+                {
+                    until = 0;
+                }
+
+                if (until <= 0) return;
+
+                long now;
+                try
+                {
+                    now = player.World.ElapsedMilliseconds;
+                }
+                catch
+                {
+                    now = 0;
+                }
+
+                if (now > 0 && now < until)
+                {
+                    try
+                    {
+                        player.Controls.Sneak = false;
+                    }
+                    catch
+                    {
+                    }
+                }
             }
         }
     }

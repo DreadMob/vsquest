@@ -74,20 +74,10 @@
       ]
     },
     {
-      "id": "questitem",
+      "id": "randomquestitem",
       "args": [
-        "albase:bosshunt-reward-archer-gloves"
-      ]
-    },
-    {
-      "id": "questitem",
-      "args": [
-        "albase:bosshunt-reward-fox-boots"
-      ]
-    },
-    {
-      "id": "questitem",
-      "args": [
+        "1",
+        "albase:bosshunt-reward-archer-gloves",
         "albase:bosshunt-reward-ashen-sigil"
       ]
     },
