@@ -21,7 +21,7 @@
   "drops": [],
   "client": {
     "renderer": "Shape",
-    "shape": { "base": "game:entity/lore/locust/locust-corrupt-sawblade" },
+    "shape": { "base": "albase:entity/lore/locust/locust-corrupt-sawblade" },
     "size": 5,
     "glowLevelByType": {
       "*": 16
