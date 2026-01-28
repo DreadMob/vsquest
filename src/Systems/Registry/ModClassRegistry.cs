@@ -28,6 +28,7 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("bossgrab", typeof(EntityBehaviorBossGrab));
             api.RegisterEntityBehaviorClass("bossanticheese", typeof(EntityBehaviorBossAntiCheese));
             api.RegisterEntityBehaviorClass("bossdamageshield", typeof(EntityBehaviorBossDamageShield));
+            api.RegisterEntityBehaviorClass("bossdamagesourceimmunity", typeof(EntityBehaviorBossDamageSourceImmunity));
             api.RegisterEntityBehaviorClass("bossintoxaura", typeof(EntityBehaviorBossIntoxicationAura));
             api.RegisterEntityBehaviorClass("bossoxygendrainaura", typeof(EntityBehaviorBossOxygenDrainAura));
             api.RegisterEntityBehaviorClass("bosscloning", typeof(EntityBehaviorBossCloning));
@@ -38,6 +39,9 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("bossformswaplist", typeof(EntityBehaviorBossFormSwapList));
             api.RegisterEntityBehaviorClass("bossintermissiondispel", typeof(EntityBehaviorBossIntermissionDispel));
             api.RegisterEntityBehaviorClass("bossparasiteleech", typeof(EntityBehaviorBossParasiteLeech));
+            api.RegisterEntityBehaviorClass("explosivelocust", typeof(EntityBehaviorExplosiveLocust));
+            api.RegisterEntityBehaviorClass("bossperiodicspawn", typeof(EntityBehaviorBossPeriodicSpawn));
+            api.RegisterEntityBehaviorClass("bossashfloor", typeof(EntityBehaviorBossAshFloor));
             api.RegisterEntityBehaviorClass("shiverdebug", typeof(EntityBehaviorShiverDebug));
 
             api.RegisterItemClass("ItemDebugTool", typeof(ItemDebugTool));
@@ -45,6 +49,9 @@ namespace VsQuest
 
             api.RegisterBlockClass("BlockCooldownPlaceholder", typeof(BlockCooldownPlaceholder));
             api.RegisterBlockEntityClass("CooldownPlaceholder", typeof(BlockEntityCooldownPlaceholder));
+
+            api.RegisterBlockClass("BlockAshFloor", typeof(BlockAshFloor));
+            api.RegisterBlockEntityClass("AshFloor", typeof(BlockEntityAshFloor));
 
             api.RegisterBlockClass("BlockQuestSpawner", typeof(BlockQuestSpawner));
             api.RegisterBlockEntityClass("QuestSpawner", typeof(BlockEntityQuestSpawner));

@@ -239,6 +239,11 @@ namespace VsQuest
             float yaw = entity.ServerPos.Yaw;
 
             int count = Math.Max(1, stage.trapCount);
+            var placed = new List<Vec3d>();
+
+            float minRingFrac = 0.4f;
+            float minSeparation = Math.Max(1.5f, stage.spawnRange * 0.5f);
+
             for (int i = 0; i < count; i++)
             {
                 Entity trap = null;
@@ -249,12 +254,20 @@ namespace VsQuest
 
                     ApplyTrapFlags(trap, stage);
 
-                    var spawnPos = TryFindSpawnPositionNear(trap, target.ServerPos.XYZ, stage.spawnRange, tries: 12, requireSolidGround: true);
+                    var spawnPos = TryFindSpawnPositionNear(trap, target.ServerPos.XYZ, stage.spawnRange, tries: 14, requireSolidGround: true, minRingFrac: minRingFrac, avoidPositions: placed, minSeparation: minSeparation);
                     trap.ServerPos.SetPosWithDimension(new Vec3d(spawnPos.X, spawnPos.Y + dim * 32768.0, spawnPos.Z));
                     trap.ServerPos.Yaw = yaw + (float)((sapi.World.Rand.NextDouble() - 0.5) * 0.4);
                     trap.Pos.SetFrom(trap.ServerPos);
 
                     sapi.World.SpawnEntity(trap);
+
+                    try
+                    {
+                        placed.Add(spawnPos);
+                    }
+                    catch
+                    {
+                    }
                 }
                 catch
                 {
@@ -274,6 +287,11 @@ namespace VsQuest
 
         private Vec3d TryFindSpawnPositionNear(Entity trap, Vec3d center, float range, int tries, bool requireSolidGround)
         {
+            return TryFindSpawnPositionNear(trap, center, range, tries, requireSolidGround, minRingFrac: 0f, avoidPositions: null, minSeparation: 0f);
+        }
+
+        private Vec3d TryFindSpawnPositionNear(Entity trap, Vec3d center, float range, int tries, bool requireSolidGround, float minRingFrac, List<Vec3d> avoidPositions, float minSeparation)
+        {
             if (sapi == null || entity == null || center == null) return entity.ServerPos.XYZ.Clone();
 
             var world = sapi.World;
@@ -286,12 +304,13 @@ namespace VsQuest
 
             int dim = entity.ServerPos.Dimension;
             double r = Math.Max(0.5, range);
+            double minR = r * Math.Clamp(minRingFrac, 0f, 0.95f);
 
             int attemptCount = Math.Max(1, tries);
             for (int attempt = 0; attempt < attemptCount; attempt++)
             {
                 double ang = world.Rand.NextDouble() * Math.PI * 2.0;
-                double dist = world.Rand.NextDouble() * r;
+                double dist = minR + world.Rand.NextDouble() * (r - minR);
 
                 double x = center.X + Math.Cos(ang) * dist;
                 double z = center.Z + Math.Sin(ang) * dist;
@@ -301,6 +320,29 @@ namespace VsQuest
 
                 if (TryFindFreeSpotNearForSelectionBox(selBox, basePos, requireSolidGround, out var found))
                 {
+                    if (avoidPositions != null && avoidPositions.Count > 0 && minSeparation > 0f)
+                    {
+                        bool tooClose = false;
+                        for (int i = 0; i < avoidPositions.Count; i++)
+                        {
+                            var p = avoidPositions[i];
+                            if (p == null) continue;
+
+                            double dx = found.X - p.X;
+                            double dz = found.Z - p.Z;
+                            if (dx * dx + dz * dz < (double)minSeparation * (double)minSeparation)
+                            {
+                                tooClose = true;
+                                break;
+                            }
+                        }
+
+                        if (tooClose)
+                        {
+                            continue;
+                        }
+                    }
+
                     return found;
                 }
             }
@@ -615,6 +657,23 @@ namespace VsQuest
             {
                 if (!string.IsNullOrWhiteSpace(explodeSound))
                 {
+                    // Prevent stacking when several traps explode at nearly the same time.
+                    long limiterEntityId = 0;
+                    try
+                    {
+                        limiterEntityId = owner?.EntityId ?? 0;
+                    }
+                    catch
+                    {
+                        limiterEntityId = 0;
+                    }
+
+                    string limiterKey = $"ent:{limiterEntityId}:{explodeSound}";
+                    if (!BossBehaviorUtils.ShouldPlaySoundLimited(limiterKey, 400))
+                    {
+                        explodeSound = null;
+                    }
+
                     var soundLoc = AssetLocation.Create(explodeSound, "game").WithPathPrefixOnce("sounds/");
                     if (soundLoc != null)
                     {
@@ -655,6 +714,50 @@ namespace VsQuest
             catch
             {
                 return false;
+            }
+
+            try
+            {
+                int dim = entity.ServerPos.Dimension;
+                var center = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y + dim * 32768.0, entity.ServerPos.Z);
+
+                int smokeMin = Math.Max(45, (int)(radius * 40f));
+                int smokeMax = Math.Max(smokeMin + 15, (int)(radius * 70f));
+
+                SimpleParticleProperties smoke = new SimpleParticleProperties(
+                    smokeMin, smokeMax,
+                    ColorUtil.ToRgba(140, 30, 30, 30),
+                    new Vec3d(),
+                    new Vec3d(radius, Math.Max(1.0, radius * 0.6), radius),
+                    new Vec3f(-0.6f, 0.05f, -0.6f),
+                    new Vec3f(0.6f, 0.35f, 0.6f),
+                    0.0875f,
+                    -0.06f,
+                    0.5f,
+                    0.5f,
+                    EnumParticleModel.Quad
+                );
+                smoke.MinPos = center.AddCopy(-radius * 0.5, -0.25, -radius * 0.5);
+                sapi.World.SpawnParticles(smoke);
+
+                SimpleParticleProperties flash = new SimpleParticleProperties(
+                    10, 16,
+                    ColorUtil.ToRgba(255, 255, 220, 120),
+                    new Vec3d(),
+                    new Vec3d(Math.Max(0.5, radius * 0.35), 0.25, Math.Max(0.5, radius * 0.35)),
+                    new Vec3f(-0.2f, 0.2f, -0.2f),
+                    new Vec3f(0.2f, 0.6f, 0.2f),
+                    0.03f,
+                    0f,
+                    0.08f,
+                    0.045f,
+                    EnumParticleModel.Quad
+                );
+                flash.MinPos = center.AddCopy(-0.1, 0.2, -0.1);
+                sapi.World.SpawnParticles(flash);
+            }
+            catch
+            {
             }
 
             return true;
@@ -715,6 +818,9 @@ namespace VsQuest
         {
             if (sapi == null || stage == null) return;
             if (string.IsNullOrWhiteSpace(stage.sound)) return;
+
+            // Prevent stacking when multiple traps are spawned in the same moment.
+            if (!BossBehaviorUtils.ShouldPlaySoundLimited(entity, stage.sound, 500)) return;
 
             AssetLocation soundLoc = AssetLocation.Create(stage.sound, "game").WithPathPrefixOnce("sounds/");
             if (soundLoc == null) return;

@@ -49,9 +49,11 @@ namespace VsQuest
             public string sound;
             public float soundRange;
             public int soundStartMs;
+            public float soundVolume;
             public string loopSound;
             public float loopSoundRange;
             public int loopSoundIntervalMs;
+            public float loopSoundVolume;
             public int spawnDelayMs;
         }
 
@@ -106,32 +108,43 @@ namespace VsQuest
                         sound = stageObj["sound"].AsString(null),
                         soundRange = stageObj["soundRange"].AsFloat(16f),
                         soundStartMs = stageObj["soundStartMs"].AsInt(0),
+                        soundVolume = stageObj["soundVolume"].AsFloat(1f),
                         loopSound = stageObj["loopSound"].AsString(null),
                         loopSoundRange = stageObj["loopSoundRange"].AsFloat(16f),
                         loopSoundIntervalMs = stageObj["loopSoundIntervalMs"].AsInt(900),
+                        loopSoundVolume = stageObj["loopSoundVolume"].AsFloat(1f),
                         spawnDelayMs = stageObj["spawnDelayMs"].AsInt(600),
                     };
 
                     stage.spawns = new List<SummonSpawn>();
-                    foreach (var spawnObj in stageObj["spawns"].AsArray())
+                    try
                     {
-                        if (spawnObj == null || !spawnObj.Exists) continue;
-
-                        var spawn = new SummonSpawn
+                        if (stageObj["spawns"]?.Exists == true)
                         {
-                            entityCode = spawnObj["entityCode"].AsString(null),
-                            maxNearby = spawnObj["maxNearby"].AsInt(stage.maxNearby),
-                            nearbyRange = spawnObj["nearbyRange"].AsFloat(stage.nearbyRange),
-                            minCount = spawnObj["minCount"].AsInt(stage.minCount),
-                            maxCount = spawnObj["maxCount"].AsInt(stage.maxCount),
-                            chance = spawnObj["chance"].AsFloat(1f),
-                            spawnDelayMs = spawnObj["spawnDelayMs"].AsInt(stage.spawnDelayMs),
-                        };
+                            foreach (var spawnObj in stageObj["spawns"].AsArray())
+                            {
+                                if (spawnObj == null || !spawnObj.Exists) continue;
 
-                        if (!string.IsNullOrWhiteSpace(spawn.entityCode))
-                        {
-                            stage.spawns.Add(spawn);
+                                var spawn = new SummonSpawn
+                                {
+                                    entityCode = spawnObj["entityCode"].AsString(null),
+                                    maxNearby = spawnObj["maxNearby"].AsInt(stage.maxNearby),
+                                    nearbyRange = spawnObj["nearbyRange"].AsFloat(stage.nearbyRange),
+                                    minCount = spawnObj["minCount"].AsInt(stage.minCount),
+                                    maxCount = spawnObj["maxCount"].AsInt(stage.maxCount),
+                                    chance = spawnObj["chance"].AsFloat(1f),
+                                    spawnDelayMs = spawnObj["spawnDelayMs"].AsInt(stage.spawnDelayMs),
+                                };
+
+                                if (!string.IsNullOrWhiteSpace(spawn.entityCode))
+                                {
+                                    stage.spawns.Add(spawn);
+                                }
+                            }
                         }
+                    }
+                    catch
+                    {
                     }
 
                     if (stage.spawns.Count > 0 || !string.IsNullOrWhiteSpace(stage.entityCode))
@@ -216,7 +229,9 @@ namespace VsQuest
         private void TryStartLoopSound(SummonStage stage)
         {
             if (string.IsNullOrWhiteSpace(stage.loopSound)) return;
-            soundLoop.Start(sapi, entity, stage.loopSound, stage.loopSoundRange, stage.loopSoundIntervalMs);
+            float volume = stage.loopSoundVolume;
+            if (volume <= 0f) volume = 1f;
+            soundLoop.Start(sapi, entity, stage.loopSound, stage.loopSoundRange, stage.loopSoundIntervalMs, volume);
         }
 
         private void StartRitual(SummonStage stage, int index)
@@ -377,8 +392,46 @@ namespace VsQuest
                 if (count > remaining) count = remaining;
             }
 
-            var type = sapi.World.GetEntityType(new AssetLocation(spawn.entityCode));
-            if (type == null) return;
+            EntityProperties type = null;
+            AssetLocation codeLoc = null;
+            try
+            {
+                codeLoc = new AssetLocation(spawn.entityCode);
+                type = sapi.World.GetEntityType(codeLoc);
+            }
+            catch
+            {
+                type = null;
+            }
+
+            // Fallback: some vanilla entities live in the 'survival' asset domain.
+            if (type == null)
+            {
+                try
+                {
+                    if (codeLoc != null && string.Equals(codeLoc.Domain, "game", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var survivalLoc = new AssetLocation("survival", codeLoc.Path);
+                        type = sapi.World.GetEntityType(survivalLoc);
+                    }
+                }
+                catch
+                {
+                    type = null;
+                }
+            }
+
+            if (type == null)
+            {
+                try
+                {
+                    sapi.Logger.Warning("[VsQuest] bosssummonritual: entity type not found for code '{0}'", spawn.entityCode);
+                }
+                catch
+                {
+                }
+                return;
+            }
 
             int dim = entity.ServerPos.Dimension;
             for (int i = 0; i < count; i++)
@@ -536,13 +589,31 @@ namespace VsQuest
             AssetLocation soundLoc = AssetLocation.Create(stage.sound, "game").WithPathPrefixOnce("sounds/");
             if (soundLoc == null) return;
 
+            float pitchMul = 1f;
+            try
+            {
+                pitchMul = entity?.Properties?.Attributes?["vsquestSoundPitchMul"].AsFloat(1f) ?? 1f;
+            }
+            catch
+            {
+                pitchMul = 1f;
+            }
+
+            if (pitchMul <= 0f) pitchMul = 1f;
+
             if (stage.soundStartMs > 0)
             {
                 sapi.Event.RegisterCallback(_ =>
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
+                        float volume = stage.soundVolume;
+                        if (volume <= 0f) volume = 1f;
+
+                        float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                        pitch *= pitchMul;
+
+                        sapi.World.PlaySoundAt(soundLoc, entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z, null, pitch, stage.soundRange, volume);
                     }
                     catch
                     {
@@ -553,7 +624,13 @@ namespace VsQuest
             {
                 try
                 {
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
+                    float volume = stage.soundVolume;
+                    if (volume <= 0f) volume = 1f;
+
+                    float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                    pitch *= pitchMul;
+
+                    sapi.World.PlaySoundAt(soundLoc, entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z, null, pitch, stage.soundRange, volume);
                 }
                 catch
                 {

@@ -2,7 +2,7 @@
   "inheritFrom": "game:entities/lore/bowtorn",
   "code": "subduction-maw",
   "class": "EntityAgent",
-  "tags": ["rust-creature", "habitat-land"],
+  "tags": ["rust-creature", "habitat-land", "horror"],
   "variantgroups": [],
   "hitboxSize": { "x": 1.9, "y": 4.8 },
   "deadHitboxSize": { "x": 2.8, "y": 2.0 },
@@ -11,7 +11,7 @@
     "killedByInfoText": "deadcreature-vile",
     "reckless": true,
     "vsquestSoundPitchMul": 0.6,
-    "SoundVolumeMulBySound": { "albase:dark-magic-charge-up": 0.55, "albase:shock-sound-effect-horror": 0.55 },
+    "SoundVolumeMulBySound": { "albase:dark-magic-charge-up": 0.55, "albase:breath-out": 0.45 },
     "alegacyvsquestHideInfoText": true
   },
   "drops": [],
@@ -33,7 +33,7 @@
       { "code": "floatupwhenstuck", "onlyWhenDead": true },
       { "code": "interpolateposition" },
       { "code": "boss", "bossHpBarRange": 90 },
-      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_subduction_maw", "range": 160, "startRange": 35, "combatTimeoutMs": 12000, "requireRecentDamage": true, "startOnTarget": true, "playInIdle": false, "fadeOutSeconds": 2, "usePhases": true, "phaseSwitching": false, "phases": [ { "whenHealthRelBelow": 0.7, "startAtSeconds": 60 }, { "whenHealthRelBelow": 0.3, "startAtSeconds": 120 } ] },
+      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_subduction_maw", "range": 160, "startRange": 35, "combatTimeoutMs": 20000, "fadeOutSeconds": 4, "usePhases": true, "phaseSwitching": false, "phases": [ { "whenHealthRelBelow": 0.7, "startAtSeconds": 60 }, { "whenHealthRelBelow": 0.3, "startAtSeconds": 120 } ] },
       { "code": "bossnametag", "nameLangKey": "item-creature-subduction-maw", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 120 }
     ],
     "animations": [
@@ -54,7 +54,8 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 520, "maxhealth": 520 },
+      { "code": "bossdamagesourceimmunity", "ignoreWeather": true, "ignoreExplosion": true, "ignoreElectricity": true, "onlyAllowPlayerDamage": true },
+      { "code": "health", "currenthealth": 650, "maxhealth": 650 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:subduction-maw", "leashRange": 120, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
@@ -71,7 +72,7 @@
             "spawnRange": 10,
             "adds": [
               {
-                "entityCode": "game:shiver",
+                "entityCode": "game:shiver-surface",
                 "maxNearby": 6,
                 "nearbyRange": 28,
                 "minCount": 1,
@@ -82,10 +83,10 @@
             ],
             "animation": "turret",
             "animationStopMs": 2400,
-            "sound": "albase:dark-magic-charge-up",
+            "sound": "effect/translocate-active",
             "soundRange": 40,
             "soundStartMs": 0,
-            "loopSound": "albase:dark-magic-charge-up",
+            "loopSound": "effect/translocate-idle",
             "loopSoundRange": 22,
             "loopSoundIntervalMs": 900
           },
@@ -99,7 +100,7 @@
             "spawnRange": 12,
             "adds": [
               {
-                "entityCode": "game:shiver",
+                "entityCode": "game:shiver-surface",
                 "maxNearby": 8,
                 "nearbyRange": 30,
                 "minCount": 2,
@@ -110,10 +111,10 @@
             ],
             "animation": "load",
             "animationStopMs": 2600,
-            "sound": "albase:shock-sound-effect-horror",
+            "sound": "effect/translocate-active",
             "soundRange": 40,
             "soundStartMs": 0,
-            "loopSound": "albase:dark-magic-charge-up",
+            "loopSound": "effect/translocate-idle",
             "loopSoundRange": 22,
             "loopSoundIntervalMs": 850
           }
@@ -122,9 +123,9 @@
       {
         "code": "bossintoxaura",
         "stages": [
-          { "whenHealthRelBelow": 0.75, "range": 26, "intoxication": 0.25, "intervalMs": 500 },
-          { "whenHealthRelBelow": 0.45, "range": 32, "intoxication": 0.5, "intervalMs": 450 },
-          { "whenHealthRelBelow": 0.2, "range": 38, "intoxication": 0.75, "intervalMs": 400 }
+          { "whenHealthRelBelow": 0.75, "range": 26, "intoxication": 0.55, "intervalMs": 350 },
+          { "whenHealthRelBelow": 0.45, "range": 32, "intoxication": 0.85, "intervalMs": 320 },
+          { "whenHealthRelBelow": 0.2, "range": 38, "intoxication": 1.1, "intervalMs": 280 }
         ]
       },
       {
@@ -138,10 +139,10 @@
             "maxPlayerMotion": 0.75,
             "stunMs": 1400,
             "victimWalkSpeedMult": 0.0,
-            "sound": "game:creature/wolf/attack",
+            "sound": "albase:deathmagic",
             "soundRange": 24,
             "soundStartMs": 0,
-            "soundVolume": 0.2
+            "soundVolume": 0.35
           },
           {
             "whenHealthRelBelow": 0.35,
@@ -151,10 +152,10 @@
             "maxPlayerMotion": 0.9,
             "stunMs": 1600,
             "victimWalkSpeedMult": 0.0,
-            "sound": "albase:shock-sound-effect-horror",
+            "sound": "albase:deathmagic",
             "soundRange": 26,
             "soundStartMs": 0,
-            "soundVolume": 0.2
+            "soundVolume": 0.35
           }
         ]
       },
@@ -170,7 +171,7 @@
         "code": "bossteleport",
         "stages": [
           { "whenHealthRelBelow": 0.6, "cooldownSeconds": 10, "minTargetRange": 10, "maxTargetRange": 42, "minRadius": 3, "maxRadius": 8, "tries": 12, "windupMs": 250, "windupAnimation": "turret", "arriveAnimation": "stab", "sound": "albase:dark-magic-charge-up", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true },
-          { "whenHealthRelBelow": 0.3, "cooldownSeconds": 8, "minTargetRange": 8, "maxTargetRange": 40, "minRadius": 5, "maxRadius": 8, "tries": 12, "windupMs": 220, "windupAnimation": "load", "arriveAnimation": "stab", "sound": "albase:shock-sound-effect-horror", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true }
+          { "whenHealthRelBelow": 0.3, "cooldownSeconds": 8, "minTargetRange": 8, "maxTargetRange": 40, "minRadius": 5, "maxRadius": 8, "tries": 12, "windupMs": 220, "windupAnimation": "load", "arriveAnimation": "stab", "sound": "albase:breath-out", "soundRange": 40, "soundStartMs": 0, "soundVolume": 0.25, "requireSolidGround": true, "teleportClones": true, "swapWithClones": true }
         ]
       },
       {
@@ -183,22 +184,22 @@
             "maxTargetRange": 32,
             "trapEntityCode": "albase:subduction-maw-trap",
             "spawnRange": 6,
-            "trapCount": 2,
+            "trapCount": 3,
             "windupMs": 160,
             "windupAnimation": "load",
-            "fuseMs": 2200,
+            "fuseMs": 1500,
             "explosionRadius": 4.2,
-            "explosionDamage": 19.5,
+            "explosionDamage": 26.0,
             "damageTier": 3,
             "damageType": "PiercingAttack",
             "trapInvulnerable": true,
-            "sound": "albase:dark-magic-charge-up",
+            "sound": "albase:horror-hit",
             "soundRange": 32,
             "soundStartMs": 0,
-            "soundVolume": 0.12,
-            "explodeSound": "albase:shock-sound-effect-horror",
+            "soundVolume": 0.25,
+            "explodeSound": "effect/smallexplosion",
             "explodeSoundRange": 34,
-            "explodeSoundVolume": 0.14
+            "explodeSoundVolume": 0.35
           },
           {
             "whenHealthRelBelow": 0.35,
@@ -207,22 +208,22 @@
             "maxTargetRange": 36,
             "trapEntityCode": "albase:subduction-maw-trap",
             "spawnRange": 7,
-            "trapCount": 3,
+            "trapCount": 5,
             "windupMs": 140,
             "windupAnimation": "reload",
-            "fuseMs": 1900,
+            "fuseMs": 1300,
             "explosionRadius": 4.8,
-            "explosionDamage": 23.5,
+            "explosionDamage": 32.0,
             "damageTier": 4,
             "damageType": "PiercingAttack",
             "trapInvulnerable": true,
-            "sound": "albase:dark-magic-charge-up",
+            "sound": "albase:breath-out",
             "soundRange": 34,
             "soundStartMs": 0,
-            "soundVolume": 0.12,
-            "explodeSound": "albase:shock-sound-effect-horror",
+            "soundVolume": 0.25,
+            "explodeSound": "effect/smallexplosion",
             "explodeSoundRange": 36,
-            "explodeSoundVolume": 0.14
+            "explodeSoundVolume": 0.35
           }
         ]
       },
@@ -233,11 +234,12 @@
             "whenHealthRelBelow": 0.8,
             "minCount": 1,
             "maxCount": 2,
-            "cooldownSeconds": 12,
+            "cooldownSeconds": 14,
             "minRadius": 4,
             "maxRadius": 16,
-            "warningSound": "effect/translocate-idle",
+            "warningSound": "albase:warning",
             "warningSoundRange": 32,
+            "warningSoundVolume": 0.56,
             "warningDelayMs": 3000,
             "chance": 0.9
           },
@@ -245,11 +247,12 @@
             "whenHealthRelBelow": 0.5,
             "minCount": 2,
             "maxCount": 3,
-            "cooldownSeconds": 10,
+            "cooldownSeconds": 12,
             "minRadius": 4,
             "maxRadius": 18,
-            "warningSound": "effect/translocate-idle",
+            "warningSound": "albase:warning",
             "warningSoundRange": 34,
+            "warningSoundVolume": 0.56,
             "warningDelayMs": 3000,
             "chance": 1.0
           },
@@ -257,11 +260,12 @@
             "whenHealthRelBelow": 0.25,
             "minCount": 2,
             "maxCount": 4,
-            "cooldownSeconds": 9,
+            "cooldownSeconds": 11,
             "minRadius": 3,
             "maxRadius": 20,
-            "warningSound": "effect/translocate-idle",
+            "warningSound": "albase:warning",
             "warningSoundRange": 36,
+            "warningSoundVolume": 0.56,
             "warningDelayMs": 2500,
             "chance": 1.0
           }
@@ -272,35 +276,35 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.75,
-            "cooldownSeconds": 16,
-            "entityCode": "game:shiver",
-            "maxNearby": 6,
+            "cooldownSeconds": 10,
+            "entityCode": "game:shiver-surface",
+            "maxNearby": 4,
             "nearbyRange": 28,
-            "minCount": 1,
-            "maxCount": 2,
-            "ritualMs": 2200,
+            "minCount": 2,
+            "maxCount": 3,
+            "ritualMs": 1900,
             "spawnRange": 8,
             "animation": "load",
-            "sound": "weather/lightning-verynear",
+            "sound": "game:effect/translocate-breakdimension",
             "soundRange": 36,
             "soundStartMs": 0,
-            "spawnDelayMs": 350
+            "spawnDelayMs": 250
           },
           {
             "whenHealthRelBelow": 0.4,
-            "cooldownSeconds": 12,
-            "entityCode": "game:shiver",
-            "maxNearby": 8,
+            "cooldownSeconds": 8,
+            "entityCode": "game:shiver-surface",
+            "maxNearby": 6,
             "nearbyRange": 30,
-            "minCount": 2,
-            "maxCount": 3,
-            "ritualMs": 2200,
+            "minCount": 3,
+            "maxCount": 4,
+            "ritualMs": 1800,
             "spawnRange": 10,
             "animation": "reload",
-            "sound": "weather/lightning-verynear",
+            "sound": "game:effect/translocate-breakdimension",
             "soundRange": 40,
             "soundStartMs": 0,
-            "spawnDelayMs": 300
+            "spawnDelayMs": 220
           }
         ]
       },
@@ -314,10 +318,10 @@
             "damage": 29.5,
             "damageTier": 4,
             "mincooldown": 220,
-            "maxcooldown": 620,
-            "maxAttackDistance": 9.5,
-            "maxAttackVerticalDistance": 4.8,
-            "attackAngleRangeDeg": 160,
+            "maxcooldown": 420,
+            "maxAttackDistance": 11.5,
+            "maxAttackVerticalDistance": 5.5,
+            "attackAngleRangeDeg": 180,
             "retaliateAttacks": false,
             "damagePlayerAtMs": 320,
             "attackDurationMs": 1000,
@@ -356,7 +360,7 @@
             "firingRangeMin": 8,
             "firingRangeMax": 22,
             "abortRange": 9,
-            "projectileDamage": 13.5,
+            "projectileDamage": 18.5,
             "projectileDamageTier": 2,
             "projectileCode": "game:bowtornprojectile",
             "retaliateAttacks": false,

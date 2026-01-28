@@ -251,6 +251,33 @@ namespace VsQuest
             target.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
             target.Pos.SetFrom(target.ServerPos);
 
+            // Safety: sometimes even a validated spot can become colliding (chunk load timing / selection box quirks).
+            // Attempt a quick post-teleport nudge to a nearby free spot.
+            try
+            {
+                var world = sapi?.World;
+                var ba = world?.BlockAccessor;
+                var ct = world?.CollisionTester;
+                var selBox = target.SelectionBox;
+                if (ba != null && ct != null && selBox != null)
+                {
+                    var tmpPos = new Vec3d(target.ServerPos.X, target.ServerPos.Y + dim * 32768.0, target.ServerPos.Z);
+                    bool colliding = ct.IsColliding(ba, selBox, tmpPos, alsoCheckTouch: false);
+                    if (colliding)
+                    {
+                        var bp = new BlockPos((int)Math.Floor(target.ServerPos.X), (int)Math.Floor(target.ServerPos.Y), (int)Math.Floor(target.ServerPos.Z), dim);
+                        if (TryFindFreeSpotNear(bp, requireSolidGround: true, out var found))
+                        {
+                            target.ServerPos.SetPosWithDimension(new Vec3d(found.X, found.Y + dim * 32768.0, found.Z));
+                            target.Pos.SetFrom(target.ServerPos);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+
             try
             {
                 target.ServerPos.Motion.Set(0, 0, 0);
@@ -524,10 +551,15 @@ namespace VsQuest
             if (sapi == null || stage == null) return;
             if (string.IsNullOrWhiteSpace(stage.sound)) return;
 
+            // Prevent sound stacking when teleport/clone logic triggers multiple times close together.
+            if (!BossBehaviorUtils.ShouldPlaySoundLimited(entity, stage.sound, 500)) return;
+
             AssetLocation soundLoc = AssetLocation.Create(stage.sound, "game").WithPathPrefixOnce("sounds/");
             if (soundLoc == null) return;
 
             float volume = stage.soundVolume;
+            if (volume <= 0f) volume = 1f;
+
             try
             {
                 Dictionary<string, float> volumeBySound = null;

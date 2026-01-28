@@ -40,7 +40,7 @@
         ]
       },
       { "code": "boss", "bossHpBarRange": 70 },
-      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_1", "range": 80, "startRange": 35, "combatTimeoutMs": 12000, "requireRecentDamage": true, "startOnTarget": true, "playInIdle": false, "fadeOutSeconds": 2, "usePhases": true, "phaseSwitching": false, "phases": [ { "whenHealthRelBelow": 0.7, "startAtSeconds": 60 }, { "whenHealthRelBelow": 0.3, "startAtSeconds": 120 } ] },
+      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_1", "range": 80, "startRange": 35, "combatTimeoutMs": 20000, "fadeOutSeconds": 4, "usePhases": true, "phaseSwitching": false, "phases": [ { "whenHealthRelBelow": 0.7, "startAtSeconds": 60 }, { "whenHealthRelBelow": 0.3, "startAtSeconds": 120 } ] },
       { "code": "bossnametag", "nameLangKey": "item-creature-bonecolossus", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 100 }
     ],
     "animations": [
@@ -56,7 +56,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 370, "maxhealth": 370 },
+      { "code": "health", "currenthealth": 460, "maxhealth": 460 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:bonecolossus", "leashRange": 120, "returnMoveSpeed": 0.075, "leashCheckMs": 1000 },
@@ -129,67 +129,33 @@
         ]
       },
       {
-        "code": "bossgrab",
+        "code": "bossrepulsestun",
         "stages": [
           {
-            "whenHealthRelBelow": 0.75,
-            "cooldownSeconds": 12,
-            "minTargetRange": 0,
-            "maxTargetRange": 3.4,
-            "windupMs": 200,
-            "grabMs": 2600,
-            "victimWalkSpeedMult": 0.05,
-            "damageIntervalMs": 520,
-            "damage": 0.4,
-            "damageTier": 4,
-            "damageType": "PiercingAttack",
-            "windupAnimation": "run",
-            "grabAnimation": "attack",
+            "whenHealthRelBelow": 0.85,
+            "cooldownSeconds": 14,
+            "range": 6.5,
+            "knockbackStrength": 0.0,
+            "maxPlayerMotion": 0.55,
+            "stunMs": 1100,
+            "victimWalkSpeedMult": 0.0,
             "sound": "albase:shock-sound-effect-horror",
-            "soundRange": 24,
+            "soundRange": 26,
             "soundStartMs": 0,
-            "soundVolume": 0.18
+            "soundVolume": 0.14
           },
           {
             "whenHealthRelBelow": 0.35,
-            "cooldownSeconds": 9,
-            "minTargetRange": 0,
-            "maxTargetRange": 3.8,
-            "windupMs": 150,
-            "grabMs": 3000,
-            "victimWalkSpeedMult": 0.03,
-            "damageIntervalMs": 480,
-            "damage": 0.8,
-            "damageTier": 4,
-            "damageType": "PiercingAttack",
-            "windupAnimation": "run",
-            "grabAnimation": "attack-withwindup",
+            "cooldownSeconds": 11,
+            "range": 7.2,
+            "knockbackStrength": 0.0,
+            "maxPlayerMotion": 0.65,
+            "stunMs": 1400,
+            "victimWalkSpeedMult": 0.0,
             "sound": "albase:shock-sound-effect-horror",
-            "soundRange": 28,
+            "soundRange": 30,
             "soundStartMs": 0,
-            "soundVolume": 0.18
-          }
-        ]
-      },
-      {
-        "code": "bossteleport",
-        "stages": [
-          {
-            "whenHealthRelBelow": 0.4,
-            "cooldownSeconds": 5,
-            "minTargetRange": 12,
-            "maxTargetRange": 40,
-            "minRadius": 3,
-            "maxRadius": 6,
-            "tries": 10,
-            "windupMs": 250,
-            "windupAnimation": "run",
-            "arriveAnimation": "attack-withwindup",
-            "sound": "albase:dark-magic-charge-up",
-            "soundRange": 40,
-            "soundStartMs": 0,
-            "soundVolume": 0.3,
-            "requireSolidGround": true
+            "soundVolume": 0.14
           }
         ]
       },
@@ -198,32 +164,32 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.75,
-            "entityCode": "game:wolf",
+            "entityCode": "wolf-eurasian-adult-male",
             "maxNearby": 4,
             "nearbyRange": 35,
-            "minCount": 4,
-            "maxCount": 5,
+            "minCount": 2,
+            "maxCount": 3,
             "ritualMs": 2400,
             "cooldownSeconds": 18,
             "spawnRange": 9,
             "animation": "howl",
-            "sound": "game:creature/wolf/howl",
+            "sound": "game:creature/wolf/howl1",
             "soundRange": 40,
             "soundStartMs": 0,
             "spawnDelayMs": 350
           },
           {
             "whenHealthRelBelow": 0.4,
-            "entityCode": "game:wolf",
+            "entityCode": "wolf-eurasian-adult-male",
             "maxNearby": 6,
             "nearbyRange": 35,
-            "minCount": 5,
-            "maxCount": 7,
+            "minCount": 3,
+            "maxCount": 3,
             "ritualMs": 2600,
             "cooldownSeconds": 16,
             "spawnRange": 11,
             "animation": "howl",
-            "sound": "game:creature/wolf/howl",
+            "sound": "game:creature/wolf/howl1",
             "soundRange": 45,
             "soundStartMs": 0,
             "spawnDelayMs": 300
@@ -239,7 +205,6 @@
             "speedMultiplier": 1.9,
             "animation": "hurt",
             "animationMs": 600,
-            "sound": "weather/lightning-verynear",
             "soundRange": 48,
             "soundStartMs": 0,
             "lightningFlash": true
@@ -277,7 +242,7 @@
             "damagePlayerAtMs": 820,
             "animation": "attack-withwindup",
             "animationSpeed": 1.2,
-            "sound": "game:creature/drifter-hit"
+            "sound": "game:creature/wolf/attack"
           },
           {
             "code": "meleeattack",

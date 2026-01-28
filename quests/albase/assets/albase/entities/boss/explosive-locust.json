@@ -1,0 +1,87 @@
+{
+  "code": "explosive-locust",
+  "class": "EntityLocust",
+  "tags": ["mechanical", "habitat-land"],
+  "canClimb": true,
+  "canClimbAnywhere": true,
+  "climbTouchDistance": 0.1,
+  "rotateModelOnClimb": true,
+  "fallDamageMultiplier": 0.0,
+  "hitboxSize": { "x": 0.65, "y": 0.6 },
+  "deadHitboxSize": { "x": 0.65, "y": 0.5 },
+  "eyeHeight": 0.6,
+  "drops": [],
+  "attributes": {
+    "spawnDamageParticles": true,
+    "isMechanical": true,
+    "alegacyvsquestHideInfoText": true
+  },
+  "client": {
+    "renderer": "Shape",
+    "shape": { "base": "albase:entity/lore/locust/locust-bronze" },
+    "textures": {
+      "skin": { "base": "albase:entity/lore/locust/explosive-locust" }
+    },
+    "size": 2.15,
+    "glowLevelByType": { "*": 16 },
+    "behaviors": [
+      { "code": "repulseagents" },
+      { "code": "controlledphysics", "stepHeight": 1.1251 },
+      { "code": "floatupwhenstuck", "onlyWhenDead": true },
+      { "code": "interpolateposition" },
+      { "code": "alegacyvsquestbosshealthbar", "show": false }
+    ],
+    "animations": [
+      { "code": "hurt", "animation": "hurt", "animationSpeed": 2.2, "weight": 5, "blendMode": "AddAverage" },
+      { "code": "die", "animation": "die", "animationSpeed": 1.25, "weight": 10, "blendMode": "Average", "triggeredBy": { "onControls": ["dead"] } },
+      { "code": "idle", "animation": "idlecalm", "blendMode": "Average", "triggeredBy": { "defaultAnim": true } },
+      { "code": "run", "animation": "run", "animationSpeed": 6.5, "weight": 1, "blendMode": "Average" }
+    ]
+  },
+  "server": {
+    "behaviors": [
+      { "code": "repulseagents" },
+      { "code": "controlledphysics", "stepHeight": 1.1251 },
+      { "code": "health", "currenthealth": 5, "maxhealth": 5 },
+      {
+        "code": "taskai",
+        "aitasks": [
+          {
+            "code": "seekentity",
+            "entityCodes": ["player"],
+            "priority": 2.0,
+            "mincooldown": 200,
+            "maxcooldown": 400,
+            "movespeed": 0.14,
+            "seekingRange": 40,
+            "maxFollowTime": 999999,
+            "animation": "run",
+            "animationSpeed": 7
+          }
+        ]
+      },
+      {
+        "code": "explosivelocust",
+        "fuseMs": 3000,
+        "explosionRadius": 3.0,
+        "explosionDamage": 10.0,
+        "damageTier": 3,
+        "damageType": "PiercingAttack",
+        "leapCooldownSeconds": 1.2,
+        "leapTriggerRange": 9.0,
+        "leapHorizontalSpeed": 0.75,
+        "leapVerticalSpeed": 0.22,
+        "loopSound": "albase:mechanical/mecha switch",
+        "loopSoundRange": 10,
+        "loopSoundIntervalMs": 700,
+        "loopSoundVolume": 0.5,
+        "explodeSound": "effect/smallexplosion",
+        "explodeSoundRange": 18,
+        "explodeSoundVolume": 0.8
+      },
+      { "code": "floatupwhenstuck", "onlyWhenDead": true }
+    ]
+  },
+  "idleSoundRange": 0,
+  "sounds": {}
+}

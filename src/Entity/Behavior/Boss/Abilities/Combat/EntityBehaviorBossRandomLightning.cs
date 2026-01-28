@@ -24,6 +24,7 @@ namespace VsQuest
             public string warningSound;
             public float warningSoundRange;
             public int warningDelayMs;
+            public float warningSoundVolume;
             public float chance;
         }
 
@@ -72,8 +73,11 @@ namespace VsQuest
                         warningSound = stageObj["warningSound"].AsString("weather/lightning-verynear"),
                         warningSoundRange = stageObj["warningSoundRange"].AsFloat(32f),
                         warningDelayMs = stageObj["warningDelayMs"].AsInt(3000),
+                        warningSoundVolume = stageObj["warningSoundVolume"].AsFloat(1.35f),
                         chance = stageObj["chance"].AsFloat(1f)
                     };
+
+                    if (stage.warningSoundVolume <= 0f) stage.warningSoundVolume = 1f;
 
                     if (stage.maxRadius <= 0f)
                     {
@@ -159,9 +163,36 @@ namespace VsQuest
         {
             if (sapi == null || stage == null || strikePos == null) return;
 
-            TryPlayWarningSound(stage, strikePos);
-
             int delayMs = Math.Max(0, stage.warningDelayMs);
+
+            // Loop warning sound until the strike happens.
+            // This gives players a continuous cue without relying on stacking/overlapping sounds.
+            if (!string.IsNullOrWhiteSpace(stage.warningSound))
+            {
+                int intervalMs = 600;
+                if (intervalMs < 250) intervalMs = 250;
+
+                // Cap the amount of scheduled warning plays to avoid excessive callbacks.
+                int maxPlays = 10;
+                int plays = 1;
+                if (delayMs > 0)
+                {
+                    plays = 1 + (delayMs / intervalMs);
+                }
+                if (plays > maxPlays) plays = maxPlays;
+
+                for (int i = 0; i < plays; i++)
+                {
+                    int playDelay = i * intervalMs;
+                    if (playDelay > delayMs) break;
+
+                    sapi.Event.RegisterCallback(_ =>
+                    {
+                        TryPlayWarningSound(stage, strikePos);
+                    }, playDelay);
+                }
+            }
+
             sapi.Event.RegisterCallback(_ =>
             {
                 try
@@ -181,7 +212,14 @@ namespace VsQuest
             try
             {
                 AssetLocation soundLoc = AssetLocation.Create(stage.warningSound, "game").WithPathPrefixOnce("sounds/");
-                sapi.World.PlaySoundAt(soundLoc, strikePos.X, strikePos.Y, strikePos.Z, null, randomizePitch: true, stage.warningSoundRange);
+                float volume = stage.warningSoundVolume;
+                if (volume <= 0f) volume = 1f;
+
+                // Warning should be very local to the strike position.
+                float range = stage.warningSoundRange > 0f ? stage.warningSoundRange : 2.5f;
+                if (range > 2.5f) range = 2.5f;
+
+                sapi.World.PlaySoundAt(soundLoc, strikePos.X, strikePos.Y, strikePos.Z, null, randomizePitch: true, range, volume);
             }
             catch
             {

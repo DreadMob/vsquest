@@ -44,7 +44,7 @@ namespace VsQuest
 
         private long suppressVanillaMusicListenerId;
 
-        private const float BossMusicVolumeMul = 0.22f;
+        private const float BossMusicVolumeMul = 0.3f;
 
         private const float DefaultFadeOutSeconds = 2f;
 
@@ -132,6 +132,14 @@ namespace VsQuest
             if (capi == null) return;
 
             if (string.IsNullOrWhiteSpace(key) && string.IsNullOrWhiteSpace(url)) return;
+
+            try
+            {
+                fadeCts?.Cancel();
+            }
+            catch
+            {
+            }
 
             string resolvedKey = string.IsNullOrWhiteSpace(key) ? null : key.Trim();
             string resolvedUrl = NormalizeUrl(url);
@@ -413,12 +421,15 @@ namespace VsQuest
                 }
                 finally
                 {
-                    currentKey = null;
-                    currentUrl = null;
-                    currentStartAtSeconds = 0f;
-                    stopPending = false;
-                    StopPlayback(immediate: true);
-                    StopSuppressVanillaMusic();
+                    if (!token.IsCancellationRequested)
+                    {
+                        currentKey = null;
+                        currentUrl = null;
+                        currentStartAtSeconds = 0f;
+                        stopPending = false;
+                        StopPlayback(immediate: true);
+                        StopSuppressVanillaMusic();
+                    }
                 }
             }, token);
         }

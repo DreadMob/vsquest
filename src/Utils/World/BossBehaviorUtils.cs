@@ -11,6 +11,36 @@ namespace VsQuest
     {
         public const string HasTargetKey = "alegacyvsquest:boss:hasTarget";
 
+        private static readonly object SoundLimiterLock = new object();
+        private static readonly System.Collections.Generic.Dictionary<string, long> SoundLastMsByKey = new System.Collections.Generic.Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+
+        public static bool ShouldPlaySoundLimited(string key, int cooldownMs)
+        {
+            if (string.IsNullOrWhiteSpace(key)) return true;
+            if (cooldownMs <= 0) return true;
+
+            long now = Environment.TickCount64;
+            lock (SoundLimiterLock)
+            {
+                if (SoundLastMsByKey.TryGetValue(key, out long last))
+                {
+                    if (now - last < cooldownMs)
+                    {
+                        return false;
+                    }
+                }
+
+                SoundLastMsByKey[key] = now;
+                return true;
+            }
+        }
+
+        public static bool ShouldPlaySoundLimited(Entity entity, string sound, int cooldownMs)
+        {
+            string key = $"ent:{entity?.EntityId ?? 0}:{sound ?? ""}";
+            return ShouldPlaySoundLimited(key, cooldownMs);
+        }
+
         public static void SetWatchedBoolDirty(Entity entity, string key, bool value)
         {
             try
@@ -176,8 +206,14 @@ namespace VsQuest
             private Entity entity;
             private AssetLocation soundLoc;
             private float range;
+            private float volume;
 
             public void Start(ICoreServerAPI sapi, Entity entity, string sound, float range, int intervalMs)
+            {
+                Start(sapi, entity, sound, range, intervalMs, 1f);
+            }
+
+            public void Start(ICoreServerAPI sapi, Entity entity, string sound, float range, int intervalMs, float volume)
             {
                 Stop();
 
@@ -186,16 +222,26 @@ namespace VsQuest
                 this.sapi = sapi;
                 this.entity = entity;
                 this.range = range;
+                this.volume = volume;
+
+                if (this.volume <= 0f) this.volume = 1f;
 
                 int interval = Math.Max(250, intervalMs);
                 soundLoc = AssetLocation.Create(sound, "game").WithPathPrefixOnce("sounds/");
                 if (soundLoc == null) return;
 
+                var self = this;
                 listenerId = sapi.Event.RegisterGameTickListener(_ =>
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range);
+                        if (self.entity == null || !self.entity.Alive)
+                        {
+                            self.Stop();
+                            return;
+                        }
+
+                        self.sapi?.World?.PlaySoundAt(self.soundLoc, self.entity, null, randomizePitch: true, self.range, self.volume);
                     }
                     catch
                     {
@@ -205,15 +251,23 @@ namespace VsQuest
 
             public void Stop()
             {
-                if (sapi != null && listenerId != 0)
+                if (listenerId != 0)
                 {
-                    sapi.Event.UnregisterGameTickListener(listenerId);
+                    try
+                    {
+                        sapi?.Event?.UnregisterGameTickListener(listenerId);
+                    }
+                    catch
+                    {
+                    }
+
                     listenerId = 0;
                 }
 
                 sapi = null;
                 entity = null;
                 soundLoc = null;
+                volume = 0f;
             }
 
             public void Dispose()

@@ -12,10 +12,8 @@ namespace VsQuest
 
         private float range;
         private float startRange;
+        private float keepRange;
         private int combatTimeoutMs;
-        private bool requireRecentDamage;
-        private bool playInIdle;
-        private bool startOnTarget;
         private bool usePhases;
         private bool phaseSwitching;
 
@@ -36,7 +34,10 @@ namespace VsQuest
         private string musicUrl;
 
         private bool lastShouldPlay;
-        private bool hasPlayedOnce;
+
+        private bool wasInCombat;
+        private long combatEndGraceUntilMs;
+        private const int CombatEndGraceMs = 2000;
 
         private long outOfRangeSinceMs;
         private const int OutOfRangeStopDelayMs = 800;
@@ -60,10 +61,8 @@ namespace VsQuest
 
             range = attributes?["range"].AsFloat(60f) ?? 60f;
             startRange = attributes?["startRange"].AsFloat(0f) ?? 0f;
-            combatTimeoutMs = attributes?["combatTimeoutMs"].AsInt(12000) ?? 12000;
-            requireRecentDamage = attributes?["requireRecentDamage"].AsBool(true) ?? true;
-            playInIdle = attributes?["playInIdle"].AsBool(false) ?? false;
-            startOnTarget = attributes?["startOnTarget"].AsBool(false) ?? false;
+            keepRange = attributes?["keepRange"].AsFloat(45f) ?? 45f;
+            combatTimeoutMs = attributes?["combatTimeoutMs"].AsInt(20000) ?? 20000;
             usePhases = attributes?["usePhases"].AsBool(true) ?? true;
             phaseSwitching = attributes?["phaseSwitching"].AsBool(true) ?? true;
 
@@ -101,7 +100,13 @@ namespace VsQuest
             if (range < 1f) range = 1f;
             if (startRange < 0f) startRange = 0f;
             if (startRange > 0f && startRange < 1f) startRange = 1f;
+            if (keepRange < 1f) keepRange = 1f;
             if (combatTimeoutMs < 0) combatTimeoutMs = 0;
+
+            if (keepRange > range) keepRange = range;
+
+            wasInCombat = false;
+            combatEndGraceUntilMs = 0;
         }
 
         private const float DeathFadeOutSeconds = 2f;
@@ -160,6 +165,9 @@ namespace VsQuest
                 {
                     ApplyShouldPlay(false, fadeOutSeconds);
                 }
+
+                wasInCombat = false;
+                combatEndGraceUntilMs = 0;
                 return;
             }
 
@@ -185,6 +193,7 @@ namespace VsQuest
 
             bool hasTrigger = lastDamageMs > 0;
             bool inStartRange = startRange > 0f ? distanceToPlayer <= startRange : inRange;
+            bool inKeepRange = distanceToPlayer <= keepRange;
 
             bool aiHasTarget = false;
             try
@@ -196,41 +205,58 @@ namespace VsQuest
                 aiHasTarget = false;
             }
 
-            bool targetTrigger = startOnTarget && (aiHasTarget || (startRange > 0f && inStartRange));
-
-            bool startTrigger = hasTrigger || !requireRecentDamage || (playInIdle && inStartRange) || targetTrigger;
-            if (!hasPlayedOnce && !startTrigger)
+            bool recentDamage = false;
+            if (combatTimeoutMs <= 0)
             {
-                ApplyShouldPlay(false, fadeOutSeconds);
-                return;
+                recentDamage = hasTrigger;
             }
-
-            bool inCombat = true;
-            if (!playInIdle && requireRecentDamage && !targetTrigger)
+            else if (hasTrigger)
             {
-                if (!hasTrigger)
-                {
-                    inCombat = false;
-                }
-                else
+                try
                 {
                     long now = capi.World.ElapsedMilliseconds;
                     long dtMs = now - lastDamageMs;
-                    inCombat = dtMs >= 0 && dtMs <= combatTimeoutMs;
+                    recentDamage = dtMs >= 0 && dtMs <= combatTimeoutMs;
+                }
+                catch
+                {
+                    recentDamage = false;
                 }
             }
 
-            if (playInIdle)
+            bool combatCore = aiHasTarget || recentDamage;
+
+            // If combat has already started, keep playing as long as player stays in keepRange.
+            // This prevents brief target/LoS drops from killing the music.
+            if (wasInCombat && inKeepRange)
             {
-                inCombat = true;
+                combatCore = true;
             }
 
-            if (targetTrigger)
+            // Start only when entering combat, optionally gated by startRange. After combat has started,
+            // keep playing while combat remains active (has target OR recent damage).
+            bool combatNow = combatCore && (wasInCombat || inStartRange);
+
+            long tickNow = Environment.TickCount64;
+            if (wasInCombat && !combatNow)
             {
-                inCombat = true;
+                if (combatEndGraceUntilMs <= 0)
+                {
+                    combatEndGraceUntilMs = tickNow + CombatEndGraceMs;
+                }
+
+                if (tickNow < combatEndGraceUntilMs)
+                {
+                    combatNow = true;
+                }
+            }
+            else if (combatNow)
+            {
+                combatEndGraceUntilMs = 0;
             }
 
-            ApplyShouldPlay(inCombat);
+            ApplyShouldPlay(combatNow);
+            wasInCombat = combatNow;
         }
 
         public override void OnEntityDespawn(EntityDespawnData despawn)
@@ -251,11 +277,6 @@ namespace VsQuest
 
                 if (shouldPlay)
                 {
-                    if (!hasPlayedOnce)
-                    {
-                        hasPlayedOnce = true;
-                    }
-
                     bool playbackStopped = sys.IsActive && !sys.IsPlaybackRunning;
 
                     long now = Environment.TickCount64;

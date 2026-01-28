@@ -59,6 +59,49 @@ namespace VsQuest
             Entity bossEntity = FindBossEntity(cfg, nowHours);
             bool bossAlive = bossEntity != null && bossEntity.Alive;
 
+            // Soft reset: if boss is alive but has not been damaged for 1 in-game hour,
+            // despawn it so it can respawn cleanly on the same anchor (resetting phases/state).
+            if (bossAlive)
+            {
+                try
+                {
+                    double lastDamage = bossEntity.WatchedAttributes.GetDouble(LastBossDamageTotalHoursKey, double.NaN);
+
+                    bool hasEverBeenDamaged = !double.IsNaN(lastDamage) && lastDamage > 0;
+                    bool idleLongEnough = hasEverBeenDamaged && (nowHours - lastDamage >= 1.0);
+
+                    bool antiSpamOk = st.lastSoftResetAtTotalHours <= 0 || (nowHours - st.lastSoftResetAtTotalHours >= 0.25);
+
+                    if (idleLongEnough && antiSpamOk)
+                    {
+                        st.lastSoftResetAtTotalHours = nowHours;
+                        st.deadUntilTotalHours = 0;
+                        stateDirty = true;
+
+                        try
+                        {
+                            sapi.World.DespawnEntity(bossEntity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
+                        }
+                        catch
+                        {
+                        }
+
+                        bossEntity = null;
+                        bossAlive = false;
+
+                        // If there is any player nearby, spawn immediately to avoid a visible "missing boss".
+                        if (TryGetPoint(cfg, st, st.currentPointIndex, out var point, out int pointDim, out var anchorPoint)
+                            && AnyPlayerNear(point.X, point.Y, point.Z, pointDim, cfg.GetActivationRange()))
+                        {
+                            TrySpawnBoss(cfg, point, pointDim, anchorPoint);
+                        }
+                    }
+                }
+                catch
+                {
+                }
+            }
+
             // Handle relocation
             if (nowHours >= st.nextRelocateAtTotalHours)
             {

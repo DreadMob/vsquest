@@ -52,10 +52,12 @@ namespace VsQuest
             public string sound;
             public float soundRange;
             public int soundStartMs;
+            public float soundVolume;
 
             public string loopSound;
             public float loopSoundRange;
             public int loopSoundIntervalMs;
+            public float loopSoundVolume;
         }
 
         private ICoreServerAPI sapi;
@@ -114,10 +116,12 @@ namespace VsQuest
                         sound = stageObj["sound"].AsString(null),
                         soundRange = stageObj["soundRange"].AsFloat(24f),
                         soundStartMs = stageObj["soundStartMs"].AsInt(0),
+                        soundVolume = stageObj["soundVolume"].AsFloat(1f),
 
                         loopSound = stageObj["loopSound"].AsString(null),
                         loopSoundRange = stageObj["loopSoundRange"].AsFloat(24f),
                         loopSoundIntervalMs = stageObj["loopSoundIntervalMs"].AsInt(900),
+                        loopSoundVolume = stageObj["loopSoundVolume"].AsFloat(1f),
                     };
 
                     if (stage.cooldownSeconds < 0f) stage.cooldownSeconds = 0f;
@@ -128,6 +132,9 @@ namespace VsQuest
 
                     if (stage.incomingDamageMultiplier < 0f) stage.incomingDamageMultiplier = 0f;
                     if (stage.incomingDamageMultiplier > 1f) stage.incomingDamageMultiplier = 1f;
+
+                    if (stage.soundVolume <= 0f) stage.soundVolume = 1f;
+                    if (stage.loopSoundVolume <= 0f) stage.loopSoundVolume = 1f;
 
                     stage.adds = new List<Spawn>();
                     foreach (var addObj in stageObj["adds"].AsArray())
@@ -640,7 +647,7 @@ namespace VsQuest
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, stage.soundVolume);
                     }
                     catch
                     {
@@ -651,7 +658,7 @@ namespace VsQuest
             {
                 try
                 {
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
+                    sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, stage.soundVolume);
                 }
                 catch
                 {
@@ -664,7 +671,7 @@ namespace VsQuest
             if (sapi == null || stage == null) return;
             if (string.IsNullOrWhiteSpace(stage.loopSound)) return;
 
-            loopSoundPlayer.Start(sapi, entity, stage.loopSound, stage.loopSoundRange, stage.loopSoundIntervalMs);
+            loopSoundPlayer.Start(sapi, entity, stage.loopSound, stage.loopSoundRange, stage.loopSoundIntervalMs, stage.loopSoundVolume);
         }
     }
 }

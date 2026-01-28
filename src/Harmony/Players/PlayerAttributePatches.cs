@@ -15,6 +15,12 @@ namespace VsQuest.Harmony
 
         private const string BossGrabNoSneakUntilKey = "alegacyvsquest:bossgrab:nosneakuntil";
 
+        private const string AshFloorNoJumpUntilKey = "alegacyvsquest:ashfloor:nojumpuntil";
+        private const string AshFloorNoShiftUntilKey = "alegacyvsquest:ashfloor:noshiftuntil";
+        private const string AshFloorUntilKey = "alegacyvsquest:ashfloor:until";
+        private const string AshFloorWalkSpeedMultKey = "alegacyvsquest:ashfloor:walkspeedmult";
+        private const string AshFloorWalkSpeedStatKey = "alegacyvsquest:ashfloor";
+
         private const string SecondChanceProcSound = "albase:sounds/atmospheric-metallic-swipe";
         private const float SecondChanceProcSoundRange = 24f;
 
@@ -485,6 +491,120 @@ namespace VsQuest.Harmony
                     catch
                     {
                     }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
+        public class EntityAgent_OnGameTick_AshFloorDisableControls_Client_Patch
+        {
+            public static void Prefix(EntityAgent __instance)
+            {
+                if (__instance is not EntityPlayer player) return;
+                if (player.World?.Side != EnumAppSide.Client) return;
+                if (player.WatchedAttributes == null) return;
+
+                long now;
+                try
+                {
+                    now = player.World.ElapsedMilliseconds;
+                }
+                catch
+                {
+                    now = 0;
+                }
+
+                if (now <= 0) return;
+
+                try
+                {
+                    long untilJump = player.WatchedAttributes.GetLong(AshFloorNoJumpUntilKey, 0);
+                    if (untilJump > 0 && now < untilJump)
+                    {
+                        player.Controls.Jump = false;
+                    }
+                }
+                catch
+                {
+                }
+
+                try
+                {
+                    long untilShift = player.WatchedAttributes.GetLong(AshFloorNoShiftUntilKey, 0);
+                    if (untilShift > 0 && now < untilShift)
+                    {
+                        player.Controls.ShiftKey = false;
+                        player.Controls.Sneak = false;
+                    }
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
+        public class EntityAgent_OnGameTick_AshFloorWalkSpeed_Server_Patch
+        {
+            public static void Prefix(EntityAgent __instance)
+            {
+                if (__instance is not EntityPlayer player) return;
+                if (player.World?.Side != EnumAppSide.Server) return;
+                if (player.Stats == null) return;
+                if (player.WatchedAttributes == null) return;
+
+                long until;
+                try
+                {
+                    until = player.WatchedAttributes.GetLong(AshFloorUntilKey, 0);
+                }
+                catch
+                {
+                    until = 0;
+                }
+
+                long now;
+                try
+                {
+                    now = player.World.ElapsedMilliseconds;
+                }
+                catch
+                {
+                    now = 0;
+                }
+
+                if (until <= 0 || now <= 0 || now >= until)
+                {
+                    try
+                    {
+                        player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
+                        player.walkSpeed = player.Stats.GetBlended("walkspeed");
+                    }
+                    catch
+                    {
+                    }
+
+                    return;
+                }
+
+                float mult;
+                try
+                {
+                    mult = GameMath.Clamp(player.WatchedAttributes.GetFloat(AshFloorWalkSpeedMultKey, 0.35f), 0f, 1f);
+                }
+                catch
+                {
+                    mult = 0.35f;
+                }
+
+                try
+                {
+                    float modifier = mult - 1f;
+                    player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, modifier, true);
+                    player.walkSpeed = player.Stats.GetBlended("walkspeed");
+                }
+                catch
+                {
                 }
             }
         }

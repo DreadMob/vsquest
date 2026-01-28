@@ -268,7 +268,7 @@
       { "code": "extraskinnable" },
       { "code": "seraphinventory" },
       { "code": "boss", "bossHpBarRange": 80 },
-      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_3", "range": 120, "startRange": 40, "combatTimeoutMs": 12000, "requireRecentDamage": true, "startOnTarget": true, "playInIdle": false, "fadeOutSeconds": 2 },
+      { "code": "bossmusicurl", "musicKey": "theme_bosshunt_3", "range": 120, "startRange": 40, "combatTimeoutMs": 20000, "fadeOutSeconds": 4 },
       { "code": "bossnametag", "nameLangKey": "item-creature-crypt-mirror", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 120 }
     ],
     "animations": [
@@ -286,7 +286,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.01 },
-      { "code": "health", "currenthealth": 420, "maxhealth": 420 },
+      { "code": "health", "currenthealth": 520, "maxhealth": 520 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:crypt-mirror", "leashRange": 120, "returnMoveSpeed": 0.04, "leashCheckMs": 1000 },
@@ -326,7 +326,7 @@
             "maxPlayerMotion": 0.24,
             "windupAnimation": "hit",
             "pullAnimation": "attack",
-            "sound": "game:creature/wolf/attack",
+            "sound": "albase:dash",
             "soundRange": 26,
             "soundStartMs": 100,
             "soundVolume": 0.2
@@ -369,7 +369,7 @@
             "damageType": "PiercingAttack",
             "windupAnimation": "hit",
             "grabAnimation": "attack",
-            "sound": "albase:shock-sound-effect-horror",
+            "sound": "albase:horror-hit",
             "soundRange": 26,
             "soundStartMs": 0,
             "soundVolume": 0.18
@@ -406,7 +406,7 @@
             "dashDirection": "back",
             "windupAnimation": "hit",
             "dashAnimation": "run",
-            "sound": "game:creature/wolf/attack",
+            "sound": "albase:dash",
             "soundRange": 22,
             "soundStartMs": 120,
             "soundVolume": 0.18
@@ -453,7 +453,7 @@
             "victimWalkSpeedDelta": -0.16,
             "victimHealingDelta": -0.32,
             "victimHungerRateDelta": 0.24,
-            "sound": "albase:shock-sound-effect-horror",
+            "sound": "albase:horror-hit",
             "soundRange": 26,
             "soundStartMs": 0,
             "loopSound": "albase:dark-magic-charge-up",
@@ -505,7 +505,7 @@
             "damageTier": 4,
             "damageType": "PiercingAttack",
             "trapInvulnerable": false,
-            "sound": "game:creature/wolf/attack",
+            "sound": "albase:dash",
             "soundRange": 22,
             "soundStartMs": 100,
             "soundVolume": 0.18,

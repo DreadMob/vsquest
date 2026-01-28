@@ -1,0 +1,22 @@
+{
+  "code": "ashfloor",
+  "class": "BlockAshFloor",
+  "entityClass": "AshFloor",
+  "drawtype": "json",
+  "renderpass": "BlendNoCull",
+  "lightAbsorption": 0,
+  "replaceable": 6000,
+  "resistance": 0.2,
+  "walkspeedmultiplier": 0.6,
+  "shape": { "base": "game:block/basic/flat", "offsetY": 0.02 },
+  "vertexFlags": {
+    "zOffset": 3
+  },
+  "textures": {
+    "all": { "base": "game:block/clay/oven/ashes" }
+  },
+  "sidesolid": { "all": false },
+  "sideopaque": { "all": false },
+  "collisionbox": null,
+  "selectionbox": { "x1": 0, "y1": 0, "z1": 0, "x2": 1, "y2": 0.0625, "z2": 1 }
+}

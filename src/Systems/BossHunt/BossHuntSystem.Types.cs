@@ -81,6 +81,8 @@ namespace VsQuest
             public double nextRelocateAtTotalHours;
             public double deadUntilTotalHours;
 
+            public double lastSoftResetAtTotalHours;
+
             public List<BossHuntAnchorPoint> anchorPoints;
         }
 

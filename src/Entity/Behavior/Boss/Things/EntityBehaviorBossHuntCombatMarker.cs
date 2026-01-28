@@ -20,6 +20,8 @@ namespace VsQuest
             if (entity?.Api?.Side != EnumAppSide.Server) return;
             if (damage <= 0) return;
 
+            bool byPlayerDamage = damageSource?.GetCauseEntity() is EntityPlayer;
+
             try
             {
                 var wa = entity.WatchedAttributes;
@@ -33,7 +35,7 @@ namespace VsQuest
             {
             }
 
-            if (damageSource?.SourceEntity is EntityPlayer byPlayer && !string.IsNullOrWhiteSpace(byPlayer.PlayerUID))
+            if (damageSource?.SourceEntity is EntityPlayer byPlayerEntity && !string.IsNullOrWhiteSpace(byPlayerEntity.PlayerUID))
             {
                 try
                 {
@@ -44,7 +46,7 @@ namespace VsQuest
                         bool found = false;
                         for (int i = 0; i < existing.Length; i++)
                         {
-                            if (string.Equals(existing[i], byPlayer.PlayerUID, System.StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(existing[i], byPlayerEntity.PlayerUID, System.StringComparison.OrdinalIgnoreCase))
                             {
                                 found = true;
                                 break;
@@ -55,7 +57,7 @@ namespace VsQuest
                         {
                             var merged = new string[existing.Length + 1];
                             for (int i = 0; i < existing.Length; i++) merged[i] = existing[i];
-                            merged[existing.Length] = byPlayer.PlayerUID;
+                            merged[existing.Length] = byPlayerEntity.PlayerUID;
                             wa.SetStringArray(BossHuntAttackersKey, merged);
                             wa.MarkPathDirty(BossHuntAttackersKey);
                         }
@@ -69,8 +71,8 @@ namespace VsQuest
                                 wa.SetAttribute(BossHuntDamageByPlayerKey, tree);
                             }
 
-                            double prev = tree.GetDouble(byPlayer.PlayerUID, 0);
-                            tree.SetDouble(byPlayer.PlayerUID, prev + damage);
+                            double prev = tree.GetDouble(byPlayerEntity.PlayerUID, 0);
+                            tree.SetDouble(byPlayerEntity.PlayerUID, prev + damage);
                             wa.MarkPathDirty(BossHuntDamageByPlayerKey);
                         }
                         catch
@@ -83,21 +85,24 @@ namespace VsQuest
                 }
             }
 
-            try
+            if (byPlayerDamage)
             {
-                var calendar = entity.World?.Calendar;
-                if (calendar == null) return;
+                try
+                {
+                    var calendar = entity.World?.Calendar;
+                    if (calendar == null) return;
 
-                double nowHours = calendar.TotalHours;
+                    double nowHours = calendar.TotalHours;
 
-                var wa = entity.WatchedAttributes;
-                if (wa == null) return;
+                    var wa = entity.WatchedAttributes;
+                    if (wa == null) return;
 
-                wa.SetDouble(BossHuntSystem.LastBossDamageTotalHoursKey, nowHours);
-                wa.MarkPathDirty(BossHuntSystem.LastBossDamageTotalHoursKey);
-            }
-            catch
-            {
+                    wa.SetDouble(BossHuntSystem.LastBossDamageTotalHoursKey, nowHours);
+                    wa.MarkPathDirty(BossHuntSystem.LastBossDamageTotalHoursKey);
+                }
+                catch
+                {
+                }
             }
         }
 

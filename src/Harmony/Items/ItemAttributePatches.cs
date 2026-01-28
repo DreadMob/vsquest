@@ -197,6 +197,35 @@ namespace VsQuest.Harmony
             }
         }
 
+        [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
+        public class CollectibleObject_GetMiningSpeed_MiningSpeedMult_Patch
+        {
+            public static void Postfix(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer, ref float __result)
+            {
+                if (__result <= 0f) return;
+                if (forPlayer?.Entity is not EntityPlayer player) return;
+                if (player.Player?.InventoryManager == null) return;
+
+                var inv = player.Player.InventoryManager.GetOwnInventory("character");
+                if (inv == null) return;
+
+                float bonus = 0f;
+                foreach (ItemSlot slot in inv)
+                {
+                    if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
+                    {
+                        bonus += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrMiningSpeedMult);
+                    }
+                }
+
+                if (Math.Abs(bonus) < 0.0001f) return;
+
+                // "miningspeedmult" is configured as an additive bonus (e.g. 0.25 = +25%).
+                float mult = GameMath.Clamp(1f + bonus, 0f, 10f);
+                __result *= mult;
+            }
+        }
+
         [HarmonyPatch(typeof(ModSystemWearableStats), "handleDamaged")]
         public class ModSystemWearableStats_handleDamaged_Patch
         {

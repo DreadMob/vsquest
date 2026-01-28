@@ -12,11 +12,15 @@ namespace VsQuest
     {
         protected const string AnchorKeyPrefix = "alegacyvsquest:spawner:";
         protected const string ReturningToAnchorKey = "alegacyvsquest:spawner:returningToAnchor";
+        protected const string ReturnNoProgressMsKey = "alegacyvsquest:spawner:returnNoProgressMs";
+        protected const string ReturnLastDistKey = "alegacyvsquest:spawner:returnLastDist";
 
         protected const double LeashNoDamageGraceHours = 2.0 / 60.0;
         protected const float BossRegenHpPerSecond = 3f;
         protected const float DefaultBossOutOfCombatLeashRange = 10f;
         protected const float LeashReturnStopDistance = 5f;
+        protected const int ReturnStuckTeleportMs = 5000;
+        protected const float ReturnProgressEpsilon = 0.5f;
         public const string LeashRangeKey = "alegacyvsquest:spawner:leashRange";
         public const string OutOfCombatLeashRangeKey = "alegacyvsquest:spawner:outOfCombatLeashRange";
         protected string id;
@@ -139,6 +143,59 @@ namespace VsQuest
 
             if (!TryGetAnchor(out var anchor)) return;
 
+            try
+            {
+                var wa = agent.WatchedAttributes;
+                if (wa != null && wa.GetBool(ReturningToAnchorKey, false))
+                {
+                    double ddx = agent.ServerPos.X - anchor.X;
+                    double ddz = agent.ServerPos.Z - anchor.Z;
+                    float dist = (float)Math.Sqrt(ddx * ddx + ddz * ddz);
+
+                    float lastDist = wa.GetFloat(ReturnLastDistKey, float.NaN);
+                    long noProgressMs = wa.GetLong(ReturnNoProgressMsKey, 0);
+
+                    if (float.IsNaN(lastDist) || lastDist <= 0f)
+                    {
+                        lastDist = dist;
+                        noProgressMs = 0;
+                    }
+                    else
+                    {
+                        float progress = lastDist - dist;
+                        if (progress >= ReturnProgressEpsilon)
+                        {
+                            lastDist = dist;
+                            noProgressMs = 0;
+                        }
+                        else
+                        {
+                            noProgressMs += leashCheckMs;
+                        }
+                    }
+
+                    wa.SetFloat(ReturnLastDistKey, lastDist);
+                    wa.SetLong(ReturnNoProgressMsKey, noProgressMs);
+                    wa.MarkPathDirty(ReturnLastDistKey);
+                    wa.MarkPathDirty(ReturnNoProgressMsKey);
+
+                    if (noProgressMs >= ReturnStuckTeleportMs)
+                    {
+                        TeleportToAnchor(agent, anchor);
+                        wa.SetBool(ReturningToAnchorKey, false);
+                        wa.SetLong(ReturnNoProgressMsKey, 0);
+                        wa.SetFloat(ReturnLastDistKey, float.NaN);
+                        wa.MarkPathDirty(ReturningToAnchorKey);
+                        wa.MarkPathDirty(ReturnNoProgressMsKey);
+                        wa.MarkPathDirty(ReturnLastDistKey);
+                        return;
+                    }
+                }
+            }
+            catch
+            {
+            }
+
             float effectiveLeashRange = leashRange;
             if (!noDamageGraceActive && agent.HasBehavior<EntityBehaviorBossCombatMarker>() && bossOutOfCombatLeashRange > 0f)
             {
@@ -176,7 +233,11 @@ namespace VsQuest
                         agent.Controls.StopAllMovement();
 
                         wa.SetBool(ReturningToAnchorKey, false);
+                        wa.SetLong(ReturnNoProgressMsKey, 0);
+                        wa.SetFloat(ReturnLastDistKey, float.NaN);
                         wa.MarkPathDirty(ReturningToAnchorKey);
+                        wa.MarkPathDirty(ReturnNoProgressMsKey);
+                        wa.MarkPathDirty(ReturnLastDistKey);
                     }
                 }
                 catch
@@ -199,7 +260,13 @@ namespace VsQuest
                     if (wa != null)
                     {
                         wa.SetBool(ReturningToAnchorKey, true);
+                        wa.SetLong(ReturnNoProgressMsKey, 0);
+                        double tdx = agent.ServerPos.X - anchor.X;
+                        double tdz = agent.ServerPos.Z - anchor.Z;
+                        wa.SetFloat(ReturnLastDistKey, (float)Math.Sqrt(tdx * tdx + tdz * tdz));
                         wa.MarkPathDirty(ReturningToAnchorKey);
+                        wa.MarkPathDirty(ReturnNoProgressMsKey);
+                        wa.MarkPathDirty(ReturnLastDistKey);
                     }
                 }
                 catch
@@ -209,6 +276,51 @@ namespace VsQuest
                 float stopDistance = Math.Min(LeashReturnStopDistance, effectiveLeashRange);
                 taskAi.PathTraverser.NavigateTo_Async(anchor, returnMoveSpeed, stopDistance, null, null, null, 1000, 1, null);
             }
+        }
+
+        protected void TeleportToAnchor(EntityAgent agent, Vec3d anchor)
+        {
+            if (agent == null || anchor == null) return;
+
+            try
+            {
+                var taskAi = agent.GetBehavior<EntityBehaviorTaskAI>();
+                taskAi?.PathTraverser?.Stop();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                var taskAi = agent.GetBehavior<EntityBehaviorTaskAI>();
+                taskAi?.TaskManager?.StopTasks();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                agent.ServerPos?.Motion?.Set(0, 0, 0);
+                agent.Controls.StopAllMovement();
+            }
+            catch
+            {
+            }
+
+            int dim = agent.ServerPos.Dimension;
+
+            try
+            {
+                agent.IsTeleport = true;
+            }
+            catch
+            {
+            }
+
+            agent.ServerPos.SetPosWithDimension(new Vec3d(anchor.X, anchor.Y + dim * 32768.0, anchor.Z));
+            agent.Pos.SetFrom(agent.ServerPos);
         }
 
         protected bool TryGetAnchor(out Vec3d anchor)
