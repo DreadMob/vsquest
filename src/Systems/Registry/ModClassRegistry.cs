@@ -61,6 +61,9 @@ namespace VsQuest
 
             api.RegisterBlockClass("BlockBossHuntArena", typeof(BlockBossHuntArena));
             api.RegisterBlockEntityClass("BossHuntArena", typeof(BlockEntityBossHuntArena));
+
+            api.RegisterBlockClass("BlockTemporalRiftProjector", typeof(BlockTemporalRiftProjector));
+            api.RegisterBlockEntityClass("TemporalRiftProjector", typeof(BlockEntityTemporalRiftProjector));
         }
     }
 }

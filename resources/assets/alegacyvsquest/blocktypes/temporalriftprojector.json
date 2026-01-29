@@ -1,0 +1,25 @@
+{
+  "code": "temporalriftprojector",
+  "class": "BlockTemporalRiftProjector",
+  "entityClass": "TemporalRiftProjector",
+  "drawtype": "json",
+  "shape": { "base": "alegacyvsquest:spawner/cage1" },
+  "faceCullMode": "NeverCull",
+  "sidesolid": { "all": false },
+  "sideopaque": { "all": false },
+  "textures": {
+    "metal": { "base": "alegacyvsquest:block/locustnest/cage/metal" },
+    "fabric-side1": { "base": "alegacyvsquest:block/locustnest/cage/fabric-side1" },
+    "fabric-side2": { "base": "alegacyvsquest:block/locustnest/cage/fabric-side2" },
+    "fabric-top": { "base": "alegacyvsquest:block/locustnest/cage/fabric-top" }
+  },
+  "creativeinventory": {
+    "alegacyvsquest-actionitems": [ "*" ]
+  },
+  "attributes": {
+    "riftOffsetY": 2.0,
+    "riftSize": 2.0,
+    "riftColor": "#ffffff",
+    "riftColorStrength": 0.0
+  }
+}

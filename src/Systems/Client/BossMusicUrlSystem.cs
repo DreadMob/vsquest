@@ -697,103 +697,102 @@ namespace VsQuest
                         break;
                     }
 
-                    await using var mp3fs = new FileStream(cachedFile, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    using var mpeg = new MpegFile(mp3fs);
-
-                    int channels = Math.Clamp(mpeg.Channels, 1, 2);
-                    int sampleRate = mpeg.SampleRate;
-                    if (sampleRate <= 0) sampleRate = 44100;
-
-                    var format = channels == 2 ? ALFormat.Stereo16 : ALFormat.Mono16;
-
-                    const int samplesPerBufferPerChannel = 4096;
-                    var floatBuf = new float[samplesPerBufferPerChannel * channels];
-                    var pcmBuf = new short[samplesPerBufferPerChannel * channels];
-
-                    if (loopStartAtSeconds > 0.01f)
+                    bool reachedEnd = false;
+                    try
                     {
-                        try
+                        await using var mp3fs = new FileStream(cachedFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                        using var mpeg = new MpegFile(mp3fs);
+
+                        int channels = Math.Clamp(mpeg.Channels, 1, 2);
+                        int sampleRate = mpeg.SampleRate;
+                        if (sampleRate <= 0) sampleRate = 44100;
+
+                        var format = channels == 2 ? ALFormat.Stereo16 : ALFormat.Mono16;
+
+                        const int samplesPerBufferPerChannel = 4096;
+                        var floatBuf = new float[samplesPerBufferPerChannel * channels];
+                        var pcmBuf = new short[samplesPerBufferPerChannel * channels];
+
+                        if (loopStartAtSeconds > 0.01f)
                         {
-                            long samplesToSkip = (long)(loopStartAtSeconds * sampleRate * channels);
-                            while (samplesToSkip > 0 && !token.IsCancellationRequested)
+                            try
                             {
-                                int toRead = (int)Math.Min(floatBuf.Length, samplesToSkip);
-                                int read = mpeg.ReadSamples(floatBuf, 0, toRead);
-                                if (read <= 0) break;
-                                samplesToSkip -= read;
+                                long samplesToSkip = (long)(loopStartAtSeconds * sampleRate * channels);
+                                while (samplesToSkip > 0 && !token.IsCancellationRequested)
+                                {
+                                    int toRead = (int)Math.Min(floatBuf.Length, samplesToSkip);
+                                    int read = mpeg.ReadSamples(floatBuf, 0, toRead);
+                                    if (read <= 0) break;
+                                    samplesToSkip -= read;
+                                }
+                            }
+                            catch
+                            {
                             }
                         }
-                        catch
-                        {
-                        }
-                    }
 
-                    // Clear any queued buffers from a previous loop iteration
-                    lock (alLock)
-                    {
-                        try
+                        // Clear any queued buffers from a previous loop iteration
+                        lock (alLock)
                         {
-                            if (sourceId >= 0)
+                            try
                             {
-                                int queued;
-                                AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queued);
-                                if (queued > 0)
+                                if (sourceId >= 0)
                                 {
-                                    var unqueued = AL.SourceUnqueueBuffers(sourceId, queued);
-                                    if (unqueued != null && unqueued.Length > 0)
+                                    int queued;
+                                    AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queued);
+                                    if (queued > 0)
                                     {
-                                        AL.DeleteBuffers(unqueued);
+                                        var unqueued = AL.SourceUnqueueBuffers(sourceId, queued);
+                                        if (unqueued != null && unqueued.Length > 0)
+                                        {
+                                            AL.DeleteBuffers(unqueued);
+                                        }
                                     }
                                 }
                             }
-                        }
-                        catch
-                        {
-                        }
-                    }
-
-                    // Prebuffer a few chunks
-                    int prebuffered = 0;
-                    for (int i = 0; i < 6; i++)
-                    {
-                        token.ThrowIfCancellationRequested();
-                        int read = mpeg.ReadSamples(floatBuf, 0, floatBuf.Length);
-                        if (read <= 0) break;
-
-                        prebuffered++;
-
-                        int shorts = FloatToPcm16(floatBuf, read, pcmBuf);
-                        int buffer;
-                        lock (alLock)
-                        {
-                            buffer = AL.GenBuffer();
-                            unsafe
+                            catch
                             {
-                                fixed (short* ptr = pcmBuf)
+                            }
+                        }
+
+                        // Prebuffer a few chunks
+                        int prebuffered = 0;
+                        for (int i = 0; i < 6; i++)
+                        {
+                            token.ThrowIfCancellationRequested();
+                            int read = mpeg.ReadSamples(floatBuf, 0, floatBuf.Length);
+                            if (read <= 0) break;
+
+                            prebuffered++;
+
+                            int shorts = FloatToPcm16(floatBuf, read, pcmBuf);
+                            int buffer;
+                            lock (alLock)
+                            {
+                                buffer = AL.GenBuffer();
+                                unsafe
                                 {
-                                    AL.BufferData(buffer, format, (nint)ptr, shorts * sizeof(short), sampleRate);
+                                    fixed (short* ptr = pcmBuf)
+                                    {
+                                        AL.BufferData(buffer, format, (nint)ptr, shorts * sizeof(short), sampleRate);
+                                    }
+                                }
+                                if (sourceId >= 0)
+                                {
+                                    AL.SourceQueueBuffer(sourceId, buffer);
                                 }
                             }
-                            if (sourceId >= 0)
-                            {
-                                AL.SourceQueueBuffer(sourceId, buffer);
-                            }
                         }
-                    }
 
-                    if (prebuffered == 0)
-                    {
-                        // If we seeked past the end (e.g. phase offset larger than track duration),
-                        // retry from the beginning instead of getting stuck with an empty queue.
-                        loopStartAtSeconds = 0f;
-                        await Task.Delay(200, token);
-                        continue;
-                    }
+                        if (prebuffered == 0)
+                        {
+                            // If we seeked past the end (e.g. phase offset larger than track duration),
+                            // retry from the beginning instead of getting stuck with an empty queue.
+                            loopStartAtSeconds = 0f;
+                            await Task.Delay(200, token);
+                            continue;
+                        }
 
-                    bool reachedEnd = false;
-
-                    try
-                    {
                         lock (alLock)
                         {
                             if (sourceId >= 0)
@@ -801,24 +800,16 @@ namespace VsQuest
                                 AL.SourcePlay(sourceId);
                             }
                         }
-                    }
-                    catch
-                    {
-                        RecreateSourceForRecovery();
-                        reachedEnd = false;
-                        continue;
-                    }
-                    while (!token.IsCancellationRequested)
-                    {
-                        // If the requested track has changed, stop looping
-                        if (!stopPending && !string.Equals(currentUrl ?? "", url ?? "", StringComparison.OrdinalIgnoreCase))
-                        {
-                            return;
-                        }
 
-                        int processed;
-                        try
+                        while (!token.IsCancellationRequested)
                         {
+                            // If the requested track has changed, stop looping
+                            if (!stopPending && !string.Equals(currentUrl ?? "", url ?? "", StringComparison.OrdinalIgnoreCase))
+                            {
+                                return;
+                            }
+
+                            int processed;
                             lock (alLock)
                             {
                                 processed = 0;
@@ -827,69 +818,60 @@ namespace VsQuest
                                     AL.GetSource(sourceId, ALGetSourcei.BuffersProcessed, out processed);
                                 }
                             }
-                        }
-                        catch
-                        {
-                            RecreateSourceForRecovery();
-                            reachedEnd = false;
-                            break;
-                        }
 
-                        if (processed > 0)
-                        {
-                            int[] unqueued;
-                            lock (alLock)
+                            if (processed > 0)
                             {
-                                unqueued = sourceId >= 0 ? AL.SourceUnqueueBuffers(sourceId, processed) : Array.Empty<int>();
-                            }
-
-                            foreach (var buf in unqueued)
-                            {
-                                token.ThrowIfCancellationRequested();
-
-                                int read = mpeg.ReadSamples(floatBuf, 0, floatBuf.Length);
-                                if (read <= 0)
-                                {
-                                    reachedEnd = true;
-                                    lock (alLock)
-                                    {
-                                        try
-                                        {
-                                            AL.DeleteBuffer(buf);
-                                        }
-                                        catch
-                                        {
-                                        }
-                                    }
-                                    continue;
-                                }
-
-                                int shorts = FloatToPcm16(floatBuf, read, pcmBuf);
+                                int[] unqueued;
                                 lock (alLock)
                                 {
-                                    if (sourceId >= 0)
+                                    unqueued = sourceId >= 0 ? AL.SourceUnqueueBuffers(sourceId, processed) : Array.Empty<int>();
+                                }
+
+                                foreach (var buf in unqueued)
+                                {
+                                    token.ThrowIfCancellationRequested();
+
+                                    int read = mpeg.ReadSamples(floatBuf, 0, floatBuf.Length);
+                                    if (read <= 0)
                                     {
-                                        unsafe
+                                        reachedEnd = true;
+                                        lock (alLock)
                                         {
-                                            fixed (short* ptr = pcmBuf)
+                                            try
                                             {
-                                                AL.BufferData(buf, format, (nint)ptr, shorts * sizeof(short), sampleRate);
+                                                AL.DeleteBuffer(buf);
+                                            }
+                                            catch
+                                            {
                                             }
                                         }
-                                        AL.SourceQueueBuffer(sourceId, buf);
+                                        continue;
+                                    }
+
+                                    int shorts = FloatToPcm16(floatBuf, read, pcmBuf);
+                                    lock (alLock)
+                                    {
+                                        if (sourceId >= 0)
+                                        {
+                                            unsafe
+                                            {
+                                                fixed (short* ptr = pcmBuf)
+                                                {
+                                                    AL.BufferData(buf, format, (nint)ptr, shorts * sizeof(short), sampleRate);
+                                                }
+                                            }
+                                            AL.SourceQueueBuffer(sourceId, buf);
+                                        }
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
-                            await Task.Delay(50, token);
-                        }
+                            else
+                            {
+                                await Task.Delay(50, token);
+                            }
 
-                        // keep playing if starved
-                        int state;
-                        try
-                        {
+                            // keep playing if starved
+                            int state;
                             lock (alLock)
                             {
                                 state = (int)ALSourceState.Stopped;
@@ -898,19 +880,10 @@ namespace VsQuest
                                     AL.GetSource(sourceId, ALGetSourcei.SourceState, out state);
                                 }
                             }
-                        }
-                        catch
-                        {
-                            RecreateSourceForRecovery();
-                            reachedEnd = false;
-                            break;
-                        }
 
-                        if ((ALSourceState)state != ALSourceState.Playing)
-                        {
-                            int queued;
-                            try
+                            if ((ALSourceState)state != ALSourceState.Playing)
                             {
+                                int queued;
                                 lock (alLock)
                                 {
                                     queued = 0;
@@ -919,17 +892,8 @@ namespace VsQuest
                                         AL.GetSource(sourceId, ALGetSourcei.BuffersQueued, out queued);
                                     }
                                 }
-                            }
-                            catch
-                            {
-                                RecreateSourceForRecovery();
-                                reachedEnd = false;
-                                break;
-                            }
 
-                            if (queued > 0)
-                            {
-                                try
+                                if (queued > 0)
                                 {
                                     lock (alLock)
                                     {
@@ -939,19 +903,23 @@ namespace VsQuest
                                         }
                                     }
                                 }
-                                catch
+                                else
                                 {
-                                    RecreateSourceForRecovery();
-                                    reachedEnd = false;
+                                    // Nothing left queued
                                     break;
                                 }
                             }
-                            else
-                            {
-                                // Nothing left queued
-                                break;
-                            }
                         }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch
+                    {
+                        // Keep boss music looping even if OpenAL/decoder hiccups.
+                        RecreateSourceForRecovery();
+                        reachedEnd = false;
                     }
 
                     // Next loop iteration uses the latest requested phase offset.

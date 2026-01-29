@@ -421,8 +421,8 @@ namespace VsQuest
                 float radius = explosionRadius;
                 if (radius <= 0.1f) radius = 1f;
 
-                int smokeMin = Math.Max(45, (int)(radius * 40f));
-                int smokeMax = Math.Max(smokeMin + 15, (int)(radius * 70f));
+                int smokeMin = Math.Max(65, (int)(radius * 56f));
+                int smokeMax = Math.Max(smokeMin + 25, (int)(radius * 98f));
 
                 SimpleParticleProperties smoke = new SimpleParticleProperties(
                     smokeMin, smokeMax,
@@ -431,7 +431,7 @@ namespace VsQuest
                     new Vec3d(radius, Math.Max(1.0, radius * 0.6), radius),
                     new Vec3f(-0.6f, 0.05f, -0.6f),
                     new Vec3f(0.6f, 0.35f, 0.6f),
-                    0.0875f,
+                    0.125f,
                     -0.06f,
                     0.5f,
                     0.5f,
@@ -441,7 +441,7 @@ namespace VsQuest
                 sapi.World.SpawnParticles(smoke);
 
                 SimpleParticleProperties flash = new SimpleParticleProperties(
-                    10, 16,
+                    14, 24,
                     ColorUtil.ToRgba(255, 255, 220, 120),
                     new Vec3d(),
                     new Vec3d(Math.Max(0.5, radius * 0.35), 0.25, Math.Max(0.5, radius * 0.35)),
@@ -449,8 +449,8 @@ namespace VsQuest
                     new Vec3f(0.2f, 0.6f, 0.2f),
                     0.03f,
                     0f,
-                    0.08f,
-                    0.045f,
+                    0.12f,
+                    0.06f,
                     EnumParticleModel.Quad
                 );
                 flash.MinPos = center.AddCopy(-0.1, 0.2, -0.1);

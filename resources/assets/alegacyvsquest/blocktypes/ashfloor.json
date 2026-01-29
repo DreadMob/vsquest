@@ -13,7 +13,7 @@
     "zOffset": 3
   },
   "textures": {
-    "all": { "base": "game:block/clay/oven/ashes" }
+    "all": { "base": "game:block/mantle" }
   },
   "sidesolid": { "all": false },
   "sideopaque": { "all": false },

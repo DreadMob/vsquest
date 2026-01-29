@@ -237,14 +237,14 @@
         "attackpower": -0.6,
         "hungerrate": 0.12,
         "walkspeed": -0.06,
-        "protectionperc": -0.04,
+        "protection": 0.04,
         "meleeattackspeed": 0.12
       },
       "showAttributes": [
         "attackpower",
         "hungerrate",
         "walkspeed",
-        "protectionperc",
+        "protection",
         "meleeattackspeed"
       ],
       "hideVanillaTooltips": [
