@@ -412,7 +412,7 @@
   "albase:treasurer-buy-maxareas-accepted": "Казначей: Перед оплатой я сверю твои текущие лимиты.",
   "albase:treasurer-buy-maxareas-reward": "Казначей: Оформлено. +1 зона привата.",
   "albase:landclaim-extra-header": "Текущие увеличенные лимиты",
-  "albase:landclaim-extra-allowance": "Дополнительная земля: {0} метров кубических",
+  "albase:landclaim-extra-allowance": "Дополнительная земля: {0} м³",
   "albase:landclaim-extra-areas": "Дополнительные зоны: {0}",
 
   "albase:treasurer-q1": "1) Основатель Гильдии Землемеров, Старый Бартимус, известен тем, что:",

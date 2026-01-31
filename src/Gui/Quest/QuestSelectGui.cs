@@ -579,17 +579,161 @@ namespace VsQuest
                 }
             }
 
-            nodes.Add(new ReputationTreeNode
+            return text;
+        }
+
+        private string activeQuestText(ActiveQuest quest)
+        {
+            return quest.ProgressText;
+        }
+
+        private string BuildLandClaimExtraText(string questId)
+        {
+            if (!IsLandClaimQuest(questId)) return null;
+
+            ITreeAttribute wa = player?.Entity?.WatchedAttributes;
+            if (wa == null) return null;
+
+            int allowance = wa.GetInt("landclaimallowance", 0);
+            int maxAreas = wa.GetInt("landclaimmaxareas", 0);
+
+            string headerKey = BuildLandClaimLangKey(questId, "landclaim-extra-header");
+            string allowanceKey = BuildLandClaimLangKey(questId, "landclaim-extra-allowance");
+            string areasKey = BuildLandClaimLangKey(questId, "landclaim-extra-areas");
+
+            string header = LocalizationUtils.GetSafe(headerKey);
+            string allowanceText = LocalizationUtils.GetSafe(allowanceKey, allowance);
+            string areasText = LocalizationUtils.GetSafe(areasKey, maxAreas);
+
+            return string.Join("\n", new[] { header, allowanceText, areasText });
+        }
+
+        private static string BuildLandClaimLangKey(string questId, string suffix)
+        {
+            string domain = GetQuestDomain(questId);
+            return string.IsNullOrWhiteSpace(domain) ? suffix : $"{domain}:{suffix}";
+        }
+
+        private static string GetQuestDomain(string questId)
+        {
+            if (string.IsNullOrWhiteSpace(questId)) return null;
+
+            int colonIndex = questId.IndexOf(':');
+            if (colonIndex <= 0) return null;
+
+            return questId.Substring(0, colonIndex);
+        }
+
+        private bool IsLandClaimQuest(string questId)
+        {
+            if (string.IsNullOrWhiteSpace(questId)) return false;
+
+            var questSystem = capi?.ModLoader?.GetModSystem<QuestSystem>();
+            if (questSystem?.QuestRegistry == null) return false;
+
+            if (!questSystem.QuestRegistry.TryGetValue(questId, out var questDef) || questDef == null)
             {
-                Id = "rank:" + rr.min,
-                Title = title,
-                RequirementText = req,
-                X = x,
-                Y = y,
-                Status = status,
-                IconItemCode = rr.iconItemCode
+                return false;
+            }
+
+            return HasLandClaimActions(questDef);
+        }
+
+        private static bool HasLandClaimActions(Quest questDef)
+        {
+            if (questDef == null) return false;
+
+            return HasLandClaimAction(questDef.onAcceptedActions)
+                || HasLandClaimAction(questDef.actionRewards);
+        }
+
+        private static bool HasLandClaimAction(List<ActionWithArgs> actions)
+        {
+            if (actions == null) return false;
+
+            foreach (var action in actions)
+            {
+                if (action == null || string.IsNullOrWhiteSpace(action.id)) continue;
+                if (string.Equals(action.id, "landclaimallowance", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(action.id, "landclaimmaxareas", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasQuizConfig(string questId)
+        {
+            if (string.IsNullOrWhiteSpace(questId) || capi?.Assets == null) return false;
+            int colonIndex = questId.IndexOf(':');
+            if (colonIndex <= 0 || colonIndex >= questId.Length - 1) return false;
+            string domain = questId.Substring(0, colonIndex);
+            string path = questId.Substring(colonIndex + 1);
+            var asset = capi.Assets.TryGet(new AssetLocation(domain, $"config/quizzes/{path}.json"));
+            return asset != null;
+        }
+
+        private bool OpenQuiz(string questId)
+        {
+            capi.Network.GetChannel(VsQuestNetworkRegistry.QuestChannelName).SendPacket(new OpenQuizMessage
+            {
+                QuizId = questId,
+                Reset = false
+            });
+            TryClose();
+            return true;
+        }
+
+        private void RequestQuestInfoRefresh()
+        {
+            if (questGiverId <= 0) return;
+
+            capi.Network.GetChannel("alegacyvsquest").SendPacket(new DialogTriggerMessage
+            {
+                EntityId = questGiverId,
+                Trigger = "openquests"
             });
         }
+
+        private bool acceptQuest()
+        {
+            var message = new QuestAcceptedMessage()
+            {
+                questGiverId = questGiverId,
+                questId = selectedAvailableQuestId
+            };
+            capi.Network.GetChannel("alegacyvsquest").SendPacket(message);
+
+            if (IsLandClaimQuest(selectedAvailableQuestId))
+            {
+                curTab = 1;
+                selectedActiveQuest = null;
+                selectedActiveQuestKey = null;
+                availableQuestIds?.Remove(selectedAvailableQuestId);
+                RequestRecompose();
+                RequestQuestInfoRefresh();
+                return true;
+            }
+
+            if (closeGuiAfterAcceptingAndCompleting)
+            {
+                TryClose();
+            }
+            else
+            {
+                availableQuestIds?.Remove(selectedAvailableQuestId);
+                RequestRecompose();
+            }
+            return true;
+        }
+
+        private bool completeQuest()
+        {
+            var message = new QuestCompletedMessage()
+            {
+                questGiverId = questGiverId,
                 questId = selectedActiveQuest.questId
             };
             capi.Network.GetChannel("alegacyvsquest").SendPacket(message);

@@ -14,8 +14,6 @@ namespace VsQuest
 
             if (args == null || args.Length < 1 || string.IsNullOrWhiteSpace(args[0]))
             {
-                int cur = byPlayer.Entity.WatchedAttributes.GetInt(key, 0);
-                sapi.SendMessage(byPlayer, GlobalConstants.GeneralChatGroup, $"{key}: {cur}", EnumChatType.Notification);
                 return;
             }
 
