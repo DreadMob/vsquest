@@ -49,14 +49,14 @@
   "albase:dialogue-witness-close-answer": "Go. I will wait.",
 
   "albase:dialogue-witness-aboutserver": "What is on this server?",
-  "albase:dialogue-witness-aboutserver-answer": "Three people — three paths.\n\nThe Innkeeper offers work and reputation. He values silence and results.\n\nThe Priest guards the rite of rebirth. Prove yourself, and he will grant you one chance to use .charsel.\n\nThe Boss Hunter leads hunts into the crypts. He gives targets and teaches how to survive where stone remembers blood.",
+  "albase:dialogue-witness-aboutserver-answer": "Four people — four paths.\n\nThe Innkeeper offers work and reputation. He values silence and results.\n\nThe Priest guards the rite of rebirth. Prove yourself, and he will grant you one chance to use .charsel.\n\nThe Boss Hunter leads hunts into the crypts. He gives targets and teaches how to survive where stone remembers blood.\n\nThe Treasurer counts other people's mistakes like coins. You can buy land claim expansions and area slots from him — but he likes exams.",
 
   "albase:witness-introduction-title": "Witness: Introduction",
-  "albase:witness-introduction-desc": "The witness knows who does what at the Crossroads. He suggests a simple start: meet three people.\n\nTalk to the Innkeeper, the Priest, and the Boss Hunter.",
-  "albase:witness-introduction-obj": "Innkeeper: {0}/{1}<br>Priest: {2}/{3}<br>Boss Hunter: {4}/{5}",
+  "albase:witness-introduction-desc": "The witness knows who does what at the Crossroads. He suggests a simple start: meet four people.\n\nTalk to the Innkeeper, the Priest, the Boss Hunter, and the Treasurer.",
+  "albase:witness-introduction-obj": "Innkeeper: {0}/{1}<br>Priest: {2}/{3}<br>Boss Hunter: {4}/{5}<br>Treasurer: {6}/{7}",
   "albase:witness-introduction-reward": "Witness: Now you know where to go. Take 3 rusty gears — you will need them.",
-  "albase:witness-introduction-journal-text": "The witness told me not to chase glory first. Start by learning who matters here.\n\n1) Innkeeper: work and reputation.\n2) Priest: rebirth rite and .charsel.\n3) Boss Hunter: hunts into the crypts.\n\nI only need to talk to each of them.",
-  "albase:witness-introduction-reward-journal-text": "I spoke with all three. Now it is clear: work with the Innkeeper, rebirth with the Priest, hunts with the Boss Hunter.\n\nThe witness gave me 3 rusty gears.",
+  "albase:witness-introduction-journal-text": "The witness told me not to chase glory first. Start by learning who matters here.\n\n1) Innkeeper: work and reputation.\n2) Priest: rebirth rite and .charsel.\n3) Boss Hunter: hunts into the crypts.\n4) Treasurer: land claims and area slots for rusty gears.\n\nI only need to talk to each of them.",
+  "albase:witness-introduction-reward-journal-text": "I spoke with all four. Now it is clear: work with the Innkeeper, rebirth with the Priest, hunts with the Boss Hunter, and land claim matters with the Treasurer.\n\nThe witness gave me 3 rusty gears.",
   "albase:dialogue-witness-introduction-final-title": "Witness",
   "albase:dialogue-witness-introduction-final-text": "Remember. This place runs on deeds, not stories.",
   "albase:dialogue-witness-introduction-final-option": "Understood.",
@@ -307,6 +307,38 @@
   "game:nametag-трактирщик": "Innkeeper",
   "game:nametag-священник": "Priest",
 
+  "albase:treasurer-title": "Treasurer",
+  "albase:dialogue-treasurer-intro": "The Treasurer straightens his ledgers and, without looking up, begins in a dry tone: “Name? Purpose of visit? Grounds for being on Crossroads territory? Don’t pause — I’m timing your speech.”",
+  "albase:dialogue-treasurer-openquests": "I need the Surveyors’ services. And yes, it’s urgent.",
+  "albase:dialogue-treasurer-openquests-confirm": "“Urgent is when a report is missing a signature. Fine. State your request and on what grounds you think you qualify.”",
+  "albase:dialogue-treasurer-paperwork": "About the paperwork. Which forms, deadlines, and where do I sign?",
+  "albase:dialogue-treasurer-paperwork-answer": "“First the application, then the boundary agreement, then the payment sheet, then the correction register if you botched the first form. Yes, those are different folders.” He shifts the stacks like they’re fragile machinery.\n\n“Deadlines: same day if you bring everything before noon and don’t mix ink colors. Tomorrow if you make me confirm three times that your name is spelled the same everywhere. And yes, you sign every page. Even the blank ones. That is the rule.”",
+  "albase:dialogue-treasurer-whyquiz": "Why is this exam mandatory?",
+  "albase:dialogue-treasurer-whyquiz-answer": "“Because people confuse north with east and call it ‘creative interpretation.’ Land doesn’t tolerate creativity; it tolerates rulers.” He nods at a pile of maps.\n\n“If you don’t understand that a boundary is coordinates, not a mood, you’ll argue with neighbors, then with me, then with the court. The exam is cheaper than court. For you and for my nerves.”",
+  "albase:dialogue-treasurer-boundaries": "Any rules for boundaries, so I don’t get in trouble?",
+  "albase:dialogue-treasurer-boundaries-answer": "“Do not place boundary stones on someone else’s stones. Do not ‘nudge’ a stake because ‘it looks nicer.’ Do not blame mistakes on the wind. Wind moves dust, not signatures.”\n\n“If borders are disputed — call a surveyor, not your friends with picks. If you want to expand — pay, don’t press. I’m no saint, but I prefer things within the rules. At least those I can count.”",
+  "albase:dialogue-treasurer-closechoice": "I’ll go before you make me sign three copies.",
+  "albase:dialogue-treasurer-close-answer": "“Good. Paper tolerates everything; my nerves do not. Next.”",
+  "albase:treasurer-buy-allowance-title": "Treasurer: Buy +100000 m³ land",
+  "albase:treasurer-buy-allowance-desc": "Increase land allowance by 100000 m³. Payment is in rusty gears.",
+  "albase:treasurer-buy-allowance-obj": "Pay 5 rusty gears: {0}/{1}",
+  "albase:treasurer-buy-allowance-accepted": "Treasurer: I’ll verify your current limits before payment.",
+  "albase:treasurer-buy-allowance-reward": "Treasurer: Approved. +100000 m³ to land allowance.",
+
+  "albase:treasurer-buy-maxareas-title": "Treasurer: Buy +1 area",
+  "albase:treasurer-buy-maxareas-desc": "Increase maximum land claim areas by 1. Payment is in rusty gears.",
+  "albase:treasurer-buy-maxareas-obj": "Pay 10 rusty gears: {0}/{1}",
+  "albase:treasurer-buy-maxareas-accepted": "Treasurer: I’ll verify your current limits before payment.",
+  "albase:treasurer-buy-maxareas-reward": "Treasurer: Approved. +1 land claim area.",
+
+  "albase:landclaim-extra-header": "Current increased limits",
+  "albase:landclaim-extra-allowance": "Additional land: {0} cubic meters",
+  "albase:landclaim-extra-areas": "Additional areas: {0}",
+  "albase:treasurer-survey-result-0": "The Treasurer exhales like a seized gear: “Your answers raise two questions: how did you get here, and why are you negotiating with paperwork at all? This isn’t failure, it’s a collapse. Start over from zero — and stop arguing with the ruler.”",
+  "albase:treasurer-survey-result-8": "“Half wrong. You have intuition, but you’re swinging it into a wall. Land prefers precision, not guesses. You’ll retake it. Next time, count instead of hoping.”",
+  "albase:treasurer-survey-result-12": "The Treasurer notes something in the ledger: “Minimum met. You understand boundaries, even if it pains you. We’ll process the documents, but I’d still reread the charter. Just in case.”",
+  "albase:treasurer-survey-result-17": "He finally looks up: “A rare case. You don’t just recall the form, you grasp the meaning. That is competence. Your papers will be ready without extra delay.”",
+
   "albase:test-title": "Test: All Objectives",
   "albase:test-desc": "Debug quest for checking every VSQuest objective type.\n\nTest area: 512000 3 512000 (do not go below y=3).\n\nAuto-setup on accept:\n- Gives 1 stick (for Have item).\n- Sets player attribute vsquest:test-attr=1 (for Player attribute).\n- Pre-marks interact points for interactat/interactcount.\n- Rolls 1 randomkill slot.\n\nManual checks:\n- Travel: run a bit during DAY (06:00–18:00), progress should increase.\n- Block interacts: right-click blocks at 512000,3,512000 then 512000,4,512000 then 512000,5,512000.\n- Interact with NPC: interact with the Innkeeper once.\n- Nearby flowers: place 1 flower-* block near you.\n- Reach point: get within radius 5 of 512000,3,512000.\n- Kill near point: kill any mob within radius 15 of 512000,3,512000.\n- Inside land claim: enter a land claim named TestClaim.\n- Survive temporal storm: wait for 1 temporal storm to end.\n\nTip: each completed objective will print a message and play a sound.",
   "albase:test-randomkill-notify": "Test: kill {0}x {1}.",
@@ -328,5 +360,9 @@
   "albase:test-obj-sequence": "Sequence (stick + run): {0}/{1}",
 
   "albase:debug-cooldownblock-title": "Debug: CooldownBlock (1 in-game hour)",
-  "albase:debug-cooldownblock-desc": "Debug quest.\n\nSteps:\n1) Go to Hub (512000 3 512000).\n2) Accept the quest.\n3) Right-click the block at 512000 3 512000.\n\nExpected: the block is replaced with a placeholder and restored after 1 in-game hour."
+  "albase:debug-cooldownblock-desc": "Debug quest.\n\nSteps:\n1) Go to Hub (512000 3 512000).\n2) Accept the quest.\n3) Right-click the block at 512000 3 512000.\n\nExpected: the block is replaced with a placeholder and restored after 1 in-game hour.",
+
+  "albase:quiz-progress": "Question {0}/{1}\nCorrect: {2}  Wrong: {3}",
+  "albase:quiz-result": "Result\nCorrect: {0}  Wrong: {1}",
+  "albase:quiz-retry": "Retry"
 }

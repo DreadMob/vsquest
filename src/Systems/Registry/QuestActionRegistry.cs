@@ -41,6 +41,9 @@ namespace VsQuest
 
             actionRegistry.Add("addplayerint", new AddPlayerIntAction());
 
+            actionRegistry.Add("landclaimallowance", new LandClaimAllowanceAction());
+            actionRegistry.Add("landclaimmaxareas", new LandClaimMaxAreasAction());
+
             actionRegistry.Add("removeplayerattribute", new RemovePlayerAttributeAction());
 
             actionRegistry.Add("completequest", new CompleteQuestAction());
@@ -82,6 +85,7 @@ namespace VsQuest
             actionRegistry.Add("notify", new NotifyQuestAction());
             actionRegistry.Add("discover", new DiscoverQuestAction());
             actionRegistry.Add("showquestfinaldialog", new ShowQuestFinalDialogQuestAction());
+            actionRegistry.Add("showquiz", new ShowQuizAction());
             actionRegistry.Add("closedialogue", new CloseDialogueAction());
             actionRegistry.Add("revealname", new RevealNameAction());
         }

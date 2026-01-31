@@ -1,0 +1,24 @@
+{
+  "id": "albase:treasurer-survey",
+  "scoreAttributeKey": "albase:treasurer-quizscore",
+  "questionCount": 20,
+  "neededCorrect": 12,
+  "titleLangKey": "albase:treasurer-title",
+  "progressTemplateLangKey": "albase:quiz-progress",
+  "resultTemplateLangKey": "albase:quiz-result",
+  "resultBodyScoreThresholds": [0, 8, 12, 17],
+  "resultBodyLangKeys": [
+    "albase:treasurer-survey-result-0",
+    "albase:treasurer-survey-result-8",
+    "albase:treasurer-survey-result-12",
+    "albase:treasurer-survey-result-17"
+  ],
+  "retryButtonLangKey": "albase:quiz-retry",
+  "closeButtonLangKey": "alegacyvsquest:button-cancel",
+  "questionLangKeyFormat": "albase:treasurer-q{0}",
+  "optionALangKeyFormat": "albase:treasurer-q{0}-a",
+  "optionBLangKeyFormat": "albase:treasurer-q{0}-b",
+  "optionCLangKeyFormat": "albase:treasurer-q{0}-c",
+  "optionDLangKeyFormat": "albase:treasurer-q{0}-d",
+  "correctOptions": [2, 2, 3, 3, 2, 1, 2, 2, 3, 2, 2, 2, 3, 4, 3, 3, 4, 2, 3, 1]
+}

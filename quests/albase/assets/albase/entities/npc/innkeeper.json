@@ -3,6 +3,7 @@
   "class": "EntityAgent",
   "client": {
     "renderer": "Shape",
+    "size": 1.28,
     "shape": {
       "base": "game:entity/humanoid/trader"
     },
@@ -12,7 +13,7 @@
     "behaviors": [
       {
         "code": "nametag",
-        "showtagonlywhentargeted": true
+        "showtagonlywhentargeted": false
       },
       {
         "code": "repulseagents"
@@ -35,14 +36,18 @@
   },
   "code": "innkeeper",
   "hitboxSize": {
-    "x": 0.6,
-    "y": 1.75
+    "x": 0.77,
+    "y": 2.24
+  },
+  "attributes": {
+    "alternativeCollisionBox": [0.77, 2.24],
+    "renderRange": 32
   },
   "server": {
     "behaviors": [
       {
         "code": "nametag",
-        "showtagonlywhentargeted": true,
+        "showtagonlywhentargeted": false,
         "selectFromRandomName": [
           "Трактирщик"
         ]

@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Vintagestory.API.Datastructures;
+
+using Vintagestory.API.Common;
+
 using Vintagestory.API.Client;
 using Vintagestory.API.Config;
 
@@ -308,10 +312,15 @@ namespace VsQuest
 
                     string[] activeQuestKeys = activeQuests.ConvertAll<string>(quest => ActiveQuestKey(quest)).ToArray();
 
+                    bool hasQuiz = HasQuizConfig(selectedActiveQuest.questId);
+
                     SingleComposer.AddDropDown(activeQuestKeys, activeQuests.ConvertAll<string>(quest => Lang.Get(quest.questId + "-title")).ToArray(), selected, onActiveQuestSelectionChanged, ElementBounds.FixedOffseted(EnumDialogArea.RightTop, 0, 20, 400, 30), DropDownKey)
                         .AddButton(Lang.Get("alegacyvsquest:button-cancel"), TryClose, bottomLeftButtonBounds)
                         .AddIf(selectedActiveQuest.IsCompletableOnClient)
                             .AddButton(Lang.Get("alegacyvsquest:button-complete"), completeQuest, bottomRightButtonBounds)
+                        .EndIf()
+                        .AddIf(!selectedActiveQuest.IsCompletableOnClient && hasQuiz)
+                            .AddButton(Lang.Get("alegacyvsquest:button-open-quiz"), () => OpenQuiz(selectedActiveQuest.questId), bottomRightButtonBounds)
                         .EndIf()
                         .BeginClip(clippingBounds)
                             .AddRichtext(activeQuestText(selectedActiveQuest), CairoFont.WhiteSmallishText(), questTextBounds, "questtext")
@@ -556,39 +565,31 @@ namespace VsQuest
 
         private string questText(string questId)
         {
-            return Lang.Get(questId + "-desc");
-        }
-
-        private string activeQuestText(ActiveQuest quest)
-        {
-            return quest.ProgressText;
-        }
-
-        private bool acceptQuest()
-        {
-            var message = new QuestAcceptedMessage()
+            string text = Lang.Get(questId + "-desc");
+            string extra = BuildLandClaimExtraText(questId);
+            if (!string.IsNullOrWhiteSpace(extra))
             {
-                questGiverId = questGiverId,
-                questId = selectedAvailableQuestId
-            };
-            capi.Network.GetChannel("alegacyvsquest").SendPacket(message);
-            if (closeGuiAfterAcceptingAndCompleting)
-            {
-                TryClose();
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    text = extra;
+                }
+                else
+                {
+                    text = text + "\n\n" + extra;
+                }
             }
-            else
-            {
-                availableQuestIds.Remove(selectedAvailableQuestId);
-                RequestRecompose();
-            }
-            return true;
-        }
 
-        private bool completeQuest()
-        {
-            var message = new QuestCompletedMessage()
+            nodes.Add(new ReputationTreeNode
             {
-                questGiverId = questGiverId,
+                Id = "rank:" + rr.min,
+                Title = title,
+                RequirementText = req,
+                X = x,
+                Y = y,
+                Status = status,
+                IconItemCode = rr.iconItemCode
+            });
+        }
                 questId = selectedActiveQuest.questId
             };
             capi.Network.GetChannel("alegacyvsquest").SendPacket(message);

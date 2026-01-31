@@ -7,7 +7,7 @@
       "base": "game:entity/humanoid/trader"
     },
     "texture": {
-      "base": "game:entity/humanoid/traderclothes/set1"
+      "base": "albase:treasurer"
     },
     "behaviors": [
       {
@@ -26,17 +26,21 @@
       },
       {
         "code": "conversable",
-        "dialogue": "config/dialogue/witness"
+        "dialogue": "config/dialogue/treasurer"
       },
       {
         "code": "questgiver"
       }
     ]
   },
-  "code": "witness",
+  "code": "treasurer",
   "hitboxSize": {
     "x": 0.6,
     "y": 1.75
+  },
+  "attributes": {
+    "alternativeCollisionBox": [0.6, 1.75],
+    "renderRange": 32
   },
   "server": {
     "behaviors": [
@@ -44,7 +48,7 @@
         "code": "nametag",
         "showtagonlywhentargeted": false,
         "selectFromRandomName": [
-          "Свидетель"
+          "Казначей"
         ]
       },
       {
@@ -58,15 +62,21 @@
       },
       {
         "code": "conversable",
-        "dialogue": "config/dialogue/witness"
+        "dialogue": "config/dialogue/treasurer"
       },
       {
         "code": "questgiver",
-        "quests": [],
+        "reputationnpc": "albase:treasurer",
         "alwaysquests": [
-          "albase:witness-introduction"
+          "albase:treasurer-survey"
         ],
-        "noAvailableQuestDescLangKey": "albase:no-quest-available-witness",
+        "quests": [
+          "albase:treasurer-buy-allowance",
+          "albase:treasurer-buy-maxareas"
+        ],
+        "singlequestatatime": true,
+        "noAvailableQuestDescLangKey": "albase:no-quest-available-treasurer",
+        "noAvailableQuestCooldownDescLangKey": "albase:no-quest-available-treasurer-cooldown",
         "selectrandom": false,
         "selectrandomcount": 1
       }

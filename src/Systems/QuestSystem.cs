@@ -16,6 +16,8 @@ namespace VsQuest
         public Dictionary<string, IQuestAction> ActionRegistry { get; private set; } = new Dictionary<string, IQuestAction>();
         public Dictionary<string, ActionObjectiveBase> ActionObjectiveRegistry { get; private set; } = new Dictionary<string, ActionObjectiveBase>();
 
+        private QuizSystem quizSystem;
+
         private QuestPersistenceManager persistenceManager;
         private QuestLifecycleManager lifecycleManager;
         private QuestEventHandler eventHandler;
@@ -32,6 +34,8 @@ namespace VsQuest
         private QuestJournalHotkeyHandler journalHotkeyHandler;
         private QuestSelectGuiManager questSelectGuiManager;
         private QuestNotificationHandler notificationHandler;
+
+        public QuizSystem QuizSystem => quizSystem;
 
         public bool TryReloadConfigs(out string resultMessage)
         {
@@ -117,6 +121,8 @@ namespace VsQuest
             base.Start(api);
 
             MobLocalizationUtils.LoadFromAssets(api);
+
+            quizSystem = new QuizSystem(this);
 
             var harmony = new HarmonyLib.Harmony("alegacyvsquest");
             harmony.PatchAll();
@@ -270,6 +276,7 @@ namespace VsQuest
             MobLocalizationUtils.LoadFromAssets(api);
 
             LocalizationUtils.LoadFromAssets(api);
+            quizSystem?.LoadFromAssets(api);
             foreach (var mod in api.ModLoader.Mods)
             {
                 var questAssets = api.Assets.GetMany<Quest>(api.Logger, "config/quests", mod.Info.ModID);
@@ -424,6 +431,21 @@ namespace VsQuest
             QuestFinalDialogGui.ShowFromMessage(message, capi);
         }
 
+        internal void OnShowQuizMessage(ShowQuizMessage message, ICoreClientAPI capi)
+        {
+            quizSystem?.OnShowQuizMessage(message, capi);
+        }
+
+        internal void OnOpenQuizMessage(IServerPlayer player, OpenQuizMessage message, ICoreServerAPI sapi)
+        {
+            quizSystem?.OnOpenQuizMessage(player, message, sapi);
+        }
+
+        internal void OnSubmitQuizAnswerMessage(IServerPlayer player, SubmitQuizAnswerMessage message, ICoreServerAPI sapi)
+        {
+            quizSystem?.OnSubmitQuizAnswerMessage(player, message, sapi);
+        }
+
         internal void OnPreloadBossMusicMessage(PreloadBossMusicMessage message, ICoreClientAPI capi)
         {
             try
@@ -434,6 +456,16 @@ namespace VsQuest
             catch
             {
             }
+        }
+
+        internal void OnDialogTriggerMessage(IServerPlayer player, DialogTriggerMessage message, ICoreServerAPI sapi)
+        {
+            if (sapi == null || player == null || message == null) return;
+            if (string.IsNullOrWhiteSpace(message.Trigger)) return;
+            if (message.EntityId <= 0) return;
+
+            var qm = new QuestAcceptedMessage { questGiverId = message.EntityId, questId = "dialog-action" };
+            ActionStringExecutor.Execute(sapi, qm, player, message.Trigger);
         }
 
         internal void OnClaimReputationRewardsMessage(IServerPlayer player, ClaimReputationRewardsMessage message, ICoreServerAPI sapi)

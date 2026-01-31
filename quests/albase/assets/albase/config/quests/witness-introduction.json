@@ -47,6 +47,15 @@
         "albase:bosshunter",
         "1"
       ]
+    },
+    {
+      "id": "interactwithentity",
+      "objectiveId": "talk-treasurer",
+      "args": [
+        "albase:witness-introduction",
+        "albase:treasurer",
+        "1"
+      ]
     }
   ],
   "killObjectives": [],

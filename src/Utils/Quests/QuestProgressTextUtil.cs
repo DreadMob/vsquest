@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 
@@ -134,6 +135,7 @@ namespace VsQuest
                     if (!string.IsNullOrWhiteSpace(custom) && !string.Equals(custom, customKey, StringComparison.OrdinalIgnoreCase))
                     {
                         lines.Add($"- {ApplyPrefixes(custom, null)}");
+                        AppendLandClaimInfo(lines, questDef, wa);
                         return string.Join("\n", lines);
                     }
                 }
@@ -165,6 +167,7 @@ namespace VsQuest
                                         }
 
                                         lines.Add($"- {ApplyPrefixes(template, null)}");
+                                        AppendLandClaimInfo(lines, questDef, wa);
                                         return string.Join("\n", lines);
                                     }
                                 }
@@ -294,6 +297,7 @@ namespace VsQuest
                     }
                 }
 
+                AppendLandClaimInfo(lines, questDef, wa);
                 return string.Join("\n", lines);
             }
             catch (Exception e)
@@ -301,6 +305,23 @@ namespace VsQuest
                 api.Logger.Error($"[alegacyvsquest] Error building progress text for quest '{activeQuest.questId}': {e}");
                 return LocalizationUtils.GetSafe("alegacyvsquest:progress-load-error");
             }
+        }
+
+        private static void AppendLandClaimInfo(List<string> lines, Quest questDef, ITreeAttribute wa)
+        {
+            if (lines == null || wa == null || questDef == null || string.IsNullOrWhiteSpace(questDef.id)) return;
+
+            if (!string.Equals(questDef.id, "albase:treasurer-buy-allowance", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(questDef.id, "albase:treasurer-buy-maxareas", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            int allowance = wa.GetInt("landclaimallowance", 0);
+            int maxAreas = wa.GetInt("landclaimmaxareas", 0);
+
+            lines.Add($"- {LocalizationUtils.GetSafe("albase:landclaim-extra-allowance", allowance)}");
+            lines.Add($"- {LocalizationUtils.GetSafe("albase:landclaim-extra-areas", maxAreas)}");
         }
     }
 }

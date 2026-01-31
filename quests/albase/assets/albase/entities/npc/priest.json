@@ -12,7 +12,7 @@
     "behaviors": [
       {
         "code": "nametag",
-        "showtagonlywhentargeted": true
+        "showtagonlywhentargeted": false
       },
       {
         "code": "repulseagents"
@@ -42,7 +42,7 @@
     "behaviors": [
       {
         "code": "nametag",
-        "showtagonlywhentargeted": true,
+        "showtagonlywhentargeted": false,
         "selectFromRandomName": [
           "Священник"
         ]

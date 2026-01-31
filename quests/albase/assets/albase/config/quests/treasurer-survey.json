@@ -1,0 +1,79 @@
+{
+  "id": "albase:treasurer-survey",
+  "cooldown": -1,
+  "perPlayer": true,
+  "onAcceptedActions": [
+    {
+      "id": "removeplayerattribute",
+      "args": [
+        "albase:treasurer-quizscore"
+      ]
+    },
+    {
+      "id": "showquiz",
+      "args": [
+        "albase:treasurer-survey"
+      ]
+    },
+    {
+      "id": "playsound",
+      "args": [
+        "alegacyvsquest:sounds/queacc",
+        "0.175"
+      ]
+    }
+  ],
+  "actionObjectives": [
+    {
+      "id": "checkvariable",
+      "objectiveId": "passed",
+      "args": [
+        "albase:treasurer-quizscore",
+        ">=",
+        "12",
+        "completequest"
+      ]
+    }
+  ],
+  "killObjectives": [],
+  "itemRewards": [],
+  "actionRewards": [
+    {
+      "id": "notify",
+      "args": [
+        "albase:treasurer-survey-reward"
+      ]
+    },
+    {
+      "id": "addplayerint",
+      "args": [
+        "landclaimallowance",
+        "400000",
+        "999999999"
+      ]
+    },
+    {
+      "id": "landclaimallowance",
+      "args": []
+    },
+    {
+      "id": "landclaimmaxareas",
+      "args": []
+    },
+    {
+      "id": "playsound",
+      "args": [
+        "sounds/tutorialstepsuccess",
+        "0.7"
+      ]
+    },
+    {
+      "id": "showquestfinaldialog",
+      "args": [
+        "albase:dialogue-treasurer-survey-final-title",
+        "albase:dialogue-treasurer-survey-final-text",
+        "albase:dialogue-treasurer-survey-final-option"
+      ]
+    }
+  ]
+}

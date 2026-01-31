@@ -10,7 +10,7 @@
       "base": "albase:bosshunter1"
     },
     "behaviors": [
-      { "code": "nametag", "showtagonlywhentargeted": true },
+      { "code": "nametag", "showtagonlywhentargeted": false },
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.01 },
       { "code": "interpolateposition" },
@@ -30,7 +30,7 @@
     "behaviors": [
       {
         "code": "nametag",
-        "showtagonlywhentargeted": true,
+        "showtagonlywhentargeted": false,
         "selectFromRandomName": [ "Хранитель" ]
       },
       { "code": "controlledphysics", "stepHeight": 1.01 },

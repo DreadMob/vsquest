@@ -1,0 +1,69 @@
+{
+  "components": [
+    {
+      "code": "intro",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-treasurer-intro" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "main",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-treasurer-openquests", "jumpTo": "openquests" },
+        { "value": "albase:dialogue-treasurer-paperwork", "jumpTo": "paperwork" },
+        { "value": "albase:dialogue-treasurer-whyquiz", "jumpTo": "whyquiz" },
+        { "value": "albase:dialogue-treasurer-boundaries", "jumpTo": "boundaries" },
+        { "value": "albase:dialogue-treasurer-closechoice", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "openquests",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "openquests",
+      "text": [
+        { "value": "albase:dialogue-treasurer-openquests-confirm" }
+      ]
+    },
+    {
+      "code": "close",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-treasurer-close-answer" }
+      ]
+    },
+    {
+      "code": "paperwork",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-treasurer-paperwork-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "whyquiz",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-treasurer-whyquiz-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "boundaries",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-treasurer-boundaries-answer" }
+      ],
+      "jumpTo": "main"
+    }
+  ]
+}
