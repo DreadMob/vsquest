@@ -706,6 +706,12 @@ namespace VsQuest
             };
             capi.Network.GetChannel("alegacyvsquest").SendPacket(message);
 
+            if (HasQuizConfig(selectedAvailableQuestId))
+            {
+                TryClose();
+                return true;
+            }
+
             if (IsLandClaimQuest(selectedAvailableQuestId))
             {
                 curTab = 1;

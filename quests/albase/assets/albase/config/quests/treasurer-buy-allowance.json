@@ -5,12 +5,6 @@
   "predecessor": "albase:treasurer-survey",
   "onAcceptedActions": [
     {
-      "id": "notify",
-      "args": [
-        "albase:treasurer-buy-allowance-accepted"
-      ]
-    },
-    {
       "id": "landclaimallowance",
       "args": []
     },
@@ -44,7 +38,7 @@
       "args": [
         "landclaimallowance",
         "100000",
-        "999999"
+        "99999999999"
       ]
     },
     {
@@ -54,6 +48,13 @@
     {
       "id": "landclaimmaxareas",
       "args": []
+    },
+    {
+      "id": "playsound",
+      "args": [
+        "game:sounds/effect/cashregister",
+        "0.35"
+      ]
     },
     {
       "id": "notify",

@@ -36,15 +36,39 @@ namespace VsQuest
             if (!int.TryParse(args[2], out int delta)) delta = 0;
 
             int? max = null;
-            if (args.Length >= 4 && int.TryParse(args[3], out int parsedMax))
-            {
-                max = parsedMax;
-            }
-
             string onceKey = null;
-            if (args.Length >= 5 && !string.IsNullOrWhiteSpace(args[4]))
+
+            // Optional args:
+            // - max (int)
+            // - onceKey (string)
+            // Some JSON loaders may drop empty string placeholders, so support:
+            //   [scope, id, delta, onceKey]
+            //   [scope, id, delta, max]
+            //   [scope, id, delta, max, onceKey]
+            if (args.Length >= 4)
             {
-                onceKey = args[4];
+                var arg3 = args[3];
+                if (int.TryParse(arg3, out int parsedMax))
+                {
+                    max = parsedMax;
+
+                    if (args.Length >= 5 && !string.IsNullOrWhiteSpace(args[4]))
+                    {
+                        onceKey = args[4];
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(arg3))
+                    {
+                        onceKey = arg3;
+                    }
+
+                    if (args.Length >= 5 && !string.IsNullOrWhiteSpace(args[4]))
+                    {
+                        onceKey = args[4];
+                    }
+                }
             }
 
             var wa = byPlayer.Entity.WatchedAttributes;

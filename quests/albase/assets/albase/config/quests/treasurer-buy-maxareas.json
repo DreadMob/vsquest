@@ -25,7 +25,7 @@
       "objectiveId": "pay",
       "args": [
         "game:gear-rusty",
-        "10"
+        "5"
       ]
     }
   ],
@@ -36,7 +36,7 @@
       "id": "takeitem",
       "args": [
         "game:gear-rusty",
-        "10"
+        "5"
       ]
     },
     {

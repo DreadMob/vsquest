@@ -327,7 +327,7 @@
 
   "albase:treasurer-buy-maxareas-title": "Treasurer: Buy +1 area",
   "albase:treasurer-buy-maxareas-desc": "Increase maximum land claim areas by 1. Payment is in rusty gears.",
-  "albase:treasurer-buy-maxareas-obj": "Pay 10 rusty gears: {0}/{1}",
+  "albase:treasurer-buy-maxareas-obj": "Pay 5 rusty gears: {0}/{1}",
   "albase:treasurer-buy-maxareas-accepted": "Treasurer: I’ll verify your current limits before payment.",
   "albase:treasurer-buy-maxareas-reward": "Treasurer: Approved. +1 land claim area.",
 
