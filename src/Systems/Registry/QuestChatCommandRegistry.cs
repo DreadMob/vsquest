@@ -35,6 +35,7 @@ namespace VsQuest
 
             var bossHuntSkipHandler = new BossHuntSkipCommandHandler(sapi);
             var bossHuntStatusHandler = new BossHuntStatusCommandHandler(sapi);
+            var bossHuntReloadHandler = new BossHuntReloadCommandHandler(sapi);
 
             var questWAttrHandler = new QuestWAttrCommandHandler(sapi);
 
@@ -250,6 +251,12 @@ namespace VsQuest
                         .WithDescription("Shows the current bosshunt target and time until rotation.")
                         .RequiresPrivilege(Privilege.give)
                         .HandleWith(bossHuntStatusHandler.Handle)
+                    .EndSubCommand()
+                    .BeginSubCommand("reload")
+                        .WithDescription("Clears saved bosshunt anchors and re-registers anchors from loaded chunks (scan around online players).")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(sapi.ChatCommands.Parsers.OptionalInt("radiusBlocks", 512))
+                        .HandleWith(bossHuntReloadHandler.Handle)
                     .EndSubCommand()
                 .EndSubCommand()
                 .BeginSubCommand("ai")

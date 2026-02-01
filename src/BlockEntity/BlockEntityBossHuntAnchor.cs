@@ -40,6 +40,22 @@ namespace VsQuest
             }
         }
 
+        internal bool TryForceRegisterAnchorServerSide()
+        {
+            if (Api?.Side != EnumAppSide.Server) return false;
+            if (string.IsNullOrWhiteSpace(bossKey)) return false;
+
+            try
+            {
+                TryRegisterAnchor();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public override void OnBlockPlaced(ItemStack byItemStack = null)
         {
             base.OnBlockPlaced(byItemStack);

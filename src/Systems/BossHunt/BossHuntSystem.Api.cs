@@ -1,10 +1,107 @@
 using System;
+using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 
 namespace VsQuest
 {
     public partial class BossHuntSystem
     {
+        public bool TryReloadAnchors(int radiusBlocks, out int clearedAnchors, out int reRegisteredAnchors, out string details)
+        {
+            clearedAnchors = 0;
+            reRegisteredAnchors = 0;
+            details = null;
+
+            if (sapi == null)
+            {
+                details = "Server API not available.";
+                return false;
+            }
+
+            if (radiusBlocks <= 0) radiusBlocks = 512;
+
+            try
+            {
+                // Clear saved anchors in world state
+                if (state?.entries != null)
+                {
+                    for (int i = 0; i < state.entries.Count; i++)
+                    {
+                        var e = state.entries[i];
+                        if (e?.anchorPoints == null) continue;
+                        clearedAnchors += e.anchorPoints.Count;
+                        e.anchorPoints.Clear();
+                    }
+                }
+
+                stateDirty = true;
+
+                // Reset caches
+                orderedAnchorsCache.Clear();
+                orderedAnchorsDirty.Clear();
+
+                // Reset boss cache - next tick should re-evaluate
+                cachedBossEntity = null;
+                cachedBossKey = null;
+                nextBossEntityScanTotalHours = 0;
+
+                // Re-register anchors from already loaded chunks by scanning around online players
+                int scannedChunks = 0;
+                int anchorsFound = 0;
+
+                var blockAccessor = sapi.World?.BlockAccessor;
+                if (blockAccessor == null)
+                {
+                    details = "World.BlockAccessor not available.";
+                    return false;
+                }
+
+                int chunksize = GlobalConstants.ChunkSize;
+                foreach (var p in sapi.World.AllOnlinePlayers)
+                {
+                    if (p?.Entity == null) continue;
+
+                    var pos = p.Entity.ServerPos;
+                    var center = new Vec3i((int)pos.X, (int)pos.Y, (int)pos.Z);
+
+                    for (int x = center.X - radiusBlocks; x <= center.X + radiusBlocks; x += chunksize)
+                    {
+                        for (int y = center.Y - radiusBlocks; y <= center.Y + radiusBlocks; y += chunksize)
+                        {
+                            for (int z = center.Z - radiusBlocks; z <= center.Z + radiusBlocks; z += chunksize)
+                            {
+                                var chunk = blockAccessor.GetChunkAtBlockPos(new BlockPos(x, y, z, 0));
+                                if (chunk == null) continue;
+                                scannedChunks++;
+
+                                foreach (var be in chunk.BlockEntities.Values)
+                                {
+                                    if (be is not BlockEntityBossHuntAnchor anchorBe) continue;
+                                    anchorsFound++;
+                                    if (anchorBe.TryForceRegisterAnchorServerSide())
+                                    {
+                                        reRegisteredAnchors++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                SaveStateIfDirty();
+
+                details = $"Scanned chunks: {scannedChunks}, anchors in loaded chunks: {anchorsFound}.";
+                return true;
+            }
+            catch (Exception e)
+            {
+                details = e.Message;
+                return false;
+            }
+        }
+
         public bool TryGetBossPosition(string bossKey, out Vec3d pos, out int dimension, out bool isLiveEntity)
         {
             pos = null;
