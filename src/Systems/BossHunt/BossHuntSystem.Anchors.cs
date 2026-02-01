@@ -259,6 +259,8 @@ namespace VsQuest
             var p = cfg._parsedPoints[index];
             if (p == null || !p.ok) return false;
 
+            if (p.x == 0 && p.y == 0 && p.z == 0 && p.dim == 0) return false;
+
             dim = p.dim;
             point = new Vec3d(p.x, p.y, p.z);
             return true;
