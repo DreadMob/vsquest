@@ -16,9 +16,7 @@
       "text": [
         { "value": "albase:dialogue-arena-broker-openui", "jumpTo": "openui" },
         { "value": "albase:dialogue-arena-broker-showregions", "jumpTo": "snapshot" },
-        { "value": "albase:dialogue-arena-broker-whatisthis", "jumpTo": "whatisthis" },
-        { "value": "albase:dialogue-arena-broker-rules", "jumpTo": "rules" },
-        { "value": "albase:dialogue-arena-broker-currency", "jumpTo": "currency" },
+        { "value": "albase:dialogue-arena-broker-help", "jumpTo": "help" },
         { "value": "albase:dialogue-arena-broker-closechoice", "jumpTo": "close" }
       ]
     },
@@ -43,29 +41,11 @@
       "jumpTo": "main"
     },
     {
-      "code": "whatisthis",
+      "code": "help",
       "owner": "npc",
       "type": "talk",
       "text": [
-        { "value": "albase:dialogue-arena-broker-whatisthis-answer" }
-      ],
-      "jumpTo": "main"
-    },
-    {
-      "code": "rules",
-      "owner": "npc",
-      "type": "talk",
-      "text": [
-        { "value": "albase:dialogue-arena-broker-rules-answer" }
-      ],
-      "jumpTo": "main"
-    },
-    {
-      "code": "currency",
-      "owner": "npc",
-      "type": "talk",
-      "text": [
-        { "value": "albase:dialogue-arena-broker-currency-answer" }
+        { "value": "albase:dialogue-arena-broker-help-answer" }
       ],
       "jumpTo": "main"
     },

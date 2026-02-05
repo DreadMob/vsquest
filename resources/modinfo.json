@@ -9,8 +9,11 @@
 		"Flajakay",
         "DreadMob"
     ],
+    "contributors": [
+        "Psyloh"
+    ],
     "description": "Mod that focuses on implementing a Quest System.",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "dependencies": {
         "game": "1.21.6"
     }

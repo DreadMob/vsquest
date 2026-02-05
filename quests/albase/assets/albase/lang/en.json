@@ -39,6 +39,10 @@
   "albase:tradingwindow-priest": "Priest",
   "item-creature-priest": "Priest",
 
+  "tradingwindow-arena-broker": "Arena Broker",
+  "game:tradingwindow-arena-broker": "Arena Broker",
+  "albase:tradingwindow-arena-broker": "Arena Broker",
+
   "albase:witness-title": "Witness",
   "albase:dialogue-witness-intro": "The witness keeps silent, but the gaze is heavier than words.",
   "albase:dialogue-witness-openquests": "I need work.",
@@ -54,16 +58,12 @@
   "albase:dialogue-arena-broker-intro": "I manage arena rentals.",
   "albase:dialogue-arena-broker-openui": "Open interface",
   "albase:dialogue-arena-broker-showregions": "Show regions",
-  "albase:dialogue-arena-broker-whatisthis": "What is this place?",
-  "albase:dialogue-arena-broker-rules": "Rules and terms",
-  "albase:dialogue-arena-broker-currency": "Payment and rusty gears",
+  "albase:dialogue-arena-broker-help": "Help",
   "albase:dialogue-arena-broker-closechoice": "Bye",
   "albase:dialogue-arena-broker-close-answer": "Good luck.",
   "albase:dialogue-arena-broker-openui-answer": "If you want numbers, take them. I only open the door. What you do with it is on you.\n\nInterface is open.",
   "albase:dialogue-arena-broker-showregions-answer": "I put the list on the table.\n\nIf you see nothing, nobody has put any region up for rent. This is not a market of miracles: first a region must be declared, then paid for.",
-  "albase:dialogue-arena-broker-whatisthis-answer": "Arena rentals are not comfort. They are order.\n\nSome land cannot stay ownerless: emptiness invites strangers. So we lease it by term and keep the rules simple.\n\nWant a piece of ground? Pay, and watch the time.",
-  "albase:dialogue-arena-broker-rules-answer": "Terms are counted in years: from one to five.\n\nFail to extend — it returns to the market. Miss your chance — you were too confident.\n\nI don't argue, I record: whoever paid holds it for the term.",
-  "albase:dialogue-arena-broker-currency-answer": "You pay in rusty gears. Heavy, filthy, but honest — nobody prints them on paper.\n\nThe price isn't kindness. It's the fee for the right to say: 'This is mine.'\n\nNo gears — no argument.",
+  "albase:dialogue-arena-broker-help-answer": "Short version:\n\n1) Open the interface — auctions and rent extension are there.\n2) The list shows regions. Auction shows only free regions, extension shows only rented.\n3) Bids and extensions cost rusty gears.\n4) When an auction ends, the winner gets a 1-year rent and can extend up to 5 years.\n5) If you miss the extension, the region returns to auction.",
   
 
   "albase:witness-introduction-title": "Witness: Introduction",
