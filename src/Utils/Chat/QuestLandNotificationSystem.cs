@@ -21,6 +21,9 @@ namespace VsQuest
         private readonly Dictionary<string, (int x, int y, int z)> lastBlockPosByPlayerUid = new Dictionary<string, (int x, int y, int z)>(StringComparer.Ordinal);
         private readonly Dictionary<string, string> lastClaimByPlayerUid = new Dictionary<string, string>(StringComparer.Ordinal);
 
+        private readonly Dictionary<string, int> lastDimensionByPlayerUid = new Dictionary<string, int>(StringComparer.Ordinal);
+        private readonly Dictionary<string, long> lastActionMsByPlayerUid = new Dictionary<string, long>(StringComparer.Ordinal);
+
         public override void StartServerSide(ICoreServerAPI api)
         {
             sapi = api;
@@ -51,18 +54,54 @@ namespace VsQuest
             var players = sapi?.World?.AllOnlinePlayers;
             if (players == null || players.Length == 0) return;
 
+            long nowMs = 0;
+            try
+            {
+                nowMs = sapi.World.ElapsedMilliseconds;
+            }
+            catch
+            {
+                nowMs = 0;
+            }
+
             for (int i = 0; i < players.Length; i++)
             {
                 if (!(players[i] is IServerPlayer sp)) continue;
 
                 var pos = sp.Entity?.Pos;
                 if (pos == null) continue;
+
+                int curDim;
+                try
+                {
+                    curDim = sp.Entity.Pos.Dimension;
+                }
+                catch
+                {
+                    curDim = 0;
+                }
+
                 int curX = pos.AsBlockPos.X;
                 int curY = pos.AsBlockPos.Y;
                 int curZ = pos.AsBlockPos.Z;
 
                 string uid = sp.PlayerUID;
                 if (string.IsNullOrWhiteSpace(uid)) continue;
+
+                if (lastDimensionByPlayerUid.TryGetValue(uid, out int lastDim) && lastDim != curDim)
+                {
+                    // During teleports / dimension changes, claim lookup can briefly return stale/null data.
+                    // Suppress enter/exit firing in that moment to avoid double actions (which can cause rubberband/jerk).
+                    lastDimensionByPlayerUid[uid] = curDim;
+                    lastBlockPosByPlayerUid[uid] = (curX, curY, curZ);
+                    lastClaimByPlayerUid[uid] = GetCurrentClaimName(sp);
+                    continue;
+                }
+
+                if (!lastDimensionByPlayerUid.ContainsKey(uid))
+                {
+                    lastDimensionByPlayerUid[uid] = curDim;
+                }
 
                 lastBlockPosByPlayerUid.TryGetValue(uid, out var lastPos);
                 int lastX = lastPos.x;
@@ -93,6 +132,16 @@ namespace VsQuest
 
                 lastClaimByPlayerUid[uid] = currentClaim;
 
+                // Throttle rapid claim transitions (often happens around teleports / chunk loads).
+                // We still update lastClaim above, but avoid firing multiple actions back-to-back.
+                if (nowMs > 0 && lastActionMsByPlayerUid.TryGetValue(uid, out long lastActionMs))
+                {
+                    if (nowMs - lastActionMs < 600)
+                    {
+                        continue;
+                    }
+                }
+
                 // Only react to claims explicitly tracked by this config (e.g. BossHunt / Ossuary).
                 bool curTracked = IsTrackedQuestLandClaim(config, currentClaim);
                 bool lastTracked = IsTrackedQuestLandClaim(config, lastClaim);
@@ -100,16 +149,19 @@ namespace VsQuest
                 if (curTracked && !lastTracked)
                 {
                     FireEnter(sp, questId, config, currentClaim);
+                    if (nowMs > 0) lastActionMsByPlayerUid[uid] = nowMs;
                 }
                 else if (!curTracked && lastTracked)
                 {
                     FireExit(sp, questId, config, lastClaim);
+                    if (nowMs > 0) lastActionMsByPlayerUid[uid] = nowMs;
                 }
                 else if (curTracked && lastTracked && !string.Equals(currentClaim, lastClaim, StringComparison.Ordinal))
                 {
                     // Transition between two tracked claims: exit then enter.
                     FireExit(sp, questId, config, lastClaim);
                     FireEnter(sp, questId, config, currentClaim);
+                    if (nowMs > 0) lastActionMsByPlayerUid[uid] = nowMs;
                 }
             }
         }
