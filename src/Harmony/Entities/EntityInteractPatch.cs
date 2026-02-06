@@ -11,6 +11,9 @@ namespace VsQuest.Harmony
     {
         private static bool patched;
 
+        private const int DebounceMs = 100;
+        private static readonly System.Collections.Generic.Dictionary<string, long> lastInteractMsByKey = new System.Collections.Generic.Dictionary<string, long>(System.StringComparer.Ordinal);
+
         public static void TryPatch(HarmonyLib.Harmony harmony)
         {
             if (patched) return;
@@ -51,10 +54,41 @@ namespace VsQuest.Harmony
             long targetEntityId = entity.EntityId;
             string targetEntityCode = entity?.Code?.ToString()?.Trim()?.ToLowerInvariant();
 
-            foreach (var activeQuest in activeQuests.ToArray())
+            // Debounce spam-clicks: interacting with the same entity in rapid succession can create
+            // heavy server load when quests are active.
+            try
             {
+                string key = serverPlayer.PlayerUID + ":" + targetEntityId;
+                long now = System.Environment.TickCount64;
+                if (lastInteractMsByKey.TryGetValue(key, out var last) && (now - last) < DebounceMs)
+                {
+                    return;
+                }
+                lastInteractMsByKey[key] = now;
+            }
+            catch
+            {
+            }
+
+            for (int q = 0; q < activeQuests.Count; q++)
+            {
+                var activeQuest = activeQuests[q];
                 if (activeQuest == null || string.IsNullOrWhiteSpace(activeQuest.questId)) continue;
                 if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef) || questDef?.actionObjectives == null) continue;
+
+                // Fast skip: if the quest has no interactwithentity objectives at all, don't do any work.
+                bool hasInteractWithEntity = false;
+                for (int i = 0; i < questDef.actionObjectives.Count; i++)
+                {
+                    var ao = questDef.actionObjectives[i];
+                    if (ao == null) continue;
+                    if (ao.id == "interactwithentity")
+                    {
+                        hasInteractWithEntity = true;
+                        break;
+                    }
+                }
+                if (!hasInteractWithEntity) continue;
 
                 foreach (var ao in questDef.actionObjectives)
                 {

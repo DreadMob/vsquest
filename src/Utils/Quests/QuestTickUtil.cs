@@ -8,8 +8,11 @@ namespace VsQuest
     public static class QuestTickUtil
     {
         private static readonly Dictionary<string, double> lastMissingQuestLogHoursByKey = new Dictionary<string, double>(System.StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, bool> questHasTickObjectivesByQuestId = new Dictionary<string, bool>(System.StringComparer.OrdinalIgnoreCase);
 
-        public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, System.Action<string, List<ActiveQuest>> savePlayerQuests, ICoreServerAPI sapi, double missingQuestLogThrottleHours = (1.0 / 60.0), double passiveCompletionThrottleHours = (1.0 / 3600.0))
+        private static double lastPassiveCheckHours = -1.0;
+
+        public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, System.Action<string, List<ActiveQuest>> savePlayerQuests, ICoreServerAPI sapi, double missingQuestLogThrottleHours = (1.0 / 60.0), double passiveCompletionThrottleHours = (1.0 / 60.0))
         {
             if (players == null || players.Length == 0) return;
 
@@ -17,7 +20,11 @@ namespace VsQuest
 			if (missingLogThrottle <= 0) missingLogThrottle = 1.0 / 60.0;
 
 			double passiveThrottle = passiveCompletionThrottleHours;
-			if (passiveThrottle <= 0) passiveThrottle = 1.0 / 3600.0;
+			if (passiveThrottle <= 0) passiveThrottle = 1.0 / 60.0;
+
+            double nowHours = sapi?.World?.Calendar?.TotalHours ?? 0;
+            bool shouldCheckPassive = lastPassiveCheckHours < 0 || (nowHours - lastPassiveCheckHours) >= (1.0 / 60.0);
+            if (shouldCheckPassive) lastPassiveCheckHours = nowHours;
 
             for (int p = 0; p < players.Length; p++)
             {
@@ -37,11 +44,11 @@ namespace VsQuest
                         // Keyed by player uid + quest id.
                         try
                         {
-                            double nowHours = sapi?.World?.Calendar?.TotalHours ?? 0;
+                            double logNowHours = sapi?.World?.Calendar?.TotalHours ?? 0;
                             string logKey = serverPlayer.PlayerUID + ":" + activeQuest.questId;
-                            if (!lastMissingQuestLogHoursByKey.TryGetValue(logKey, out var lastHours) || (nowHours - lastHours) > missingLogThrottle)
+                            if (!lastMissingQuestLogHoursByKey.TryGetValue(logKey, out var lastHours) || (logNowHours - lastHours) > missingLogThrottle)
                             {
-                                lastMissingQuestLogHoursByKey[logKey] = nowHours;
+                                lastMissingQuestLogHoursByKey[logKey] = logNowHours;
                                 sapi.Logger.Error($"[alegacyvsquest] Active quest with id '{activeQuest.questId}' for player '{serverPlayer.PlayerUID}' not found in QuestRegistry. Skipping tick update. This might happen if a quest was removed but player data was not updated.");
                             }
                         }
@@ -64,28 +71,61 @@ namespace VsQuest
                         continue;
                     }
 
-                    for (int i = 0; i < quest.actionObjectives.Count; i++)
+                    bool hasTickObjectives;
+                    if (!questHasTickObjectivesByQuestId.TryGetValue(activeQuest.questId, out hasTickObjectives))
                     {
-                        var objective = quest.actionObjectives[i];
-                        if (objective.id == "walkdistance")
+                        hasTickObjectives = false;
+                        try
                         {
-                            if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, quest, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
-
-                            if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
-                            var objectiveImplementation = impl as WalkDistanceObjective;
-                            objectiveImplementation?.OnTick(serverPlayer, activeQuest, i, objective.args, sapi, dt);
+                            if (quest.actionObjectives != null)
+                            {
+                                for (int i = 0; i < quest.actionObjectives.Count; i++)
+                                {
+                                    var objective = quest.actionObjectives[i];
+                                    if (objective == null) continue;
+                                    if (objective.id == "walkdistance" || objective.id == "temporalstorm")
+                                    {
+                                        hasTickObjectives = true;
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                        else if (objective.id == "temporalstorm")
+                        catch
                         {
-                            if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, quest, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
+                            hasTickObjectives = true;
+                        }
 
-                            if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
-                            var objectiveImplementation = impl as TemporalStormObjective;
-                            objectiveImplementation?.OnTick(serverPlayer, activeQuest, objective, sapi);
+                        questHasTickObjectivesByQuestId[activeQuest.questId] = hasTickObjectives;
+                    }
+
+                    if (hasTickObjectives && quest.actionObjectives != null)
+                    {
+                        for (int i = 0; i < quest.actionObjectives.Count; i++)
+                        {
+                            var objective = quest.actionObjectives[i];
+                            if (objective == null) continue;
+
+                            if (objective.id == "walkdistance")
+                            {
+                                if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, quest, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
+
+                                if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
+                                var objectiveImplementation = impl as WalkDistanceObjective;
+                                objectiveImplementation?.OnTick(serverPlayer, activeQuest, i, objective.args, sapi, dt);
+                            }
+                            else if (objective.id == "temporalstorm")
+                            {
+                                if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, quest, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
+
+                                if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
+                                var objectiveImplementation = impl as TemporalStormObjective;
+                                objectiveImplementation?.OnTick(serverPlayer, activeQuest, objective, sapi);
+                            }
                         }
                     }
 
-                    TryFirePassiveActionObjectiveCompletions(serverPlayer, activeQuest, quest, actionObjectiveRegistry, sapi, passiveThrottle);
+                    if (shouldCheckPassive) TryFirePassiveActionObjectiveCompletions(serverPlayer, activeQuest, quest, actionObjectiveRegistry, sapi, passiveThrottle);
                 }
             }
         }

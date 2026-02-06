@@ -20,6 +20,8 @@ namespace VsQuest
 
         private static readonly Dictionary<string, PlayerWalkCache> playerCacheByKey = new Dictionary<string, PlayerWalkCache>();
 
+        private static int updateCounter = 0;
+
         private static string CacheKey(string playerUid, string questId, int slot)
         {
             return $"{playerUid}|{questId}|{slot}";
@@ -147,7 +149,7 @@ namespace VsQuest
             have += (float)dist;
             if (have > needMeters) have = needMeters;
 
-            wa.SetFloat(HaveKey(questId, slot), have);
+            if (++updateCounter % 20 == 0) wa.SetFloat(HaveKey(questId, slot), have);
 
             // Intentionally do not MarkPathDirty(HaveKey): this progress is used server-side,
             // and client UI receives progress via ActiveQuest.ProgressText.

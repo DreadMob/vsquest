@@ -23,6 +23,36 @@ namespace VsQuest.Harmony
             var playerQuests = questSystem.GetPlayerQuests(player.PlayerUID);
             foreach (var quest in playerQuests.ToArray())
             {
+                if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
+
+                // Only forward block-use events to quests that have interact-related objectives.
+                // This avoids per-interact overhead for unrelated quests.
+                try
+                {
+                    if (questSystem.QuestRegistry == null) continue;
+                    if (!questSystem.QuestRegistry.TryGetValue(quest.questId, out var questDef) || questDef == null) continue;
+
+                    bool needsBlockUse = (questDef.interactObjectives != null && questDef.interactObjectives.Count > 0);
+                    if (!needsBlockUse && questDef.actionObjectives != null)
+                    {
+                        for (int ao = 0; ao < questDef.actionObjectives.Count; ao++)
+                        {
+                            var a = questDef.actionObjectives[ao];
+                            if (a == null) continue;
+                            if (a.id == "interactat" || a.id == "interactcount")
+                            {
+                                needsBlockUse = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!needsBlockUse) continue;
+                }
+                catch
+                {
+                }
+
                 quest.OnBlockUsed(__instance.Code.ToString(), position, player, sapi);
             }
         }

@@ -374,12 +374,34 @@ namespace VsQuest
             var playerQuests = persistenceManager.GetPlayerQuests(byPlayer.PlayerUID);
             if (playerQuests == null || playerQuests.Count == 0) return;
 
+            QuestSystem qs = null;
+            try
+            {
+                qs = sapi?.ModLoader?.GetModSystem<QuestSystem>();
+            }
+            catch
+            {
+                qs = null;
+            }
+
             int count = playerQuests.Count;
             for (int i = 0; i < count; i++)
             {
                 if (i >= playerQuests.Count) break;
                 var quest = playerQuests[i];
-                quest?.OnBlockBroken(blockCode, position, byPlayer);
+                if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
+
+                try
+                {
+                    if (qs?.QuestRegistry == null) continue;
+                    if (!qs.QuestRegistry.TryGetValue(quest.questId, out var questDef) || questDef == null) continue;
+                    if (questDef.blockBreakObjectives == null || questDef.blockBreakObjectives.Count == 0) continue;
+                }
+                catch
+                {
+                }
+
+                quest.OnBlockBroken(blockCode, position, byPlayer);
             }
         }
 
@@ -395,12 +417,34 @@ namespace VsQuest
             var playerQuests = persistenceManager.GetPlayerQuests(byPlayer.PlayerUID);
             if (playerQuests == null || playerQuests.Count == 0) return;
 
+            QuestSystem qs = null;
+            try
+            {
+                qs = sapi?.ModLoader?.GetModSystem<QuestSystem>();
+            }
+            catch
+            {
+                qs = null;
+            }
+
             int count = playerQuests.Count;
             for (int i = 0; i < count; i++)
             {
                 if (i >= playerQuests.Count) break;
                 var quest = playerQuests[i];
-                quest?.OnBlockPlaced(blockCode, position, byPlayer);
+                if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
+
+                try
+                {
+                    if (qs?.QuestRegistry == null) continue;
+                    if (!qs.QuestRegistry.TryGetValue(quest.questId, out var questDef) || questDef == null) continue;
+                    if (questDef.blockPlaceObjectives == null || questDef.blockPlaceObjectives.Count == 0) continue;
+                }
+                catch
+                {
+                }
+
+                quest.OnBlockPlaced(blockCode, position, byPlayer);
             }
         }
 
@@ -448,12 +492,54 @@ namespace VsQuest
             var playerQuests = persistenceManager.GetPlayerQuests(player.PlayerUID);
             if (playerQuests == null || playerQuests.Count == 0) return;
 
+            QuestSystem questSystem = null;
+            try
+            {
+                questSystem = sapi?.ModLoader?.GetModSystem<QuestSystem>();
+            }
+            catch
+            {
+                questSystem = null;
+            }
+
             int count = playerQuests.Count;
             for (int i = 0; i < count; i++)
             {
                 if (i >= playerQuests.Count) break;
                 var quest = playerQuests[i];
-                quest?.OnBlockUsed(message.BlockCode, position, player, sapi);
+                if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
+
+                // Only process block-use events for quests that actually have interact-related objectives.
+                // This avoids doing per-interact work (including WatchedAttributes dirty marking) for quests
+                // that can't react to block interactions.
+                try
+                {
+                    if (questSystem?.QuestRegistry == null) continue;
+                    if (!questSystem.QuestRegistry.TryGetValue(quest.questId, out var questDef) || questDef == null) continue;
+
+                    bool needsBlockUse = (questDef.interactObjectives != null && questDef.interactObjectives.Count > 0);
+                    if (!needsBlockUse && questDef.actionObjectives != null)
+                    {
+                        for (int ao = 0; ao < questDef.actionObjectives.Count; ao++)
+                        {
+                            var a = questDef.actionObjectives[ao];
+                            if (a == null) continue;
+                            if (a.id == "interactat" || a.id == "interactcount")
+                            {
+                                needsBlockUse = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!needsBlockUse) continue;
+                }
+                catch
+                {
+                    // Fail-open: if anything goes wrong, keep legacy behavior for compatibility.
+                }
+
+                quest.OnBlockUsed(message.BlockCode, position, player, sapi);
             }
         }
     }
