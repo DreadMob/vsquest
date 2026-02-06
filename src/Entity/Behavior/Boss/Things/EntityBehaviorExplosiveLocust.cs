@@ -79,7 +79,7 @@ namespace VsQuest
 
             damageType = attributes?["damageType"].AsString("PiercingAttack") ?? "PiercingAttack";
 
-            loopSoundCode = attributes?["loopSound"].AsString("albase:mechanical/mecha switch") ?? "albase:mechanical/mecha switch";
+            loopSoundCode = attributes?["loopSound"].AsString(null);
             loopSoundRange = attributes?["loopSoundRange"].AsFloat(10f) ?? 10f;
             loopSoundIntervalMs = attributes?["loopSoundIntervalMs"].AsInt(900) ?? 900;
             loopSoundVolume = attributes?["loopSoundVolume"].AsFloat(0.6f) ?? 0.6f;
