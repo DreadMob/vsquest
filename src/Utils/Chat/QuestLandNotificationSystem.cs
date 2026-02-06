@@ -75,6 +75,13 @@ namespace VsQuest
 
                 lastBlockPosByPlayerUid[uid] = (curX, curY, curZ);
 
+                // questland is a quest helper: only fire while player has an active quest matching allowed prefixes.
+                // Important: don't query claims unless we actually need questland for this player.
+                if (!TryGetRelevantQuestAndConfig(sp, out string questId, out var config))
+                {
+                    continue;
+                }
+
                 string currentClaim = GetCurrentClaimName(sp);
 
                 lastClaimByPlayerUid.TryGetValue(uid, out string lastClaim);
@@ -86,25 +93,38 @@ namespace VsQuest
 
                 lastClaimByPlayerUid[uid] = currentClaim;
 
-                // questland is a quest helper: only fire while player has an active quest matching allowed prefixes.
-                if (!TryGetRelevantQuestAndConfig(sp, out string questId, out var config))
-                {
-                    continue;
-                }
+                // Only react to claims explicitly tracked by this config (e.g. BossHunt / Ossuary).
+                bool curTracked = IsTrackedQuestLandClaim(config, currentClaim);
+                bool lastTracked = IsTrackedQuestLandClaim(config, lastClaim);
 
-                if (!string.IsNullOrWhiteSpace(currentClaim) && string.IsNullOrWhiteSpace(lastClaim))
+                if (curTracked && !lastTracked)
                 {
                     FireEnter(sp, questId, config, currentClaim);
                 }
-                else if (string.IsNullOrWhiteSpace(currentClaim) && !string.IsNullOrWhiteSpace(lastClaim))
+                else if (!curTracked && lastTracked)
                 {
                     FireExit(sp, questId, config, lastClaim);
                 }
-                else if (!string.IsNullOrWhiteSpace(currentClaim) && !string.IsNullOrWhiteSpace(lastClaim))
+                else if (curTracked && lastTracked && !string.Equals(currentClaim, lastClaim, StringComparison.Ordinal))
                 {
+                    // Transition between two tracked claims: exit then enter.
+                    FireExit(sp, questId, config, lastClaim);
                     FireEnter(sp, questId, config, currentClaim);
                 }
             }
+        }
+
+        private bool IsTrackedQuestLandClaim(QuestLandConfig config, string claimName)
+        {
+            if (string.IsNullOrWhiteSpace(claimName)) return false;
+            if (config?.enterMessages == null || config.enterMessages.Count == 0) return false;
+
+            foreach (var kvp in config.enterMessages)
+            {
+                if (string.Equals(kvp.Key, claimName, StringComparison.OrdinalIgnoreCase)) return true;
+            }
+
+            return false;
         }
 
         private bool TryGetRelevantQuestAndConfig(IServerPlayer sp, out string questId, out QuestLandConfig config)
@@ -252,7 +272,7 @@ namespace VsQuest
                 {
                     if (string.Equals(kvp.Key, claimName, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (!string.IsNullOrWhiteSpace(kvp.Value)) return kvp.Value;
+                        if (!string.IsNullOrWhiteSpace(kvp.Value)) return Lang.Get(kvp.Value);
                     }
                 }
             }
@@ -264,7 +284,7 @@ namespace VsQuest
         {
             if (!string.IsNullOrWhiteSpace(config?.defaultExitMessage))
             {
-                return config.defaultExitMessage;
+                return Lang.Get(config.defaultExitMessage);
             }
 
             return Lang.Get("alegacyvsquest:questland-exit", lastClaimName);

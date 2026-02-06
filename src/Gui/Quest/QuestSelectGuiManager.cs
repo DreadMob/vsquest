@@ -1,4 +1,5 @@
 using Vintagestory.API.Client;
+using Vintagestory.GameContent;
 
 namespace VsQuest
 {
@@ -14,6 +15,8 @@ namespace VsQuest
 
         public void HandleQuestInfoMessage(QuestInfoMessage message, ICoreClientAPI capi)
         {
+            TryCloseOpenDialogue(capi);
+
             if (questSelectGui == null)
             {
                 questSelectGui = CreateQuestSelectGui(message, capi);
@@ -29,6 +32,26 @@ namespace VsQuest
 
             questSelectGui = CreateQuestSelectGui(message, capi);
             questSelectGui.TryOpen();
+        }
+
+        private static void TryCloseOpenDialogue(ICoreClientAPI capi)
+        {
+            try
+            {
+                var opened = capi?.Gui?.OpenedGuis;
+                if (opened == null) return;
+
+                for (int i = opened.Count - 1; i >= 0; i--)
+                {
+                    if (opened[i] is GuiDialogueDialog dlg && dlg.IsOpened())
+                    {
+                        dlg.TryClose();
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         private QuestSelectGui CreateQuestSelectGui(QuestInfoMessage message, ICoreClientAPI capi)

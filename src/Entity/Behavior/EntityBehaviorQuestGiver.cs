@@ -292,6 +292,25 @@ namespace VsQuest
                     }
                 }
             }
+            else if (rotationDays > 0 && sapi != null)
+            {
+                try
+                {
+                    double nowDays = sapi.World.Calendar.TotalDays;
+                    double period = Math.Floor(nowDays / rotationDays);
+                    double nextRotationDay = (period + 1) * rotationDays;
+                    double leftDays = nextRotationDay - nowDays;
+                    if (!double.IsNaN(leftDays) && !double.IsInfinity(leftDays) && leftDays > 0)
+                    {
+                        rotationDaysLeft = (int)Math.Ceiling(leftDays);
+                        if (rotationDaysLeft < 0) rotationDaysLeft = 0;
+                    }
+                }
+                catch
+                {
+                    rotationDaysLeft = 0;
+                }
+            }
 
             // Optional chain cooldown: after completing any quest for this questgiver,
             // block offering any new quests for N days (independent of per-quest cooldown).

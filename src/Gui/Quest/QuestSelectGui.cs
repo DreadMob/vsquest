@@ -304,9 +304,32 @@ namespace VsQuest
                 }
                 else
                 {
-                    string text = !string.IsNullOrWhiteSpace(noAvailableQuestDescLangKey)
-                        ? Lang.Get(noAvailableQuestDescLangKey)
-                        : Lang.Get("alegacyvsquest:no-quest-available-desc");
+                    bool hasCooldownText = !string.IsNullOrWhiteSpace(noAvailableQuestCooldownDescLangKey)
+                        && (noAvailableQuestCooldownDaysLeft > 0 || noAvailableQuestRotationDaysLeft > 0);
+
+                    string text;
+                    if (hasCooldownText)
+                    {
+                        // Some templates accept 2 args (cooldown + rotation), others accept only 1.
+                        // Try the 2-arg format first and fall back to 1-arg on formatting errors.
+                        try
+                        {
+                            text = Lang.Get(noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft, noAvailableQuestRotationDaysLeft);
+                        }
+                        catch
+                        {
+                            // Most quest givers only need a single value.
+                            // Prefer cooldown if present; otherwise fall back to rotation.
+                            int value = noAvailableQuestCooldownDaysLeft > 0 ? noAvailableQuestCooldownDaysLeft : noAvailableQuestRotationDaysLeft;
+                            text = Lang.Get(noAvailableQuestCooldownDescLangKey, value);
+                        }
+                    }
+                    else
+                    {
+                        text = !string.IsNullOrWhiteSpace(noAvailableQuestDescLangKey)
+                            ? Lang.Get(noAvailableQuestDescLangKey)
+                            : Lang.Get("alegacyvsquest:no-quest-available-desc");
+                    }
 
                     SingleComposer
                         .AddStaticText(text, CairoFont.WhiteSmallishText(), ElementBounds.Fixed(0, 60, mainWidth, 500))
