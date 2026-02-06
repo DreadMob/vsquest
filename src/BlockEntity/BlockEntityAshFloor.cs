@@ -23,6 +23,7 @@ namespace VsQuest
         private const string VictimWalkSpeedMultKey = "alegacyvsquest:ashfloor:walkspeedmult";
         private const string VictimNoJumpUntilKey = "alegacyvsquest:ashfloor:nojumpuntil";
         private const string VictimNoShiftUntilKey = "alegacyvsquest:ashfloor:noshiftuntil";
+        private const string VictimLastDamageMsKey = "vsquest:ashfloor:lastDamageMs";
 
         private long despawnAtMs;
         private long ownerId;
@@ -48,7 +49,7 @@ namespace VsQuest
             if (!ticking)
             {
                 ticking = true;
-                RegisterGameTickListener(OnServerTick, 100);
+                RegisterGameTickListener(OnServerTick, 250);
             }
         }
 
@@ -279,6 +280,26 @@ namespace VsQuest
         {
             if (sapi == null || player == null) return;
             if (damage <= 0f) return;
+
+            try
+            {
+                if (player.WatchedAttributes != null)
+                {
+                    long nowMs = sapi.World.ElapsedMilliseconds;
+                    long lastMs = player.WatchedAttributes.GetLong(VictimLastDamageMsKey, 0);
+                    const long MinIntervalMs = 1100;
+                    if (lastMs > 0 && nowMs > 0 && nowMs - lastMs < MinIntervalMs)
+                    {
+                        return;
+                    }
+
+                    player.WatchedAttributes.SetLong(VictimLastDamageMsKey, nowMs);
+                    player.WatchedAttributes.MarkPathDirty(VictimLastDamageMsKey);
+                }
+            }
+            catch
+            {
+            }
 
             EnumDamageType dmgType = EnumDamageType.Acid;
             try

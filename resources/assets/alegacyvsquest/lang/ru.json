@@ -134,6 +134,12 @@
     "alegacyvsquest:entry-count-single": "{0} запись",
     "alegacyvsquest:entry-count-plural": "{0} записей",
     "alegacyvsquest:notes-coming-soon": "Функция заметок скоро появится...",
+    "alegacyvsquest:ashfloor": "Пепельный пол",
+    "alegacyvsquest:ashfloor:until": "Пепельный пол: действует до {0}",
+    "alegacyvsquest:ashfloor:walkspeedmult": "Пепельный пол: замедление",
+    "alegacyvsquest:ashfloor:nojumpuntil": "Пепельный пол: прыжок заблокирован",
+    "alegacyvsquest:ashfloor:noshiftuntil": "Пепельный пол: красться заблокировано",
+    "alegacyvsquest:block-ashfloor": "Пепельный пол",
     "block-alegacyvsquest:bosshuntarena": "Арена охоты на боссов",
     "block-alegacyvsquest:ashfloor": "Пепельный пол",
     "block-alegacyvsquest:temporalriftprojector": "Проектор темпорального разлома"

@@ -1,7 +1,7 @@
 {
   "code": "crypt-mirror-clone",
   "class": "EntityPlayerBot",
-  "tags": ["humanoid", "habitat-land"],
+  "tags": ["albase-boss"],
   "canClimb": true,
   "hitboxSize": { "x": 0.6, "y": 1.75 },
   "eyeHeight": 1.65,

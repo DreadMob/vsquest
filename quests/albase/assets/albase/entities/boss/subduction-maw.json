@@ -1,20 +1,20 @@
 {
-  "inheritFrom": "game:entities/lore/bowtorn",
   "code": "subduction-maw",
   "class": "EntityAgent",
-  "tags": ["rust-creature", "habitat-land", "horror"],
+  "tags": ["albase-boss"],
   "variantgroups": [],
+  "drops": [],
   "hitboxSize": { "x": 1.9, "y": 4.8 },
   "deadHitboxSize": { "x": 2.8, "y": 2.0 },
   "eyeHeight": 3.8,
   "attributes": {
     "killedByInfoText": "deadcreature-vile",
+    "deadEntityCode": "albase:item-dead-creature-subduction-maw",
     "reckless": true,
     "vsquestSoundPitchMul": 0.6,
     "SoundVolumeMulBySound": { "albase:dark-magic-charge-up": 0.55, "albase:breath-out": 0.45 },
     "alegacyvsquestHideInfoText": true
   },
-  "drops": [],
   "client": {
     "renderer": "Shape",
     "size": 2.0,

@@ -1,7 +1,7 @@
 {
   "code": "crypt-mirror-trap",
   "class": "EntityAgent",
-  "tags": ["habitat-land"],
+  "tags": ["albase-boss"],
   "hitboxSize": { "x": 0.4, "y": 0.9 },
   "eyeHeight": 0.5,
   "drops": [],

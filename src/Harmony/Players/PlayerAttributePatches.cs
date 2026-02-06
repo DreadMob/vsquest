@@ -543,7 +543,7 @@ namespace VsQuest.Harmony
         [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
         public class EntityAgent_OnGameTick_AshFloorDisableControls_Client_Patch
         {
-            public static void Prefix(EntityAgent __instance)
+            public static void Postfix(EntityAgent __instance)
             {
                 if (__instance is not EntityPlayer player) return;
                 if (player.World?.Side != EnumAppSide.Client) return;

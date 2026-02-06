@@ -1,7 +1,7 @@
 {
   "code": "explosive-locust",
   "class": "EntityLocust",
-  "tags": ["mechanical", "habitat-land"],
+  "tags": ["albase-boss"],
   "canClimb": true,
   "canClimbAnywhere": true,
   "climbTouchDistance": 0.1,
@@ -65,16 +65,12 @@
         "fuseMs": 3000,
         "explosionRadius": 3.0,
         "explosionDamage": 10.0,
-        "damageTier": 3,
+        "damageTier": 4,
         "damageType": "PiercingAttack",
         "leapCooldownSeconds": 1.2,
         "leapTriggerRange": 9.0,
         "leapHorizontalSpeed": 0.75,
         "leapVerticalSpeed": 0.22,
-        "loopSound": "albase:mechanical/mecha switch",
-        "loopSoundRange": 10,
-        "loopSoundIntervalMs": 700,
-        "loopSoundVolume": 0.5,
         "explodeSound": "effect/smallexplosion",
         "explodeSoundRange": 18,
         "explodeSoundVolume": 0.8
@@ -82,6 +78,9 @@
       { "code": "floatupwhenstuck", "onlyWhenDead": true }
     ]
   },
-  "idleSoundRange": 0,
-  "sounds": {}
+  "idleSoundRange": 10,
+  "idleSoundChance": 0.9,
+  "sounds": {
+    "idle": "albase:mechanical/mecha switch"
+  }
 }
