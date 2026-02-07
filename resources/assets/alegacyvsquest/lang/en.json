@@ -52,6 +52,8 @@
     "objective-sequence": "Sequence",
     "unit-meter-short": "m",
     "kill-notify": "Kill {0}x {1}.",
+    "game:item-creature-locust-corrupt-sawblade": "Sawblade Locust",
+    "game:item-creature-bell": "Bell",
     "objective-timeofday-day": "Day only",
     "objective-timeofday-night": "Night only",
     "timeofday-notify-day": "This job can only be turned in during the day.",

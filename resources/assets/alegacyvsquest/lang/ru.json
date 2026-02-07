@@ -52,6 +52,8 @@
     "objective-sequence": "Последовательность",
     "unit-meter-short": "м.",
     "kill-notify": "Убей {0}x {1}.",
+    "game:item-creature-locust-corrupt-sawblade": "Распиливающая саранча",
+    "game:item-creature-bell": "Колокол",
     "objective-timeofday-day": "Только днём",
     "objective-timeofday-night": "Ночь",
     "timeofday-notify-day": "Эту работу можно сдать только днём.",

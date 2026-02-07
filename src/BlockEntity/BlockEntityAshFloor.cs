@@ -123,7 +123,7 @@ namespace VsQuest
                 return;
             }
 
-            int interval = Math.Max(50, tickIntervalMs <= 0 ? 350 : tickIntervalMs);
+            int interval = Math.Max(100, tickIntervalMs <= 0 ? 500 : tickIntervalMs); // Было 50 и 350
             if (nextTickAtMs != 0 && now < nextTickAtMs) return;
             nextTickAtMs = now + interval;
 
@@ -156,15 +156,13 @@ namespace VsQuest
             if (sapi == null || player?.Pos == null || Pos == null) return false;
 
             int dim;
-            int x;
-            int y;
-            int z;
+            double x, y, z;
             try
             {
                 dim = player.ServerPos.Dimension;
-                x = (int)Math.Floor(player.ServerPos.X);
-                y = (int)Math.Floor(player.ServerPos.Y);
-                z = (int)Math.Floor(player.ServerPos.Z);
+                x = player.ServerPos.X;
+                y = player.ServerPos.Y;
+                z = player.ServerPos.Z;
             }
             catch
             {
@@ -172,23 +170,27 @@ namespace VsQuest
             }
 
             if (dim != Pos.dimension) return false;
-            if (x != Pos.X || z != Pos.Z) return false;
+
+            // Более точное определение нахождения на блоке с учетом погрешности
+            double blockCenterX = Pos.X + 0.5;
+            double blockCenterZ = Pos.Z + 0.5;
+            double distance = Math.Sqrt(Math.Pow(x - blockCenterX, 2) + Math.Pow(z - blockCenterZ, 2));
+            
+            // Проверяем, что игрок в пределах блока (с небольшим запасом)
+            if (distance > 0.8) return false;
+
+            // Проверяем Y координату (игрок должен быть на уровне блока или чуть выше)
+            if (Math.Abs(y - Pos.Y) > 1.2) return false;
 
             try
             {
                 var myBlock = sapi.World.BlockAccessor.GetBlock(Pos);
                 if (myBlock == null) return false;
 
-                int[] ys = new int[] { y, y - 1, y + 1 };
-                for (int i = 0; i < ys.Length; i++)
+                var at = sapi.World.BlockAccessor.GetBlock(Pos);
+                if (at != null && at.BlockId == myBlock.BlockId)
                 {
-                    if (ys[i] != Pos.Y) continue;
-
-                    var at = sapi.World.BlockAccessor.GetBlock(Pos);
-                    if (at != null && at.BlockId == myBlock.BlockId)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
             catch
@@ -214,7 +216,8 @@ namespace VsQuest
 
             if (nowHours <= 0) return;
 
-            double until = nowHours + (Math.Max(100, intervalMs * 2) / 3600000.0);
+            // Уменьшаем время действия эффектов для более мягкого геймплея
+            double until = nowHours + (Math.Max(50, intervalMs) / 3600000.0); // Было intervalMs * 2
 
             try
             {
@@ -231,7 +234,8 @@ namespace VsQuest
 
             try
             {
-                float mult = GameMath.Clamp(victimWalkSpeedMult <= 0f ? 0.35f : victimWalkSpeedMult, 0f, 1f);
+                // Увеличиваем множитель скорости для менее резкого замедления
+                float mult = GameMath.Clamp(victimWalkSpeedMult <= 0f ? 0.5f : victimWalkSpeedMult, 0.1f, 1f); // Было 0.35f
                 float prev = player.WatchedAttributes.GetFloat(VictimWalkSpeedMultKey, float.NaN);
                 if (float.IsNaN(prev) || Math.Abs(prev - mult) > 0.0001f)
                 {
@@ -243,6 +247,7 @@ namespace VsQuest
             {
             }
 
+            // Делаем отключение прыжка и шифта менее строгими
             if (disableJump)
             {
                 try

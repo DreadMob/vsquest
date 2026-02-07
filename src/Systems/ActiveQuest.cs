@@ -56,7 +56,61 @@ namespace VsQuest
 
             if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "kill")) return;
 
-            checkEventTrackers(killTrackers, entityCode, null, quest.killObjectives);
+            if (killTrackers == null || killTrackers.Count == 0 || quest.killObjectives == null || quest.killObjectives.Count == 0)
+            {
+                return;
+            }
+
+            // Kill objectives: play sounds on progress and on completion (server-side only)
+            var serverPlayer = byPlayer as IServerPlayer;
+            var sapi = byPlayer?.Entity?.Api as ICoreServerAPI;
+
+            string progressSound = questSystem?.Config?.killObjectiveProgressSound;
+            float progressPitch = questSystem?.Config?.killObjectiveProgressSoundPitch ?? 1f;
+            float progressVolume = questSystem?.Config?.killObjectiveProgressSoundVolume ?? 0.25f;
+            string completeSound = !string.IsNullOrWhiteSpace(quest.killObjectiveCompleteSound)
+                ? quest.killObjectiveCompleteSound
+                : questSystem?.Config?.killObjectiveCompleteSound;
+            float completePitch = quest.killObjectiveCompleteSoundPitch
+                ?? (questSystem?.Config?.killObjectiveCompleteSoundPitch ?? 1f);
+            float completeVolume = quest.killObjectiveCompleteSoundVolume
+                ?? (questSystem?.Config?.killObjectiveCompleteSoundVolume ?? 0.7f);
+
+            int count = Math.Min(killTrackers.Count, quest.killObjectives.Count);
+            for (int i = 0; i < count; i++)
+            {
+                var tracker = killTrackers[i];
+
+                var objective = quest.killObjectives[i];
+                if (tracker == null || objective == null) continue;
+
+                if (!trackerMatches(tracker, entityCode)) continue;
+
+                // Only count up to demand (prevents sound spam beyond completion)
+                int demand = objective.demand;
+                if (demand <= 0) continue;
+
+                int before = tracker.count;
+                if (before >= demand) continue;
+
+                tracker.count++;
+
+                if (sapi != null && serverPlayer != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(progressSound))
+                    {
+                        sapi.World.PlaySoundFor(new AssetLocation(progressSound), serverPlayer, progressPitch, 32f, progressVolume);
+                    }
+
+                    if (tracker.count >= demand)
+                    {
+                        if (!string.IsNullOrWhiteSpace(completeSound))
+                        {
+                            sapi.World.PlaySoundFor(new AssetLocation(completeSound), serverPlayer, completePitch, 32f, completeVolume);
+                        }
+                    }
+                }
+            }
         }
 
         public void OnBlockPlaced(string blockCode, int[] position, IPlayer byPlayer)

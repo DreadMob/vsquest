@@ -45,7 +45,7 @@ namespace VsQuest
                     // Client-side localization (server language may be EN)
                     sapi.Network.GetChannel("alegacyvsquest").SendPacket(new ShowNotificationMessage()
                     {
-                        Template = "kill-notify",
+                        Template = "alegacyvsquest:kill-notify",
                         Need = need,
                         MobCode = code,
                         Notification = null

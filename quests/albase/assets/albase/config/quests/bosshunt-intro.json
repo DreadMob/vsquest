@@ -2,42 +2,15 @@
   "id": "albase:bosshunt-intro",
   "cooldown": -1,
   "perPlayer": true,
+  "killObjectiveCompleteSound": "albase:sounds/priest_quest_complete",
+  "killObjectiveCompleteSoundPitch": 0.38,
+  "killObjectiveCompleteSoundVolume": 0.35,
   "onAcceptedActions": [
     {
       "id": "playsound",
       "args": [
         "alegacyvsquest:sounds/queacc",
         "0.175"
-      ]
-    },
-    {
-      "id": "randomkill",
-      "args": [
-        "6",
-        "3",
-        "7",
-        "albase:bosshunt-intro-randomkill-notify",
-        "playsound 'albase:sounds/priest_target' 0.25",
-        "playsound 'sounds/tutorialstepsuccess' 0.7",
-        "drifter-deep",
-        "drifter-tainted",
-        "drifter-corrupt",
-        "drifter-nightmare",
-        "drifter-double-headed",
-        "shiver-deep",
-        "shiver-tainted",
-        "shiver-corrupt",
-        "shiver-nightmare",
-        "shiver-stilt",
-        "shiver-bellhead",
-        "shiver-deepsplit",
-        "bowtorn-deep",
-        "bowtorn-tainted",
-        "bowtorn-corrupt",
-        "bowtorn-nightmare",
-        "bowtorn-gearfoot",
-        "locust-bronze",
-        "locust-corrupt"
       ]
     },
     {
@@ -50,15 +23,63 @@
       ]
     }
   ],
-  "actionObjectives": [
+  "actionObjectives": [],
+  "killObjectives": [
     {
-      "id": "randomkill",
-      "args": [
-        "albase:bosshunt-intro"
-      ]
+      "validCodes": [
+        "bowtorn-nightmare"
+      ],
+      "demand": 4
+    },
+    {
+      "validCodes": [
+        "shiver-nightmare"
+      ],
+      "demand": 6
+    },
+    {
+      "validCodes": [
+        "drifter-nightmare"
+      ],
+      "demand": 6
+    },
+    {
+      "validCodes": [
+        "locust-corrupt-sawblade"
+      ],
+      "demand": 2
+    },
+    {
+      "validCodes": [
+        "shiver-stilt"
+      ],
+      "demand": 4
+    },
+    {
+      "validCodes": [
+        "shiver-bellhead"
+      ],
+      "demand": 5
+    },
+    {
+      "validCodes": [
+        "bell"
+      ],
+      "demand": 2
+    },
+    {
+      "validCodes": [
+        "locust-corrupt"
+      ],
+      "demand": 7
+    },
+    {
+      "validCodes": [
+        "drifter-corrupt"
+      ],
+      "demand": 18
     }
   ],
-  "killObjectives": [],
   "itemRewards": [],
   "actionRewards": [
     {

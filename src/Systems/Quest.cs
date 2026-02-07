@@ -6,6 +6,12 @@ namespace VsQuest
     {
         public bool CloseGuiAfterAcceptingAndCompleting { get; set; } = true;
         public string defaultObjectiveCompletionSound { get; set; } = "sounds/tutorialstepsuccess";
+        public string killObjectiveProgressSound { get; set; } = "albase:sounds/priest_target";
+        public float killObjectiveProgressSoundPitch { get; set; } = 0.45f;
+        public float killObjectiveProgressSoundVolume { get; set; } = 0.40f;
+        public string killObjectiveCompleteSound { get; set; } = "sounds/tutorialstepsuccess";
+        public float killObjectiveCompleteSoundPitch { get; set; } = 1f;
+        public float killObjectiveCompleteSoundVolume { get; set; } = 1.2f;
         public bool ShowCustomBossDeathMessage { get; set; } = false;
     }
     public class Quest
@@ -15,6 +21,9 @@ namespace VsQuest
         public bool perPlayer { get; set; }
         public string predecessor { get; set; }
         public List<string> predecessors { get; set; } = new List<string>();
+        public string killObjectiveCompleteSound { get; set; }
+        public float? killObjectiveCompleteSoundPitch { get; set; }
+        public float? killObjectiveCompleteSoundVolume { get; set; }
         public List<ActionWithArgs> onAcceptedActions { get; set; } = new List<ActionWithArgs>();
         public List<Objective> gatherObjectives { get; set; } = new List<Objective>();
         public List<Objective> killObjectives { get; set; } = new List<Objective>();
