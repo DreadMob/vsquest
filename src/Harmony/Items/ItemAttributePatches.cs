@@ -13,6 +13,7 @@ namespace VsQuest.Harmony
     {
         private const string MeleeAttackCooldownKey = "alegacyvsquest:meleeattackspeed:last";
         private const int BaseMeleeAttackCooldownMs = 650;
+        private static readonly bool EnableTemporalStabilityWearablePatch = true;
 
         [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemName")]
         public class CollectibleObject_GetHeldItemName_ActionItem_ItemizerName_Patch
@@ -102,11 +103,13 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityBehaviorTemporalStabilityAffected __instance, ref double __state)
             {
+                if (!EnableTemporalStabilityWearablePatch) return;
                 __state = __instance?.OwnStability ?? 0.0;
             }
 
             public static void Postfix(EntityBehaviorTemporalStabilityAffected __instance, double __state)
             {
+                if (!EnableTemporalStabilityWearablePatch) return;
                 if (__instance?.entity is not EntityPlayer player) return;
                 if (player.Player?.InventoryManager == null) return;
 
