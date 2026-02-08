@@ -128,6 +128,16 @@ namespace VsQuest
                         )
                         .HandleWith(questWAttrHandler.SetInt)
                     .EndSubCommand()
+                    .BeginSubCommand("setfloat")
+                        .WithDescription("Sets a float WatchedAttribute.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                            sapi.ChatCommands.Parsers.Word("key"),
+                            sapi.ChatCommands.Parsers.Word("value")
+                        )
+                        .HandleWith(questWAttrHandler.SetFloat)
+                    .EndSubCommand()
                     .BeginSubCommand("addint")
                         .WithDescription("Adds delta to an int WatchedAttribute.")
                         .RequiresPrivilege(Privilege.give)
@@ -137,6 +147,16 @@ namespace VsQuest
                             sapi.ChatCommands.Parsers.Int("delta")
                         )
                         .HandleWith(questWAttrHandler.AddInt)
+                    .EndSubCommand()
+                    .BeginSubCommand("addfloat")
+                        .WithDescription("Adds delta to a float WatchedAttribute.")
+                        .RequiresPrivilege(Privilege.give)
+                        .WithArgs(
+                            sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                            sapi.ChatCommands.Parsers.Word("key"),
+                            sapi.ChatCommands.Parsers.Word("delta")
+                        )
+                        .HandleWith(questWAttrHandler.AddFloat)
                     .EndSubCommand()
                     .BeginSubCommand("setbool")
                         .WithDescription("Sets a bool WatchedAttribute.")
@@ -167,6 +187,14 @@ namespace VsQuest
                         )
                         .HandleWith(questWAttrHandler.Remove)
                     .EndSubCommand()
+                .EndSubCommand()
+                .BeginSubCommand("fixplayer")
+                    .WithDescription("Clears common boss debuffs and stuck watched attributes on an online player.")
+                    .RequiresPrivilege(Privilege.give)
+                    .WithArgs(
+                        sapi.ChatCommands.Parsers.OptionalWord("playerName")
+                    )
+                    .HandleWith(questWAttrHandler.FixPlayer)
                 .EndSubCommand()
                 .BeginSubCommand("qlist")
                     .WithDescription("Lists all registered quest IDs and their titles.")

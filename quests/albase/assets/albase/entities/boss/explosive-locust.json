@@ -73,7 +73,7 @@
         "leapVerticalSpeed": 0.22,
         "explodeSound": "effect/smallexplosion",
         "explodeSoundRange": 18,
-        "explodeSoundVolume": 0.8
+        "explodeSoundVolume": 0.4
       },
       { "code": "floatupwhenstuck", "onlyWhenDead": true }
     ]

@@ -1,25 +1,14 @@
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
 
 namespace VsQuest
 {
     public class BlockAshFloor : Block
     {
-        private static bool IsCreative(IPlayer byPlayer)
-        {
-            try
-            {
-                return byPlayer?.WorldData?.CurrentGameMode == EnumGameMode.Creative;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         public override float OnGettingBroken(IPlayer player, BlockSelection blockSel, ItemSlot itemslot, float remainingResistance, float dt, int counter)
         {
-            if (player != null && !IsCreative(player))
+            if (player != null && player.WorldData?.CurrentGameMode != EnumGameMode.Creative)
             {
                 return remainingResistance;
             }
@@ -29,7 +18,7 @@ namespace VsQuest
 
         public override void OnBlockBroken(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
         {
-            if (byPlayer != null && !IsCreative(byPlayer))
+            if (byPlayer != null && byPlayer.WorldData?.CurrentGameMode != EnumGameMode.Creative)
             {
                 return;
             }
@@ -49,6 +38,20 @@ namespace VsQuest
 
         public override void OnBlockInteractStop(float secondsUsed, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
         {
+        }
+
+        public override void OnEntityInside(IWorldAccessor world, Entity entity, BlockPos pos)
+        {
+            // base.OnEntityInside(world, entity, pos); // Не вызываем базу, чтобы не было лишних расчетов
+
+            if (world.Side != EnumAppSide.Server) return;
+
+            // Наносим урон и дебаффы только на сервере
+            if (entity is EntityPlayer player && player.Alive)
+            {
+                var be = world.BlockAccessor.GetBlockEntity(pos) as BlockEntityAshFloor;
+                be?.OnEntityCollision(player);
+            }
         }
 
         public override void OnBlockRemoved(IWorldAccessor world, BlockPos pos)

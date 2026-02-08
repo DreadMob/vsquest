@@ -11,6 +11,7 @@ namespace VsQuest
     public class EntityBehaviorBossIntoxicationAura : EntityBehavior
     {
         private const string LastTickMsKey = "alegacyvsquest:bossintoxaura:lastTickMs";
+        private const string IntoxUntilMsKey = "alegacyvsquest:bossintoxaura:until";
 
         private class AuraStage
         {
@@ -23,6 +24,8 @@ namespace VsQuest
         private ICoreServerAPI sapi;
         private readonly List<AuraStage> stages = new List<AuraStage>();
         private float maxRange;
+
+        private long lastCleanupMs;
 
         public EntityBehaviorBossIntoxicationAura(Entity entity) : base(entity)
         {
@@ -70,6 +73,8 @@ namespace VsQuest
             if (stages.Count == 0) return;
             if (!entity.Alive) return;
 
+            CleanupExpiredIntoxication();
+
             if (!BossBehaviorUtils.TryGetHealthFraction(entity, out float frac)) return;
 
             int stageIndex = -1;
@@ -91,7 +96,8 @@ namespace VsQuest
             entity.WatchedAttributes.SetLong(LastTickMsKey, nowMs);
             entity.WatchedAttributes.MarkPathDirty(LastTickMsKey);
 
-            float targetIntox = GameMath.Clamp(stage.intoxication, 0f, 1.1f);
+            // Avoid values > 1.0 as they can break client rendering/controls.
+            float targetIntox = GameMath.Clamp(stage.intoxication, 0f, 1.0f);
             if (targetIntox <= 0f) return;
 
             var players = sapi.World.AllOnlinePlayers;
@@ -117,8 +123,118 @@ namespace VsQuest
                 float current = playerEntity.WatchedAttributes.GetFloat("intoxication", 0f);
                 if (current >= targetIntox) continue;
 
+                // Apply as a timed effect, not a permanent attribute.
+                playerEntity.WatchedAttributes.SetLong(IntoxUntilMsKey, nowMs + Math.Max(1000, stage.intervalMs * 6));
+                playerEntity.WatchedAttributes.MarkPathDirty(IntoxUntilMsKey);
+
                 playerEntity.WatchedAttributes.SetFloat("intoxication", targetIntox);
                 playerEntity.WatchedAttributes.MarkPathDirty("intoxication");
+            }
+        }
+
+        private void CleanupExpiredIntoxication()
+        {
+            if (sapi == null) return;
+
+            long nowMs = sapi.World.ElapsedMilliseconds;
+            if (lastCleanupMs != 0 && nowMs - lastCleanupMs < 500) return;
+            lastCleanupMs = nowMs;
+
+            var players = sapi.World.AllOnlinePlayers;
+            if (players == null || players.Length == 0) return;
+
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] is not IServerPlayer sp) continue;
+                if (sp.Entity is not EntityPlayer plr) continue;
+
+                long until = 0;
+                try
+                {
+                    until = plr.WatchedAttributes.GetLong(IntoxUntilMsKey, 0);
+                }
+                catch
+                {
+                    until = 0;
+                }
+
+                if (until <= 0)
+                {
+                    // Hard clamp in case something else pushed intoxication to invalid values.
+                    try
+                    {
+                        float cur = plr.WatchedAttributes.GetFloat("intoxication", 0f);
+                        if (cur > 1.0f)
+                        {
+                            plr.WatchedAttributes.SetFloat("intoxication", 1.0f);
+                            plr.WatchedAttributes.MarkPathDirty("intoxication");
+                        }
+
+                        // Legacy fail-safe: if intoxication is stuck near max without our timer key,
+                        // clear it so players can recover (black screen / broken controls).
+                        // This should only trigger for extreme values.
+                        if (cur >= 0.95f)
+                        {
+                            plr.WatchedAttributes.SetFloat("intoxication", 0f);
+                            plr.WatchedAttributes.MarkPathDirty("intoxication");
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    continue;
+                }
+
+                // World.ElapsedMilliseconds resets on relog/server restart, but WatchedAttributes persist.
+                // If 'until' is far in the future compared to 'now', it is almost certainly stale data.
+                if (nowMs > 0)
+                {
+                    const long MaxFutureMs = 10L * 60L * 1000L;
+                    if (until - nowMs > MaxFutureMs)
+                    {
+                        try
+                        {
+                            plr.WatchedAttributes.SetLong(IntoxUntilMsKey, 0);
+                            plr.WatchedAttributes.MarkPathDirty(IntoxUntilMsKey);
+                        }
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            plr.WatchedAttributes.SetFloat("intoxication", 0f);
+                            plr.WatchedAttributes.MarkPathDirty("intoxication");
+                        }
+                        catch
+                        {
+                        }
+
+                        continue;
+                    }
+                }
+
+                if (nowMs >= until)
+                {
+                    try
+                    {
+                        plr.WatchedAttributes.SetLong(IntoxUntilMsKey, 0);
+                        plr.WatchedAttributes.MarkPathDirty(IntoxUntilMsKey);
+                    }
+                    catch
+                    {
+                    }
+
+                    try
+                    {
+                        plr.WatchedAttributes.SetFloat("intoxication", 0f);
+                        plr.WatchedAttributes.MarkPathDirty("intoxication");
+                    }
+                    catch
+                    {
+                    }
+                }
             }
         }
 
@@ -159,6 +275,8 @@ namespace VsQuest
                 double distSq = dx * dx + dy * dy + dz * dz;
                 if (distSq > rangeSq) continue;
 
+                playerEntity.WatchedAttributes.SetLong(IntoxUntilMsKey, 0);
+                playerEntity.WatchedAttributes.MarkPathDirty(IntoxUntilMsKey);
                 playerEntity.WatchedAttributes.SetFloat("intoxication", 0f);
                 playerEntity.WatchedAttributes.MarkPathDirty("intoxication");
             }

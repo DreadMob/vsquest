@@ -14,6 +14,11 @@ namespace VsQuest.Harmony
         private const string SecondChanceDebuffStatKey = "alegacyvsquest:secondchance:debuff";
 
         private const string BossGrabNoSneakUntilKey = "alegacyvsquest:bossgrab:nosneakuntil";
+        private const string BossGrabWalkSpeedStatKey = "alegacyvsquest:bossgrab";
+
+        private const string RepulseStunUntilKey = "alegacyvsquest:bossrepulsestun:until";
+        private const string RepulseStunMultKey = "alegacyvsquest:bossrepulsestun:mult";
+        private const string RepulseStunStatKey = "alegacyvsquest:bossrepulsestun:stat";
 
         private const string AshFloorNoJumpUntilKey = "alegacyvsquest:ashfloor:nojumpuntil";
         private const string AshFloorNoShiftUntilKey = "alegacyvsquest:ashfloor:noshiftuntil";
@@ -63,6 +68,155 @@ namespace VsQuest.Harmony
                 newDamage *= (1f - playerPerc);
 
                 __result = newDamage;
+            }
+        }
+
+        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
+        public class EntityAgent_OnGameTick_BossDebuffFailsafe_Server_Patch
+        {
+            public static void Prefix(EntityAgent __instance)
+            {
+                if (__instance is not EntityPlayer player) return;
+                if (player.World?.Side != EnumAppSide.Server) return;
+                if (player.Stats == null) return;
+                if (player.WatchedAttributes == null) return;
+
+                long nowMs;
+                try
+                {
+                    nowMs = player.World.ElapsedMilliseconds;
+                }
+                catch
+                {
+                    nowMs = 0;
+                }
+
+                try
+                {
+                    long until = player.WatchedAttributes.GetLong(RepulseStunUntilKey, 0);
+                    if (until <= 0)
+                    {
+                        player.Stats.Set("walkspeed", RepulseStunStatKey, 0f, true);
+                    }
+                    else
+                    {
+                        bool clear = false;
+                        if (nowMs > 0 && until - nowMs > 5L * 60L * 1000L) clear = true;
+                        if (nowMs > 0 && nowMs >= until) clear = true;
+
+                        if (clear)
+                        {
+                            player.WatchedAttributes.SetLong(RepulseStunUntilKey, 0);
+                            player.WatchedAttributes.MarkPathDirty(RepulseStunUntilKey);
+                            player.WatchedAttributes.SetFloat(RepulseStunMultKey, 1f);
+                            player.WatchedAttributes.MarkPathDirty(RepulseStunMultKey);
+                            player.Stats.Set("walkspeed", RepulseStunStatKey, 0f, true);
+                        }
+                    }
+                }
+                catch
+                {
+                }
+
+                try
+                {
+                    long until = player.WatchedAttributes.GetLong(BossGrabNoSneakUntilKey, 0);
+
+                    bool clear = false;
+                    if (until <= 0) clear = true;
+                    if (nowMs > 0 && until - nowMs > 5L * 60L * 1000L) clear = true;
+                    if (nowMs > 0 && nowMs >= until) clear = true;
+
+                    if (clear)
+                    {
+                        player.WatchedAttributes.SetLong(BossGrabNoSneakUntilKey, 0);
+                        player.WatchedAttributes.MarkPathDirty(BossGrabNoSneakUntilKey);
+                        player.Stats.Remove("walkspeed", BossGrabWalkSpeedStatKey);
+                    }
+                }
+                catch
+                {
+                }
+
+                try
+                {
+                    double nowHours = player.World.Calendar.TotalHours;
+                    double until = player.WatchedAttributes.GetDouble(AshFloorUntilKey, 0);
+                    bool ashActive = until > 0 && nowHours > 0 && nowHours < until;
+
+                    // Early out: no active ashfloor debuff = nothing to do
+                    if (!ashActive)
+                    {
+                        // Ensure no leftover walkspeed stat if somehow present without debuff
+                        player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
+                        return;
+                    }
+
+                    bool onAshFloor = false;
+                    try
+                    {
+                        int px = (int)Math.Floor(player.ServerPos.X);
+                        int pz = (int)Math.Floor(player.ServerPos.Z);
+                        int py = (int)Math.Floor(player.ServerPos.Y - 0.02);
+
+                        var pos = new BlockPos(px, py, pz, player.ServerPos.Dimension);
+                        var block = player.World.BlockAccessor.GetBlock(pos);
+                        if (block?.Code != null && block.Code.Domain == "alegacyvsquest" && block.Code.Path == "ashfloor")
+                        {
+                            onAshFloor = true;
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    // If player is not on ash floor, ensure debuffs do not persist.
+                    if (!onAshFloor)
+                    {
+                        player.WatchedAttributes.SetDouble(AshFloorUntilKey, 0);
+                        player.WatchedAttributes.MarkPathDirty(AshFloorUntilKey);
+
+                        try
+                        {
+                            player.WatchedAttributes.SetDouble(AshFloorNoJumpUntilKey, 0);
+                            player.WatchedAttributes.MarkPathDirty(AshFloorNoJumpUntilKey);
+                        }
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            player.WatchedAttributes.SetDouble(AshFloorNoShiftUntilKey, 0);
+                            player.WatchedAttributes.MarkPathDirty(AshFloorNoShiftUntilKey);
+                        }
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            player.WatchedAttributes.SetFloat(AshFloorWalkSpeedMultKey, 0f);
+                            player.WatchedAttributes.MarkPathDirty(AshFloorWalkSpeedMultKey);
+                        }
+                        catch
+                        {
+                        }
+
+                        player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
+                    }
+                }
+                catch
+                {
+                }
+
+                try
+                {
+                    player.walkSpeed = player.Stats.GetBlended("walkspeed");
+                }
+                catch
+                {
+                }
             }
         }
 

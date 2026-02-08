@@ -125,7 +125,7 @@
         "stages": [
           { "whenHealthRelBelow": 0.75, "range": 26, "intoxication": 0.55, "intervalMs": 350 },
           { "whenHealthRelBelow": 0.45, "range": 32, "intoxication": 0.85, "intervalMs": 320 },
-          { "whenHealthRelBelow": 0.2, "range": 38, "intoxication": 1.1, "intervalMs": 280 }
+          { "whenHealthRelBelow": 0.2, "range": 38, "intoxication": 1.0, "intervalMs": 280 }
         ]
       },
       {

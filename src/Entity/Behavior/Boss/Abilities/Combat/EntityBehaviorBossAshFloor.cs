@@ -82,9 +82,9 @@ namespace VsQuest
                         tries = stageObj["tries"].AsInt(14),
 
                         blockCount = stageObj["blockCount"].AsInt(8),
-                        durationMs = stageObj["durationMs"].AsInt(6000),
+                        durationMs = stageObj["durationMs"].AsInt(12000),
 
-                        tickIntervalMs = stageObj["tickIntervalMs"].AsInt(350),
+                        tickIntervalMs = stageObj["tickIntervalMs"].AsInt(1000),
                         damage = stageObj["damage"].AsFloat(0f),
                         damageTier = stageObj["damageTier"].AsInt(0),
                         damageType = stageObj["damageType"].AsString("Acid"),
@@ -293,7 +293,7 @@ namespace VsQuest
                 {
                     ba.SpawnBlockEntity(ashBlock.EntityClass, pos);
                     var be = ba.GetBlockEntity(pos) as BlockEntityAshFloor;
-                    be?.Arm(entity.EntityId, despawnAtMs, stage.tickIntervalMs, stage.damage, stage.damageTier, stage.damageType, stage.victimWalkSpeedMult, stage.disableJump, stage.disableShift);
+                    be?.Arm(entity.EntityId, despawnAtMs, stage.tickIntervalMs, stage.victimWalkSpeedMult);
                 }
                 catch
                 {

@@ -12,30 +12,18 @@ namespace VsQuest
         private const string AttrDespawnAtMs = "vsquest:ashfloor:despawnAtMs";
         private const string AttrOwnerId = "vsquest:ashfloor:ownerId";
         private const string AttrTickIntervalMs = "vsquest:ashfloor:tickIntervalMs";
-        private const string AttrDamage = "vsquest:ashfloor:damage";
-        private const string AttrDamageTier = "vsquest:ashfloor:damageTier";
-        private const string AttrDamageType = "vsquest:ashfloor:damageType";
         private const string AttrVictimWalkSpeedMult = "vsquest:ashfloor:victimWalkSpeedMult";
-        private const string AttrDisableJump = "vsquest:ashfloor:disableJump";
-        private const string AttrDisableShift = "vsquest:ashfloor:disableShift";
+        
 
         private const string VictimUntilKey = "alegacyvsquest:ashfloor:until";
         private const string VictimWalkSpeedMultKey = "alegacyvsquest:ashfloor:walkspeedmult";
-        private const string VictimNoJumpUntilKey = "alegacyvsquest:ashfloor:nojumpuntil";
-        private const string VictimNoShiftUntilKey = "alegacyvsquest:ashfloor:noshiftuntil";
-        private const string VictimLastDamageMsKey = "vsquest:ashfloor:lastDamageMs";
+        
 
         private long despawnAtMs;
         private long ownerId;
         private int tickIntervalMs;
 
-        private float damage;
-        private int damageTier;
-        private string damageType;
-
         private float victimWalkSpeedMult;
-        private bool disableJump;
-        private bool disableShift;
 
         private bool ticking;
         private long nextTickAtMs;
@@ -61,13 +49,7 @@ namespace VsQuest
             ownerId = tree.GetLong(AttrOwnerId, ownerId);
             tickIntervalMs = tree.GetInt(AttrTickIntervalMs, tickIntervalMs);
 
-            damage = tree.GetFloat(AttrDamage, damage);
-            damageTier = tree.GetInt(AttrDamageTier, damageTier);
-            damageType = tree.GetString(AttrDamageType, damageType);
-
             victimWalkSpeedMult = tree.GetFloat(AttrVictimWalkSpeedMult, victimWalkSpeedMult);
-            disableJump = tree.GetBool(AttrDisableJump, disableJump);
-            disableShift = tree.GetBool(AttrDisableShift, disableShift);
         }
 
         public override void ToTreeAttributes(ITreeAttribute tree)
@@ -78,16 +60,10 @@ namespace VsQuest
             tree.SetLong(AttrOwnerId, ownerId);
             tree.SetInt(AttrTickIntervalMs, tickIntervalMs);
 
-            tree.SetFloat(AttrDamage, damage);
-            tree.SetInt(AttrDamageTier, damageTier);
-            if (!string.IsNullOrWhiteSpace(damageType)) tree.SetString(AttrDamageType, damageType);
-
             tree.SetFloat(AttrVictimWalkSpeedMult, victimWalkSpeedMult);
-            tree.SetBool(AttrDisableJump, disableJump);
-            tree.SetBool(AttrDisableShift, disableShift);
         }
 
-        public void Arm(long ownerId, long despawnAtMs, int tickIntervalMs, float damage, int damageTier, string damageType, float victimWalkSpeedMult, bool disableJump, bool disableShift)
+        public void Arm(long ownerId, long despawnAtMs, int tickIntervalMs, float victimWalkSpeedMult)
         {
             if (Api == null) return;
 
@@ -95,13 +71,7 @@ namespace VsQuest
             this.despawnAtMs = despawnAtMs;
             this.tickIntervalMs = tickIntervalMs;
 
-            this.damage = damage;
-            this.damageTier = damageTier;
-            this.damageType = damageType;
-
             this.victimWalkSpeedMult = victimWalkSpeedMult;
-            this.disableJump = disableJump;
-            this.disableShift = disableShift;
 
             nextTickAtMs = 0;
             MarkDirty(true);
@@ -123,27 +93,25 @@ namespace VsQuest
                 return;
             }
 
-            int interval = Math.Max(100, tickIntervalMs <= 0 ? 500 : tickIntervalMs); // Было 50 и 350
+            int interval = Math.Max(100, tickIntervalMs <= 0 ? 500 : tickIntervalMs);
             if (nextTickAtMs != 0 && now < nextTickAtMs) return;
             nextTickAtMs = now + interval;
 
             try
             {
-                int dim = Pos.dimension;
-                var center = new Vec3d(Pos.X + 0.5, Pos.Y + 0.5 + dim * 32768.0, Pos.Z + 0.5);
-                var entities = sapi.World.GetEntitiesAround(center, 2f, 2f, e => e is EntityPlayer);
-                if (entities == null || entities.Length == 0) return;
+                var players = sapi.World.AllOnlinePlayers;
+                if (players == null || players.Length == 0) return;
 
-                for (int i = 0; i < entities.Length; i++)
+                for (int i = 0; i < players.Length; i++)
                 {
-                    if (entities[i] is not EntityPlayer plr) continue;
-                    if (!plr.Alive) continue;
+                    var plr = players[i] as EntityPlayer;
+                    if (plr == null || !plr.Alive) continue;
                     if (plr.ServerPos.Dimension != Pos.dimension) continue;
 
-                    if (!IsPlayerOnThisBlock(sapi, plr)) continue;
-
-                    ApplyVictimDebuffs(sapi, plr, interval);
-                    DealDamage(sapi, plr);
+                    if (IsPlayerOnThisBlock(plr))
+                    {
+                        ApplyVictimDebuffs(sapi, plr, interval);
+                    }
                 }
             }
             catch
@@ -151,53 +119,25 @@ namespace VsQuest
             }
         }
 
-        private bool IsPlayerOnThisBlock(ICoreServerAPI sapi, EntityPlayer player)
+        private bool IsPlayerOnThisBlock(EntityPlayer player)
         {
-            if (sapi == null || player?.Pos == null || Pos == null) return false;
-
-            int dim;
-            double x, y, z;
-            try
-            {
-                dim = player.ServerPos.Dimension;
-                x = player.ServerPos.X;
-                y = player.ServerPos.Y;
-                z = player.ServerPos.Z;
-            }
-            catch
-            {
-                return false;
-            }
-
-            if (dim != Pos.dimension) return false;
-
-            // Более точное определение нахождения на блоке с учетом погрешности
-            double blockCenterX = Pos.X + 0.5;
-            double blockCenterZ = Pos.Z + 0.5;
-            double distance = Math.Sqrt(Math.Pow(x - blockCenterX, 2) + Math.Pow(z - blockCenterZ, 2));
+            if (player?.ServerPos == null || Pos == null) return false;
             
-            // Проверяем, что игрок в пределах блока (с небольшим запасом)
-            if (distance > 0.8) return false;
+            // Используем координаты ступней игрока
+            int px = (int)Math.Floor(player.ServerPos.X);
+            int py = (int)Math.Floor(player.ServerPos.Y);
+            int pz = (int)Math.Floor(player.ServerPos.Z);
 
-            // Проверяем Y координату (игрок должен быть на уровне блока или чуть выше)
-            if (Math.Abs(y - Pos.Y) > 1.2) return false;
+            // Проверяем блок под ногами и блок, в котором ноги (на случай если блок чуть ниже поверхности)
+            bool atLevel = px == Pos.X && py == Pos.Y && pz == Pos.Z;
+            bool slightlyAbove = px == Pos.X && (py - 1) == Pos.Y && pz == Pos.Z;
 
-            try
-            {
-                var myBlock = sapi.World.BlockAccessor.GetBlock(Pos);
-                if (myBlock == null) return false;
+            return atLevel || slightlyAbove;
+        }
 
-                var at = sapi.World.BlockAccessor.GetBlock(Pos);
-                if (at != null && at.BlockId == myBlock.BlockId)
-                {
-                    return true;
-                }
-            }
-            catch
-            {
-            }
-
-            return false;
+        public void OnEntityCollision(Entity entity)
+        {
+            // Метод оставлен пустым, так как мы вернулись к OnServerTick для стабильности
         }
 
         private void ApplyVictimDebuffs(ICoreServerAPI sapi, EntityPlayer player, int intervalMs)
@@ -216,8 +156,8 @@ namespace VsQuest
 
             if (nowHours <= 0) return;
 
-            // Уменьшаем время действия эффектов для более мягкого геймплея
-            double until = nowHours + (Math.Max(50, intervalMs) / 3600000.0); // Было intervalMs * 2
+            // Увеличиваем длительность дебаффа для стабильности
+            double until = nowHours + (Math.Max(50, intervalMs) * 3 / 3600000.0);
 
             try
             {
@@ -234,117 +174,13 @@ namespace VsQuest
 
             try
             {
-                // Увеличиваем множитель скорости для менее резкого замедления
-                float mult = GameMath.Clamp(victimWalkSpeedMult <= 0f ? 0.5f : victimWalkSpeedMult, 0.1f, 1f); // Было 0.35f
+                float mult = GameMath.Clamp(victimWalkSpeedMult <= 0f ? 0.4f : victimWalkSpeedMult, 0.05f, 1f);
                 float prev = player.WatchedAttributes.GetFloat(VictimWalkSpeedMultKey, float.NaN);
                 if (float.IsNaN(prev) || Math.Abs(prev - mult) > 0.0001f)
                 {
                     player.WatchedAttributes.SetFloat(VictimWalkSpeedMultKey, mult);
                     player.WatchedAttributes.MarkPathDirty(VictimWalkSpeedMultKey);
                 }
-            }
-            catch
-            {
-            }
-
-            // Делаем отключение прыжка и шифта менее строгими
-            if (disableJump)
-            {
-                try
-                {
-                    double prev = player.WatchedAttributes.GetDouble(VictimNoJumpUntilKey, 0);
-                    if (Math.Abs(prev - until) > 0.000001)
-                    {
-                        player.WatchedAttributes.SetDouble(VictimNoJumpUntilKey, until);
-                        player.WatchedAttributes.MarkPathDirty(VictimNoJumpUntilKey);
-                    }
-                }
-                catch
-                {
-                }
-            }
-
-            if (disableShift)
-            {
-                try
-                {
-                    double prev = player.WatchedAttributes.GetDouble(VictimNoShiftUntilKey, 0);
-                    if (Math.Abs(prev - until) > 0.000001)
-                    {
-                        player.WatchedAttributes.SetDouble(VictimNoShiftUntilKey, until);
-                        player.WatchedAttributes.MarkPathDirty(VictimNoShiftUntilKey);
-                    }
-                }
-                catch
-                {
-                }
-            }
-        }
-
-        private void DealDamage(ICoreServerAPI sapi, EntityPlayer player)
-        {
-            if (sapi == null || player == null) return;
-            if (damage <= 0f) return;
-
-            try
-            {
-                if (player.WatchedAttributes != null)
-                {
-                    long nowMs = sapi.World.ElapsedMilliseconds;
-                    long lastMs = player.WatchedAttributes.GetLong(VictimLastDamageMsKey, 0);
-                    const long MinIntervalMs = 1100;
-                    if (lastMs > 0 && nowMs > 0 && nowMs - lastMs < MinIntervalMs)
-                    {
-                        return;
-                    }
-
-                    player.WatchedAttributes.SetLong(VictimLastDamageMsKey, nowMs);
-                    player.WatchedAttributes.MarkPathDirty(VictimLastDamageMsKey);
-                }
-            }
-            catch
-            {
-            }
-
-            EnumDamageType dmgType = EnumDamageType.Acid;
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(damageType) && Enum.TryParse(damageType, ignoreCase: true, out EnumDamageType parsed))
-                {
-                    dmgType = parsed;
-                }
-            }
-            catch
-            {
-            }
-
-            Entity owner = null;
-            try
-            {
-                if (ownerId > 0)
-                {
-                    owner = sapi.World.GetEntityById(ownerId);
-                }
-            }
-            catch
-            {
-                owner = null;
-            }
-
-            try
-            {
-                var src = new DamageSource()
-                {
-                    Source = owner != null ? EnumDamageSource.Entity : EnumDamageSource.Block,
-                    SourceEntity = owner,
-                    SourceBlock = owner == null ? sapi.World.BlockAccessor.GetBlock(Pos) : null,
-                    SourcePos = new Vec3d(Pos.X + 0.5, Pos.Y + 0.1, Pos.Z + 0.5),
-                    Type = dmgType,
-                    DamageTier = Math.Max(0, damageTier),
-                    KnockbackStrength = 0f
-                };
-
-                player.ReceiveDamage(src, damage);
             }
             catch
             {

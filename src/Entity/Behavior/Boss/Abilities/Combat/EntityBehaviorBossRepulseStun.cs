@@ -163,6 +163,45 @@ namespace VsQuest
 
                 if (until <= 0) continue;
 
+                // World.ElapsedMilliseconds resets on relog/server restart, but WatchedAttributes persist.
+                // If 'until' is far in the future compared to 'now', it is almost certainly stale data.
+                // In that case, clear the effect so players don't get stuck with permanent 0 walkspeed.
+                if (now > 0)
+                {
+                    const long MaxFutureMs = 5L * 60L * 1000L;
+                    if (until - now > MaxFutureMs)
+                    {
+                        try
+                        {
+                            plr.WatchedAttributes.SetLong(StunUntilKey, 0);
+                            plr.WatchedAttributes.MarkPathDirty(StunUntilKey);
+                        }
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            plr.WatchedAttributes.SetFloat(StunMultKey, 1f);
+                            plr.WatchedAttributes.MarkPathDirty(StunMultKey);
+                        }
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            plr.Stats.Set("walkspeed", StunStatKey, 0f, true);
+                            plr.walkSpeed = plr.Stats.GetBlended("walkspeed");
+                        }
+                        catch
+                        {
+                        }
+
+                        continue;
+                    }
+                }
+
                 if (now >= until)
                 {
                     try
