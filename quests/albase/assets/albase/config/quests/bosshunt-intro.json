@@ -33,12 +33,6 @@
     },
     {
       "validCodes": [
-        "shiver-nightmare"
-      ],
-      "demand": 6
-    },
-    {
-      "validCodes": [
         "drifter-nightmare"
       ],
       "demand": 6
@@ -71,13 +65,7 @@
       "validCodes": [
         "locust-corrupt"
       ],
-      "demand": 7
-    },
-    {
-      "validCodes": [
-        "drifter-corrupt"
-      ],
-      "demand": 18
+      "demand": 4
     }
   ],
   "itemRewards": [],
