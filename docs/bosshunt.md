@@ -5,7 +5,7 @@ The boss hunt system spawns a single active boss at a time, rotates it on a long
 
 ## Core concepts
 - **Boss config**: JSON file describing one boss (bossKey, entity code, quest id, points, timers).
-- **Active boss**: Only one boss is considered active at a time. Rotation happens every `rotationDays` (currently 360 in-game days) per config.
+- **Active boss**: Only one boss is considered active at a time. **Documentation Version:** v1.4.0 every `rotationDays` (currently 360 in-game days) per config.
 - **Anchors/points**: Bosses can spawn at configured points, or at anchor points set in-world (Boss Hunt Anchor block). Anchors can be named and ordered, and override `points` when present.
 
 ## Rotation logic

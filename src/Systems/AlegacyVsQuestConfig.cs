@@ -10,6 +10,8 @@ namespace VsQuest
 
     {
 
+        public bool Debug { get; set; } = false;
+
         public BossHuntCoreConfig BossHunt { get; set; } = new BossHuntCoreConfig();
 
 

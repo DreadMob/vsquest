@@ -301,17 +301,30 @@ namespace VsQuest
                 double kbX = GameMath.Clamp(dir.X * kb, -max, max);
                 double kbZ = GameMath.Clamp(dir.Z * kb, -max, max);
 
-                target.WatchedAttributes.SetDouble("kbdirX", kbX);
-                target.WatchedAttributes.SetDouble("kbdirY", 0.0);
-                target.WatchedAttributes.SetDouble("kbdirZ", kbZ);
+                // Only update if values changed significantly to reduce network sync spam
+                double prevKbX = target.WatchedAttributes.GetDouble("kbdirX", 0.0);
+                double prevKbZ = target.WatchedAttributes.GetDouble("kbdirZ", 0.0);
+                
+                if (Math.Abs(prevKbX - kbX) > 0.001 || Math.Abs(prevKbZ - kbZ) > 0.001)
+                {
+                    target.WatchedAttributes.SetDouble("kbdirX", kbX);
+                    target.WatchedAttributes.SetDouble("kbdirY", 0.0);
+                    target.WatchedAttributes.SetDouble("kbdirZ", kbZ);
 
-                target.WatchedAttributes.SetFloat("onHurt", 0.01f);
+                    target.WatchedAttributes.MarkPathDirty("kbdirX");
+                    target.WatchedAttributes.MarkPathDirty("kbdirY");
+                    target.WatchedAttributes.MarkPathDirty("kbdirZ");
+                }
+
+                // Entity.Attributes is not synced to the client. Vanilla sets Attributes["dmgkb"] client-side
+                // via a WatchedAttributes["onHurt"] modified listener. We replicate that trigger with a tiny value.
+                float prevOnHurt = target.WatchedAttributes.GetFloat("onHurt", 0f);
+                if (Math.Abs(prevOnHurt - 0.01f) > 0.001f)
+                {
+                    target.WatchedAttributes.SetFloat("onHurt", 0.01f);
+                    target.WatchedAttributes.MarkPathDirty("onHurt");
+                }
                 target.WatchedAttributes.SetInt("onHurtCounter", target.WatchedAttributes.GetInt("onHurtCounter") + 1);
-
-                target.WatchedAttributes.MarkPathDirty("kbdirX");
-                target.WatchedAttributes.MarkPathDirty("kbdirY");
-                target.WatchedAttributes.MarkPathDirty("kbdirZ");
-                target.WatchedAttributes.MarkPathDirty("onHurt");
                 target.WatchedAttributes.MarkPathDirty("onHurtCounter");
             }
             catch
@@ -350,7 +363,7 @@ namespace VsQuest
                 float mult = GameMath.Clamp(stage.victimWalkSpeedMult, 0f, 1f);
                 float modifier = mult - 1f;
                 target.Stats.Set("walkspeed", StunStatKey, modifier, true);
-                target.walkSpeed = target.Stats.GetBlended("walkspeed");
+                BossBehaviorUtils.UpdatePlayerWalkSpeed(target);
             }
             catch
             {

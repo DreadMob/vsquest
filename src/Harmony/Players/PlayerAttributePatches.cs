@@ -72,31 +72,71 @@ namespace VsQuest.Harmony
         }
 
         [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
-        public class EntityAgent_OnGameTick_BossDebuffFailsafe_Server_Patch
+        public class EntityAgent_OnGameTick_Unified_Patch
         {
+            private static int _tickCounter = 0;
+            private const int TickInterval = 5; // Run logic every 5 ticks instead of every tick
+
             public static void Prefix(EntityAgent __instance)
             {
                 if (__instance is not EntityPlayer player) return;
-                if (player.World?.Side != EnumAppSide.Server) return;
-                if (player.Stats == null) return;
+                if (player.World?.Side == EnumAppSide.Server)
+                {
+                    ProcessServerSide(player);
+                }
+                else
+                {
+                    ProcessClientSide(player);
+                }
+            }
+
+            private static void ProcessServerSide(EntityPlayer player)
+            {
+                if (player.Stats == null || player.WatchedAttributes == null) return;
+
+                long nowMs = 0;
+                double nowHours = 0;
+                try { nowMs = player.World.ElapsedMilliseconds; } catch { }
+                try { nowHours = player.World.Calendar.TotalHours; } catch { }
+
+                // Process debuffs and effects every N ticks to reduce load
+                if (++_tickCounter % TickInterval == 0)
+                {
+                    ProcessRepulseStun(player, nowMs);
+                    ProcessBossGrab(player, nowMs);
+                    ProcessAshFloorServer(player, nowHours);
+                    ProcessSecondChanceDebuff(player, nowHours);
+                    ProcessUraniumMaskCharge(player, nowHours);
+                }
+
+                // Update walk speed every tick (needed for smooth movement)
+                UpdateWalkSpeed(player);
+            }
+
+            private static void ProcessClientSide(EntityPlayer player)
+            {
                 if (player.WatchedAttributes == null) return;
 
-                long nowMs;
-                try
-                {
-                    nowMs = player.World.ElapsedMilliseconds;
-                }
-                catch
-                {
-                    nowMs = 0;
-                }
+                long nowMs = 0;
+                double nowHours = 0;
+                try { nowMs = player.World.ElapsedMilliseconds; } catch { }
+                try { nowHours = player.World.Calendar.TotalHours; } catch { }
 
+                ProcessBossGrabClient(player, nowMs);
+                ProcessAshFloorClient(player, nowHours);
+            }
+
+            private static void ProcessRepulseStun(EntityPlayer player, long nowMs)
+            {
                 try
                 {
                     long until = player.WatchedAttributes.GetLong(RepulseStunUntilKey, 0);
                     if (until <= 0)
                     {
-                        player.Stats.Set("walkspeed", RepulseStunStatKey, 0f, true);
+                        if (player.Stats?.GetBlended("walkspeed") != 0f)
+                        {
+                            player.Stats?.Set("walkspeed", RepulseStunStatKey, 0f, true);
+                        }
                     }
                     else
                     {
@@ -114,14 +154,14 @@ namespace VsQuest.Harmony
                         }
                     }
                 }
-                catch
-                {
-                }
+                catch { }
+            }
 
+            private static void ProcessBossGrab(EntityPlayer player, long nowMs)
+            {
                 try
                 {
                     long until = player.WatchedAttributes.GetLong(BossGrabNoSneakUntilKey, 0);
-
                     bool clear = false;
                     if (until <= 0) clear = true;
                     if (nowMs > 0 && until - nowMs > 5L * 60L * 1000L) clear = true;
@@ -134,21 +174,24 @@ namespace VsQuest.Harmony
                         player.Stats.Remove("walkspeed", BossGrabWalkSpeedStatKey);
                     }
                 }
-                catch
-                {
-                }
+                catch { }
+            }
 
+            private static void ProcessAshFloorServer(EntityPlayer player, double nowHours)
+            {
                 try
                 {
-                    double nowHours = player.World.Calendar.TotalHours;
                     double until = player.WatchedAttributes.GetDouble(AshFloorUntilKey, 0);
                     bool ashActive = until > 0 && nowHours > 0 && nowHours < until;
 
-                    // Early out: no active ashfloor debuff = nothing to do
                     if (!ashActive)
                     {
-                        // Ensure no leftover walkspeed stat if somehow present without debuff
-                        player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
+                        float currentMod = 0f;
+                        try { currentMod = player.Stats?.GetBlended("walkspeed") ?? 0f; } catch { }
+                        if (currentMod != 0f)
+                        {
+                            player.Stats?.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
+                        }
                         return;
                     }
 
@@ -166,57 +209,149 @@ namespace VsQuest.Harmony
                             onAshFloor = true;
                         }
                     }
-                    catch
-                    {
-                    }
+                    catch { }
 
-                    // If player is not on ash floor, ensure debuffs do not persist.
                     if (!onAshFloor)
                     {
                         player.WatchedAttributes.SetDouble(AshFloorUntilKey, 0);
                         player.WatchedAttributes.MarkPathDirty(AshFloorUntilKey);
-
-                        try
-                        {
-                            player.WatchedAttributes.SetDouble(AshFloorNoJumpUntilKey, 0);
-                            player.WatchedAttributes.MarkPathDirty(AshFloorNoJumpUntilKey);
-                        }
-                        catch
-                        {
-                        }
-
-                        try
-                        {
-                            player.WatchedAttributes.SetDouble(AshFloorNoShiftUntilKey, 0);
-                            player.WatchedAttributes.MarkPathDirty(AshFloorNoShiftUntilKey);
-                        }
-                        catch
-                        {
-                        }
-
-                        try
-                        {
-                            player.WatchedAttributes.SetFloat(AshFloorWalkSpeedMultKey, 0f);
-                            player.WatchedAttributes.MarkPathDirty(AshFloorWalkSpeedMultKey);
-                        }
-                        catch
-                        {
-                        }
-
+                        player.WatchedAttributes.SetDouble(AshFloorNoJumpUntilKey, 0);
+                        player.WatchedAttributes.SetDouble(AshFloorNoShiftUntilKey, 0);
+                        player.WatchedAttributes.SetFloat(AshFloorWalkSpeedMultKey, 0f);
                         player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
                     }
                 }
-                catch
-                {
-                }
+                catch { }
+            }
 
+            private static void ProcessSecondChanceDebuff(EntityPlayer player, double nowHours)
+            {
                 try
                 {
-                    player.walkSpeed = player.Stats.GetBlended("walkspeed");
+                    double until = player.WatchedAttributes.GetDouble(SecondChanceDebuffUntilKey, 0);
+                    if (until <= 0)
+                    {
+                        ClearDebuff(player);
+                        return;
+                    }
+
+                    if (nowHours >= until)
+                    {
+                        player.WatchedAttributes.SetDouble(SecondChanceDebuffUntilKey, 0);
+                        ClearDebuff(player);
+                        return;
+                    }
+
+                    ApplyDebuffStats(player);
                 }
-                catch
+                catch { }
+            }
+
+            private static void ProcessUraniumMaskCharge(EntityPlayer player, double nowHours)
+            {
+                try
                 {
+                    if (nowHours <= 0) return;
+
+                    double lastHours = player.WatchedAttributes.GetDouble(UraniumMaskLastTickHoursKey, 0);
+                    if (lastHours <= 0)
+                    {
+                        player.WatchedAttributes.SetDouble(UraniumMaskLastTickHoursKey, nowHours);
+                        return;
+                    }
+
+                    double dtHours = nowHours - lastHours;
+                    if (dtHours <= 0) return;
+
+                    player.WatchedAttributes.SetDouble(UraniumMaskLastTickHoursKey, nowHours);
+
+                    var inv = player.Player?.InventoryManager?.GetOwnInventory("character");
+                    if (inv == null) return;
+
+                    string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrUraniumMaskChargeHours);
+                    bool anyChanged = false;
+
+                    foreach (ItemSlot slot in inv)
+                    {
+                        if (slot?.Empty != false) continue;
+                        var stack = slot.Itemstack;
+                        if (stack?.Item is not ItemWearable) continue;
+                        if (stack.Attributes == null) continue;
+                        if (!stack.Attributes.HasAttribute(chargeKey)) continue;
+
+                        float hours = stack.Attributes.GetFloat(chargeKey, 0f);
+                        if (hours <= 0f) continue;
+
+                        float newHours = Math.Max(0f, hours - (float)dtHours);
+                        if (Math.Abs(newHours - hours) > 0.0001f)
+                        {
+                            stack.Attributes.SetFloat(chargeKey, newHours);
+                            anyChanged = true;
+                        }
+                    }
+
+                    if (anyChanged)
+                    {
+                        // Slots are marked dirty individually above when modified
+                    }
                 }
+                catch { }
+            }
+
+            private static void ProcessBossGrabClient(EntityPlayer player, long nowMs)
+            {
+                try
+                {
+                    long until = player.WatchedAttributes.GetLong(BossGrabNoSneakUntilKey, 0);
+                    if (until <= 0) return;
+
+                    if (until > 0 && nowMs > 0 && until - nowMs > 5L * 60L * 1000L)
+                    {
+                        player.WatchedAttributes.SetLong(BossGrabNoSneakUntilKey, 0);
+                        return;
+                    }
+
+                    if (nowMs > 0 && nowMs < until)
+                    {
+                        player.Controls.Sneak = false;
+                    }
+                }
+                catch { }
+            }
+
+            private static void ProcessAshFloorClient(EntityPlayer player, double nowHours)
+            {
+                try
+                {
+                    if (nowHours <= 0) return;
+
+                    double untilJump = player.WatchedAttributes.GetDouble(AshFloorNoJumpUntilKey, 0);
+                    if (untilJump > 0 && nowHours < untilJump)
+                    {
+                        player.Controls.Jump = false;
+                    }
+
+                    double untilShift = player.WatchedAttributes.GetDouble(AshFloorNoShiftUntilKey, 0);
+                    if (untilShift > 0 && nowHours < untilShift)
+                    {
+                        player.Controls.ShiftKey = false;
+                        player.Controls.Sneak = false;
+                    }
+                }
+                catch { }
+            }
+
+            private static void UpdateWalkSpeed(EntityPlayer player)
+            {
+                try
+                {
+                    float targetWalkSpeed = player.Stats.GetBlended("walkspeed");
+                    if (Math.Abs(player.walkSpeed - targetWalkSpeed) > 0.001f)
+                    {
+                        player.walkSpeed = targetWalkSpeed;
+                    }
+                }
+                catch { }
             }
         }
 
@@ -294,34 +429,6 @@ namespace VsQuest.Harmony
                 if (!TryGetSecondChanceSlot(player, out var slot)) return;
                 SetSecondChanceCharges(slot.Itemstack, 0f);
                 slot.MarkDirty();
-            }
-        }
-
-        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
-        public class EntityAgent_OnGameTick_SecondChanceDebuff_Patch
-        {
-            public static void Prefix(EntityAgent __instance)
-            {
-                if (__instance is not EntityPlayer player) return;
-                if (player.World.Side == EnumAppSide.Client) return;
-                if (player.Stats == null) return;
-
-                double until = player.WatchedAttributes.GetDouble(SecondChanceDebuffUntilKey, 0);
-                if (until <= 0)
-                {
-                    ClearDebuff(player);
-                    return;
-                }
-
-                double nowHours = player.World.Calendar.TotalHours;
-                if (nowHours >= until)
-                {
-                    player.WatchedAttributes.SetDouble(SecondChanceDebuffUntilKey, 0);
-                    ClearDebuff(player);
-                    return;
-                }
-
-                ApplyDebuffStats(player);
             }
         }
 
@@ -590,295 +697,6 @@ namespace VsQuest.Harmony
                 }
                 catch
                 {
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
-        public class EntityAgent_OnGameTick_BossCloneSpeedMult_Patch
-        {
-            public static void Prefix(EntityAgent __instance)
-            {
-                if (__instance?.WatchedAttributes == null) return;
-                if (__instance.Stats == null) return;
-
-                const string MultKey = "alegacyvsquest:bossclone:walkspeedmult";
-                const string BaseKey = "alegacyvsquest:bossclone:walkspeedbase";
-                const string AppliedKey = "alegacyvsquest:bossclone:walkspeedapplied";
-
-                float mult = __instance.WatchedAttributes.GetFloat(MultKey, 0f);
-                if (mult <= 0f) return;
-                if (mult >= 0.999f && mult <= 1.001f) return;
-
-                float applied = __instance.WatchedAttributes.GetFloat(AppliedKey, 0f);
-                if (applied == mult) return;
-
-                float baseWalkSpeed = __instance.WatchedAttributes.GetFloat(BaseKey, 0f);
-                if (baseWalkSpeed <= 0f)
-                {
-                    baseWalkSpeed = __instance.Stats.GetBlended("walkspeed");
-                    if (baseWalkSpeed > 0f)
-                    {
-                        __instance.WatchedAttributes.SetFloat(BaseKey, baseWalkSpeed);
-                    }
-                }
-
-                if (baseWalkSpeed <= 0f) return;
-
-                __instance.Stats.Set("walkspeed", "alegacyvsquest", baseWalkSpeed * mult, true);
-                __instance.WatchedAttributes.SetFloat(AppliedKey, mult);
-            }
-        }
-
-        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
-        public class EntityAgent_OnGameTick_BossGrabDisableSneak_Client_Patch
-        {
-            public static void Prefix(EntityAgent __instance)
-            {
-                if (__instance is not EntityPlayer player) return;
-                if (player.World?.Side != EnumAppSide.Client) return;
-                if (player.WatchedAttributes == null) return;
-
-                long until;
-                try
-                {
-                    until = player.WatchedAttributes.GetLong(BossGrabNoSneakUntilKey, 0);
-                }
-                catch
-                {
-                    until = 0;
-                }
-
-                if (until <= 0) return;
-
-                long now;
-                try
-                {
-                    now = player.World.ElapsedMilliseconds;
-                }
-                catch
-                {
-                    now = 0;
-                }
-
-                // World.ElapsedMilliseconds resets on relog/server restart, but WatchedAttributes persist.
-                // If 'until' is far in the future compared to 'now', it is almost certainly stale data.
-                // In that case, clear the effect so players don't get stuck with permanent disabled sneak.
-                if (until > 0 && now > 0)
-                {
-                    const long MaxFutureMs = 5L * 60L * 1000L;
-                    if (until - now > MaxFutureMs)
-                    {
-                        try
-                        {
-                            player.WatchedAttributes.SetLong(BossGrabNoSneakUntilKey, 0);
-                        }
-                        catch
-                        {
-                        }
-
-                        return;
-                    }
-                }
-
-                if (now > 0 && now < until)
-                {
-                    try
-                    {
-                        player.Controls.Sneak = false;
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
-        public class EntityAgent_OnGameTick_AshFloorDisableControls_Client_Patch
-        {
-            public static void Postfix(EntityAgent __instance)
-            {
-                if (__instance is not EntityPlayer player) return;
-                if (player.World?.Side != EnumAppSide.Client) return;
-                if (player.WatchedAttributes == null) return;
-
-                double nowHours;
-                try
-                {
-                    nowHours = player.World.Calendar.TotalHours;
-                }
-                catch
-                {
-                    nowHours = 0;
-                }
-
-                if (nowHours <= 0) return;
-
-                try
-                {
-                    double untilJump = player.WatchedAttributes.GetDouble(AshFloorNoJumpUntilKey, 0);
-                    if (untilJump > 0 && nowHours < untilJump)
-                    {
-                        player.Controls.Jump = false;
-                    }
-                }
-                catch
-                {
-                }
-
-                try
-                {
-                    double untilShift = player.WatchedAttributes.GetDouble(AshFloorNoShiftUntilKey, 0);
-                    if (untilShift > 0 && nowHours < untilShift)
-                    {
-                        player.Controls.ShiftKey = false;
-                        player.Controls.Sneak = false;
-                    }
-                }
-                catch
-                {
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
-        public class EntityAgent_OnGameTick_AshFloorWalkSpeed_Server_Patch
-        {
-            public static void Prefix(EntityAgent __instance)
-            {
-                if (__instance is not EntityPlayer player) return;
-                if (player.World?.Side != EnumAppSide.Server) return;
-                if (player.Stats == null) return;
-                if (player.WatchedAttributes == null) return;
-
-                double nowHours;
-                try
-                {
-                    nowHours = (player.World as Vintagestory.API.Common.IWorldAccessor)?.Calendar?.TotalHours ?? player.World.Calendar.TotalHours;
-                }
-                catch
-                {
-                    nowHours = 0;
-                }
-
-                if (nowHours <= 0) return;
-
-                double until;
-                try
-                {
-                    until = player.WatchedAttributes.GetDouble(AshFloorUntilKey, 0);
-                }
-                catch
-                {
-                    until = 0;
-                }
-
-                if (until <= 0 || nowHours >= until)
-                {
-                    try
-                    {
-                        player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
-                        float blended = player.Stats.GetBlended("walkspeed");
-                        player.walkSpeed = float.IsNaN(blended) ? 0f : blended;
-                    }
-                    catch
-                    {
-                    }
-
-                    return;
-                }
-
-                float mult;
-                try
-                {
-                    mult = GameMath.Clamp(player.WatchedAttributes.GetFloat(AshFloorWalkSpeedMultKey, 0.35f), 0f, 1f);
-                }
-                catch
-                {
-                    mult = 0.35f;
-                }
-
-                if (float.IsNaN(mult)) mult = 0.35f;
-
-                try
-                {
-                    float modifier = mult - 1f;
-                    player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, modifier, true);
-                    float blended = player.Stats.GetBlended("walkspeed");
-                    player.walkSpeed = float.IsNaN(blended) ? 0f : blended;
-                }
-                catch
-                {
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
-        public class EntityAgent_OnGameTick_UraniumMaskCharge_Server_Patch
-        {
-            public static void Prefix(EntityAgent __instance)
-            {
-                if (__instance is not EntityPlayer player) return;
-                if (player.World?.Side != EnumAppSide.Server) return;
-                if (player.WatchedAttributes == null) return;
-                if (player.Player?.InventoryManager == null) return;
-
-                double nowHours;
-                try
-                {
-                    nowHours = player.World.Calendar.TotalHours;
-                }
-                catch
-                {
-                    nowHours = 0;
-                }
-
-                if (nowHours <= 0) return;
-
-                double lastHours;
-                try
-                {
-                    lastHours = player.WatchedAttributes.GetDouble(UraniumMaskLastTickHoursKey, 0);
-                }
-                catch
-                {
-                    lastHours = 0;
-                }
-
-                // Initialize on first tick.
-                if (lastHours <= 0)
-                {
-                    player.WatchedAttributes.SetDouble(UraniumMaskLastTickHoursKey, nowHours);
-                    return;
-                }
-
-                double dtHours = nowHours - lastHours;
-                if (dtHours <= 0) return;
-
-                player.WatchedAttributes.SetDouble(UraniumMaskLastTickHoursKey, nowHours);
-
-                var inv = player.Player.InventoryManager.GetOwnInventory("character");
-                if (inv == null) return;
-
-                string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrUraniumMaskChargeHours);
-
-                foreach (ItemSlot slot in inv)
-                {
-                    if (slot?.Empty != false) continue;
-                    var stack = slot.Itemstack;
-                    if (stack?.Item is not ItemWearable) continue;
-                    if (stack.Attributes == null) continue;
-                    if (!stack.Attributes.HasAttribute(chargeKey)) continue;
-
-                    float hours = stack.Attributes.GetFloat(chargeKey, 0f);
-                    if (hours <= 0f) continue;
-
-                    float newHours = Math.Max(0f, hours - (float)dtHours);
-                    if (Math.Abs(newHours - hours) <= 0.0001f) continue;
-
-                    stack.Attributes.SetFloat(chargeKey, newHours);
-                    slot.MarkDirty();
                 }
             }
         }

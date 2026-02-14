@@ -330,8 +330,6 @@ namespace VsQuest
                     targetPlayer.WatchedAttributes.SetDouble("kbdirY", 0.0);
                     targetPlayer.WatchedAttributes.SetDouble("kbdirZ", kbZ);
 
-                    // Entity.Attributes is not synced to the client. Vanilla sets Attributes["dmgkb"] client-side
-                    // via a WatchedAttributes["onHurt"] modified listener. We replicate that trigger with a tiny value.
                     targetPlayer.WatchedAttributes.SetFloat("onHurt", 0.01f);
                     targetPlayer.WatchedAttributes.SetInt("onHurtCounter", targetPlayer.WatchedAttributes.GetInt("onHurtCounter") + 1);
 

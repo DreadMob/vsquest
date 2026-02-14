@@ -1,6 +1,6 @@
 # Alegacy VS Quest Actions
 
-> **Documentation Version:** v1.3.0
+> **Documentation Version:** v1.4.0
 
 ---
 
@@ -180,6 +180,25 @@ Preloads (caches) one or more boss music URLs on the player's client. Useful bef
 
 ## Items Category
 
+### `takeitem`
+
+Removes items from the player's inventory.
+
+**Arguments:**
+- `<itemCode>` — Full item/block code (required)
+- `<amount>` — Quantity to remove (required)
+
+---
+
+### `randomquestitem`
+
+Gives a random item from a specified loot table code.
+
+**Arguments:**
+- `<lootTableCode>` — The code of the loot table to pull from (required)
+
+---
+
 ### `giveitem`
 
 Gives a vanilla or mod item/block to the player.
@@ -256,6 +275,19 @@ Adds or updates an entry in the vanilla `ModJournal` system (server-side). Usefu
 
 ## Player Category
 
+### `addreputation`
+
+Modifies the player's reputation with an NPC or faction.
+
+**Arguments:**
+- `<scope>` — Either `npc` or `faction` (required)
+- `<id>` — The NPC/Faction identifier (required)
+- `<delta>` — Integer amount to add/subtract (required)
+- `[max]` — Optional maximum reputation limit (optional)
+- `[onceKey]` — Optional key to ensure reputation is only granted once (optional)
+
+---
+
 ### `addplayerattribute`
 
 Sets a persistent string attribute on the player's watched attributes. These attributes are synced to the client and can be used for quest conditions, dialogue checks, etc.
@@ -273,6 +305,24 @@ Adds an integer delta to a player's watched attribute.
 **Arguments:**
 - `<key>` — Attribute key/name (required)
 - `<delta>` — Integer delta to add (required)
+
+---
+
+### `landclaimallowance`
+
+Sets an extra land claim allowance for the player.
+
+**Arguments:**
+- `<value>` — The allowance value as an integer (required)
+
+---
+
+### `landclaimmaxareas`
+
+Sets the maximum number of land claim areas for the player.
+
+**Arguments:**
+- `<value>` — The maximum areas value as an integer (required)
 
 ---
 
@@ -437,6 +487,23 @@ Deals direct damage to the selected entity.
 ---
 
 ## UI & Feedback Category
+
+### `showquiz`
+
+Starts a quiz for the player.
+
+**Arguments:**
+- `<quizId>` — The identifier of the quiz to start (required)
+
+---
+
+### `showtreasurerquiz`
+
+Starts the hardcoded treasurer survey quiz.
+
+**Arguments:** None
+
+---
 
 ### `closedialogue`
 

@@ -162,7 +162,8 @@ namespace VsQuest
             try
             {
                 double prev = player.WatchedAttributes.GetDouble(VictimUntilKey, 0);
-                if (Math.Abs(prev - until) > 0.000001)
+                // Only update if value changed significantly
+                if (Math.Abs(prev - until) > 0.0001)
                 {
                     player.WatchedAttributes.SetDouble(VictimUntilKey, until);
                     player.WatchedAttributes.MarkPathDirty(VictimUntilKey);
@@ -176,7 +177,8 @@ namespace VsQuest
             {
                 float mult = GameMath.Clamp(victimWalkSpeedMult <= 0f ? 0.4f : victimWalkSpeedMult, 0.05f, 1f);
                 float prev = player.WatchedAttributes.GetFloat(VictimWalkSpeedMultKey, float.NaN);
-                if (float.IsNaN(prev) || Math.Abs(prev - mult) > 0.0001f)
+                // Only update if value changed significantly or not set
+                if (float.IsNaN(prev) || Math.Abs(prev - mult) > 0.01f)
                 {
                     player.WatchedAttributes.SetFloat(VictimWalkSpeedMultKey, mult);
                     player.WatchedAttributes.MarkPathDirty(VictimWalkSpeedMultKey);

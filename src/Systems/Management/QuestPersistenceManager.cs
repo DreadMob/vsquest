@@ -9,12 +9,50 @@ namespace VsQuest
     public class QuestPersistenceManager
     {
         private readonly ConcurrentDictionary<string, List<ActiveQuest>> playerQuests;
+        private readonly HashSet<string> dirtyPlayerUIDs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly ICoreServerAPI sapi;
+        private long autosaveListenerId = -1;
+        private const double AutosaveIntervalMs = 30000; // 30 секунд
 
         public QuestPersistenceManager(ICoreServerAPI sapi)
         {
             this.sapi = sapi;
             this.playerQuests = new ConcurrentDictionary<string, List<ActiveQuest>>();
+            
+            // Регистрируем автосохранение каждые 30 секунд
+            autosaveListenerId = sapi.Event.RegisterGameTickListener(OnAutosaveTick, (int)AutosaveIntervalMs, 5000);
+        }
+
+        private void OnAutosaveTick(float dt)
+        {
+            if (dirtyPlayerUIDs.Count == 0) return;
+
+            List<string> playersToSave;
+            lock (dirtyPlayerUIDs)
+            {
+                playersToSave = new List<string>(dirtyPlayerUIDs);
+                dirtyPlayerUIDs.Clear();
+            }
+
+            foreach (var playerUID in playersToSave)
+            {
+                try
+                {
+                    if (playerQuests.TryGetValue(playerUID, out var quests))
+                    {
+                        sapi.WorldManager.SaveGame.StoreData<List<ActiveQuest>>(String.Format("quests-{0}", playerUID), quests);
+                    }
+                }
+                catch (Exception e)
+                {
+                    sapi.Logger.Warning("[alegacyvsquest] Failed to auto-save quests for player {0}: {1}", playerUID, e.Message);
+                    // Возвращаем в очередь для повторной попытки
+                    lock (dirtyPlayerUIDs)
+                    {
+                        dirtyPlayerUIDs.Add(playerUID);
+                    }
+                }
+            }
         }
 
         public List<ActiveQuest> GetPlayerQuests(string playerUID)
@@ -25,6 +63,15 @@ namespace VsQuest
         public void SavePlayerQuests(string playerUID, List<ActiveQuest> activeQuests)
         {
             sapi.WorldManager.SaveGame.StoreData<List<ActiveQuest>>(String.Format("quests-{0}", playerUID), activeQuests);
+        }
+
+        public void MarkDirty(string playerUID)
+        {
+            if (string.IsNullOrEmpty(playerUID)) return;
+            lock (dirtyPlayerUIDs)
+            {
+                dirtyPlayerUIDs.Add(playerUID);
+            }
         }
 
         private List<ActiveQuest> LoadPlayerQuests(string playerUID)
@@ -52,9 +99,28 @@ namespace VsQuest
         {
             if (playerQuests.TryGetValue(playerUID, out var activeQuests))
             {
+                // Синхронное сохранение при disconnect - важно!
                 SavePlayerQuests(playerUID, activeQuests);
                 playerQuests.TryRemove(playerUID, out _);
             }
+            
+            // Убираем из очереди автосохранения
+            lock (dirtyPlayerUIDs)
+            {
+                dirtyPlayerUIDs.Remove(playerUID);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (autosaveListenerId >= 0)
+            {
+                sapi.Event.UnregisterGameTickListener(autosaveListenerId);
+                autosaveListenerId = -1;
+            }
+            
+            // Форсированное сохранение при выгрузке
+            OnAutosaveTick(0);
         }
     }
 }

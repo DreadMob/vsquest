@@ -35,6 +35,15 @@ namespace VsQuest
         private string reputationNpcId;
         private string reputationFactionId;
 
+        private class QuestInfoCache
+        {
+            public QuestInfoMessage Message;
+            public long LastUpdateMs;
+        }
+
+        private readonly Dictionary<string, QuestInfoCache> playerQuestInfoCache = new Dictionary<string, QuestInfoCache>(StringComparer.OrdinalIgnoreCase);
+        private const int QuestInfoCacheDurationMs = 10000; // 10 seconds
+
         public static string ChainCooldownLastCompletedKey(long questGiverEntityId) => $"vsquest:questgiver:lastcompleted-{questGiverEntityId}";
 
         public string ReputationNpcId => reputationNpcId;
@@ -253,11 +262,34 @@ namespace VsQuest
 
         public void SendQuestInfoMessageToClient(ICoreServerAPI sapi, EntityPlayer player)
         {
-            var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+            if (player == null) return;
+
+            long nowMs = sapi.World.ElapsedMilliseconds;
+            if (playerQuestInfoCache.TryGetValue(player.PlayerUID, out var cache))
+            {
+                if (nowMs - cache.LastUpdateMs < QuestInfoCacheDurationMs)
+                {
+                    sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(cache.Message, player.Player as IServerPlayer);
+                    return;
+                }
+            }
+
+            var questSystem = QuestSystemCache.Get(sapi);
             var allActiveQuests = questSystem.GetPlayerQuests(player.PlayerUID);
-            var allQuestIds = allQuests
-                ? new HashSet<string>(questSystem.QuestRegistry.Keys.Where(qid => !IsExcluded(qid)), StringComparer.OrdinalIgnoreCase)
-                : BuildAllQuestIds();
+            
+            HashSet<string> allQuestIds;
+            if (allQuests)
+            {
+                allQuestIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var qid in questSystem.QuestRegistry.Keys)
+                {
+                    if (!IsExcluded(qid)) allQuestIds.Add(qid);
+                }
+            }
+            else
+            {
+                allQuestIds = BuildAllQuestIds();
+            }
 
             var completedQuests = new HashSet<string>(
                 questSystem.GetNormalizedCompletedQuestIds(player.Player),
@@ -351,6 +383,7 @@ namespace VsQuest
 
                         PopulateReputationInfo(msgChainCd, sapi, serverPlayer);
 
+                        playerQuestInfoCache[player.PlayerUID] = new QuestInfoCache { Message = msgChainCd, LastUpdateMs = nowMs };
                         sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(msgChainCd, player.Player as IServerPlayer);
                         return;
                     }
@@ -376,13 +409,24 @@ namespace VsQuest
 
                 PopulateReputationInfo(msgActive, sapi, serverPlayer);
 
+                playerQuestInfoCache[player.PlayerUID] = new QuestInfoCache { Message = msgActive, LastUpdateMs = nowMs };
                 sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(msgActive, player.Player as IServerPlayer);
                 return;
             }
 
-            var selection = allQuests
-                ? questSystem.QuestRegistry.Keys.Where(qid => !IsExcluded(qid)).ToList()
-                : GetCurrentQuestSelection(sapi);
+            List<string> selection;
+            if (allQuests)
+            {
+                selection = new List<string>();
+                foreach (var qid in questSystem.QuestRegistry.Keys)
+                {
+                    if (!IsExcluded(qid)) selection.Add(qid);
+                }
+            }
+            else
+            {
+                selection = GetCurrentQuestSelection(sapi);
+            }
 
             // Ensure priority quests are evaluated first (e.g. final quests).
             if (priorityQuests != null && priorityQuests.Length > 0)
@@ -512,6 +556,7 @@ namespace VsQuest
 
             PopulateReputationInfo(message, sapi, serverPlayer);
 
+            playerQuestInfoCache[player.PlayerUID] = new QuestInfoCache { Message = message, LastUpdateMs = nowMs };
             sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);
         }
 
@@ -607,7 +652,7 @@ namespace VsQuest
             message.reputationNpcId = reputationNpcId;
             message.reputationFactionId = reputationFactionId;
 
-            var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.Get(sapi);
             var rewardSystem = sapi.ModLoader.GetModSystem<QuestCompletionRewardSystem>();
             if (rewardSystem != null && questSystem != null)
             {
@@ -720,7 +765,7 @@ namespace VsQuest
 
         private bool predecessorsCompleted(Quest quest, string playerUID)
         {
-            var questSystem = entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(entity);
             var completedQuests = questSystem != null
                 ? new List<string>(questSystem.GetNormalizedCompletedQuestIds(entity.World.PlayerByUid(playerUID)))
                 : new List<string>(entity.World.PlayerByUid(playerUID)?.Entity?.WatchedAttributes.GetStringArray("alegacyvsquest:playercompleted", new string[0]) ?? new string[0]);

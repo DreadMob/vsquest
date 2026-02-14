@@ -9,11 +9,13 @@ namespace VsQuest
     public static class MobLocalizationUtils
     {
         private static Dictionary<string, string> displayNameMap;
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> localizationCache = new System.Collections.Concurrent.ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public static void LoadFromAssets(ICoreAPI api)
         {
             if (api == null) return;
 
+            localizationCache.Clear();
             var merged = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             void TryMergeFromDomain(string domain)
@@ -53,6 +55,18 @@ namespace VsQuest
         {
             if (string.IsNullOrWhiteSpace(code)) return code;
 
+            if (localizationCache.TryGetValue(code, out var cachedName))
+            {
+                return cachedName;
+            }
+
+            string result = GetMobDisplayNameInternal(code);
+            localizationCache.TryAdd(code, result);
+            return result;
+        }
+
+        private static string GetMobDisplayNameInternal(string code)
+        {
             string domain = null;
             try
             {

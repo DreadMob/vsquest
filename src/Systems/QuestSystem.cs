@@ -120,6 +120,9 @@ namespace VsQuest
         {
             base.Start(api);
 
+            // Инициализация кэша QuestSystem
+            QuestSystemCache.Initialize(api);
+
             MobLocalizationUtils.LoadFromAssets(api);
 
             quizSystem = new QuizSystem(this);
@@ -193,6 +196,9 @@ namespace VsQuest
                 api.StoreModConfig(Config, "questconfig.json");
                 api.StoreModConfig(CoreConfig, "alegacy-vsquest-config.json");
             }
+
+            notificationHandler = new QuestNotificationHandler(discoveryHud);
+            questSelectGuiManager = new QuestSelectGuiManager(Config);
         }
 
         public override void StartClientSide(ICoreClientAPI capi)
@@ -245,6 +251,9 @@ namespace VsQuest
         public override void StartServerSide(ICoreServerAPI sapi)
         {
             base.StartServerSide(sapi);
+
+            // Инициализация кэша QuestSystem для серверного потока
+            QuestSystemCache.Initialize(sapi);
 
             sapi.Logger.VerboseDebug($"[alegacyvsquest] QuestSystem.StartServerSide loaded ({DateTime.UtcNow:O})");
 
@@ -347,43 +356,55 @@ namespace VsQuest
 
         public List<ActiveQuest> GetPlayerQuests(string playerUID)
         {
-            var quests = persistenceManager.GetPlayerQuests(playerUID);
-            if (quests == null || quests.Count == 0) return quests;
-
-            bool changed = false;
-            foreach (var quest in quests)
-            {
-                if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
-
-                string normalized = QuestJournalMigration.NormalizeQuestId(quest.questId, QuestRegistry);
-                if (!string.Equals(normalized, quest.questId, StringComparison.OrdinalIgnoreCase))
-                {
-                    quest.questId = normalized;
-                    changed = true;
-                }
-            }
-
-            if (changed)
-            {
-                persistenceManager.SavePlayerQuests(playerUID, quests);
-            }
-
-            return quests;
+            return persistenceManager.GetPlayerQuests(playerUID);
         }
 
         public void SavePlayerQuests(string playerUID, List<ActiveQuest> activeQuests)
         {
-            persistenceManager.SavePlayerQuests(playerUID, activeQuests);
+            persistenceManager.MarkDirty(playerUID);
         }
 
         internal string NormalizeQuestId(string questId)
         {
-            return QuestJournalMigration.NormalizeQuestId(questId, QuestRegistry);
+            if (string.IsNullOrWhiteSpace(questId)) return questId;
+            if (QuestRegistry == null) return questId;
+
+            if (QuestRegistry.ContainsKey(questId)) return questId;
+
+            // Try case-insensitive lookup
+            foreach (var kvp in QuestRegistry)
+            {
+                if (string.Equals(kvp.Key, questId, StringComparison.OrdinalIgnoreCase))
+                {
+                    return kvp.Key;
+                }
+            }
+
+            return questId;
         }
 
         internal string[] GetNormalizedCompletedQuestIds(IPlayer player)
         {
-            return QuestJournalMigration.GetNormalizedCompletedQuestIds(player, QuestRegistry);
+            if (player?.Entity?.WatchedAttributes == null) return new string[0];
+            if (QuestRegistry == null) return new string[0];
+
+            var wa = player.Entity.WatchedAttributes;
+            var codes = wa.GetStringArray("alegacyvsquest:completedquestids");
+            if (codes == null || codes.Length == 0) return new string[0];
+
+            var normalized = new List<string>();
+            foreach (var raw in codes)
+            {
+                if (string.IsNullOrWhiteSpace(raw)) continue;
+
+                string n = NormalizeQuestId(raw);
+                if (QuestRegistry.ContainsKey(n))
+                {
+                    normalized.Add(n);
+                }
+            }
+
+            return normalized.ToArray();
         }
 
         internal bool ForceCompleteQuestInternal(IServerPlayer player, QuestCompletedMessage message, ICoreServerAPI sapi)

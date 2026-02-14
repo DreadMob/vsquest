@@ -199,6 +199,35 @@ namespace VsQuest
             }
         }
 
+        /// <summary>
+        /// Updates player walkSpeed only if it has changed significantly.
+        /// Use this to reduce network sync spam from frequent walkSpeed updates.
+        /// </summary>
+        /// <param name="player">The player entity</param>
+        /// <param name="epsilon">Minimum change threshold (default 0.001)</param>
+        /// <returns>True if walkSpeed was updated</returns>
+        public static bool UpdatePlayerWalkSpeed(EntityPlayer player, float epsilon = 0.001f)
+        {
+            if (player?.Stats == null) return false;
+
+            try
+            {
+                float targetSpeed = player.Stats.GetBlended("walkspeed");
+                if (float.IsNaN(targetSpeed)) targetSpeed = 0f;
+                
+                if (Math.Abs(player.walkSpeed - targetSpeed) > epsilon)
+                {
+                    player.walkSpeed = targetSpeed;
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
         public sealed class LoopSound : IDisposable
         {
             private long listenerId;

@@ -58,7 +58,7 @@ namespace VsQuest
 
         public void RegisterEventHandlers()
         {
-            questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+            questSystem = QuestSystemCache.Get(sapi);
 
             ApplyCoreConfig();
 
@@ -80,31 +80,21 @@ namespace VsQuest
             {
                 try
                 {
-                    QuestJournalMigration.MigrateFromVanilla(sapi, byPlayer);
-
-                    try
+                    var epl = byPlayer.Entity;
+                    if (epl?.Stats != null)
                     {
-                        var epl = byPlayer.Entity;
-                        if (epl?.Stats != null)
-                        {
-                            epl.Stats.Remove("walkspeed", "alegacyvsquest");
-                            epl.Stats.Remove("walkspeed", "alegacyvsquest:bossgrab");
-                            epl.Stats.Remove("walkspeed", "alegacyvsquest:bosshook");
-                            epl.walkSpeed = epl.Stats.GetBlended("walkspeed");
-                        }
+                        epl.Stats.Remove("walkspeed", "alegacyvsquest");
+                        epl.Stats.Remove("walkspeed", "alegacyvsquest:bossgrab");
+                        epl.Stats.Remove("walkspeed", "alegacyvsquest:bosshook");
+                        epl.walkSpeed = epl.Stats.GetBlended("walkspeed");
                     }
-                    catch
-                    {
-                    }
-
-                    var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
-                    QuestSystemAdminUtils.ForgetOutdatedQuestsForPlayer(questSystem, byPlayer, sapi);
-
                 }
-                catch (Exception e)
+                catch
                 {
-                    sapi.Logger.Warning($"[alegacyvsquest] Journal migration failed for {byPlayer.PlayerUID}: {e.Message}");
                 }
+
+                var questSystem = QuestSystemCache.Get(sapi);
+                QuestSystemAdminUtils.ForgetOutdatedQuestsForPlayer(questSystem, byPlayer, sapi);
             }, 1000);
         }
 
@@ -289,7 +279,7 @@ namespace VsQuest
                     var serverVictim = victimPlayer.Player as IServerPlayer;
                     if (serverVictim != null)
                     {
-                        var qs = sapi.ModLoader.GetModSystem<QuestSystem>();
+                        var qs = QuestSystemCache.Get(sapi);
                         if (qs?.Config == null || qs.Config.ShowCustomBossDeathMessage)
                         {
                             BossKillAnnouncementUtil.AnnouncePlayerKilledByBoss(sapi, serverVictim, killer);
@@ -377,7 +367,7 @@ namespace VsQuest
             QuestSystem qs = null;
             try
             {
-                qs = sapi?.ModLoader?.GetModSystem<QuestSystem>();
+                qs = QuestSystemCache.Get(sapi);
             }
             catch
             {
@@ -420,7 +410,7 @@ namespace VsQuest
             QuestSystem qs = null;
             try
             {
-                qs = sapi?.ModLoader?.GetModSystem<QuestSystem>();
+                qs = QuestSystemCache.Get(sapi);
             }
             catch
             {
@@ -450,7 +440,7 @@ namespace VsQuest
 
         private void OnQuestTick(float dt)
         {
-            questSystem ??= sapi.ModLoader.GetModSystem<QuestSystem>();
+            questSystem ??= QuestSystemCache.Get(sapi);
             if (questSystem == null) return;
 
             var players = sapi.World.AllOnlinePlayers;
@@ -473,7 +463,7 @@ namespace VsQuest
                 passiveThrottle = 1.0 / 3600.0;
             }
 
-            QuestTickUtil.HandleQuestTick(dt, questRegistry, questSystem.ActionObjectiveRegistry, players, persistenceManager.GetPlayerQuests, persistenceManager.SavePlayerQuests, sapi, missingLogThrottle, passiveThrottle);
+            QuestTickUtil.HandleQuestTick(dt, questRegistry, questSystem.ActionObjectiveRegistry, players, persistenceManager.GetPlayerQuests, uid => persistenceManager.MarkDirty(uid), sapi, missingLogThrottle, passiveThrottle);
         }
 
         public void HandleVanillaBlockInteract(IServerPlayer player, VanillaBlockInteractMessage message)
@@ -483,63 +473,43 @@ namespace VsQuest
                 return;
             }
 
-            if (message?.BlockCode == "alegacyvsquest:cooldownplaceholder")
+            if (message.BlockCode == "alegacyvsquest:cooldownplaceholder")
             {
                 return;
             }
 
-            int[] position = new int[] { message.Position.X, message.Position.Y, message.Position.Z };
             var playerQuests = persistenceManager.GetPlayerQuests(player.PlayerUID);
             if (playerQuests == null || playerQuests.Count == 0) return;
 
-            QuestSystem questSystem = null;
-            try
-            {
-                questSystem = sapi?.ModLoader?.GetModSystem<QuestSystem>();
-            }
-            catch
-            {
-                questSystem = null;
-            }
+            QuestSystem qs = questSystem ??= QuestSystemCache.Get(sapi);
+            int[] position = new int[] { message.Position.X, message.Position.Y, message.Position.Z };
 
-            int count = playerQuests.Count;
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < playerQuests.Count; i++)
             {
-                if (i >= playerQuests.Count) break;
-                var quest = playerQuests[i];
-                if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
+                var activeQuest = playerQuests[i];
+                if (activeQuest == null || string.IsNullOrWhiteSpace(activeQuest.questId)) continue;
 
-                // Only process block-use events for quests that actually have interact-related objectives.
-                // This avoids doing per-interact work (including WatchedAttributes dirty marking) for quests
-                // that can't react to block interactions.
-                try
+                if (qs?.QuestRegistry == null || !qs.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef) || questDef == null) continue;
+
+                // Проверка: нужен ли этому квесту ивент взаимодействия
+                bool needsInteract = (questDef.interactObjectives != null && questDef.interactObjectives.Count > 0);
+                if (!needsInteract && questDef.actionObjectives != null)
                 {
-                    if (questSystem?.QuestRegistry == null) continue;
-                    if (!questSystem.QuestRegistry.TryGetValue(quest.questId, out var questDef) || questDef == null) continue;
-
-                    bool needsBlockUse = (questDef.interactObjectives != null && questDef.interactObjectives.Count > 0);
-                    if (!needsBlockUse && questDef.actionObjectives != null)
+                    for (int ao = 0; ao < questDef.actionObjectives.Count; ao++)
                     {
-                        for (int ao = 0; ao < questDef.actionObjectives.Count; ao++)
+                        var a = questDef.actionObjectives[ao];
+                        if (a != null && (a.id == "interactat" || a.id == "interactcount"))
                         {
-                            var a = questDef.actionObjectives[ao];
-                            if (a == null) continue;
-                            if (a.id == "interactat" || a.id == "interactcount")
-                            {
-                                needsBlockUse = true;
-                                break;
-                            }
+                            needsInteract = true;
+                            break;
                         }
                     }
-
-                    if (!needsBlockUse) continue;
                 }
-                catch
+
+                if (needsInteract)
                 {
-                    // Fail-open: if anything goes wrong, keep legacy behavior for compatibility.
+                    activeQuest.OnBlockUsed(message.BlockCode, position, player, sapi);
                 }
-
-                quest.OnBlockUsed(message.BlockCode, position, player, sapi);
             }
         }
     }

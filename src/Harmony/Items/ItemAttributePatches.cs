@@ -3,12 +3,122 @@ using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
 namespace VsQuest.Harmony
 {
+    public static class WearableStatsCache
+    {
+        private const string CacheKey = "vsquest:wearablestatscache:v2";
+        private const string CacheTimestampKey = "vsquest:wearablecache:timestamp";
+        private const int CacheValidityMs = 500; // Cache valid for 500ms
+
+        public class CachedStats
+        {
+            public float Stealth { get; set; }
+            public float FallDamageReduction { get; set; }
+            public float TemporalDrainReduction { get; set; }
+            public float MeleeAttackSpeed { get; set; }
+            public float MiningSpeedMult { get; set; }
+            public float FlatProtection { get; set; }
+            public float PercProtection { get; set; }
+            public float KnockbackMult { get; set; }
+            public long Timestamp { get; set; }
+        }
+
+        public static CachedStats GetCachedStats(EntityPlayer player)
+        {
+            if (player?.Player?.InventoryManager == null) return null;
+            var inv = player.Player.InventoryManager.GetOwnInventory("character");
+            if (inv == null) return null;
+
+            long nowMs = player.World?.ElapsedMilliseconds ?? 0;
+            long cachedTime = player.WatchedAttributes.GetLong(CacheTimestampKey, 0);
+
+            // If cache is still fresh, use it
+            if (nowMs > 0 && cachedTime > 0 && (nowMs - cachedTime) < CacheValidityMs)
+            {
+                var cached = GetStatsFromCache(player);
+                if (cached != null) return cached;
+            }
+
+            // Recalculate and cache
+            var stats = CalculateStats(inv);
+            stats.Timestamp = nowMs;
+            StoreStatsInCache(player, stats);
+            return stats;
+        }
+
+        public static void InvalidateCache(EntityPlayer player)
+        {
+            player.WatchedAttributes.SetLong(CacheTimestampKey, 0);
+        }
+
+        private static CachedStats CalculateStats(IInventory inv)
+        {
+            var stats = new CachedStats();
+            foreach (ItemSlot slot in inv)
+            {
+                if (slot.Empty || slot.Itemstack?.Item is not ItemWearable) continue;
+                var stack = slot.Itemstack;
+                stats.Stealth += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrStealth);
+                stats.FallDamageReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrFallDamageMult);
+                stats.TemporalDrainReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrTemporalDrainMult);
+                stats.MeleeAttackSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMeleeAttackSpeed);
+                stats.MiningSpeedMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMiningSpeedMult);
+                stats.FlatProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtection);
+                stats.PercProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtectionPerc);
+                stats.KnockbackMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrKnockbackMult);
+            }
+            return stats;
+        }
+
+        private static CachedStats GetStatsFromCache(EntityPlayer player)
+        {
+            try
+            {
+                var tree = player.WatchedAttributes.GetTreeAttribute(CacheKey);
+                if (tree == null) return null;
+                return new CachedStats
+                {
+                    Stealth = tree.GetFloat("stealth"),
+                    FallDamageReduction = tree.GetFloat("fall"),
+                    TemporalDrainReduction = tree.GetFloat("temporal"),
+                    MeleeAttackSpeed = tree.GetFloat("attackspeed"),
+                    MiningSpeedMult = tree.GetFloat("mining"),
+                    FlatProtection = tree.GetFloat("protflat"),
+                    PercProtection = tree.GetFloat("protperc"),
+                    KnockbackMult = tree.GetFloat("knockback"),
+                    Timestamp = tree.GetLong("timestamp")
+                };
+            }
+            catch { return null; }
+        }
+
+        private static void StoreStatsInCache(EntityPlayer player, CachedStats stats)
+        {
+            try
+            {
+                var tree = new TreeAttribute();
+                tree.SetFloat("stealth", stats.Stealth);
+                tree.SetFloat("fall", stats.FallDamageReduction);
+                tree.SetFloat("temporal", stats.TemporalDrainReduction);
+                tree.SetFloat("attackspeed", stats.MeleeAttackSpeed);
+                tree.SetFloat("mining", stats.MiningSpeedMult);
+                tree.SetFloat("protflat", stats.FlatProtection);
+                tree.SetFloat("protperc", stats.PercProtection);
+                tree.SetFloat("knockback", stats.KnockbackMult);
+                tree.SetLong("timestamp", stats.Timestamp);
+                player.WatchedAttributes.SetAttribute(CacheKey, tree);
+                player.WatchedAttributes.SetLong(CacheTimestampKey, stats.Timestamp);
+            }
+            catch { }
+        }
+    }
+
     public class ItemAttributePatches
     {
         private const string MeleeAttackCooldownKey = "alegacyvsquest:meleeattackspeed:last";
@@ -44,21 +154,8 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(EntityPlayer entity)
             {
-                if (entity?.Player?.InventoryManager == null) return true;
-
-                var inv = entity.Player.InventoryManager.GetOwnInventory("character");
-                if (inv == null) return true;
-
-                float stealth = 0f;
-                foreach (ItemSlot slot in inv)
-                {
-                    if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
-                    {
-                        stealth += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrStealth);
-                    }
-                }
-
-                return stealth <= 0f;
+                var stats = WearableStatsCache.GetCachedStats(entity);
+                return stats == null || stats.Stealth <= 0f;
             }
         }
 
@@ -68,24 +165,12 @@ namespace VsQuest.Harmony
             public static void Prefix(EntityBehaviorHealth __instance, ref float __state)
             {
                 if (__instance?.entity is not EntityPlayer player) return;
-                if (player.Player?.InventoryManager == null) return;
 
-                var inv = player.Player.InventoryManager.GetOwnInventory("character");
-                if (inv == null) return;
-
-                float reduction = 0f;
-                foreach (ItemSlot slot in inv)
-                {
-                    if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
-                    {
-                        reduction += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrFallDamageMult);
-                    }
-                }
-
-                if (reduction == 0f) return;
+                var stats = WearableStatsCache.GetCachedStats(player);
+                if (stats == null || stats.FallDamageReduction == 0f) return;
 
                 __state = __instance.entity.Properties.FallDamageMultiplier;
-                float mult = GameMath.Clamp(1f - reduction, 0f, 2f);
+                float mult = GameMath.Clamp(1f - stats.FallDamageReduction, 0f, 2f);
                 __instance.entity.Properties.FallDamageMultiplier = __state * mult;
             }
 
@@ -111,28 +196,14 @@ namespace VsQuest.Harmony
             {
                 if (!EnableTemporalStabilityWearablePatch) return;
                 if (__instance?.entity is not EntityPlayer player) return;
-                if (player.Player?.InventoryManager == null) return;
 
-                var inv = player.Player.InventoryManager.GetOwnInventory("character");
-                if (inv == null) return;
-
-                float reduction = 0f;
-                foreach (ItemSlot slot in inv)
-                {
-                    if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
-                    {
-                        reduction += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrTemporalDrainMult);
-                    }
-                }
-
-                if (Math.Abs(reduction) <= 0.0001f) return;
+                var stats = WearableStatsCache.GetCachedStats(player);
+                if (stats == null || Math.Abs(stats.TemporalDrainReduction) <= 0.0001f) return;
 
                 double delta = __instance.OwnStability - __state;
                 if (delta >= 0) return;
 
-                // reduction > 0 => reduce drain (delta is negative, so multiply by <1)
-                // reduction < 0 => increase drain (delta is negative, so multiply by >1)
-                float mult = GameMath.Clamp(1f - reduction, 0f, 3f);
+                float mult = GameMath.Clamp(1f - stats.TemporalDrainReduction, 0f, 3f);
                 double adjusted = __state + delta * mult;
                 __instance.OwnStability = GameMath.Clamp(adjusted, 0.0, 1.0);
             }
@@ -164,23 +235,11 @@ namespace VsQuest.Harmony
             public static bool Prefix(ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, ref EnumHandHandling handling)
             {
                 if (byEntity is not EntityPlayer player) return true;
-                if (player.Player?.InventoryManager == null) return true;
 
-                var inv = player.Player.InventoryManager.GetOwnInventory("character");
-                if (inv == null) return true;
+                var stats = WearableStatsCache.GetCachedStats(player);
+                if (stats == null || Math.Abs(stats.MeleeAttackSpeed) < 0.001f) return true;
 
-                float bonus = 0f;
-                foreach (ItemSlot invSlot in inv)
-                {
-                    if (!invSlot.Empty && invSlot.Itemstack?.Item is ItemWearable)
-                    {
-                        bonus += ItemAttributeUtils.GetAttributeFloatScaled(invSlot.Itemstack, ItemAttributeUtils.AttrMeleeAttackSpeed);
-                    }
-                }
-
-                if (Math.Abs(bonus) < 0.001f) return true;
-
-                float mult = GameMath.Clamp(1f - bonus, 0.15f, 3f);
+                float mult = GameMath.Clamp(1f - stats.MeleeAttackSpeed, 0.15f, 3f);
                 long nowMs = byEntity.World.ElapsedMilliseconds;
                 long lastMs = byEntity.WatchedAttributes.GetLong(MeleeAttackCooldownKey, 0);
                 long cooldownMs = (long)(BaseMeleeAttackCooldownMs * mult);
@@ -216,24 +275,11 @@ namespace VsQuest.Harmony
             {
                 if (__result <= 0f) return;
                 if (forPlayer?.Entity is not EntityPlayer player) return;
-                if (player.Player?.InventoryManager == null) return;
 
-                var inv = player.Player.InventoryManager.GetOwnInventory("character");
-                if (inv == null) return;
+                var stats = WearableStatsCache.GetCachedStats(player);
+                if (stats == null || Math.Abs(stats.MiningSpeedMult) < 0.0001f) return;
 
-                float bonus = 0f;
-                foreach (ItemSlot slot in inv)
-                {
-                    if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
-                    {
-                        bonus += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrMiningSpeedMult);
-                    }
-                }
-
-                if (Math.Abs(bonus) < 0.0001f) return;
-
-                // "miningspeedmult" is configured as an additive bonus (e.g. 0.25 = +25%).
-                float mult = GameMath.Clamp(1f + bonus, 0f, 10f);
+                float mult = GameMath.Clamp(1f + stats.MiningSpeedMult, 0f, 10f);
                 __result *= mult;
             }
         }
@@ -244,24 +290,14 @@ namespace VsQuest.Harmony
             public static void Postfix(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource, ref float __result)
             {
                 if (__result <= 0f) return;
+                if (player?.Entity is not EntityPlayer entity) return;
 
-                float flatReduction = 0f;
-                float percReduction = 0f;
-
-                IInventory inv = player.InventoryManager.GetOwnInventory("character");
-                foreach (var slot in inv)
-                {
-                    if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
-                    {
-                        flatReduction += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrProtection);
-                        percReduction += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrProtectionPerc);
-                    }
-                }
-
+                var stats = WearableStatsCache.GetCachedStats(entity);
+                if (stats == null) return;
 
                 float newDamage = __result;
-                newDamage = System.Math.Max(0f, newDamage - flatReduction);
-                newDamage *= (1f - System.Math.Max(0f, percReduction));
+                newDamage = System.Math.Max(0f, newDamage - stats.FlatProtection);
+                newDamage *= (1f - System.Math.Max(0f, stats.PercProtection));
 
                 __result = newDamage;
             }
@@ -350,7 +386,13 @@ namespace VsQuest.Harmony
                     player.Entity.Stats.Set("walkspeed", "vsquestmod:weightlimit", 0f, true);
                 }
 
-                player.Entity.walkSpeed = player.Entity.Stats.GetBlended("walkspeed");
+                BossBehaviorUtils.UpdatePlayerWalkSpeed(player.Entity);
+                
+                // Invalidate cache when wearable stats are updated
+                if (player.Entity is EntityPlayer entityPlayer)
+                {
+                    WearableStatsCache.InvalidateCache(entityPlayer);
+                }
             }
 
             private static float GetWeightLimit(IInventory inv)
@@ -393,6 +435,8 @@ namespace VsQuest.Harmony
                 return Math.Min(1f, Math.Max(0f, filledSlots / (float)totalSlots));
             }
         }
+
+        // Cache invalidation patch removed - cache uses time-based expiration instead
 
         [HarmonyPatch(typeof(CollectibleObject), "TryMergeStacks")]
         public class CollectibleObject_TryMergeStacks_SecondChanceCharge_Patch

@@ -1,6 +1,6 @@
 # Alegacy VS Quest Mod Structure Documentation
 
-> **Documentation Version:** v1.3.0
+> **Documentation Version:** v1.4.0
 
 ---
 

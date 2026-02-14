@@ -436,7 +436,7 @@ namespace VsQuest
 
                 targetPlayer.Stats.Remove("walkspeed", WalkSpeedStatCode);
                 targetPlayer.Stats.Remove("walkspeed", WalkSpeedStatCodeLegacy);
-                targetPlayer.walkSpeed = targetPlayer.Stats.GetBlended("walkspeed");
+                BossBehaviorUtils.UpdatePlayerWalkSpeed(targetPlayer);
             }
             catch
             {

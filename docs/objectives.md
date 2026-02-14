@@ -1,6 +1,6 @@
 # Alegacy VS Quest Objectives
 
-> **Documentation Version:** v1.2.0
+> **Documentation Version:** v1.4.0
 
 ---
 
@@ -136,11 +136,18 @@ Marks an entity interaction for objectives like `interactwithentity`.
 
 ### `checkvariable`
 
-Checks if a player attribute meets a condition. Can trigger actions when the condition is met.
+Checks if a player attribute meets a condition. Supports the following comparison operators:
+- `=` (equal to)
+- `==` (equal to, alias for `=`)
+- `>` (greater than)
+- `>=` (greater than or equal to)
+- `<` (less than)
+- `<=` (less than or equal to)
+- `!=` (not equal to)
 
 **Arguments:**
 - `<varName>` — Player attribute key to check (required)
-- `<operator>` — Comparison operator: `=`, `==`, `>`, `>=`, `<`, `<=`, `!=` (required)
+- `<operator>` — Comparison operator (required)
 - `<value>` — Value to compare against (required)
 - `[actionsOnComplete]` — Action string to execute when condition is met (optional)
 

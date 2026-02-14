@@ -5,6 +5,65 @@ namespace VsQuest
 {
     public static class QuestTimeGateUtil
     {
+        // Кэш предвычисленных gate'ов для квестов
+        private static readonly Dictionary<string, QuestGateCache> gateCacheByQuestId = 
+            new Dictionary<string, QuestGateCache>(System.StringComparer.OrdinalIgnoreCase);
+
+        private class QuestGateCache
+        {
+            public List<TimeGateInfo> TimeGates = new List<TimeGateInfo>();
+            public List<LandGateInfo> LandGates = new List<LandGateInfo>();
+        }
+
+        private class TimeGateInfo
+        {
+            public string[] Args;
+            public string GateScope;
+            public string GateObjectiveId;
+        }
+
+        private class LandGateInfo
+        {
+            public string[] Args;
+            public string GateObjectiveId;
+        }
+
+        private static QuestGateCache BuildGateCache(Quest questDef)
+        {
+            var cache = new QuestGateCache();
+            if (questDef?.actionObjectives == null) return cache;
+
+            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            {
+                var ao = questDef.actionObjectives[i];
+                if (ao == null) continue;
+
+                if (ao.id == "timeofday")
+                {
+                    ParseTimeGateArgs(ao.args, questDef, out string gateScope, out string gateObjectiveId);
+                    cache.TimeGates.Add(new TimeGateInfo 
+                    { 
+                        Args = ao.args, 
+                        GateScope = gateScope, 
+                        GateObjectiveId = gateObjectiveId 
+                    });
+                }
+                else if (ao.id == "landgate")
+                {
+                    if (LandGateObjective.TryParseArgs(ao.args, out _, out string gateObjectiveId, out _, out _))
+                    {
+                        cache.LandGates.Add(new LandGateInfo 
+                        { 
+                            Args = ao.args, 
+                            GateObjectiveId = gateObjectiveId 
+                        });
+                    }
+                }
+            }
+
+            return cache;
+        }
+
         public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry)
         {
             return AllowsProgress(player, questDef, actionObjectiveRegistry, null, null);
@@ -20,48 +79,44 @@ namespace VsQuest
             if (player == null || questDef == null) return true;
             if (questDef.actionObjectives == null) return true;
 
+            // Получаем или создаем кэш для этого квеста
+            if (!gateCacheByQuestId.TryGetValue(questDef.id, out var cache))
+            {
+                cache = BuildGateCache(questDef);
+                gateCacheByQuestId[questDef.id] = cache;
+            }
+
             var timeOfDayImpl = actionObjectiveRegistry != null && actionObjectiveRegistry.TryGetValue("timeofday", out var tod) ? tod : null;
             var landGateImpl = actionObjectiveRegistry != null && actionObjectiveRegistry.TryGetValue("landgate", out var lg) ? lg : null;
 
             bool foundMatchingGate = false;
             bool allows = true;
 
-            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            // Проверяем time-of-day gates из кэша
+            if (timeOfDayImpl != null && cache.TimeGates.Count > 0)
             {
-                var ao = questDef.actionObjectives[i];
-
-                // Time-of-day gate
-                if (ao?.id == "timeofday")
+                for (int i = 0; i < cache.TimeGates.Count; i++)
                 {
-                    if (timeOfDayImpl == null) continue;
-
-                    string[] args = ao.args;
-                    ParseTimeGateArgs(args, questDef, out string gateScope, out string gateObjectiveId);
-
-                    if (!AppliesToScope(gateScope, scope)) continue;
-                    if (!AppliesToObjectiveId(gateObjectiveId, objectiveId)) continue;
+                    var gate = cache.TimeGates[i];
+                    if (!AppliesToScope(gate.GateScope, scope)) continue;
+                    if (!AppliesToObjectiveId(gate.GateObjectiveId, objectiveId)) continue;
 
                     foundMatchingGate = true;
-                    allows &= timeOfDayImpl.IsCompletable(player, args);
+                    allows &= timeOfDayImpl.IsCompletable(player, gate.Args);
                 }
+            }
 
-                // Land claim gate
-                if (ao?.id == "landgate")
+            // Проверяем land gates из кэша
+            if (landGateImpl != null && cache.LandGates.Count > 0)
+            {
+                for (int i = 0; i < cache.LandGates.Count; i++)
                 {
-                    if (landGateImpl == null) continue;
-
-                    string[] args = ao.args;
-                    if (!LandGateObjective.TryParseArgs(args, out _, out string gateObjectiveId, out _, out _)) continue;
-
-                    // If objectiveId specified on the gate: only apply when caller is progressing that objectiveId.
-                    // If not specified: apply to all progress in the quest.
-                    if (!string.IsNullOrWhiteSpace(gateObjectiveId) && !AppliesToObjectiveId(gateObjectiveId, objectiveId))
-                    {
+                    var gate = cache.LandGates[i];
+                    if (!string.IsNullOrWhiteSpace(gate.GateObjectiveId) && !AppliesToObjectiveId(gate.GateObjectiveId, objectiveId))
                         continue;
-                    }
 
                     foundMatchingGate = true;
-                    allows &= landGateImpl.IsCompletable(player, args);
+                    allows &= landGateImpl.IsCompletable(player, gate.Args);
                 }
             }
 
@@ -115,6 +170,12 @@ namespace VsQuest
             }
 
             return null;
+        }
+
+        // Очистка кэша при перезагрузке квестов
+        public static void ClearCache()
+        {
+            gateCacheByQuestId.Clear();
         }
     }
 }

@@ -1,6 +1,6 @@
 # Alegacy VS Quest Chat Commands
 
-> **Documentation Version:** v1.3.0
+> **Documentation Version:** v1.4.0
 
 All commands require **`give` privilege** and are accessed via the `/avq` command.
 
@@ -12,7 +12,8 @@ All commands require **`give` privilege** and are accessed via the `/avq` comman
 
 | Command | Arguments | Description |
 |---------|-----------|-------------|
-| `/avq reload` | — | Reloads mod configs (`questconfig.json`, `alegacy-vsquest-config.json`). Does not reload assets. |
+| `/avq reload` | `[radiusBlocks]` | Reloads mod configs (`questconfig.json`, `alegacy-vsquest-config.json`). Does not reload assets. Optional `radiusBlocks` (default 512) for reloading bosshunt anchors. |
+| `/avq fixplayer` | `[playerName]` | Clears common boss debuffs and stuck watched attributes on an online player. |
 
 ### Action Items
 
@@ -81,7 +82,9 @@ Player attributes are persistent flags used for quest progress tracking.
 | Command | Arguments | Description |
 |---------|-----------|-------------|
 | `/avq wattr setint` | `[playerName] <key> <value>` | Sets an int WatchedAttribute |
+| `/avq wattr setfloat` | `[playerName] <key> <value>` | Sets a float WatchedAttribute |
 | `/avq wattr addint` | `[playerName] <key> <delta>` | Adds delta to an int WatchedAttribute |
+| `/avq wattr addfloat` | `[playerName] <key> <delta>` | Adds delta to a float WatchedAttribute |
 | `/avq wattr setbool` | `[playerName] <key> <value>` | Sets a bool WatchedAttribute |
 | `/avq wattr setstring` | `[playerName] <key> <value...>` | Sets a string WatchedAttribute |
 | `/avq wattr remove` | `[playerName] <key>` | Removes a WatchedAttribute key |

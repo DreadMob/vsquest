@@ -11,6 +11,94 @@ using Vintagestory.API.Server;
 
 namespace VsQuest
 {
+    // Simple LRU cache with size limit to prevent memory leaks
+    internal class SimpleLRUCache<TKey, TValue>
+    {
+        private readonly Dictionary<TKey, TValue> cache;
+        private readonly LinkedList<TKey> lruList;
+        private readonly int maxSize;
+        private readonly object syncLock = new object();
+
+        public SimpleLRUCache(int maxSize, IEqualityComparer<TKey> comparer = null)
+        {
+            this.maxSize = maxSize;
+            this.cache = new Dictionary<TKey, TValue>(maxSize, comparer);
+            this.lruList = new LinkedList<TKey>();
+        }
+
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            lock (syncLock)
+            {
+                if (cache.TryGetValue(key, out value))
+                {
+                    // Move to front (most recently used)
+                    lruList.Remove(key);
+                    lruList.AddFirst(key);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public void Add(TKey key, TValue value)
+        {
+            lock (syncLock)
+            {
+                if (cache.ContainsKey(key))
+                {
+                    // Update existing
+                    cache[key] = value;
+                    lruList.Remove(key);
+                    lruList.AddFirst(key);
+                }
+                else
+                {
+                    // Evict if at capacity
+                    if (cache.Count >= maxSize && lruList.Last != null)
+                    {
+                        var evictKey = lruList.Last.Value;
+                        lruList.RemoveLast();
+                        cache.Remove(evictKey);
+                    }
+                    
+                    cache.Add(key, value);
+                    lruList.AddFirst(key);
+                }
+            }
+        }
+
+        public bool Remove(TKey key)
+        {
+            lock (syncLock)
+            {
+                if (cache.Remove(key))
+                {
+                    lruList.Remove(key);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public void Clear()
+        {
+            lock (syncLock)
+            {
+                cache.Clear();
+                lruList.Clear();
+            }
+        }
+
+        public int Count 
+        { 
+            get 
+            { 
+                lock (syncLock) return cache.Count; 
+            } 
+        }
+    }
+
     [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     public class ActiveQuest
     {
@@ -34,7 +122,7 @@ namespace VsQuest
             public int Dim;
         }
 
-        private static readonly Dictionary<string, LastInteractCache> lastInteractCacheByPlayerUid = new Dictionary<string, LastInteractCache>(StringComparer.OrdinalIgnoreCase);
+        private static readonly SimpleLRUCache<string, LastInteractCache> lastInteractCacheByPlayerUid = new SimpleLRUCache<string, LastInteractCache>(1000, StringComparer.OrdinalIgnoreCase);
 
         private class ParsedPos
         {
@@ -44,13 +132,15 @@ namespace VsQuest
             public int Z;
         }
 
-        private static readonly Dictionary<string, ParsedPos> parsedPosCacheByString = new Dictionary<string, ParsedPos>(StringComparer.Ordinal);
+        private static readonly SimpleLRUCache<string, ParsedPos> parsedPosCacheByString = new SimpleLRUCache<string, ParsedPos>(5000, StringComparer.Ordinal);
 
         private Dictionary<int, int> gatherCache = new Dictionary<int, int>();
+        private long gatherCacheTimestamp = 0;
+        private const int GatherCacheValidMs = 5000; // 5 секунд
 
         public void OnEntityKilled(string entityCode, IPlayer byPlayer)
         {
-            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
 
@@ -117,7 +207,7 @@ namespace VsQuest
         {
             if (blockPlaceTrackers == null || blockPlaceTrackers.Count == 0) return;
 
-            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
 
@@ -130,7 +220,7 @@ namespace VsQuest
         {
             if (blockBreakTrackers == null || blockBreakTrackers.Count == 0) return;
 
-            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
 
@@ -141,7 +231,7 @@ namespace VsQuest
 
         public void OnBlockUsed(string blockCode, int[] position, IPlayer byPlayer, ICoreServerAPI sapi)
         {
-            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
 
@@ -166,7 +256,7 @@ namespace VsQuest
                             cache.Y = int.MinValue;
                             cache.Z = int.MinValue;
                             cache.Dim = int.MinValue;
-                            lastInteractCacheByPlayerUid[uid] = cache;
+                            lastInteractCacheByPlayerUid.Add(uid, cache);
                         }
 
                         long now = Environment.TickCount64;
@@ -386,19 +476,19 @@ namespace VsQuest
                 }
 
                 int comma1 = coordString.IndexOf(',');
-                if (comma1 < 0) { parsedPosCacheByString[coordString] = new ParsedPos { Ok = false }; return false; }
+                if (comma1 < 0) { parsedPosCacheByString.Add(coordString, new ParsedPos { Ok = false }); return false; }
                 int comma2 = coordString.IndexOf(',', comma1 + 1);
-                if (comma2 < 0) { parsedPosCacheByString[coordString] = new ParsedPos { Ok = false }; return false; }
+                if (comma2 < 0) { parsedPosCacheByString.Add(coordString, new ParsedPos { Ok = false }); return false; }
 
                 if (!int.TryParse(coordString.Substring(0, comma1), out x)
                     || !int.TryParse(coordString.Substring(comma1 + 1, comma2 - comma1 - 1), out y)
                     || !int.TryParse(coordString.Substring(comma2 + 1), out z))
                 {
-                    parsedPosCacheByString[coordString] = new ParsedPos { Ok = false };
+                    parsedPosCacheByString.Add(coordString, new ParsedPos { Ok = false });
                     return false;
                 }
 
-                parsedPosCacheByString[coordString] = new ParsedPos { Ok = true, X = x, Y = y, Z = z };
+                parsedPosCacheByString.Add(coordString, new ParsedPos { Ok = true, X = x, Y = y, Z = z });
                 return true;
             }
             catch
@@ -409,7 +499,7 @@ namespace VsQuest
 
         public bool IsCompletable(IPlayer byPlayer)
         {
-            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return false;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return false;
             var activeActionObjectives = quest.actionObjectives.ConvertAll<ActionObjectiveBase>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
@@ -477,7 +567,7 @@ namespace VsQuest
 
         public void completeQuest(IPlayer byPlayer)
         {
-            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
             foreach (var gatherObjective in quest.gatherObjectives)
@@ -515,7 +605,7 @@ namespace VsQuest
 
         public List<int> gatherProgress(IPlayer byPlayer)
         {
-            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return new List<int>();
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return new List<int>();
             var result = new List<int>();
@@ -528,7 +618,7 @@ namespace VsQuest
 
         public List<int> GetProgress(IPlayer byPlayer)
         {
-            var questSystem = byPlayer.Entity.Api.ModLoader.GetModSystem<QuestSystem>();
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return new List<int>();
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return new List<int>();
             var activeActionObjectives = quest.actionObjectives.ConvertAll<ActionObjectiveBase>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
@@ -546,6 +636,13 @@ namespace VsQuest
 
         private int itemsGathered(IPlayer byPlayer, Objective gatherObjective, int objectiveIndex)
         {
+            long now = Environment.TickCount64;
+            if (now - gatherCacheTimestamp > GatherCacheValidMs)
+            {
+                gatherCache.Clear();
+                gatherCacheTimestamp = now;
+            }
+
             int itemsFound;
             if (gatherCache.TryGetValue(objectiveIndex, out itemsFound)) return itemsFound;
             itemsFound = 0;

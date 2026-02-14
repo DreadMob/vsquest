@@ -293,7 +293,7 @@ namespace VsQuest
                 player.Stats.Set("walkspeed", DebuffStatKey, stage.victimWalkSpeedDelta, true);
                 player.Stats.Set("healingeffectivness", DebuffStatKey, stage.victimHealingDelta, true);
                 player.Stats.Set("hungerrate", DebuffStatKey, stage.victimHungerRateDelta, true);
-                player.walkSpeed = player.Stats.GetBlended("walkspeed");
+                BossBehaviorUtils.UpdatePlayerWalkSpeed(player);
             }
             catch
             {
@@ -309,7 +309,7 @@ namespace VsQuest
                 player.Stats.Set("walkspeed", DebuffStatKey, 0f, true);
                 player.Stats.Set("healingeffectivness", DebuffStatKey, 0f, true);
                 player.Stats.Set("hungerrate", DebuffStatKey, 0f, true);
-                player.walkSpeed = player.Stats.GetBlended("walkspeed");
+                BossBehaviorUtils.UpdatePlayerWalkSpeed(player);
             }
             catch
             {

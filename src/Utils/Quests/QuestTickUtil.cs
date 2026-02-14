@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Common;
@@ -12,7 +13,7 @@ namespace VsQuest
 
         private static double lastPassiveCheckHours = -1.0;
 
-        public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, System.Action<string, List<ActiveQuest>> savePlayerQuests, ICoreServerAPI sapi, double missingQuestLogThrottleHours = (1.0 / 60.0), double passiveCompletionThrottleHours = (1.0 / 60.0))
+        public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, System.Action<string> markPlayerDirty, ICoreServerAPI sapi, double missingQuestLogThrottleHours = (1.0 / 60.0), double passiveCompletionThrottleHours = (1.0 / 60.0))
         {
             if (players == null || players.Length == 0) return;
 
@@ -33,12 +34,15 @@ namespace VsQuest
                 var activeQuests = getPlayerQuests(serverPlayer.PlayerUID);
                 if (activeQuests == null || activeQuests.Count == 0) continue;
 
+                bool playerDirty = false;
+                var registry = questRegistry; // Локальная переменная для чуть более быстрого доступа
+
                 for (int aq = 0; aq < activeQuests.Count; aq++)
                 {
                     var activeQuest = activeQuests[aq];
                     if (activeQuest == null || string.IsNullOrWhiteSpace(activeQuest.questId)) continue;
 
-                    if (!questRegistry.TryGetValue(activeQuest.questId, out var quest) || quest == null)
+                    if (!registry.TryGetValue(activeQuest.questId, out var questDef) || questDef == null)
                     {
                         // Throttle log to avoid spamming every tick for every player.
                         // Keyed by player uid + quest id.
@@ -62,7 +66,7 @@ namespace VsQuest
                         {
                             activeQuests.RemoveAt(aq);
                             aq--;
-                            savePlayerQuests?.Invoke(serverPlayer.PlayerUID, activeQuests);
+                            playerDirty = true;
                         }
                         catch
                         {
@@ -77,11 +81,11 @@ namespace VsQuest
                         hasTickObjectives = false;
                         try
                         {
-                            if (quest.actionObjectives != null)
+                            if (questDef.actionObjectives != null)
                             {
-                                for (int i = 0; i < quest.actionObjectives.Count; i++)
+                                for (int i = 0; i < questDef.actionObjectives.Count; i++)
                                 {
-                                    var objective = quest.actionObjectives[i];
+                                    var objective = questDef.actionObjectives[i];
                                     if (objective == null) continue;
                                     if (objective.id == "walkdistance" || objective.id == "temporalstorm")
                                     {
@@ -99,16 +103,16 @@ namespace VsQuest
                         questHasTickObjectivesByQuestId[activeQuest.questId] = hasTickObjectives;
                     }
 
-                    if (hasTickObjectives && quest.actionObjectives != null)
+                    if (hasTickObjectives && questDef.actionObjectives != null)
                     {
-                        for (int i = 0; i < quest.actionObjectives.Count; i++)
+                        for (int i = 0; i < questDef.actionObjectives.Count; i++)
                         {
-                            var objective = quest.actionObjectives[i];
+                            var objective = questDef.actionObjectives[i];
                             if (objective == null) continue;
 
                             if (objective.id == "walkdistance")
                             {
-                                if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, quest, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
+                                if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
 
                                 if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
                                 var objectiveImplementation = impl as WalkDistanceObjective;
@@ -116,7 +120,7 @@ namespace VsQuest
                             }
                             else if (objective.id == "temporalstorm")
                             {
-                                if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, quest, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
+                                if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
 
                                 if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
                                 var objectiveImplementation = impl as TemporalStormObjective;
@@ -125,7 +129,13 @@ namespace VsQuest
                         }
                     }
 
-                    if (shouldCheckPassive) TryFirePassiveActionObjectiveCompletions(serverPlayer, activeQuest, quest, actionObjectiveRegistry, sapi, passiveThrottle);
+                    if (shouldCheckPassive) TryFirePassiveActionObjectiveCompletions(serverPlayer, activeQuest, questDef, actionObjectiveRegistry, sapi, passiveThrottle);
+                }
+
+                // Mark dirty once per player per tick if needed
+                if (playerDirty)
+                {
+                    markPlayerDirty?.Invoke(serverPlayer.PlayerUID);
                 }
             }
         }
@@ -145,7 +155,11 @@ namespace VsQuest
 			if (throttle <= 0) throttle = 1.0 / 3600.0;
 			if (now - last < throttle) return;
             wa.SetDouble(throttleKey, now);
-            wa.MarkPathDirty(throttleKey);
+            // Only mark dirty if value actually changed to avoid unnecessary network sync
+            if (Math.Abs(now - last) > 0.001)
+            {
+                wa.MarkPathDirty(throttleKey);
+            }
 
             for (int i = 0; i < questDef.actionObjectives.Count; i++)
             {

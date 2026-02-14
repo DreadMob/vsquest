@@ -1,6 +1,6 @@
 # Alegacy VS Quest Journal
 
-> **Documentation Version:** v1.2.0
+> **Documentation Version:** v1.4.0
 
 ---
 
@@ -61,13 +61,3 @@ Supported formats:
 - Legacy: `addjournalentry <loreCode> <chapter1> [chapter2...]`
 
 See [Actions](actions.md) for argument details.
-
----
-
-## Migration from Vanilla Journal
-
-Alegacy VS Quest can import entries from the vanilla `ModJournal` system (server-side), using `QuestJournalMigration.MigrateFromVanilla(...)`.
-
-Notes:
-- Only entries whose `LoreCode` starts with `alegacyvsquest` (configurable prefix) are imported.
-- Imported chapters are deduplicated.
