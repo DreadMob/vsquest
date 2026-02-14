@@ -25,6 +25,19 @@ namespace VsQuest
 
         private void OnAutosaveTick(float dt)
         {
+            var sw = global::VsQuest.QuestProfiler.StartMeasurement("QuestPersistenceManager.OnAutosaveTick");
+            try
+            {
+                OnAutosaveTickInternal();
+            }
+            finally
+            {
+                global::VsQuest.QuestProfiler.EndMeasurement("QuestPersistenceManager.OnAutosaveTick", sw);
+            }
+        }
+
+        private void OnAutosaveTickInternal()
+        {
             if (dirtyPlayerUIDs.Count == 0) return;
 
             List<string> playersToSave;

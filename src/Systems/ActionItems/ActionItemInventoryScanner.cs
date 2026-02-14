@@ -10,12 +10,14 @@ namespace VsQuest
     public class ActionItemInventoryScanner
     {
         private const int MaxSlotsPerTick = 64;
+        private const int TickInterval = 5; // Run every 5 ticks instead of every tick
 
         private readonly ICoreServerAPI sapi;
         private readonly QuestSystem questSystem;
         private readonly global::System.Func<IServerPlayer, ITreeAttribute, List<ItemAction>, string, bool> onActionItem;
         private readonly Dictionary<string, (string invKey, int slot)> inventoryScanCursorByPlayerUid;
         private readonly ActionItemAttributeResolver attributeResolver;
+        private int tickCounter = 0;
 
         public ActionItemInventoryScanner(
             ICoreServerAPI sapi,
@@ -32,6 +34,22 @@ namespace VsQuest
         }
 
         public void Tick(float dt)
+        {
+            // Only process every N ticks to reduce CPU load with many players
+            if (++tickCounter % TickInterval != 0) return;
+
+            var sw = global::VsQuest.QuestProfiler.StartMeasurement("ActionItemInventoryScanner.Tick");
+            try
+            {
+                TickInternal(dt);
+            }
+            finally
+            {
+                global::VsQuest.QuestProfiler.EndMeasurement("ActionItemInventoryScanner.Tick", sw);
+            }
+        }
+
+        private void TickInternal(float dt)
         {
             if (sapi == null || questSystem == null) return;
 

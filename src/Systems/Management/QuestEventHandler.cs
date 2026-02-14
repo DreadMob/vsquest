@@ -440,6 +440,23 @@ namespace VsQuest
 
         private void OnQuestTick(float dt)
         {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            try
+            {
+                OnQuestTickInternal(dt);
+            }
+            finally
+            {
+                sw.Stop();
+                if (sw.ElapsedMilliseconds > 10)
+                {
+                    sapi.Logger.Warning("[QuestLagDebug] OnQuestTick took {0}ms for {1} players", sw.ElapsedMilliseconds, sapi.World.AllOnlinePlayers.Length);
+                }
+            }
+        }
+
+        private void OnQuestTickInternal(float dt)
+        {
             questSystem ??= QuestSystemCache.Get(sapi);
             if (questSystem == null) return;
 

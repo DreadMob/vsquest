@@ -17,6 +17,8 @@ namespace VsQuest
             public double LastX;
             public double LastZ;
             public int UpdateCounter;
+            public float HaveValue;
+            public bool HaveValueLoaded;
         }
 
         private static readonly Dictionary<string, PlayerWalkCache> playerCacheByKey = new Dictionary<string, PlayerWalkCache>();
@@ -56,7 +58,18 @@ namespace VsQuest
             if (byPlayer?.Entity?.WatchedAttributes == null) return false;
             if (!TryParseArgs(args, out string questId, out int slot, out int needMeters)) return false;
 
-            float have = byPlayer.Entity.WatchedAttributes.GetFloat(HaveKey(questId, slot), 0f);
+            // Check cache first for more up-to-date value
+            string cacheKey = CacheKey(byPlayer.PlayerUID, questId, slot);
+            float have;
+            if (playerCacheByKey.TryGetValue(cacheKey, out var cache) && cache != null && cache.HaveValueLoaded)
+            {
+                have = cache.HaveValue;
+            }
+            else
+            {
+                have = byPlayer.Entity.WatchedAttributes.GetFloat(HaveKey(questId, slot), 0f);
+            }
+            
             if (have < 0f) have = 0f;
 
             return needMeters > 0 && have >= needMeters;
@@ -67,7 +80,18 @@ namespace VsQuest
             if (byPlayer?.Entity?.WatchedAttributes == null) return new List<int>(new int[] { 0, 0 });
             if (!TryParseArgs(args, out string questId, out int slot, out int needMeters)) return new List<int>(new int[] { 0, 0 });
 
-            float have = byPlayer.Entity.WatchedAttributes.GetFloat(HaveKey(questId, slot), 0f);
+            // Check cache first for more up-to-date value
+            string cacheKey = CacheKey(byPlayer.PlayerUID, questId, slot);
+            float have;
+            if (playerCacheByKey.TryGetValue(cacheKey, out var cache) && cache != null && cache.HaveValueLoaded)
+            {
+                have = cache.HaveValue;
+            }
+            else
+            {
+                have = byPlayer.Entity.WatchedAttributes.GetFloat(HaveKey(questId, slot), 0f);
+            }
+            
             if (have < 0f) have = 0f;
 
             int haveInt = (int)Math.Floor(have);
@@ -107,6 +131,12 @@ namespace VsQuest
                 playerCacheByKey[cacheKey] = cache;
             }
 
+            if (!cache.HaveValueLoaded)
+            {
+                cache.HaveValue = wa.GetFloat(HaveKey(questId, slot), 0f);
+                cache.HaveValueLoaded = true;
+            }
+
             if (!cache.HasLast)
             {
                 cache.LastX = curX;
@@ -136,7 +166,7 @@ namespace VsQuest
                 return;
             }
 
-            float have = wa.GetFloat(HaveKey(questId, slot), 0f);
+            float have = cache.HaveValue;
             if (have < 0f) have = 0f;
             if (have >= needMeters)
             {
@@ -147,14 +177,15 @@ namespace VsQuest
 
             have += (float)dist;
             if (have > needMeters) have = needMeters;
+            cache.HaveValue = have;
 
-            if (++cache.UpdateCounter % 20 == 0)
-            {
-                wa.SetFloat(HaveKey(questId, slot), have);
-            }
+            // Save to WatchedAttributes only every 100 ticks (~100 seconds) or when completing
+            // This dramatically reduces network sync during movement
+            bool shouldSaveToAttributes = (++cache.UpdateCounter % 100 == 0);
 
-            if (have >= needMeters && cache.UpdateCounter % 100 == 0)
+            if (have >= needMeters)
             {
+                shouldSaveToAttributes = true;
                 try
                 {
                     var questSystem = sapi?.ModLoader?.GetModSystem<QuestSystem>();
@@ -173,6 +204,11 @@ namespace VsQuest
                 catch
                 {
                 }
+            }
+
+            if (shouldSaveToAttributes)
+            {
+                wa.SetFloat(HaveKey(questId, slot), have);
             }
 
             cache.LastX = curX;

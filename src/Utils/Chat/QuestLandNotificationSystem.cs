@@ -46,10 +46,23 @@ namespace VsQuest
                 }
             }
 
-            listenerId = sapi.Event.RegisterGameTickListener(OnTick, 1000);
+            listenerId = sapi.Event.RegisterGameTickListener(OnTick, 5000); // Увеличили с 1000 до 5000мс (5 секунд)
         }
 
         private void OnTick(float dt)
+        {
+            var sw = global::VsQuest.QuestProfiler.StartMeasurement("QuestLandNotificationSystem.OnTick");
+            try
+            {
+                OnTickInternal(dt);
+            }
+            finally
+            {
+                global::VsQuest.QuestProfiler.EndMeasurement("QuestLandNotificationSystem.OnTick", sw);
+            }
+        }
+
+        private void OnTickInternal(float dt)
         {
             var players = sapi?.World?.AllOnlinePlayers;
             if (players == null || players.Length == 0) return;

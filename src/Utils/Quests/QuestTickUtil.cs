@@ -15,6 +15,20 @@ namespace VsQuest
 
         public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, System.Action<string> markPlayerDirty, ICoreServerAPI sapi, double missingQuestLogThrottleHours = (1.0 / 60.0), double passiveCompletionThrottleHours = (1.0 / 60.0))
         {
+            var sw = QuestProfiler.StartMeasurement("QuestTickUtil.HandleQuestTick");
+            try
+            {
+                HandleQuestTickInternal(dt, questRegistry, actionObjectiveRegistry, players, getPlayerQuests, markPlayerDirty, sapi, missingQuestLogThrottleHours, passiveCompletionThrottleHours);
+            }
+            finally
+            {
+                QuestProfiler.EndMeasurement("QuestTickUtil.HandleQuestTick", sw);
+                QuestProfiler.LogStats();
+            }
+        }
+
+        private static void HandleQuestTickInternal(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, System.Action<string> markPlayerDirty, ICoreServerAPI sapi, double missingQuestLogThrottleHours, double passiveCompletionThrottleHours)
+        {
             if (players == null || players.Length == 0) return;
 
 			double missingLogThrottle = missingQuestLogThrottleHours;

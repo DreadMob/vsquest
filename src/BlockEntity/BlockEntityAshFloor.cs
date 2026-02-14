@@ -14,6 +14,9 @@ namespace VsQuest
         private const string AttrTickIntervalMs = "vsquest:ashfloor:tickIntervalMs";
         private const string AttrVictimWalkSpeedMult = "vsquest:ashfloor:victimWalkSpeedMult";
         
+        private const int MinTickIntervalMs = 1000; // Увеличили с 100 до 1000мс (1 секунда)
+        private const int BaseTickIntervalMs = 2000; // Увеличили с 500 до 2000мс (2 секунды)
+        private const double DebuffDurationMultiplier = 6; // Увеличили множитель длительности
 
         private const string VictimUntilKey = "alegacyvsquest:ashfloor:until";
         private const string VictimWalkSpeedMultKey = "alegacyvsquest:ashfloor:walkspeedmult";
@@ -37,7 +40,7 @@ namespace VsQuest
             if (!ticking)
             {
                 ticking = true;
-                RegisterGameTickListener(OnServerTick, 250);
+                RegisterGameTickListener(OnServerTick, 500); // Увеличили с 250 до 500мс
             }
         }
 
@@ -93,7 +96,7 @@ namespace VsQuest
                 return;
             }
 
-            int interval = Math.Max(100, tickIntervalMs <= 0 ? 500 : tickIntervalMs);
+            int interval = Math.Max(MinTickIntervalMs, tickIntervalMs <= 0 ? BaseTickIntervalMs : tickIntervalMs);
             if (nextTickAtMs != 0 && now < nextTickAtMs) return;
             nextTickAtMs = now + interval;
 
@@ -156,8 +159,8 @@ namespace VsQuest
 
             if (nowHours <= 0) return;
 
-            // Увеличиваем длительность дебаффа для стабильности
-            double until = nowHours + (Math.Max(50, intervalMs) * 3 / 3600000.0);
+            // Увеличиваем длительность дебаффа для стабильности (редуцированная синхронизация)
+            double until = nowHours + (Math.Max(MinTickIntervalMs, intervalMs) * DebuffDurationMultiplier / 3600000.0);
 
             try
             {

@@ -50,6 +50,7 @@ namespace VsQuest
 
             var actionItemDurabilityHandler = new ActionItemDurabilityCommandHandler();
             var reloadHandler = new QuestReloadCommandHandler(sapi, questSystem);
+            var profilerHandler = new QuestProfilerCommandHandler(sapi);
 
             sapi.ChatCommands.GetOrCreate("avq")
                 .WithDescription("Quest administration commands")
@@ -300,6 +301,30 @@ namespace VsQuest
                         .RequiresPrivilege(Privilege.give)
                         .WithArgs(sapi.ChatCommands.Parsers.Int("amount"))
                         .HandleWith(actionItemDurabilityHandler.Destruct)
+                    .EndSubCommand()
+                .EndSubCommand()
+                .BeginSubCommand("profiler")
+                    .WithDescription("Performance profiler commands")
+                    .RequiresPrivilege(Privilege.give)
+                    .BeginSubCommand("enable")
+                        .WithDescription("Enables performance profiling")
+                        .RequiresPrivilege(Privilege.give)
+                        .HandleWith(profilerHandler.Enable)
+                    .EndSubCommand()
+                    .BeginSubCommand("disable")
+                        .WithDescription("Disables performance profiling")
+                        .RequiresPrivilege(Privilege.give)
+                        .HandleWith(profilerHandler.Disable)
+                    .EndSubCommand()
+                    .BeginSubCommand("status")
+                        .WithDescription("Shows profiler status")
+                        .RequiresPrivilege(Privilege.give)
+                        .HandleWith(profilerHandler.Status)
+                    .EndSubCommand()
+                    .BeginSubCommand("clear")
+                        .WithDescription("Clears profiler statistics")
+                        .RequiresPrivilege(Privilege.give)
+                        .HandleWith(profilerHandler.Clear)
                     .EndSubCommand()
                 .EndSubCommand()
                 ;

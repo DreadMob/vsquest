@@ -76,10 +76,17 @@ namespace VsQuest.Harmony
         {
             private static int _tickCounter = 0;
             private const int TickInterval = 5; // Run logic every 5 ticks instead of every tick
+            private static float _cachedWalkSpeed = 0f;
+            private static int _walkSpeedUpdateCounter = 0;
+            private const int WalkSpeedUpdateInterval = 5; // Update walk speed every 5 ticks
 
             public static void Prefix(EntityAgent __instance)
             {
                 if (__instance is not EntityPlayer player) return;
+                
+                // Skip processing for most ticks - only run every 5 ticks
+                if (++_tickCounter % TickInterval != 0) return;
+                
                 if (player.World?.Side == EnumAppSide.Server)
                 {
                     ProcessServerSide(player);
@@ -109,8 +116,16 @@ namespace VsQuest.Harmony
                     ProcessUraniumMaskCharge(player, nowHours);
                 }
 
-                // Update walk speed every tick (needed for smooth movement)
-                UpdateWalkSpeed(player);
+                // Update walk speed every N ticks instead of every tick
+                if (++_walkSpeedUpdateCounter % WalkSpeedUpdateInterval == 0)
+                {
+                    UpdateWalkSpeed(player);
+                }
+                else
+                {
+                    // Apply cached walk speed for smooth movement between updates
+                    player.walkSpeed = _cachedWalkSpeed;
+                }
             }
 
             private static void ProcessClientSide(EntityPlayer player)
@@ -133,7 +148,9 @@ namespace VsQuest.Harmony
                     long until = player.WatchedAttributes.GetLong(RepulseStunUntilKey, 0);
                     if (until <= 0)
                     {
-                        if (player.Stats?.GetBlended("walkspeed") != 0f)
+                        // Only update stats if they need to be cleared
+                        float currentWalkSpeed = player.Stats?.GetBlended("walkspeed") ?? 0f;
+                        if (currentWalkSpeed != 0f)
                         {
                             player.Stats?.Set("walkspeed", RepulseStunStatKey, 0f, true);
                         }
@@ -141,15 +158,20 @@ namespace VsQuest.Harmony
                     else
                     {
                         bool clear = false;
-                        if (nowMs > 0 && until - nowMs > 5L * 60L * 1000L) clear = true;
-                        if (nowMs > 0 && nowMs >= until) clear = true;
+                        if (nowMs > 0 && until - nowMs > 5L * 60L * 1000L) clear = true; // Expired way in future
+                        if (nowMs > 0 && nowMs >= until) clear = true; // Actually expired
 
                         if (clear)
                         {
                             player.WatchedAttributes.SetLong(RepulseStunUntilKey, 0);
+                            // Only mark dirty if we actually changed something
+                            float currentMult = player.WatchedAttributes.GetFloat(RepulseStunMultKey, 1f);
+                            if (currentMult != 1f)
+                            {
+                                player.WatchedAttributes.SetFloat(RepulseStunMultKey, 1f);
+                                player.WatchedAttributes.MarkPathDirty(RepulseStunMultKey);
+                            }
                             player.WatchedAttributes.MarkPathDirty(RepulseStunUntilKey);
-                            player.WatchedAttributes.SetFloat(RepulseStunMultKey, 1f);
-                            player.WatchedAttributes.MarkPathDirty(RepulseStunMultKey);
                             player.Stats.Set("walkspeed", RepulseStunStatKey, 0f, true);
                         }
                     }
@@ -186,6 +208,7 @@ namespace VsQuest.Harmony
 
                     if (!ashActive)
                     {
+                        // Only clear stats if they were previously set
                         float currentMod = 0f;
                         try { currentMod = player.Stats?.GetBlended("walkspeed") ?? 0f; } catch { }
                         if (currentMod != 0f)
@@ -194,6 +217,15 @@ namespace VsQuest.Harmony
                         }
                         return;
                     }
+
+                    // Ash is active - check if player is actually on ash floor block
+                    // Only check block every 20 ticks (1 second) instead of every 5 ticks
+                    long lastBlockCheck = player.WatchedAttributes.GetLong("alegacyvsquest:ashfloor:lastblockcheck", 0);
+                    long nowTicks = player.World.ElapsedMilliseconds / 50; // Convert to ticks (~20ms per tick)
+                    
+                    if (nowTicks - lastBlockCheck < 20) return; // Skip block check this time
+                    
+                    player.WatchedAttributes.SetLong("alegacyvsquery:ashfloor:lastblockcheck", nowTicks);
 
                     bool onAshFloor = false;
                     try
@@ -211,9 +243,11 @@ namespace VsQuest.Harmony
                     }
                     catch { }
 
+                    // Only clear debuff if player is NOT on ash floor AND debuff is active
                     if (!onAshFloor)
                     {
                         player.WatchedAttributes.SetDouble(AshFloorUntilKey, 0);
+                        // Only mark dirty if value actually changed
                         player.WatchedAttributes.MarkPathDirty(AshFloorUntilKey);
                         player.WatchedAttributes.SetDouble(AshFloorNoJumpUntilKey, 0);
                         player.WatchedAttributes.SetDouble(AshFloorNoShiftUntilKey, 0);
@@ -350,6 +384,8 @@ namespace VsQuest.Harmony
                     {
                         player.walkSpeed = targetWalkSpeed;
                     }
+                    // Cache the value for use between updates
+                    _cachedWalkSpeed = player.walkSpeed;
                 }
                 catch { }
             }

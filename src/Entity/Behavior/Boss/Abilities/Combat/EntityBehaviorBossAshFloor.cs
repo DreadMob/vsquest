@@ -132,6 +132,19 @@ namespace VsQuest
 
         public override void OnGameTick(float dt)
         {
+            var sw = global::VsQuest.QuestProfiler.StartMeasurement("EntityBehaviorBossAshFloor.OnGameTick");
+            try
+            {
+                OnGameTickInternal(dt);
+            }
+            finally
+            {
+                global::VsQuest.QuestProfiler.EndMeasurement("EntityBehaviorBossAshFloor.OnGameTick", sw);
+            }
+        }
+
+        private void OnGameTickInternal(float dt)
+        {
             base.OnGameTick(dt);
             if (sapi == null || entity == null) return;
             if (stages.Count == 0) return;

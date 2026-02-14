@@ -8,6 +8,8 @@ namespace VsQuest
     {
         private readonly ICoreServerAPI sapi;
         private readonly int maxSlotsPerTick;
+        private const int TickInterval = 5; // Run every 5 ticks instead of every tick
+        private int tickCounter = 0;
         private readonly System.Collections.Generic.Dictionary<string, (string invKey, int slot)> cursorByPlayerUid = new System.Collections.Generic.Dictionary<string, (string invKey, int slot)>(System.StringComparer.Ordinal);
 
         public ActionItemHotbarEnforcer(ICoreServerAPI sapi)
@@ -30,6 +32,22 @@ namespace VsQuest
         }
 
         public void Tick(float dt)
+        {
+            // Only process every N ticks to reduce CPU load with many players
+            if (++tickCounter % TickInterval != 0) return;
+
+            var sw = global::VsQuest.QuestProfiler.StartMeasurement("ActionItemHotbarEnforcer.Tick");
+            try
+            {
+                TickInternal(dt);
+            }
+            finally
+            {
+                global::VsQuest.QuestProfiler.EndMeasurement("ActionItemHotbarEnforcer.Tick", sw);
+            }
+        }
+
+        private void TickInternal(float dt)
         {
             if (sapi == null) return;
 
