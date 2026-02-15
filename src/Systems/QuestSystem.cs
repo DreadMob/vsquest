@@ -389,7 +389,7 @@ namespace VsQuest
             if (QuestRegistry == null) return new string[0];
 
             var wa = player.Entity.WatchedAttributes;
-            var codes = wa.GetStringArray("alegacyvsquest:completedquestids");
+            var codes = wa.GetStringArray("alegacyvsquest:playercompleted");
             if (codes == null || codes.Length == 0) return new string[0];
 
             var normalized = new List<string>();

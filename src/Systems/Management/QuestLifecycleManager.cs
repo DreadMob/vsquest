@@ -165,6 +165,16 @@ namespace VsQuest
         {
             var playerQuests = getPlayerQuests(fromPlayer.PlayerUID);
             var activeQuest = playerQuests.Find(item => item.questId == message.questId);
+            
+            // Server-side validation: prevent duplicate quest completions
+            var completedQuests = fromPlayer.Entity.WatchedAttributes.GetStringArray("alegacyvsquest:playercompleted", new string[0]);
+            string normalizedQuestId = NormalizeQuestId(message.questId, completedQuests.ToList(), questRegistry);
+            if (completedQuests.Contains(normalizedQuestId))
+            {
+                sapi.Logger.Warning($"[alegacyvsquest] Player {fromPlayer.PlayerName} attempted to complete already completed quest: {message.questId}");
+                return;
+            }
+            
             if (activeQuest.IsCompletable(fromPlayer))
             {
                 activeQuest.completeQuest(fromPlayer);
