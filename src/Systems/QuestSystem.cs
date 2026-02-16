@@ -35,6 +35,9 @@ namespace VsQuest
         private QuestSelectGuiManager questSelectGuiManager;
         private QuestNotificationHandler notificationHandler;
 
+        private long lagMonitorListenerId;
+        private long lastLagLogMs;
+
         public QuizSystem QuizSystem => quizSystem;
 
         public bool TryReloadConfigs(out string resultMessage)
@@ -261,6 +264,24 @@ namespace VsQuest
             lifecycleManager = new QuestLifecycleManager(QuestRegistry, ActionRegistry, api);
             eventHandler = new QuestEventHandler(QuestRegistry, persistenceManager, sapi);
 
+            try
+            {
+                lagMonitorListenerId = sapi.Event.RegisterGameTickListener(dt => OnLagMonitorTick(sapi, dt), 1000);
+            }
+            catch
+            {
+                lagMonitorListenerId = 0;
+            }
+
+            try
+            {
+                QuestProfiler.Initialize(sapi);
+                QuestProfiler.Enabled = true;
+            }
+            catch
+            {
+            }
+
             if (networkChannelRegistry == null)
             {
                 sapi.Logger.Error("[alegacyvsquest] networkChannelRegistry was null in StartServerSide(). Recreating it (mod may have had an earlier startup error).");
@@ -276,6 +297,64 @@ namespace VsQuest
 
             chatCommandRegistry = new QuestChatCommandRegistry(sapi, api, this);
             chatCommandRegistry.Register();
+        }
+
+        public override void Dispose()
+        {
+            try
+            {
+                if (api is ICoreServerAPI sapi && lagMonitorListenerId != 0)
+                {
+                    sapi.Event.UnregisterGameTickListener(lagMonitorListenerId);
+                    lagMonitorListenerId = 0;
+                }
+            }
+            catch
+            {
+            }
+
+            base.Dispose();
+        }
+
+        private void OnLagMonitorTick(ICoreServerAPI sapi, float dt)
+        {
+            if (sapi == null) return;
+
+            float ms = dt * 1000f;
+            if (ms < 200f) return;
+
+            long now;
+            try
+            {
+                now = sapi.World.ElapsedMilliseconds;
+            }
+            catch
+            {
+                now = 0;
+            }
+
+            if (now != 0 && lastLagLogMs != 0 && now - lastLagLogMs < 5000) return;
+            lastLagLogMs = now;
+
+            int plrCount = 0;
+            try
+            {
+                plrCount = sapi.World.AllOnlinePlayers?.Length ?? 0;
+            }
+            catch
+            {
+                plrCount = 0;
+            }
+
+            sapi.Logger.Warning("[VsQuestLagMonitor] Large dt spike: dt={0:0.000}s ({1:0}ms), players={2}", dt, ms, plrCount);
+
+            try
+            {
+                QuestProfiler.LogStats();
+            }
+            catch
+            {
+            }
         }
 
         public override void AssetsLoaded(ICoreAPI api)

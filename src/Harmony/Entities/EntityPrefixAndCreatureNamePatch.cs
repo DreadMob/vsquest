@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.GameContent;
@@ -12,6 +13,18 @@ namespace VsQuest.Harmony
             try
             {
                 if (__instance == null) return true;
+
+                // Cheap domain check first before expensive GetBehavior calls
+                string domain = __instance.Code?.Domain;
+                bool isQuestDomain = string.Equals(domain, "alstory", StringComparison.OrdinalIgnoreCase);
+                bool isQuestTargetDomain = string.Equals(domain, "vsquest", StringComparison.OrdinalIgnoreCase) ||
+                                          string.Equals(domain, "alegacyvsquest", StringComparison.OrdinalIgnoreCase);
+                
+                if (!isQuestDomain && !isQuestTargetDomain)
+                {
+                    // Fast path: not a quest entity, skip expensive checks
+                    return true;
+                }
 
                 if (__instance.GetBehavior<EntityBehaviorQuestBoss>() == null
                     && __instance.GetBehavior<EntityBehaviorQuestTarget>() == null

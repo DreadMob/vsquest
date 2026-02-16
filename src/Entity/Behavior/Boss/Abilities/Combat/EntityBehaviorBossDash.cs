@@ -345,7 +345,7 @@ namespace VsQuest
                 catch
                 {
                 }
-            }, 25);
+            }, 50);
         }
 
         private void StopDash()

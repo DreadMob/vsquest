@@ -68,7 +68,7 @@ namespace VsQuest
             sapi.Event.OnEntityDeath += OnEntityDeath;
             sapi.Event.DidBreakBlock += OnBlockBroken;
             sapi.Event.DidPlaceBlock += OnBlockPlaced;
-            sapi.Event.RegisterGameTickListener(OnQuestTick, 1000);
+            sapi.Event.RegisterGameTickListener(OnQuestTick, 5000);
         }
 
         private void OnPlayerJoin(IServerPlayer byPlayer)

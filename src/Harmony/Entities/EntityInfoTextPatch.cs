@@ -35,6 +35,7 @@ namespace VsQuest.Harmony
 
             try
             {
+                // Cheap check first: entity properties
                 if (entity.Properties?.Attributes != null
                     && entity.Properties.Attributes["alegacyvsquestHideInfoText"].AsBool(false))
                 {
@@ -45,9 +46,11 @@ namespace VsQuest.Harmony
             {
             }
 
+            // Domain check before expensive GetBehavior
             string domain = entity.Code?.Domain;
             if (!string.Equals(domain, "alstory", StringComparison.OrdinalIgnoreCase)) return false;
 
+            // Only check behaviors for alstory entities (rare case)
             return entity.GetBehavior<EntityBehaviorQuestBoss>() != null
                 || entity.GetBehavior<EntityBehaviorBoss>() != null;
         }

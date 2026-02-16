@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -74,8 +75,8 @@ namespace VsQuest.Harmony
         [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
         public class EntityAgent_OnGameTick_Unified_Patch
         {
-            private const int TickInterval = 5; // Run logic every 5 ticks instead of every tick
-            private const int WalkSpeedUpdateInterval = 5; // Update walk speed every 5 ticks
+            private const int WalkSpeedUpdateIntervalTicks = 5;
+            private static readonly Dictionary<long, float> CachedWalkSpeedByEntityId = new Dictionary<long, float>();
 
             public static void Prefix(EntityAgent __instance)
             {
@@ -88,9 +89,6 @@ namespace VsQuest.Harmony
                     return;
                 }
 
-                // Server-side logic throttling - use EntityId to ensure each entity has its own timing
-                if ((player.EntityId + player.World.ElapsedMilliseconds / 50) % TickInterval != 0) return;
-                
                 if (player.World?.Side == EnumAppSide.Server)
                 {
                     ProcessServerSide(player);
@@ -106,17 +104,23 @@ namespace VsQuest.Harmony
                 try { nowMs = player.World.ElapsedMilliseconds; } catch { }
                 try { nowHours = player.World.Calendar.TotalHours; } catch { }
 
+                // Walkspeed: avoid calling Stats.GetBlended too often on server (can cause lag spikes with many players).
+                // Update on a fixed tick cadence. Do NOT apply cached speed between updates - let the game handle walkSpeed
+                // to avoid desync jitter. Only update when the tick interval is reached.
+                if ((player.EntityId + player.World.ElapsedMilliseconds / 50) % WalkSpeedUpdateIntervalTicks == 0)
+                {
+                    UpdateWalkSpeed(player);
+                }
+
+                // Throttle expensive attribute logic to every 5 ticks.
+                // We use player.EntityId as an offset to spread the load across different ticks for different players.
+                if ((player.EntityId + player.World.ElapsedMilliseconds / 50) % 5 != 0) return;
+
                 ProcessRepulseStun(player, nowMs);
                 ProcessBossGrab(player, nowMs);
                 ProcessAshFloorServer(player, nowHours);
                 ProcessSecondChanceDebuff(player, nowHours);
                 ProcessUraniumMaskCharge(player, nowHours);
-
-                // Update walk speed based on timing
-                if ((player.EntityId + player.World.ElapsedMilliseconds / 50) % (TickInterval * WalkSpeedUpdateInterval) == 0)
-                {
-                    UpdateWalkSpeed(player);
-                }
             }
 
             private static void ProcessClientSide(EntityPlayer player)
@@ -216,7 +220,27 @@ namespace VsQuest.Harmony
                     
                     if (nowTicks - lastBlockCheck < 20) return; // Skip block check this time
                     
-                    player.WatchedAttributes.SetLong("alegacyvsquery:ashfloor:lastblockcheck", nowTicks);
+                    player.WatchedAttributes.SetLong("alegacyvsquest:ashfloor:lastblockcheck", nowTicks);
+
+                    try
+                    {
+                        var own = player.ServerPos?.XYZ;
+                        if (own == null) return;
+
+                        var nearestBossWithAsh = player.World.GetNearestEntity(own, 200f, 200f, e =>
+                        {
+                            if (e == null || !e.Alive) return false;
+                            if (e.ServerPos == null) return false;
+                            if (e.ServerPos.Dimension != player.ServerPos.Dimension) return false;
+                            return e.HasBehavior<EntityBehaviorBossAshFloor>();
+                        });
+
+                        if (nearestBossWithAsh == null) return;
+                    }
+                    catch
+                    {
+                        return;
+                    }
 
                     bool onAshFloor = false;
                     try
@@ -370,10 +394,18 @@ namespace VsQuest.Harmony
             {
                 try
                 {
-                    float targetWalkSpeed = player.Stats.GetBlended("walkspeed");
+                    float targetWalkSpeed = 0f;
+                    try { targetWalkSpeed = player.Stats.GetBlended("walkspeed"); } catch { }
+
                     if (Math.Abs(player.walkSpeed - targetWalkSpeed) > 0.001f)
                     {
                         player.walkSpeed = targetWalkSpeed;
+                    }
+
+                    CachedWalkSpeedByEntityId[player.EntityId] = player.walkSpeed;
+                    if (CachedWalkSpeedByEntityId.Count > 512)
+                    {
+                        CachedWalkSpeedByEntityId.Clear();
                     }
                 }
                 catch { }
@@ -537,6 +569,67 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityAgent __instance, DamageSource damageSource, ref float damage)
             {
+                // Fast path: skip processing if this is a normal entity interaction
+                // Only process if: target is a boss, source has quest attributes, or attacker is a player
+                bool targetHasQuestData = false;
+                bool sourceHasQuestData = false;
+                
+                try
+                {
+                    if (__instance?.WatchedAttributes != null)
+                    {
+                        // Check if target is invulnerable boss clone (cheap check first)
+                        if (__instance.WatchedAttributes.GetBool("alegacyvsquest:bossclone:invulnerable", false))
+                        {
+                            targetHasQuestData = true;
+                        }
+                        // Check if target is a boss (expensive, only if needed)
+                        else if (damage > 0 && IsBossTarget(__instance))
+                        {
+                            targetHasQuestData = true;
+                        }
+                    }
+                }
+                catch { }
+
+                try
+                {
+                    var sourceEntity = damageSource?.SourceEntity;
+                    var causeEntity = damageSource?.GetCauseEntity() ?? sourceEntity;
+                    
+                    if (causeEntity is EntityPlayer)
+                    {
+                        sourceHasQuestData = true; // Player attacker always needs processing
+                    }
+                    else if (sourceEntity?.WatchedAttributes != null)
+                    {
+                        // Check for boss clone attributes (cheap)
+                        if (sourceEntity.WatchedAttributes.GetBool("alegacyvsquest:bossclone", false) ||
+                            sourceEntity.WatchedAttributes.GetLong("alegacyvsquest:bossclone:ownerid", 0) > 0 ||
+                            sourceEntity.WatchedAttributes.GetFloat("alegacyvsquest:bossclone:damagemult", 0f) > 0f)
+                        {
+                            sourceHasQuestData = true;
+                        }
+                    }
+                    
+                    if (causeEntity?.WatchedAttributes != null)
+                    {
+                        // Check for growth ritual damage multiplier
+                        if (Math.Abs(causeEntity.WatchedAttributes.GetFloat("alegacyvsquest:bossgrowthritual:damagemult", 1f) - 1f) > 0.001f)
+                        {
+                            sourceHasQuestData = true;
+                        }
+                    }
+                }
+                catch { }
+
+                // Early exit if neither target nor source have quest-related data
+                if (!targetHasQuestData && !sourceHasQuestData)
+                {
+                    return;
+                }
+
+                // Original processing continues only for relevant entities...
                 if (__instance?.WatchedAttributes != null)
                 {
                     try
