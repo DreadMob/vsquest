@@ -141,6 +141,13 @@ namespace VsQuest
             if (string.Equals(targetCode, killedCode, StringComparison.OrdinalIgnoreCase)) return true;
             if (killedCode.StartsWith(targetCode + "-", StringComparison.OrdinalIgnoreCase)) return true;
 
+            // Handle eurasian-adult-male / eurasian-adult-female for wolves
+            if (targetCode.Contains("wolf") && killedCode.Contains("wolf"))
+            {
+                if (killedCode.Contains("eurasian") && targetCode.Contains("eurasian")) return true;
+                if (!killedCode.Contains("eurasian") && !targetCode.Contains("eurasian")) return true;
+            }
+
             return false;
         }
 

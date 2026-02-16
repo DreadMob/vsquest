@@ -560,6 +560,12 @@ namespace VsQuest
             sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);
         }
 
+        public void ClearPlayerQuestInfoCache(string playerUID)
+        {
+            if (string.IsNullOrWhiteSpace(playerUID)) return;
+            playerQuestInfoCache.Remove(playerUID);
+        }
+
         private List<QuestCompletionRewardStatus> BuildCompletionRewardStatuses(IServerPlayer serverPlayer, QuestSystem questSystem, QuestCompletionRewardSystem rewardSystem)
         {
             var results = new List<QuestCompletionRewardStatus>();

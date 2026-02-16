@@ -147,8 +147,17 @@ namespace VsQuest
                 catch (Exception ex)
                 {
                     sapi.Logger.Error(string.Format("Action {0} caused an Error in Quest {1}. The Error had the following message: {2}\n Stacktrace:", action.id, quest.id, ex.Message, ex.StackTrace));
-                    sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup, Lang.Get("alegacyvsquest:quest-action-error", quest.id), EnumChatType.Notification);
                 }
+            }
+
+            // Clear quest info cache and send updated list immediately after accepting
+            var questgiver = sapi.World.GetEntityById(message.questGiverId);
+            if (questgiver != null)
+            {
+                var questGiverBehavior = questgiver.GetBehavior<EntityBehaviorQuestGiver>();
+                questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
+                // Send updated quest info to client immediately
+                questGiverBehavior.SendQuestInfoMessageToClient(sapi, fromPlayer.Entity);
             }
 
             try
@@ -179,6 +188,13 @@ namespace VsQuest
                 var questgiver = sapi.World.GetEntityById(message.questGiverId);
                 RewardPlayer(fromPlayer, message, sapi, questgiver);
                 MarkQuestCompleted(fromPlayer, message, questgiver);
+
+                // Clear quest info cache for this player to prevent stale availableQuestIds
+                if (questgiver != null)
+                {
+                    var questGiverBehavior = questgiver.GetBehavior<EntityBehaviorQuestGiver>();
+                    questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
+                }
 
                 try
                 {
@@ -243,6 +259,13 @@ namespace VsQuest
             var questgiver = sapi.World.GetEntityById(message.questGiverId);
             RewardPlayer(fromPlayer, message, sapi, questgiver);
             MarkQuestCompleted(fromPlayer, message, questgiver);
+
+            // Clear quest info cache for this player to prevent stale availableQuestIds
+            if (questgiver != null)
+            {
+                var questGiverBehavior = questgiver.GetBehavior<EntityBehaviorQuestGiver>();
+                questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
+            }
 
             try
             {

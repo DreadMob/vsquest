@@ -17,17 +17,15 @@ namespace VsQuest
         {
             TryCloseOpenDialogue(capi);
 
-            if (questSelectGui == null)
+            try
             {
-                questSelectGui = CreateQuestSelectGui(message, capi);
-                questSelectGui.TryOpen();
-                return;
+                if (questSelectGui != null && questSelectGui.IsOpened())
+                {
+                    questSelectGui.TryClose();
+                }
             }
-
-            if (questSelectGui.IsOpened())
+            catch
             {
-                questSelectGui.UpdateFromMessage(message);
-                return;
             }
 
             questSelectGui = CreateQuestSelectGui(message, capi);

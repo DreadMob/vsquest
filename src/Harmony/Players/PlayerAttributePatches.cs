@@ -74,26 +74,26 @@ namespace VsQuest.Harmony
         [HarmonyPatch(typeof(EntityAgent), "OnGameTick")]
         public class EntityAgent_OnGameTick_Unified_Patch
         {
-            private static int _tickCounter = 0;
             private const int TickInterval = 5; // Run logic every 5 ticks instead of every tick
-            private static float _cachedWalkSpeed = 0f;
-            private static int _walkSpeedUpdateCounter = 0;
             private const int WalkSpeedUpdateInterval = 5; // Update walk speed every 5 ticks
 
             public static void Prefix(EntityAgent __instance)
             {
                 if (__instance is not EntityPlayer player) return;
                 
-                // Skip processing for most ticks - only run every 5 ticks
-                if (++_tickCounter % TickInterval != 0) return;
+                // Process on every tick when side is client for smoother control overriding
+                if (player.World?.Side == EnumAppSide.Client)
+                {
+                    ProcessClientSide(player);
+                    return;
+                }
+
+                // Server-side logic throttling - use EntityId to ensure each entity has its own timing
+                if ((player.EntityId + player.World.ElapsedMilliseconds / 50) % TickInterval != 0) return;
                 
                 if (player.World?.Side == EnumAppSide.Server)
                 {
                     ProcessServerSide(player);
-                }
-                else
-                {
-                    ProcessClientSide(player);
                 }
             }
 
@@ -106,25 +106,16 @@ namespace VsQuest.Harmony
                 try { nowMs = player.World.ElapsedMilliseconds; } catch { }
                 try { nowHours = player.World.Calendar.TotalHours; } catch { }
 
-                // Process debuffs and effects every N ticks to reduce load
-                if (++_tickCounter % TickInterval == 0)
-                {
-                    ProcessRepulseStun(player, nowMs);
-                    ProcessBossGrab(player, nowMs);
-                    ProcessAshFloorServer(player, nowHours);
-                    ProcessSecondChanceDebuff(player, nowHours);
-                    ProcessUraniumMaskCharge(player, nowHours);
-                }
+                ProcessRepulseStun(player, nowMs);
+                ProcessBossGrab(player, nowMs);
+                ProcessAshFloorServer(player, nowHours);
+                ProcessSecondChanceDebuff(player, nowHours);
+                ProcessUraniumMaskCharge(player, nowHours);
 
-                // Update walk speed every N ticks instead of every tick
-                if (++_walkSpeedUpdateCounter % WalkSpeedUpdateInterval == 0)
+                // Update walk speed based on timing
+                if ((player.EntityId + player.World.ElapsedMilliseconds / 50) % (TickInterval * WalkSpeedUpdateInterval) == 0)
                 {
                     UpdateWalkSpeed(player);
-                }
-                else
-                {
-                    // Apply cached walk speed for smooth movement between updates
-                    player.walkSpeed = _cachedWalkSpeed;
                 }
             }
 
@@ -384,8 +375,6 @@ namespace VsQuest.Harmony
                     {
                         player.walkSpeed = targetWalkSpeed;
                     }
-                    // Cache the value for use between updates
-                    _cachedWalkSpeed = player.walkSpeed;
                 }
                 catch { }
             }
