@@ -14,13 +14,17 @@ namespace VsQuest
     public partial class BossHuntSystem : ModSystem
     {
         public const string LastBossDamageTotalHoursKey = "alegacyvsquest:bosshunt:lastBossDamageTotalHours";
+        public const string BossSpawnedAtTotalHoursKey = "alegacyvsquest:bosshunt:spawnedAtTotalHours";
 
         private const string SaveKey = "alegacyvsquest:bosshunt:state";
         private bool debugBossHunt;
 
-        private double softResetIdleHours = 1.0;
+        private double softResetIdleHours = 3.0;
         private double softResetAntiSpamHours = 0.25;
         private double relocatePostponeHours = 0.25;
+        private double debugLogThrottleHours = 0.02;
+
+        private AlegacyVsQuestConfig.BossHuntCoreConfig coreConfig;
 
         private readonly HashSet<string> skipBossKeys = new(StringComparer.OrdinalIgnoreCase);
 
@@ -40,7 +44,6 @@ namespace VsQuest
         private double nextDebugLogTotalHours;
 
         private double bossEntityScanIntervalHours = 1.0 / 60.0;
-        private double debugLogThrottleHours = 0.02;
 
 
         private void ApplyCoreConfig()
@@ -60,6 +63,7 @@ namespace VsQuest
 
             if (cfg == null) return;
 
+            coreConfig = cfg;
             debugBossHunt = cfg.Debug;
 
             softResetIdleHours = cfg.SoftResetIdleHours > 0 ? cfg.SoftResetIdleHours : 1.0;
@@ -120,9 +124,14 @@ namespace VsQuest
                 try
                 {
                     double lastDamage = bossEntity.WatchedAttributes.GetDouble(LastBossDamageTotalHoursKey, double.NaN);
+                    double spawnTime = bossEntity.WatchedAttributes.GetDouble(BossSpawnedAtTotalHoursKey, double.NaN);
 
-                    bool hasEverBeenDamaged = !double.IsNaN(lastDamage) && lastDamage > 0;
-                    bool idleLongEnough = hasEverBeenDamaged && (nowHours - lastDamage >= softResetIdleHours);
+                    // Use spawn time if never damaged, otherwise use last damage time
+                    double idleReferenceHours = !double.IsNaN(lastDamage) && lastDamage > 0
+                        ? lastDamage
+                        : (!double.IsNaN(spawnTime) && spawnTime > 0 ? spawnTime : nowHours);
+
+                    bool idleLongEnough = (nowHours - idleReferenceHours) >= softResetIdleHours;
 
                     bool antiSpamOk = st.lastSoftResetAtTotalHours <= 0 || (nowHours - st.lastSoftResetAtTotalHours >= softResetAntiSpamHours);
 
@@ -145,7 +154,7 @@ namespace VsQuest
 
                         // If there is any player nearby, spawn immediately to avoid a visible "missing boss".
                         if (TryGetPoint(cfg, st, st.currentPointIndex, out var point, out int pointDim, out var anchorPoint)
-                            && AnyPlayerNear(point.X, point.Y, point.Z, pointDim, cfg.GetActivationRange()))
+                            && AnyPlayerNear(point.X, point.Y, point.Z, pointDim, cfg.GetActivationRange(coreConfig)))
                         {
                             TrySpawnBoss(cfg, point, pointDim, anchorPoint);
                         }
@@ -200,7 +209,7 @@ namespace VsQuest
             if (!bossAlive)
             {
                 if (TryGetPoint(cfg, st, st.currentPointIndex, out var point, out int pointDim, out var anchorPoint)
-                    && AnyPlayerNear(point.X, point.Y, point.Z, pointDim, cfg.GetActivationRange()))
+                    && AnyPlayerNear(point.X, point.Y, point.Z, pointDim, cfg.GetActivationRange(coreConfig)))
                 {
                     DebugLog($"Spawn attempt: bossKey={bossKey} point={point.X:0.0},{point.Y:0.0},{point.Z:0.0} dim={pointDim} anchors={st.anchorPoints?.Count ?? 0} deadUntil={st.deadUntilTotalHours:0.00} now={nowHours:0.00}");
                     TrySpawnBoss(cfg, point, pointDim, anchorPoint);

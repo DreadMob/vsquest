@@ -49,7 +49,8 @@ namespace VsQuest
             public double GetRelocateIntervalHours() => relocateIntervalHours > 0 ? relocateIntervalHours : 72;
             public double GetRespawnHours() => respawnInGameHours > 0 ? respawnInGameHours : 24;
             public double GetNoRelocateAfterDamageHours() => noRelocateAfterDamageMinutes > 0 ? (noRelocateAfterDamageMinutes / 60.0) : (10.0 / 60.0);
-            public float GetActivationRange() => activationRange > 0 ? activationRange : 160f;
+            public float GetActivationRange(AlegacyVsQuestConfig.BossHuntCoreConfig coreConfig = null) => 
+                activationRange > 0 ? activationRange : (coreConfig?.DefaultActivationRange ?? 160f);
             public float GetPlayerLockRange() => playerLockRange > 0 ? playerLockRange : 40f;
 
             [ProtoIgnore]

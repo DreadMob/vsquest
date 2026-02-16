@@ -83,6 +83,7 @@ namespace VsQuest
 
             try
             {
+                Entity bestMatch = null;
                 foreach (var e in loaded.Values)
                 {
                     if (e == null || !e.Alive) continue;
@@ -91,9 +92,23 @@ namespace VsQuest
 
                     if (string.Equals(qt.TargetId, bossTargetId, StringComparison.OrdinalIgnoreCase))
                     {
+                        // Prefer entities that are NOT in rebirth transition (no next phase pending)
+                        var rebirth = e.GetBehavior<EntityBehaviorBossRebirth2>();
+                        if (rebirth != null && !rebirth.IsFinalStage)
+                        {
+                            // This is a phase 1 boss that will spawn phase 2
+                            // Use it if we don't have anything better, but prefer phase 2 if exists
+                            if (bestMatch == null)
+                                bestMatch = e;
+                            continue;
+                        }
+
+                        // This is either final stage or no rebirth - best match
                         return e;
                     }
                 }
+
+                return bestMatch;
             }
             catch
             {
@@ -213,6 +228,11 @@ namespace VsQuest
                 {
                     entity.WatchedAttributes.SetString("alegacyvsquest:killaction:targetid", cfg.bossKey);
                     entity.WatchedAttributes.MarkPathDirty("alegacyvsquest:killaction:targetid");
+
+                    // Track spawn time for soft reset logic (handles phase 2 bosses that never get damaged)
+                    double nowHours = sapi.World?.Calendar?.TotalHours ?? 0;
+                    entity.WatchedAttributes.SetDouble(BossSpawnedAtTotalHoursKey, nowHours);
+                    entity.WatchedAttributes.MarkPathDirty(BossSpawnedAtTotalHoursKey);
                 }
 
                 EntityBehaviorQuestTarget.SetSpawnerAnchor(entity, new BlockPos((int)point.X, (int)point.Y, (int)point.Z, dim));

@@ -243,6 +243,11 @@ namespace VsQuest
                 CopyTargetId(newEntity);
                 CopyAnchor(newEntity);
 
+                // Track spawn time for soft reset logic
+                double nowHours = sapi.World?.Calendar?.TotalHours ?? 0;
+                newEntity.WatchedAttributes?.SetDouble("alegacyvsquest:bosshunt:spawnedAtTotalHours", nowHours);
+                newEntity.WatchedAttributes?.MarkPathDirty("alegacyvsquest:bosshunt:spawnedAtTotalHours");
+
                 newEntity.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
                 newEntity.ServerPos.Yaw = yaw;
                 newEntity.Pos.SetFrom(newEntity.ServerPos);

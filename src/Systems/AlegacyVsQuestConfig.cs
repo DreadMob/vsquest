@@ -50,7 +50,7 @@ namespace VsQuest
 
             public double DebugLogThrottleHours { get; set; } = 0.02;
 
-
+            public float DefaultActivationRange { get; set; } = 200f;
 
             public List<string> SkipBossKeys { get; set; } = new List<string>
 

@@ -15,7 +15,7 @@ namespace VsQuest
             LoadConfigs();
             LoadState();
 
-            tickListenerId = sapi.Event.RegisterGameTickListener(OnTick, 1000);
+            tickListenerId = sapi.Event.RegisterGameTickListener(OnTick, 10000);
             sapi.Event.GameWorldSave += OnWorldSave;
             sapi.Event.OnEntityDeath += OnEntityDeath;
         }
