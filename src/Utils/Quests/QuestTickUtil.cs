@@ -13,6 +13,37 @@ namespace VsQuest
 
         private static double lastPassiveCheckHours = -1.0;
 
+        /// <summary>
+        /// Очищает кэши при отключении игрока или перезагрузке квестов
+        /// </summary>
+        public static void ClearPlayerCache(string playerUid)
+        {
+            if (string.IsNullOrWhiteSpace(playerUid)) return;
+
+            // Remove entries for this player from lastMissingQuestLogHoursByKey
+            var keysToRemove = new List<string>();
+            foreach (var key in lastMissingQuestLogHoursByKey.Keys)
+            {
+                if (key != null && key.StartsWith(playerUid + ":"))
+                {
+                    keysToRemove.Add(key);
+                }
+            }
+            foreach (var key in keysToRemove)
+            {
+                lastMissingQuestLogHoursByKey.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// Полная очистка всех кэшей (например, при перезагрузке квестов)
+        /// </summary>
+        public static void ClearAllCaches()
+        {
+            lastMissingQuestLogHoursByKey.Clear();
+            questHasTickObjectivesByQuestId.Clear();
+        }
+
         public static void HandleQuestTick(float dt, Dictionary<string, Quest> questRegistry, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, IPlayer[] players, System.Func<string, List<ActiveQuest>> getPlayerQuests, System.Action<string> markPlayerDirty, ICoreServerAPI sapi, double missingQuestLogThrottleHours = (1.0 / 60.0), double passiveCompletionThrottleHours = (1.0 / 60.0))
         {
             var sw = QuestProfiler.StartMeasurement("QuestTickUtil.HandleQuestTick");

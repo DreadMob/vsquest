@@ -282,6 +282,10 @@ namespace VsQuest
         {
             base.AssetsLoaded(api);
 
+            // Очистка кэшей при перезагрузке квестов
+            QuestTimeGateUtil.ClearCache();
+            QuestTickUtil.ClearAllCaches();
+
             MobLocalizationUtils.LoadFromAssets(api);
 
             LocalizationUtils.LoadFromAssets(api);

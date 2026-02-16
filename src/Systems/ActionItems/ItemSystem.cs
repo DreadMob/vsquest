@@ -17,8 +17,8 @@ namespace VsQuest
         private string actionItemCastSpeedStatKey = "alegacyvsquest:actionitemcast";
         private string bloodmeterActionItemId = "albase:bosshunt-tracker";
 
-        private int inventoryScanIntervalMs = 1000;
-        private int hotbarEnforceIntervalMs = 500;
+        private int inventoryScanIntervalMs = 2000;
+        private int hotbarEnforceIntervalMs = 1000;
 
         private ICoreAPI api;
         private ICoreServerAPI sapi;

@@ -16,7 +16,7 @@ namespace VsQuest
 
         public VsQuestDiscoveryHud(ICoreClientAPI capi) : base(capi)
         {
-            capi.Event.RegisterGameTickListener(OnGameTick, 20);
+            capi.Event.RegisterGameTickListener(OnGameTick, 100);
             capi.Event.LevelFinalize += ComposeGuis;
         }
 

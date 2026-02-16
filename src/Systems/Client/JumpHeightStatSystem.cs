@@ -15,7 +15,7 @@ namespace VsQuest
         public override void StartClientSide(ICoreClientAPI api)
         {
             capi = api;
-            api.Event.RegisterGameTickListener(OnTick, 100);
+            api.Event.RegisterGameTickListener(OnTick, 500);
         }
 
         private void OnTick(float dt)

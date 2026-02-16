@@ -12,7 +12,7 @@ namespace VsQuest
         private ICoreClientAPI capi;
         private long tickListenerId;
 
-        private int tickIntervalMs = 100;
+        private int tickIntervalMs = 500;
         private float baseDensity = 0.00125f;
         private float fogMinMul = 0.03f;
         private float negativeFogDensityAddMul = 0.006f;
@@ -41,7 +41,7 @@ namespace VsQuest
             {
             }
 
-            tickListenerId = api.Event.RegisterGameTickListener(OnTick, tickIntervalMs);
+            tickListenerId = api.Event.RegisterGameTickListener(OnTick, 500);
         }
 
         private void OnTick(float dt)

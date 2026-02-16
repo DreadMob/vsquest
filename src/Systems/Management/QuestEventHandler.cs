@@ -106,6 +106,8 @@ namespace VsQuest
         private void OnPlayerDisconnect(IServerPlayer byPlayer)
         {
             persistenceManager.UnloadPlayerQuests(byPlayer.PlayerUID);
+            QuestTickUtil.ClearPlayerCache(byPlayer.PlayerUID);
+            WalkDistanceObjective.ClearPlayerCache(byPlayer.PlayerUID);
         }
 
         private void OnEntityDeath(Entity entity, DamageSource damageSource)
