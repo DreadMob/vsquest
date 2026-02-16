@@ -132,6 +132,8 @@ namespace VsQuest
                 }
 
                 cachedBossEntity = null;
+                // Force immediate scan when cache is invalidated - prevents spawning duplicate boss
+                nextBossEntityScanTotalHours = 0;
             }
 
             if (cachedBossKey == null || !string.Equals(cachedBossKey, bossTargetId, StringComparison.OrdinalIgnoreCase))
