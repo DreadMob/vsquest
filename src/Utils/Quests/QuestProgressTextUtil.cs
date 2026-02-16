@@ -111,6 +111,19 @@ namespace VsQuest
 
                 // randomkill objectives
                 int slots = wa.GetInt(RandomKillQuestUtils.SlotsKey(activeQuest.questId), 0);
+                // Find randomkill objectiveId from quest definition (for timeofday prefix application)
+                string randomKillObjectiveId = null;
+                if (questDef.actionObjectives != null)
+                {
+                    foreach (var ao in questDef.actionObjectives)
+                    {
+                        if (ao?.id == "randomkill")
+                        {
+                            randomKillObjectiveId = ao.objectiveId;
+                            break;
+                        }
+                    }
+                }
                 if (slots > 0)
                 {
                     for (int slot = 0; slot < slots; slot++)
@@ -118,7 +131,7 @@ namespace VsQuest
                         string code = wa.GetString(RandomKillQuestUtils.SlotCodeKey(activeQuest.questId, slot), "?");
                         int have = wa.GetInt(RandomKillQuestUtils.SlotHaveKey(activeQuest.questId, slot), 0);
                         int need = wa.GetInt(RandomKillQuestUtils.SlotNeedKey(activeQuest.questId, slot), 0);
-                        lines.Add($"- {ApplyPrefixes($"{LocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", null)}");
+                        lines.Add($"- {ApplyPrefixes($"{LocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", randomKillObjectiveId)}");
                     }
                 }
 
