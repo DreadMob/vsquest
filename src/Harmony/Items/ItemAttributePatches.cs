@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -317,6 +318,20 @@ namespace VsQuest.Harmony
         [HarmonyPatch(typeof(ModSystemWearableStats), "updateWearableStats")]
         public class ModSystemWearableStats_updateWearableStats_Patch
         {
+            // Throttling for walkSpeed updates to prevent jitter when updateWearableStats is called frequently (e.g. on damage)
+            private static readonly Dictionary<long, long> LastWalkSpeedUpdateByEntityId = new Dictionary<long, long>();
+            private const int WalkSpeedUpdateThrottleMs = 500;
+
+            private const string LastAppliedPrefix = "vsquest:wearablestats:last:";
+            private const float CompareEpsilon = 0.0001f;
+
+            private static bool ApproximatelyEqual(float a, float b)
+            {
+                if (float.IsNaN(a) && float.IsNaN(b)) return true;
+                if (float.IsNaN(a) || float.IsNaN(b)) return false;
+                return Math.Abs(a - b) <= CompareEpsilon;
+            }
+
             public static void Postfix(ModSystemWearableStats __instance, IInventory inv, IServerPlayer player)
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ModSystemWearableStats_updateWearableStats)) return;
@@ -347,6 +362,40 @@ namespace VsQuest.Harmony
                         maxHealthFlat += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrMaxHealthFlat);
                         maxOxygenBonus += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrMaxOxygen);
                     }
+                }
+
+                float weightLimit = GetWeightLimit(inv);
+                float weightPenalty = GetInventoryFillRatio(player) * weightLimit;
+                float weightLimitWalkspeedMod = weightPenalty > 0f ? -weightPenalty : 0f;
+
+                // If nothing changed since last apply, do nothing. This avoids repeated stat writes when vanilla calls updateWearableStats frequently (e.g. on damage).
+                var wa = player.Entity.WatchedAttributes;
+                float lastWalkSpeed = wa.GetFloat(LastAppliedPrefix + "walkspeed", float.NaN);
+                float lastHealing = wa.GetFloat(LastAppliedPrefix + "healingeffectivness", float.NaN);
+                float lastHunger = wa.GetFloat(LastAppliedPrefix + "hungerrate", float.NaN);
+                float lastAcc = wa.GetFloat(LastAppliedPrefix + "rangedWeaponsAcc", float.NaN);
+                float lastRangedSpeed = wa.GetFloat(LastAppliedPrefix + "rangedWeaponsSpeed", float.NaN);
+                float lastMining = wa.GetFloat(LastAppliedPrefix + "miningSpeedMul", float.NaN);
+                float lastJump = wa.GetFloat(LastAppliedPrefix + "jumpHeightMul", float.NaN);
+                float lastMaxHealthFlat = wa.GetFloat(LastAppliedPrefix + "maxHealthFlat", float.NaN);
+                float lastMaxOxygenBonus = wa.GetFloat(LastAppliedPrefix + "maxOxygenBonus", float.NaN);
+                float lastWeightMod = wa.GetFloat(LastAppliedPrefix + "weightlimitwalkspeed", float.NaN);
+
+                bool changed =
+                    !ApproximatelyEqual(lastWalkSpeed, bonusMods.walkSpeed) ||
+                    !ApproximatelyEqual(lastHealing, bonusMods.healingeffectivness) ||
+                    !ApproximatelyEqual(lastHunger, bonusMods.hungerrate) ||
+                    !ApproximatelyEqual(lastAcc, bonusMods.rangedWeaponsAcc) ||
+                    !ApproximatelyEqual(lastRangedSpeed, bonusMods.rangedWeaponsSpeed) ||
+                    !ApproximatelyEqual(lastMining, miningSpeedMult) ||
+                    !ApproximatelyEqual(lastJump, jumpHeightMult) ||
+                    !ApproximatelyEqual(lastMaxHealthFlat, maxHealthFlat) ||
+                    !ApproximatelyEqual(lastMaxOxygenBonus, maxOxygenBonus) ||
+                    !ApproximatelyEqual(lastWeightMod, weightLimitWalkspeedMod);
+
+                if (!changed)
+                {
+                    return;
                 }
 
                 player.Entity.Stats.Set("walkspeed", "vsquestmod", bonusMods.walkSpeed, true);
@@ -387,24 +436,50 @@ namespace VsQuest.Harmony
                     player.Entity.WatchedAttributes.SetFloat(AppliedBonusKey, maxOxygenBonus);
                 }
 
-                float weightLimit = GetWeightLimit(inv);
-                float weightPenalty = GetInventoryFillRatio(player) * weightLimit;
-                if (weightPenalty > 0f)
+                player.Entity.Stats.Set("walkspeed", "vsquestmod:weightlimit", weightLimitWalkspeedMod, true);
+
+                // Throttle walkSpeed updates to reduce rubberbanding under frequent updateWearableStats calls
+                long nowMs = player.Entity.World?.ElapsedMilliseconds ?? 0;
+                long entityId = player.Entity.EntityId;
+                bool shouldUpdateWalkSpeed = true;
+
+                if (LastWalkSpeedUpdateByEntityId.TryGetValue(entityId, out long lastUpdate))
                 {
-                    player.Entity.Stats.Set("walkspeed", "vsquestmod:weightlimit", -weightPenalty, true);
-                }
-                else
-                {
-                    player.Entity.Stats.Set("walkspeed", "vsquestmod:weightlimit", 0f, true);
+                    if ((nowMs - lastUpdate) < WalkSpeedUpdateThrottleMs)
+                    {
+                        shouldUpdateWalkSpeed = false;
+                    }
                 }
 
-                BossBehaviorUtils.UpdatePlayerWalkSpeed(player.Entity);
+                if (shouldUpdateWalkSpeed)
+                {
+                    BossBehaviorUtils.UpdatePlayerWalkSpeed(player.Entity);
+                    LastWalkSpeedUpdateByEntityId[entityId] = nowMs;
+
+                    // Cleanup to prevent memory bloat
+                    if (LastWalkSpeedUpdateByEntityId.Count > 512)
+                    {
+                        LastWalkSpeedUpdateByEntityId.Clear();
+                    }
+                }
                 
                 // Invalidate cache when wearable stats are updated
                 if (player.Entity is EntityPlayer entityPlayer)
                 {
                     WearableStatsCache.InvalidateCache(entityPlayer);
                 }
+
+                // Persist last applied values so we can skip redundant writes next time.
+                wa.SetFloat(LastAppliedPrefix + "walkspeed", bonusMods.walkSpeed);
+                wa.SetFloat(LastAppliedPrefix + "healingeffectivness", bonusMods.healingeffectivness);
+                wa.SetFloat(LastAppliedPrefix + "hungerrate", bonusMods.hungerrate);
+                wa.SetFloat(LastAppliedPrefix + "rangedWeaponsAcc", bonusMods.rangedWeaponsAcc);
+                wa.SetFloat(LastAppliedPrefix + "rangedWeaponsSpeed", bonusMods.rangedWeaponsSpeed);
+                wa.SetFloat(LastAppliedPrefix + "miningSpeedMul", miningSpeedMult);
+                wa.SetFloat(LastAppliedPrefix + "jumpHeightMul", jumpHeightMult);
+                wa.SetFloat(LastAppliedPrefix + "maxHealthFlat", maxHealthFlat);
+                wa.SetFloat(LastAppliedPrefix + "maxOxygenBonus", maxOxygenBonus);
+                wa.SetFloat(LastAppliedPrefix + "weightlimitwalkspeed", weightLimitWalkspeedMod);
             }
 
             private static float GetWeightLimit(IInventory inv)
