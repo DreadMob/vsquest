@@ -172,8 +172,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception e)
             {
+                sapi?.Logger?.Error($"[vsquest] EntityBehaviorBossTrapClone.Initialize failed to parse stages: {e}");
             }
         }
 
@@ -203,9 +204,10 @@ namespace VsQuest
             {
                 now = sapi.World.ElapsedMilliseconds;
             }
-            catch
+            catch (Exception e)
             {
                 now = 0;
+                sapi?.Logger?.Error($"[vsquest] EntityBehaviorBossTrapClone.OnGameTick failed to get elapsed milliseconds: {e}");
             }
 
             if (now > 0)
@@ -270,8 +272,9 @@ namespace VsQuest
                 {
                     SpawnTraps(stage, target);
                 }
-                catch
+                catch (Exception e)
                 {
+                    sapi?.Logger?.Error($"[vsquest] EntityBehaviorBossTrapClone callback failed to spawn traps: {e}");
                 }
 
                 pending = false;
@@ -319,20 +322,23 @@ namespace VsQuest
                     {
                         placed.Add(spawnPos);
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        sapi?.Logger?.Error($"[vsquest] EntityBehaviorBossTrapClone.SpawnTraps failed to add position to placed list: {e}");
                     }
                 }
-                catch
+                catch (Exception e)
                 {
+                    sapi?.Logger?.Error($"[vsquest] EntityBehaviorBossTrapClone.SpawnTraps failed to spawn trap: {e}");
                     if (trap != null)
                     {
                         try
                         {
                             sapi.World.DespawnEntity(trap, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            sapi?.Logger?.Error($"[vsquest] EntityBehaviorBossTrapClone.SpawnTraps failed to despawn trap on error: {ex}");
                         }
                     }
                 }

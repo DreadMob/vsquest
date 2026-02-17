@@ -42,18 +42,6 @@ namespace VsQuest.Harmony
 
 
 
-        private const string AshFloorNoJumpUntilKey = "alegacyvsquest:ashfloor:nojumpuntil";
-
-        private const string AshFloorNoShiftUntilKey = "alegacyvsquest:ashfloor:noshiftuntil";
-
-        private const string AshFloorUntilKey = "alegacyvsquest:ashfloor:until";
-
-        private const string AshFloorWalkSpeedMultKey = "alegacyvsquest:ashfloor:walkspeedmult";
-
-        private const string AshFloorWalkSpeedStatKey = "alegacyvsquest:ashfloor";
-
-
-
         private const string SecondChanceProcSound = "albase:sounds/atmospheric-metallic-swipe";
 
         private const float SecondChanceProcSoundRange = 24f;
@@ -210,17 +198,15 @@ namespace VsQuest.Harmony
 
                 double nowHours = 0;
 
-                try { nowMs = player.World.ElapsedMilliseconds; } catch { }
+                try { nowMs = player.World.ElapsedMilliseconds; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessServerSide failed to get elapsed milliseconds: {e}"); }
 
-                try { nowHours = player.World.Calendar.TotalHours; } catch { }
+                try { nowHours = player.World.Calendar.TotalHours; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessServerSide failed to get total hours: {e}"); }
 
 
 
                 ProcessRepulseStun(player, nowMs);
 
                 ProcessBossGrab(player, nowMs);
-
-                ProcessAshFloorServer(player, nowHours);
 
                 ProcessSecondChanceDebuff(player, nowHours);
 
@@ -254,15 +240,13 @@ namespace VsQuest.Harmony
 
                 double nowHours = 0;
 
-                try { nowMs = player.World.ElapsedMilliseconds; } catch { }
+                try { nowMs = player.World.ElapsedMilliseconds; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessClientSide failed to get elapsed milliseconds: {e}"); }
 
-                try { nowHours = player.World.Calendar.TotalHours; } catch { }
+                try { nowHours = player.World.Calendar.TotalHours; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessClientSide failed to get total hours: {e}"); }
 
 
 
                 ProcessBossGrabClient(player, nowMs);
-
-                ProcessAshFloorClient(player, nowHours);
 
             }
 
@@ -325,14 +309,12 @@ namespace VsQuest.Harmony
                         }
 
                     }
-
                 }
-
-                catch { }
-
+                catch (Exception e)
+                {
+                    player?.Api?.Logger?.Error($"[vsquest] ProcessRepulseStun failed: {e}");
+                }
             }
-
-
 
             private static void ProcessBossGrab(EntityPlayer player, long nowMs)
 
@@ -367,112 +349,10 @@ namespace VsQuest.Harmony
                     }
 
                 }
-
-                catch { }
-
-            }
-
-
-
-            private static void ProcessAshFloorServer(EntityPlayer player, double nowHours)
-
-            {
-
-                try
-
+                catch (Exception e)
                 {
-
-                    double until = player.WatchedAttributes.GetDouble(AshFloorUntilKey, 0);
-
-                    bool ashActive = until > 0 && nowHours > 0 && nowHours < until;
-
-
-
-                    if (!ashActive)
-
-                    {
-
-                        player.Stats?.Remove("walkspeed", AshFloorWalkSpeedStatKey);
-
-                        return;
-
-                    }
-
-
-
-                    // Ash is active - check if player is actually on ash floor block
-
-                    // Only check block every 20 ticks (1 second) instead of every 5 ticks
-
-                    long lastBlockCheck = player.WatchedAttributes.GetLong("alegacyvsquest:ashfloor:lastblockcheck", 0);
-
-                    long nowTicks = player.World.ElapsedMilliseconds / 50; // Convert to ticks (~20ms per tick)
-
-                    
-
-                    if (nowTicks - lastBlockCheck < 20) return; // Skip block check this time
-
-                    player.WatchedAttributes.SetLong("alegacyvsquest:ashfloor:lastblockcheck", nowTicks);
-
-
-
-                    bool onAshFloor = false;
-
-                    try
-
-                    {
-
-                        int px = (int)Math.Floor(player.ServerPos.X);
-
-                        int pz = (int)Math.Floor(player.ServerPos.Z);
-
-                        int py = (int)Math.Floor(player.ServerPos.Y - 0.02);
-
-
-
-                        var pos = new BlockPos(px, py, pz, player.ServerPos.Dimension);
-
-                        var block = player.World.BlockAccessor.GetBlock(pos);
-
-                        if (block?.Code != null && block.Code.Domain == "alegacyvsquest" && block.Code.Path == "ashfloor")
-
-                        {
-
-                            onAshFloor = true;
-
-                        }
-
-                    }
-
-                    catch { }
-
-
-
-                    // Only clear debuff if player is NOT on ash floor AND debuff is active
-
-                    if (!onAshFloor)
-
-                    {
-
-                        player.WatchedAttributes.SetDouble(AshFloorUntilKey, 0);
-
-                        // Only mark dirty if value actually changed
-
-                        player.WatchedAttributes.MarkPathDirty(AshFloorUntilKey);
-
-                        player.WatchedAttributes.SetDouble(AshFloorNoJumpUntilKey, 0);
-
-                        player.WatchedAttributes.SetDouble(AshFloorNoShiftUntilKey, 0);
-
-                        player.WatchedAttributes.SetFloat(AshFloorWalkSpeedMultKey, 0f);
-
-                        player.Stats.Remove("walkspeed", AshFloorWalkSpeedStatKey);
-
-                    }
-
+                    player?.Api?.Logger?.Error($"[vsquest] ProcessBossGrab failed: {e}");
                 }
-
-                catch { }
 
             }
 
@@ -655,50 +535,6 @@ namespace VsQuest.Harmony
                     if (nowMs > 0 && nowMs < until)
 
                     {
-
-                        player.Controls.Sneak = false;
-
-                    }
-
-                }
-
-                catch { }
-
-            }
-
-
-
-            private static void ProcessAshFloorClient(EntityPlayer player, double nowHours)
-
-            {
-
-                try
-
-                {
-
-                    if (nowHours <= 0) return;
-
-
-
-                    double untilJump = player.WatchedAttributes.GetDouble(AshFloorNoJumpUntilKey, 0);
-
-                    if (untilJump > 0 && nowHours < untilJump)
-
-                    {
-
-                        player.Controls.Jump = false;
-
-                    }
-
-
-
-                    double untilShift = player.WatchedAttributes.GetDouble(AshFloorNoShiftUntilKey, 0);
-
-                    if (untilShift > 0 && nowHours < untilShift)
-
-                    {
-
-                        player.Controls.ShiftKey = false;
 
                         player.Controls.Sneak = false;
 

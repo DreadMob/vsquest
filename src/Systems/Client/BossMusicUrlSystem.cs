@@ -66,16 +66,18 @@ namespace VsQuest
                     if (cfg.DefaultFadeOutSeconds >= 0f) defaultFadeOutSeconds = cfg.DefaultFadeOutSeconds;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                capi?.Logger?.Error($"[vsquest] BossMusicUrlSystem.InitializeAssets failed to load config: {e}");
             }
 
             try
             {
                 VsQuestNetworkRegistry.RegisterBossMusicClient(capi, OnBossMusicUrlMapMessage);
             }
-            catch
+            catch (Exception e)
             {
+                capi?.Logger?.Error($"[vsquest] BossMusicUrlSystem.InitializeAssets failed to register network handler: {e}");
             }
 
             try
@@ -85,8 +87,9 @@ namespace VsQuest
                     UpdateGainFromSettings();
                 });
             }
-            catch
+            catch (Exception e)
             {
+                capi?.Logger?.Error($"[vsquest] BossMusicUrlSystem.InitializeAssets failed to add soundLevel watcher: {e}");
             }
         }
 

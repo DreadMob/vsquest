@@ -1,0 +1,782 @@
+Files scanned: 269
+Empty catch blocks: 420
+Nested try occurrences: 68
+
+File: BlockEntity\BlockEntityAshFloor.cs
+  Empty catch blocks (4):
+    L120:C13  catch
+    L175:C13  catch
+    L190:C13  catch
+    L212:C13  catch
+
+File: BlockEntity\BlockEntityBossHuntAnchor.cs
+  Empty catch blocks (2):
+    L164:C13  catch
+    L227:C13  catch
+
+File: BlockEntity\BlockEntityBossHuntArena.cs
+  Empty catch blocks (2):
+    L131:C13  catch
+    L145:C13  catch
+
+File: BlockEntity\BlockEntityCooldownPlaceholder.cs
+  Empty catch blocks (1):
+    L117:C21  catch
+
+File: BlockEntity\BlockEntityQuestSpawner.cs
+  Empty catch blocks (1):
+    L251:C17  catch
+
+File: Blocks\BlockBossHuntAnchor.cs
+  Empty catch blocks (1):
+    L36:C17  catch
+
+File: Blocks\BlockBossHuntArena.cs
+  Empty catch blocks (1):
+    L36:C17  catch
+
+File: Commands\Attributes\QuestWAttrCommandHandler.cs
+  Empty catch blocks (3):
+    L238:C13  catch
+    L246:C13  catch
+    L268:C13  catch
+
+File: Commands\Entities\QuestEntityCommandHandler.cs
+  Nested try occurrences (1):
+    L46:C21 depth=1  try
+
+File: Commands\Management\BossHuntReloadCommandHandler.cs
+  Empty catch blocks (1):
+    L55:C17  catch
+  Nested try occurrences (1):
+    L51:C17 depth=1  try
+
+File: Commands\Management\QuestReloadCommandHandler.cs
+  Empty catch blocks (1):
+    L40:C17  catch
+  Nested try occurrences (1):
+    L36:C17 depth=1  try
+
+File: Commands\Management\QuestStartCommandHandler.cs
+  Empty catch blocks (1):
+    L48:C13  catch
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossAshFloor.cs
+  Empty catch blocks (7):
+    L128:C13  catch
+    L216:C17  catch
+    L290:C13  catch
+    L311:C17  catch
+    L417:C13  catch
+    L443:C21  catch
+    L454:C17  catch
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossDash.cs
+  Empty catch blocks (9):
+    L156:C13  catch
+    L345:C17  catch
+    L372:C13  catch
+    L392:C17  catch
+    L408:C13  catch
+    L429:C17  catch
+    L455:C13  catch
+    L467:C21  catch
+    L478:C17  catch
+  Nested try occurrences (1):
+    L425:C17 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossFakeTeleport.cs
+  Empty catch blocks (14):
+    L130:C13  catch
+    L243:C17  catch
+    L285:C21  catch
+    L301:C13  catch
+    L310:C13  catch
+    L319:C13  catch
+    L328:C13  catch
+    L337:C13  catch
+    L366:C13  catch
+    L565:C13  catch
+    L576:C13  catch
+    L589:C13  catch
+    L613:C21  catch
+    L624:C17  catch
+  Nested try occurrences (1):
+    L281:C21 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossGrab.cs
+  Empty catch blocks (14):
+    L119:C13  catch
+    L254:C13  catch
+    L314:C17  catch
+    L337:C13  catch
+    L356:C13  catch
+    L371:C13  catch
+    L395:C13  catch
+    L421:C17  catch
+    L441:C13  catch
+    L454:C13  catch
+    L475:C17  catch
+    L501:C13  catch
+    L513:C21  catch
+    L524:C17  catch
+  Nested try occurrences (1):
+    L471:C17 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossHook.cs
+  Empty catch blocks (13):
+    L111:C13  catch
+    L218:C13  catch
+    L232:C13  catch
+    L342:C17  catch
+    L361:C13  catch
+    L378:C21  catch
+    L393:C13  catch
+    L419:C17  catch
+    L435:C13  catch
+    L456:C17  catch
+    L482:C13  catch
+    L494:C21  catch
+    L505:C17  catch
+  Nested try occurrences (2):
+    L370:C21 depth=1  try
+    L452:C17 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossParasiteLeech.cs
+  Empty catch blocks (10):
+    L121:C13  catch
+    L194:C13  catch
+    L274:C17  catch
+    L298:C13  catch
+    L314:C13  catch
+    L331:C13  catch
+    L346:C13  catch
+    L367:C13  catch
+    L415:C21  catch
+    L426:C17  catch
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossRandomLightning.cs
+  Empty catch blocks (3):
+    L90:C13  catch
+    L202:C17  catch
+    L224:C13  catch
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossRepulseStun.cs
+  Empty catch blocks (14):
+    L94:C13  catch
+    L179:C25  catch
+    L188:C25  catch
+    L197:C25  catch
+    L212:C21  catch
+    L221:C21  catch
+    L230:C21  catch
+    L253:C17  catch
+    L330:C13  catch
+    L347:C13  catch
+    L357:C13  catch
+    L368:C13  catch
+    L395:C25  catch
+    L405:C13  catch
+  Nested try occurrences (1):
+    L391:C25 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossTeleport.cs
+  Empty catch blocks (10):
+    L117:C13  catch
+    L213:C17  catch
+    L267:C13  catch
+    L297:C13  catch
+    L305:C13  catch
+    L564:C13  catch
+    L590:C17  catch
+    L616:C13  catch
+    L628:C21  catch
+    L639:C17  catch
+  Nested try occurrences (1):
+    L586:C17 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Combat\EntityBehaviorBossTrapClone.cs
+  Empty catch blocks (25):
+    L175:C13  catch
+    L273:C17  catch
+    L322:C21  catch
+    L334:C25  catch
+    L507:C13  catch
+    L516:C13  catch
+    L525:C13  catch
+    L534:C13  catch
+    L543:C13  catch
+    L552:C13  catch
+    L561:C13  catch
+    L573:C13  catch
+    L582:C13  catch
+    L591:C13  catch
+    L600:C13  catch
+    L609:C13  catch
+    L680:C21  catch
+    L708:C13  catch
+    L733:C17  catch
+    L757:C13  catch
+    L792:C13  catch
+    L864:C13  catch
+    L917:C13  catch
+    L944:C21  catch
+    L955:C17  catch
+  Nested try occurrences (3):
+    L318:C21 depth=1  try
+    L330:C25 depth=1  try
+    L767:C21 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Defense\EntityBehaviorBossDamageShield.cs
+  Empty catch blocks (7):
+    L110:C13  catch
+    L261:C21  catch
+    L279:C13  catch
+    L296:C25  catch
+    L302:C13  catch
+    L323:C21  catch
+    L334:C17  catch
+  Nested try occurrences (1):
+    L292:C25 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Defense\EntityBehaviorBossDespair.cs
+  Empty catch blocks (4):
+    L95:C17  catch { }
+    L104:C17  catch { }
+    L116:C17  catch { }
+    L125:C21  catch { }
+
+File: Entity\Behavior\Boss\Abilities\Defense\EntityBehaviorBossIntoxicationAura.cs
+  Empty catch blocks (6):
+    L64:C13  catch
+    L182:C21  catch
+    L201:C25  catch
+    L210:C25  catch
+    L225:C21  catch
+    L234:C21  catch
+
+File: Entity\Behavior\Boss\Abilities\Defense\EntityBehaviorBossOxygenDrainAura.cs
+  Empty catch blocks (1):
+    L63:C13  catch
+
+File: Entity\Behavior\Boss\Abilities\Phases\EntityBehaviorBossCastPhase.cs
+  Empty catch blocks (5):
+    L98:C13  catch
+    L225:C21  catch
+    L260:C13  catch
+    L281:C21  catch
+    L292:C17  catch
+
+File: Entity\Behavior\Boss\Abilities\Phases\EntityBehaviorBossFormSwap.cs
+  Empty catch blocks (5):
+    L135:C21  catch
+    L158:C21  catch
+    L169:C17  catch
+    L198:C13  catch
+    L226:C13  catch
+  Nested try occurrences (1):
+    L131:C21 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Phases\EntityBehaviorBossFormSwapList.cs
+  Empty catch blocks (7):
+    L76:C13  catch
+    L107:C13  catch
+    L193:C21  catch
+    L216:C21  catch
+    L227:C17  catch
+    L256:C13  catch
+    L284:C13  catch
+  Nested try occurrences (1):
+    L189:C21 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Phases\EntityBehaviorBossIntermissionDispel.cs
+  Empty catch blocks (15):
+    L167:C13  catch
+    L325:C21  catch
+    L346:C17  catch
+    L366:C17  catch
+    L524:C25  catch
+    L541:C13  catch
+    L550:C13  catch
+    L559:C13  catch
+    L568:C13  catch
+    L594:C13  catch
+    L654:C13  catch
+    L669:C21  catch
+    L674:C13  catch
+    L695:C21  catch
+    L706:C17  catch
+  Nested try occurrences (2):
+    L520:C25 depth=1  try
+    L665:C21 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Phases\EntityBehaviorBossPlayerClone.cs
+  Empty catch blocks (13):
+    L100:C13  catch
+    L175:C21  catch
+    L224:C21  catch
+    L239:C21  catch
+    L274:C13  catch
+    L285:C13  catch
+    L320:C13  catch
+    L358:C25  catch
+    L367:C13  catch
+    L392:C13  catch
+    L421:C13  catch
+    L460:C13  catch
+    L481:C17  catch
+  Nested try occurrences (3):
+    L216:C21 depth=1  try
+    L235:C21 depth=1  try
+    L346:C25 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Phases\EntityBehaviorBossRebirth2.cs
+  Empty catch blocks (12):
+    L89:C17  catch
+    L100:C17  catch
+    L142:C13  catch
+    L163:C21  catch
+    L174:C13  catch
+    L195:C21  catch
+    L206:C13  catch
+    L232:C21  catch
+    L270:C17  catch
+    L274:C13  catch
+    L295:C13  catch
+    L323:C13  catch
+  Nested try occurrences (2):
+    L228:C21 depth=1  try
+    L259:C17 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Rituals\EntityBehaviorBossCloning.cs
+  Empty catch blocks (12):
+    L75:C13  catch
+    L173:C17  catch
+    L198:C13  catch
+    L207:C13  catch
+    L216:C13  catch
+    L225:C13  catch
+    L237:C13  catch
+    L249:C13  catch
+    L273:C17  catch
+    L303:C13  catch
+    L331:C13  catch
+    L357:C13  catch
+
+File: Entity\Behavior\Boss\Abilities\Rituals\EntityBehaviorBossGrowthRitual.cs
+  Empty catch blocks (15):
+    L108:C13  catch
+    L126:C13  catch
+    L170:C13  catch
+    L182:C17  catch
+    L205:C13  catch
+    L244:C13  catch
+    L285:C13  catch
+    L332:C13  catch
+    L356:C17  catch
+    L377:C13  catch
+    L391:C13  catch
+    L406:C17  catch
+    L435:C21  catch
+    L446:C13  catch
+    L557:C13  catch
+
+File: Entity\Behavior\Boss\Abilities\Rituals\EntityBehaviorBossPeriodicSpawn.cs
+  Empty catch blocks (5):
+    L94:C13  catch
+    L273:C17  catch
+    L286:C17  catch
+    L334:C21  catch
+    L339:C13  catch
+  Nested try occurrences (1):
+    L314:C21 depth=1  try
+
+File: Entity\Behavior\Boss\Abilities\Rituals\EntityBehaviorBossSummonRitual.cs
+  Empty catch blocks (14):
+    L146:C21  catch
+    L157:C13  catch
+    L283:C21  catch
+    L320:C13  catch
+    L430:C17  catch
+    L511:C13  catch
+    L524:C13  catch
+    L571:C21  catch
+    L576:C13  catch
+    L608:C21  catch
+    L613:C13  catch
+    L626:C13  catch
+    L664:C21  catch
+    L681:C17  catch
+  Nested try occurrences (3):
+    L120:C21 depth=1  try
+    L551:C21 depth=1  try
+    L601:C21 depth=1  try
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossAntiCheese.cs
+  Empty catch blocks (7):
+    L132:C13  catch
+    L352:C17  catch
+    L370:C13  catch
+    L381:C13  catch
+    L524:C13  catch
+    L551:C25  catch
+    L561:C13  catch
+  Nested try occurrences (1):
+    L547:C25 depth=1  try
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossCombatMarker.cs
+  Empty catch blocks (4):
+    L43:C13  catch
+    L87:C25  catch
+    L92:C17  catch
+    L112:C17  catch
+  Nested try occurrences (1):
+    L74:C25 depth=1  try
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossDamageSourceImmunity.cs
+  Empty catch blocks (2):
+    L82:C21  catch
+    L87:C13  catch
+  Nested try occurrences (2):
+    L41:C21 depth=1  try
+    L74:C21 depth=1  try
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossHasTargetSync.cs
+  Empty catch blocks (1):
+    L78:C13  catch
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossHealthbarOverride.cs
+  Empty catch blocks (1):
+    L37:C13  catch
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossHuntCombatMarker.cs
+  Empty catch blocks (4):
+    L34:C13  catch
+    L78:C25  catch
+    L83:C17  catch
+    L103:C17  catch
+  Nested try occurrences (1):
+    L65:C25 depth=1  try
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossMusicController.cs
+  Empty catch blocks (1):
+    L121:C13  catch
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossMusicUrlController.cs
+  Empty catch blocks (1):
+    L314:C13  catch
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorBossNameTag.cs
+  Empty catch blocks (1):
+    L178:C17  catch
+
+File: Entity\Behavior\Boss\Things\EntityBehaviorExplosiveLocust.cs
+  Empty catch blocks (11):
+    L248:C13  catch
+    L271:C13  catch
+    L300:C13  catch
+    L317:C13  catch
+    L351:C13  catch
+    L369:C13  catch
+    L399:C13  catch
+    L407:C13  catch
+    L459:C13  catch
+    L512:C13  catch
+    L520:C13  catch
+
+File: Entity\Behavior\Target\EntityBehaviorQuestTarget.cs
+  Empty catch blocks (13):
+    L103:C17  catch
+    L135:C17  catch
+    L195:C13  catch
+    L220:C25  catch
+    L228:C25  catch
+    L243:C17  catch
+    L272:C17  catch
+    L290:C13  catch
+    L299:C13  catch
+    L308:C13  catch
+    L318:C13  catch
+    L396:C13  catch
+    L414:C13  catch
+  Nested try occurrences (2):
+    L216:C25 depth=1  try
+    L224:C25 depth=1  try
+
+File: Gui\Block\BossHuntAnchorConfigGui.cs
+  Empty catch blocks (1):
+    L142:C13  catch
+
+File: Gui\Quest\QuestSelectGui.cs
+  Empty catch blocks (1):
+    L857:C17  catch
+
+File: Gui\Quest\QuestSelectGuiManager.cs
+  Empty catch blocks (2):
+    L27:C13  catch
+    L50:C13  catch
+
+File: Gui\Quest\QuizGui.cs
+  Empty catch blocks (4):
+    L215:C13  catch
+    L228:C13  catch
+    L236:C13  catch
+    L245:C13  catch
+
+File: Gui\Quest\ReputationTreeElement.cs
+  Empty catch blocks (1):
+    L170:C21  catch
+
+File: Gui\Quest\ReputationUiHelper.cs
+  Empty catch blocks (1):
+    L108:C17  catch
+
+File: Harmony\Blocks\BlockInteractPatch.cs
+  Empty catch blocks (2):
+    L42:C13  catch
+    L74:C13  catch
+
+File: Harmony\Blocks\ServerBlockInteractPatch.cs
+  Empty catch blocks (1):
+    L53:C17  catch
+
+File: Harmony\Entities\EntityInfoTextPatch.cs
+  Empty catch blocks (1):
+    L46:C13  catch
+
+File: Harmony\Entities\EntityInteractPatch.cs
+  Empty catch blocks (1):
+    L70:C13  catch
+
+File: Harmony\Entities\EntityShiverStrokePatch.cs
+  Empty catch blocks (2):
+    L72:C25  catch { }
+    L81:C29  catch { }
+  Nested try occurrences (2):
+    L68:C25 depth=1  try
+    L76:C29 depth=1  try
+
+File: Harmony\Entities\EntitySoundPitchPatch.cs
+  Empty catch blocks (2):
+    L25:C17  catch
+    L38:C17  catch
+  Nested try occurrences (2):
+    L21:C17 depth=1  try
+    L34:C17 depth=1  try
+
+File: Harmony\Items\ItemAttributePatches.cs
+  Empty catch blocks (1):
+    L118:C13  catch { }
+
+File: Harmony\Items\ItemTooltipPatch.cs
+  Empty catch blocks (2):
+    L56:C122  try { hideVanilla = new HashSet<string>(JsonConvert.DeserializeObject<List<string>>(hideVanillaJson)); } catch { }
+    L248:C118  try { showAttrs = new HashSet<string>(JsonConvert.DeserializeObject<List<string>>(showAttrsJson)); } catch { }
+
+File: Harmony\Items\QuestItemNoDropOnDeathPatch.cs
+  Empty catch blocks (3):
+    L85:C17  catch
+    L129:C25  catch
+    L134:C17  catch
+  Nested try occurrences (1):
+    L125:C25 depth=1  try
+
+File: Harmony\Players\PlayerAttributePatches.cs
+  Empty catch blocks (1):
+    L745:C21  catch
+  Nested try occurrences (4):
+    L210:C25 depth=1  try { currentMod = player.Stats?.GetBlended("walkspeed") ?? 0f; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessAshFloorServer GetBlended(walkspeed): {e}"); }
+    L227:C21 depth=1  try
+    L249:C21 depth=1  try
+    L401:C21 depth=1  try { targetWalkSpeed = player.Stats.GetBlended("walkspeed"); } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] UpdateWalkSpeed GetBlended(walkspeed): {e}"); }
+
+File: Systems\ActionItems\ActionItemAttributeResolver.cs
+  Empty catch blocks (1):
+    L59:C17  catch
+
+File: Systems\ActionItems\ItemSystem.cs
+  Empty catch blocks (1):
+    L70:C13  catch
+
+File: Systems\ActionObjectives\Interaction\InteractCountObjective.cs
+  Empty catch blocks (1):
+    L21:C17  catch
+
+File: Systems\ActionObjectives\Interaction\InteractWithEntityObjective.cs
+  Empty catch blocks (1):
+    L25:C17  catch
+
+File: Systems\ActionObjectives\World\WalkDistanceObjective.cs
+  Empty catch blocks (1):
+    L204:C17  catch
+
+File: Systems\Actions\Core\PreloadBossMusicQuestAction.cs
+  Empty catch blocks (1):
+    L22:C17  catch
+
+File: Systems\Actions\Entities\DamageSelectedEntityAction.cs
+  Empty catch blocks (1):
+    L46:C13  catch
+
+File: Systems\Actions\Player\AddReputationAction.cs
+  Empty catch blocks (1):
+    L119:C17  catch
+
+File: Systems\BossHunt\BossHuntArenaSystem.cs
+  Empty catch blocks (1):
+    L149:C13  catch
+
+File: Systems\BossHunt\BossHuntSystem.cs
+  Empty catch blocks (3):
+    L148:C25  catch
+    L163:C17  catch
+    L191:C25  catch
+  Nested try occurrences (1):
+    L144:C25 depth=1  try
+
+File: Systems\BossHunt\BossHuntSystem.Entities.cs
+  Empty catch blocks (7):
+    L29:C13  catch
+    L42:C13  catch
+    L69:C13  catch
+    L113:C13  catch
+    L187:C13  catch
+    L209:C13  catch
+    L266:C13  catch
+
+File: Systems\BossHunt\BossHuntSystem.Lifecycle.cs
+  Empty catch blocks (1):
+    L58:C17  catch
+
+File: Systems\BossHunt\BossHuntSystem.State.cs
+  Empty catch blocks (2):
+    L39:C13  catch
+    L153:C21  catch
+
+File: Systems\Client\BossMusicUrlSystem.cs
+  Empty catch blocks (35):
+    L69:C13  catch
+    L77:C13  catch
+    L88:C13  catch
+    L127:C13  catch
+    L162:C25  catch
+    L216:C13  catch
+    L264:C13  catch
+    L281:C13  catch
+    L353:C13  catch
+    L369:C13  catch
+    L412:C17  catch (OperationCanceledException)
+    L421:C21  catch
+    L434:C13  catch
+    L485:C25  catch
+    L492:C17  catch (OperationCanceledException)
+    L495:C17  catch
+    L519:C13  catch
+    L533:C25  catch
+    L550:C25  catch
+    L558:C25  catch
+    L599:C25  catch
+    L616:C25  catch
+    L624:C25  catch
+    L638:C17  catch
+    L647:C13  catch
+    L681:C13  catch
+    L696:C13  catch
+    L709:C21  catch
+    L730:C13  catch
+    L794:C29  catch
+    L818:C29  catch
+    L909:C45  catch
+    L1021:C13  catch
+    L1091:C21  catch
+    L1107:C17  catch
+  Nested try occurrences (20):
+    L109:C17 depth=1  try
+    L158:C25 depth=1  try
+    L417:C21 depth=1  try
+    L452:C21 depth=1  try
+    L475:C25 depth=1  try
+    L529:C25 depth=1  try
+    L537:C25 depth=1  try
+    L554:C25 depth=1  try
+    L595:C25 depth=1  try
+    L603:C25 depth=1  try
+    L620:C25 depth=1  try
+    L634:C17 depth=1  try
+    L704:C21 depth=1  try
+    L766:C21 depth=1  try
+    L783:C29 depth=2  try
+    L802:C29 depth=2  try
+    L905:C45 depth=2  try
+    L1071:C17 depth=1  try
+    L1084:C21 depth=2  try
+    L1100:C17 depth=1  try
+
+File: Systems\Client\TemporalRiftProjectorSystem.cs
+  Empty catch blocks (3):
+    L122:C13  catch
+    L357:C13  catch
+    L365:C13  catch
+
+File: Systems\Client\ViewDistanceFogSystem.cs
+  Empty catch blocks (1):
+    L40:C13  catch
+
+File: Systems\Management\QuestEventHandler.cs
+  Empty catch blocks (10):
+    L92:C17  catch
+    L140:C25  catch
+    L146:C13  catch
+    L158:C13  catch
+    L214:C25  catch
+    L219:C17  catch
+    L271:C13  catch
+    L312:C13  catch
+    L392:C17  catch
+    L435:C17  catch
+  Nested try occurrences (3):
+    L120:C17 depth=1  try
+    L133:C25 depth=1  try
+    L174:C25 depth=1  try
+
+File: Systems\Management\QuestLifecycleManager.cs
+  Empty catch blocks (3):
+    L78:C13  catch
+    L215:C17  catch
+    L286:C13  catch
+
+File: Systems\Quiz\QuizSystem.cs
+  Empty catch blocks (1):
+    L102:C17  catch
+
+File: Utils\Admin\QuestSystemAdminUtils.cs
+  Empty catch blocks (4):
+    L43:C13  catch
+    L192:C17  catch
+    L676:C17  catch
+    L716:C13  catch
+
+File: Utils\Chat\BossKillAnnouncementUtil.cs
+  Empty catch blocks (1):
+    L48:C17  catch
+
+File: Utils\Localization\LocalizationUtils.cs
+  Empty catch blocks (1):
+    L192:C13  catch
+
+File: Utils\Localization\MobLocalizationUtils.cs
+  Empty catch blocks (4):
+    L37:C17  catch
+    L79:C13  catch
+    L148:C17  catch
+    L214:C13  catch
+  Nested try occurrences (1):
+    L138:C17 depth=1  try
+
+File: Utils\World\BossBehaviorUtils.cs
+  Empty catch blocks (5):
+    L57:C13  catch
+    L197:C13  catch
+    L224:C13  catch
+    L275:C21  catch
+    L289:C21  catch

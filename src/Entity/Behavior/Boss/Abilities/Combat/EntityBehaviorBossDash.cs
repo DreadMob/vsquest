@@ -153,8 +153,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception e)
             {
+                sapi?.Logger?.Error($"[vsquest] EntityBehaviorBossDash.Initialize failed to parse stages: {e}");
             }
         }
 
