@@ -91,8 +91,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -156,8 +157,9 @@ namespace VsQuest
                 {
                     until = plr.WatchedAttributes.GetLong(StunUntilKey, 0);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredStuns GetLong: {ex}");
                     until = 0;
                 }
 
@@ -209,8 +211,9 @@ namespace VsQuest
                         plr.WatchedAttributes.SetLong(StunUntilKey, 0);
                         plr.WatchedAttributes.MarkPathDirty(StunUntilKey);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredStuns SetLong: {ex}");
                     }
 
                     try
@@ -218,8 +221,9 @@ namespace VsQuest
                         plr.WatchedAttributes.SetFloat(StunMultKey, 1f);
                         plr.WatchedAttributes.MarkPathDirty(StunMultKey);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredStuns SetFloat: {ex}");
                     }
 
                     try
@@ -227,8 +231,9 @@ namespace VsQuest
                         plr.Stats.Set("walkspeed", StunStatKey, 0f, true);
                         plr.walkSpeed = plr.Stats.GetBlended("walkspeed");
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredStuns Stats: {ex}");
                     }
 
                     continue;
@@ -239,8 +244,9 @@ namespace VsQuest
                 {
                     mult = GameMath.Clamp(plr.WatchedAttributes.GetFloat(StunMultKey, 0f), 0f, 1f);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredStuns GetFloat: {ex}");
                     mult = 0f;
                 }
 
@@ -250,8 +256,9 @@ namespace VsQuest
                     plr.Stats.Set("walkspeed", StunStatKey, modifier, true);
                     plr.walkSpeed = plr.Stats.GetBlended("walkspeed");
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredStuns Stats: {ex}");
                 }
             }
         }
@@ -276,8 +283,9 @@ namespace VsQuest
                 dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryFindTarget: {ex}");
                 return false;
             }
         }
@@ -327,8 +335,9 @@ namespace VsQuest
                 target.WatchedAttributes.SetInt("onHurtCounter", target.WatchedAttributes.GetInt("onHurtCounter") + 1);
                 target.WatchedAttributes.MarkPathDirty("onHurtCounter");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryApplyKnockback: {ex}");
             }
         }
 
@@ -344,8 +353,9 @@ namespace VsQuest
                 target.WatchedAttributes.SetLong(StunUntilKey, until);
                 target.WatchedAttributes.MarkPathDirty(StunUntilKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryApplyStun SetLong: {ex}");
             }
 
             try
@@ -354,8 +364,9 @@ namespace VsQuest
                 target.WatchedAttributes.SetFloat(StunMultKey, mult);
                 target.WatchedAttributes.MarkPathDirty(StunMultKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryApplyStun SetFloat: {ex}");
             }
 
             try
@@ -365,8 +376,9 @@ namespace VsQuest
                 target.Stats.Set("walkspeed", StunStatKey, modifier, true);
                 BossBehaviorUtils.UpdatePlayerWalkSpeed(target);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryApplyStun Stats: {ex}");
             }
         }
 
@@ -392,8 +404,9 @@ namespace VsQuest
                         {
                             sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range, volume);
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound callback: {ex}");
                         }
                     }, stage.soundStartMs);
                 }
@@ -402,8 +415,9 @@ namespace VsQuest
                     sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range, volume);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound: {ex}");
             }
         }
 

@@ -37,8 +37,9 @@ namespace VsQuest
                 {
                     sapi?.Logger?.Error("[alegacyvsquest] /avq reload failed: {0}", e);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    System.Console.Error.WriteLine($"Logging failed: {ex}");
                 }
 
                 return TextCommandResult.Error($"Reload failed: {e.Message}");

@@ -241,8 +241,9 @@ namespace VsQuest
                 dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryFindTarget: {ex}");
                 return false;
             }
         }
@@ -343,8 +344,9 @@ namespace VsQuest
                     entity.ServerPos.Motion.X = dashDir.X * spd;
                     entity.ServerPos.Motion.Z = dashDir.Z * spd;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in dash tick: {ex}");
                 }
             }, 50);
         }
@@ -370,8 +372,9 @@ namespace VsQuest
                     entity.ServerPos.Motion.Set(0, 0, 0);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in StopDash Motion: {ex}");
             }
 
             if (activeStageIndex >= 0 && activeStageIndex < stages.Count)
@@ -390,8 +393,9 @@ namespace VsQuest
                         entity?.AnimManager?.StopAnimation(stage.dashAnimation);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in StopDash Animations: {ex}");
                 }
             }
 
@@ -406,8 +410,9 @@ namespace VsQuest
             {
                 entity?.AnimManager?.StartAnimation(animation);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation: {ex}");
             }
         }
 
@@ -427,8 +432,9 @@ namespace VsQuest
                 {
                     volumeBySound = entity?.Properties?.Attributes?["SoundVolumeMulBySound"]?.AsObject<Dictionary<string, float>>();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound Attributes: {ex}");
                 }
 
                 if (volumeBySound != null && volumeBySound.Count > 0)
@@ -453,8 +459,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound volume adjustment: {ex}");
             }
 
             if (stage.soundStartMs > 0)
@@ -465,8 +472,9 @@ namespace VsQuest
                     {
                         sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound callback: {ex}");
                     }
                 }, stage.soundStartMs);
             }
@@ -476,8 +484,9 @@ namespace VsQuest
                 {
                     sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound immediate: {ex}");
                 }
             }
         }

@@ -125,8 +125,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -213,8 +214,9 @@ namespace VsQuest
                 {
                     PlaceAsh(stage, target);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in PlaceAsh: {ex}");
                 }
 
                 pending = false;
@@ -264,8 +266,9 @@ namespace VsQuest
             {
                 if (!ba.IsValidPos(pos)) return;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in IsValidPos: {ex}");
                 return;
             }
 
@@ -278,8 +281,9 @@ namespace VsQuest
                 if (at.Replaceable < 6000) return;
                 if (!below.SideSolid[BlockFacing.UP.Index]) return;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in checking block properties: {ex}");
                 return;
             }
 
@@ -287,16 +291,18 @@ namespace VsQuest
             {
                 ba.RemoveBlockEntity(pos);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in RemoveBlockEntity: {ex}");
             }
 
             try
             {
                 ba.SetBlock(ashBlock.BlockId, pos);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in SetBlock: {ex}");
                 return;
             }
 
@@ -308,8 +314,9 @@ namespace VsQuest
                     var be = ba.GetBlockEntity(pos) as BlockEntityAshFloor;
                     be?.Arm(entity.EntityId, despawnAtMs, stage.tickIntervalMs, stage.victimWalkSpeedMult);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in SpawnBlockEntity: {ex}");
                 }
             }
         }

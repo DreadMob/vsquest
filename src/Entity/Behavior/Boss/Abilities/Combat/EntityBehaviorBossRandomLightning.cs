@@ -87,8 +87,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -199,8 +200,9 @@ namespace VsQuest
                 {
                     weatherSystem?.SpawnLightningFlash(strikePos);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TriggerStrike: {ex}");
                 }
             }, delayMs);
         }
@@ -221,8 +223,9 @@ namespace VsQuest
 
                 sapi.World.PlaySoundAt(soundLoc, strikePos.X, strikePos.Y, strikePos.Z, null, randomizePitch: true, range, volume);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayWarningSound: {ex}");
             }
         }
     }

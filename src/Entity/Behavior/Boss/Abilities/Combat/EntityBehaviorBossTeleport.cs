@@ -114,8 +114,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -139,8 +140,9 @@ namespace VsQuest
             {
                 now = sapi.World.ElapsedMilliseconds;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in getting ElapsedMilliseconds: {ex}");
                 now = 0;
             }
 
@@ -210,8 +212,9 @@ namespace VsQuest
                     DoTeleport(stage, targetPos);
                     TryPlayAnimation(stage.arriveAnimation);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in StartTeleport callback: {ex}");
                 }
 
                 teleportPending = false;
@@ -264,8 +267,9 @@ namespace VsQuest
             {
                 target.IsTeleport = true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TeleportEntity IsTeleport: {ex}");
             }
 
             target.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
@@ -294,16 +298,18 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TeleportEntity collision check: {ex}");
             }
 
             try
             {
                 target.ServerPos.Motion.Set(0, 0, 0);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TeleportEntity Motion: {ex}");
             }
         }
 
@@ -330,8 +336,9 @@ namespace VsQuest
                     long cloneOwner = wa.GetLong(CloneOwnerIdKey, 0);
                     if (cloneOwner != ownerId) continue;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in FindClones: {ex}");
                     continue;
                 }
 
@@ -392,8 +399,9 @@ namespace VsQuest
                 dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryFindTarget: {ex}");
                 return false;
             }
         }
@@ -484,8 +492,9 @@ namespace VsQuest
                 {
                     colliding = ct.IsColliding(ba, selBox, testPos, alsoCheckTouch: false);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in IsColliding: {ex}");
                     colliding = true;
                 }
 
@@ -523,8 +532,9 @@ namespace VsQuest
                 {
                     colliding = ct.IsColliding(ba, selBox, testPos, alsoCheckTouch: false);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in IsColliding: {ex}");
                     colliding = true;
                 }
 

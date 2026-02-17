@@ -235,16 +235,18 @@ namespace VsQuest
                 // Second chance
                 wa.RemoveAttribute(SecondChanceDebuffUntilKey);
             }
-            catch
+            catch (Exception ex)
             {
+                sapi?.Logger?.Error($"[vsquest] Exception in FixPlayer RemoveAttributes: {ex}");
             }
 
             try
             {
                 wa.MarkAllDirty();
             }
-            catch
+            catch (Exception ex)
             {
+                sapi?.Logger?.Error($"[vsquest] Exception in FixPlayer MarkAllDirty: {ex}");
             }
 
             try
@@ -265,8 +267,9 @@ namespace VsQuest
                     ent.walkSpeed = ent.Stats.GetBlended("walkspeed");
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                sapi?.Logger?.Error($"[vsquest] Exception in FixPlayer Stats: {ex}");
             }
 
             return TextCommandResult.Success($"Cleared boss debuffs for '{target.PlayerName}'.");

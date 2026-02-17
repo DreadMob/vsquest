@@ -118,8 +118,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -191,8 +192,9 @@ namespace VsQuest
                 target.WatchedAttributes.SetLong(DebuffUntilKey, sapi.World.ElapsedMilliseconds + Math.Max(250, stage.durationMs));
                 target.WatchedAttributes.MarkPathDirty(DebuffUntilKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in StartDebuff DebuffUntil: {ex}");
             }
 
             ApplyDebuffStats(stage, target);
@@ -229,8 +231,9 @@ namespace VsQuest
             {
                 until = target.WatchedAttributes.GetLong(DebuffUntilKey, 0);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TickDebuff GetLong: {ex}");
                 until = 0;
             }
 
@@ -271,8 +274,9 @@ namespace VsQuest
                     target.WatchedAttributes.SetLong(DebuffUntilKey, 0);
                     target.WatchedAttributes.MarkPathDirty(DebuffUntilKey);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in StopDebuff DebuffUntil: {ex}");
                 }
 
                 ClearDebuffStats(target);
@@ -295,8 +299,9 @@ namespace VsQuest
                 player.Stats.Set("hungerrate", DebuffStatKey, stage.victimHungerRateDelta, true);
                 BossBehaviorUtils.UpdatePlayerWalkSpeed(player);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyDebuffStats: {ex}");
             }
         }
 
@@ -311,8 +316,9 @@ namespace VsQuest
                 player.Stats.Set("hungerrate", DebuffStatKey, 0f, true);
                 BossBehaviorUtils.UpdatePlayerWalkSpeed(player);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ClearDebuffStats: {ex}");
             }
         }
 
@@ -328,8 +334,9 @@ namespace VsQuest
                     dmgType = parsed;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in DealDamage EnumParse: {ex}");
             }
 
             try
@@ -343,8 +350,9 @@ namespace VsQuest
                     KnockbackStrength = 0f
                 }, stage.damagePerTick);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in DealDamage ReceiveDamage: {ex}");
             }
         }
 
@@ -364,8 +372,9 @@ namespace VsQuest
                 healthTree.SetFloat("currenthealth", newHealth);
                 entity.WatchedAttributes.MarkPathDirty("health");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in HealBoss: {ex}");
             }
         }
 
@@ -390,8 +399,9 @@ namespace VsQuest
                 dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryFindTarget: {ex}");
                 return false;
             }
         }

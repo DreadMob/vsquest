@@ -432,8 +432,9 @@ namespace VsQuest
                 {
                     colliding = ct.IsColliding(ba, selBox, testPos, alsoCheckTouch: false);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in IsColliding: {ex}");
                     colliding = true;
                 }
 
@@ -471,8 +472,9 @@ namespace VsQuest
                 {
                     colliding = ct.IsColliding(ba, selBox, testPos, alsoCheckTouch: false);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in IsColliding: {ex}");
                     colliding = true;
                 }
 
@@ -510,8 +512,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetBool(TrapFlagKey, true);
                 trap.WatchedAttributes.MarkPathDirty(TrapFlagKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -519,8 +522,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetLong(TrapOwnerIdKey, entity.EntityId);
                 trap.WatchedAttributes.MarkPathDirty(TrapOwnerIdKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -528,8 +532,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetLong(TrapExplodeAtMsKey, sapi.World.ElapsedMilliseconds + Math.Max(MinFuseMs, stage.fuseMs));
                 trap.WatchedAttributes.MarkPathDirty(TrapExplodeAtMsKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -537,8 +542,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetFloat(TrapRadiusKey, stage.explosionRadius);
                 trap.WatchedAttributes.MarkPathDirty(TrapRadiusKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -546,8 +552,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetFloat(TrapDamageKey, stage.explosionDamage);
                 trap.WatchedAttributes.MarkPathDirty(TrapDamageKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -555,8 +562,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetInt(TrapDamageTierKey, stage.damageTier);
                 trap.WatchedAttributes.MarkPathDirty(TrapDamageTierKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -564,8 +572,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetString(TrapDamageTypeKey, stage.damageType);
                 trap.WatchedAttributes.MarkPathDirty(TrapDamageTypeKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -576,8 +585,9 @@ namespace VsQuest
                     trap.WatchedAttributes.MarkPathDirty(TrapExplodeSoundKey);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -585,8 +595,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetFloat(TrapExplodeSoundRangeKey, stage.explodeSoundRange);
                 trap.WatchedAttributes.MarkPathDirty(TrapExplodeSoundRangeKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -594,8 +605,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetFloat(TrapExplodeSoundVolumeKey, stage.explodeSoundVolume);
                 trap.WatchedAttributes.MarkPathDirty(TrapExplodeSoundVolumeKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -603,8 +615,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetBool("alegacyvsquest:bossclone:invulnerable", stage.trapInvulnerable);
                 trap.WatchedAttributes.MarkPathDirty("alegacyvsquest:bossclone:invulnerable");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -612,8 +625,9 @@ namespace VsQuest
                 trap.WatchedAttributes.SetBool("showHealthbar", false);
                 trap.WatchedAttributes.MarkPathDirty("showHealthbar");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
         }
 
@@ -623,8 +637,9 @@ namespace VsQuest
             {
                 return entity?.WatchedAttributes?.GetBool(TrapFlagKey, false) ?? false;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in IsTrapEntity: {ex}");
                 return false;
             }
         }
@@ -760,8 +775,9 @@ namespace VsQuest
                     dmgType = parsed;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try
@@ -795,8 +811,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyTrapFlags: {ex}");
             }
 
             try

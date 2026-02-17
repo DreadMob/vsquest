@@ -161,8 +161,9 @@ namespace VsQuest
                 var system = Api.ModLoader.GetModSystem<BossHuntSystem>();
                 system?.UnsetAnchorPoint(bossKey, anchorId, new BlockPos(Pos.X, Pos.Y, Pos.Z, Pos.dimension));
             }
-            catch
+            catch (Exception ex)
             {
+                Api?.Logger?.Error($"[vsquest] Exception in UnsetAnchorPoint: {ex}");
             }
         }
 
@@ -224,8 +225,9 @@ namespace VsQuest
                 var system = Api.ModLoader.GetModSystem<BossHuntSystem>();
                 system?.SetAnchorPoint(bossKey, anchorId, pointOrder, new BlockPos(Pos.X, Pos.Y, Pos.Z, Pos.dimension), leashRange, outOfCombatLeashRange, yOffset);
             }
-            catch
+            catch (Exception ex)
             {
+                Api?.Logger?.Error($"[vsquest] Exception in TryRegisterAnchor: {ex}");
             }
         }
     }

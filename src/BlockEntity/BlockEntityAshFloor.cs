@@ -117,8 +117,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Api?.Logger?.Error($"[vsquest] Exception in OnServerTick: {ex}");
             }
         }
 
@@ -172,8 +173,9 @@ namespace VsQuest
                     player.WatchedAttributes.MarkPathDirty(VictimUntilKey);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Api?.Logger?.Error($"[vsquest] Exception in ApplyVictimDebuffs: {ex}");
             }
 
             try
@@ -187,8 +189,9 @@ namespace VsQuest
                     player.WatchedAttributes.MarkPathDirty(VictimWalkSpeedMultKey);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Api?.Logger?.Error($"[vsquest] Exception in ApplyVictimDebuffs: {ex}");
             }
         }
 
@@ -209,8 +212,9 @@ namespace VsQuest
                 sapi.World.BlockAccessor.SetBlock(0, Pos);
                 sapi.World.BlockAccessor.RemoveBlockEntity(Pos);
             }
-            catch
+            catch (Exception ex)
             {
+                Api?.Logger?.Error($"[vsquest] Exception in TryRemoveSelf: {ex}");
             }
         }
     }

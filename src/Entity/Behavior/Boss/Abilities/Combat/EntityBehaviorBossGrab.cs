@@ -116,8 +116,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -193,8 +194,9 @@ namespace VsQuest
                 dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryFindTarget: {ex}");
                 return false;
             }
         }
@@ -251,8 +253,9 @@ namespace VsQuest
                     targetPlayer.WatchedAttributes.MarkPathDirty(VictimNoSneakUntilKey);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in BeginGrab VictimNoSneakUntil: {ex}");
             }
 
             nextDamageAtMs = sapi.World.ElapsedMilliseconds;
@@ -311,8 +314,9 @@ namespace VsQuest
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in grab tick: {ex}");
                 }
             }, 50);
         }
@@ -334,8 +338,9 @@ namespace VsQuest
 
                 targetPlayer.walkSpeed = targetPlayer.Stats.GetBlended("walkspeed");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyVictimMoveSlow: {ex}");
             }
         }
 
@@ -353,8 +358,9 @@ namespace VsQuest
                     dmgType = parsed;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in DealGrabDamage EnumParse: {ex}");
             }
 
             try
@@ -368,8 +374,9 @@ namespace VsQuest
                     KnockbackStrength = 0f
                 }, stage.damage);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in DealGrabDamage ReceiveDamage: {ex}");
             }
         }
 
@@ -392,8 +399,9 @@ namespace VsQuest
                     targetPlayer.WatchedAttributes.MarkPathDirty(VictimNoSneakUntilKey);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in StopGrab VictimNoSneakUntil: {ex}");
             }
 
             targetPlayer = null;
@@ -418,8 +426,9 @@ namespace VsQuest
                         entity?.AnimManager?.StopAnimation(stage.grabAnimation);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in StopGrab Animations: {ex}");
                 }
             }
 
@@ -438,8 +447,9 @@ namespace VsQuest
                 targetPlayer.Stats.Remove("walkspeed", WalkSpeedStatCodeLegacy);
                 BossBehaviorUtils.UpdatePlayerWalkSpeed(targetPlayer);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in RestoreVictimMoveSpeed: {ex}");
             }
         }
 
@@ -451,8 +461,9 @@ namespace VsQuest
             {
                 entity?.AnimManager?.StartAnimation(animation);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation: {ex}");
             }
         }
 
@@ -472,8 +483,9 @@ namespace VsQuest
                 {
                     volumeBySound = entity?.Properties?.Attributes?["SoundVolumeMulBySound"]?.AsObject<Dictionary<string, float>>();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound Attributes: {ex}");
                 }
 
                 if (volumeBySound != null && volumeBySound.Count > 0)
@@ -498,8 +510,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound volume adjustment: {ex}");
             }
 
             if (stage.soundStartMs > 0)
@@ -510,8 +523,9 @@ namespace VsQuest
                     {
                         sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound callback: {ex}");
                     }
                 }, stage.soundStartMs);
             }
@@ -521,8 +535,9 @@ namespace VsQuest
                 {
                     sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound immediate: {ex}");
                 }
             }
         }

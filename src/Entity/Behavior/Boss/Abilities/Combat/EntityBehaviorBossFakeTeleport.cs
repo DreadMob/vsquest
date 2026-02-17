@@ -127,8 +127,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -159,8 +160,9 @@ namespace VsQuest
             {
                 now = sapi.World.ElapsedMilliseconds;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in getting ElapsedMilliseconds: {ex}");
                 now = 0;
             }
 
@@ -240,8 +242,9 @@ namespace VsQuest
                         TeleportEntity(entity, bossTpPos, entity.ServerPos.Dimension);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in Start callback: {ex}");
                 }
 
                 pending = false;
@@ -274,16 +277,18 @@ namespace VsQuest
 
                 sapi.World.SpawnEntity(fake);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in SpawnFake: {ex}");
                 if (fake != null)
                 {
                     try
                     {
                         sapi.World.DespawnEntity(fake, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                     }
-                    catch
+                    catch (Exception innerEx)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in DespawnEntity: {innerEx}");
                     }
                 }
             }
@@ -298,8 +303,9 @@ namespace VsQuest
                 fake.WatchedAttributes.SetBool(FakeFlagKey, true);
                 fake.WatchedAttributes.MarkPathDirty(FakeFlagKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyFakeFlags FakeFlag: {ex}");
             }
 
             try
@@ -307,8 +313,9 @@ namespace VsQuest
                 fake.WatchedAttributes.SetLong(FakeOwnerIdKey, entity.EntityId);
                 fake.WatchedAttributes.MarkPathDirty(FakeOwnerIdKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyFakeFlags FakeOwnerId: {ex}");
             }
 
             try
@@ -316,8 +323,9 @@ namespace VsQuest
                 fake.WatchedAttributes.SetLong(FakeDespawnAtMsKey, sapi.World.ElapsedMilliseconds + Math.Max(250, stage.fakeDurationMs));
                 fake.WatchedAttributes.MarkPathDirty(FakeDespawnAtMsKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyFakeFlags FakeDespawnAtMs: {ex}");
             }
 
             try
@@ -325,8 +333,9 @@ namespace VsQuest
                 fake.WatchedAttributes.SetBool("alegacyvsquest:bossclone:invulnerable", stage.fakeInvulnerable);
                 fake.WatchedAttributes.MarkPathDirty("alegacyvsquest:bossclone:invulnerable");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyFakeFlags Invulnerable: {ex}");
             }
 
             try
@@ -334,8 +343,9 @@ namespace VsQuest
                 fake.WatchedAttributes.SetBool("showHealthbar", false);
                 fake.WatchedAttributes.MarkPathDirty("showHealthbar");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyFakeFlags ShowHealthbar: {ex}");
             }
         }
 
@@ -345,8 +355,9 @@ namespace VsQuest
             {
                 return entity?.WatchedAttributes?.GetBool(FakeFlagKey, false) ?? false;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in IsFakeEntity: {ex}");
                 return false;
             }
         }
@@ -363,8 +374,9 @@ namespace VsQuest
                 despawnAt = wa.GetLong(FakeDespawnAtMsKey, 0);
                 ownerId = wa.GetLong(FakeOwnerIdKey, 0);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in DespawnIfExpiredOrOwnerMissing: {ex}");
             }
 
             if (ownerId <= 0)
@@ -419,8 +431,9 @@ namespace VsQuest
                 dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryFindTarget: {ex}");
                 return false;
             }
         }
@@ -485,8 +498,9 @@ namespace VsQuest
                 {
                     colliding = ct.IsColliding(ba, selBox, testPos, alsoCheckTouch: false);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in IsColliding: {ex}");
                     colliding = true;
                 }
 
@@ -524,8 +538,9 @@ namespace VsQuest
                 {
                     colliding = ct.IsColliding(ba, selBox, testPos, alsoCheckTouch: false);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in IsColliding: {ex}");
                     colliding = true;
                 }
 

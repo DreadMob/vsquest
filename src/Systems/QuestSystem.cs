@@ -36,7 +36,6 @@ namespace VsQuest
         private QuestNotificationHandler notificationHandler;
 
         private long lagMonitorListenerId;
-        private long lastLagLogMs;
 
         public QuizSystem QuizSystem => quizSystem;
 

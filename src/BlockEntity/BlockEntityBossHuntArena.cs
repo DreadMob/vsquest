@@ -1,3 +1,4 @@
+using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
@@ -128,8 +129,9 @@ namespace VsQuest
                 var system = Api.ModLoader.GetModSystem<BossHuntArenaSystem>();
                 system?.UnregisterArena(new BlockPos(Pos.X, Pos.Y, Pos.Z, Pos.dimension));
             }
-            catch
+            catch (Exception ex)
             {
+                Api?.Logger?.Error($"[vsquest] Exception in UnregisterArena: {ex}");
             }
         }
 
@@ -142,8 +144,9 @@ namespace VsQuest
                 var system = Api.ModLoader.GetModSystem<BossHuntArenaSystem>();
                 system?.RegisterArena(new BlockPos(Pos.X, Pos.Y, Pos.Z, Pos.dimension), yOffset, keepInventory);
             }
-            catch
+            catch (Exception ex)
             {
+                Api?.Logger?.Error($"[vsquest] Exception in TryRegister: {ex}");
             }
         }
 

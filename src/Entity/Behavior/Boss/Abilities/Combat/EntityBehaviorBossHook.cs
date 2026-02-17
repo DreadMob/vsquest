@@ -108,8 +108,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -187,8 +188,9 @@ namespace VsQuest
                 dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryFindTarget: {ex}");
                 return false;
             }
         }
@@ -215,8 +217,9 @@ namespace VsQuest
                     targetPlayer.walkSpeed = targetPlayer.Stats.GetBlended("walkspeed");
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in StartHook VictimWalkSpeed: {ex}");
             }
 
             BossBehaviorUtils.UnregisterCallbackSafe(sapi, ref hookStartCallbackId);
@@ -339,8 +342,9 @@ namespace VsQuest
                     targetPlayer.WatchedAttributes.MarkPathDirty("onHurt");
                     targetPlayer.WatchedAttributes.MarkPathDirty("onHurtCounter");
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in hook tick: {ex}");
                 }
             }, 50);
         }
@@ -358,8 +362,9 @@ namespace VsQuest
             {
                 sapi?.Logger?.VerboseDebug($"[alegacyvsquest] bosshook stop target={(targetPlayer?.Player?.PlayerName ?? "?")}");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in StopHook VerboseDebug: {ex}");
             }
 
             try
@@ -375,8 +380,9 @@ namespace VsQuest
                             targetPlayer.walkSpeed = targetPlayer.Stats.GetBlended("walkspeed");
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in StopHook Stats: {ex}");
                     }
 
                     targetPlayer.WatchedAttributes.SetDouble("kbdirX", 0.0);
@@ -390,8 +396,9 @@ namespace VsQuest
                     targetPlayer.WatchedAttributes.MarkPathDirty("onHurt");
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in StopHook Knockback: {ex}");
             }
 
             targetPlayer = null;
@@ -416,8 +423,9 @@ namespace VsQuest
                         entity?.AnimManager?.StopAnimation(stage.pullAnimation);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in StopHook Animations: {ex}");
                 }
             }
 
@@ -432,8 +440,9 @@ namespace VsQuest
             {
                 entity?.AnimManager?.StartAnimation(animation);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation: {ex}");
             }
         }
 
@@ -453,8 +462,9 @@ namespace VsQuest
                 {
                     volumeBySound = entity?.Properties?.Attributes?["SoundVolumeMulBySound"]?.AsObject<Dictionary<string, float>>();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound Attributes: {ex}");
                 }
 
                 if (volumeBySound != null && volumeBySound.Count > 0)
@@ -479,8 +489,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound volume adjustment: {ex}");
             }
 
             if (stage.soundStartMs > 0)
@@ -491,8 +502,9 @@ namespace VsQuest
                     {
                         sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound callback: {ex}");
                     }
                 }, stage.soundStartMs);
             }
@@ -502,8 +514,9 @@ namespace VsQuest
                 {
                     sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound immediate: {ex}");
                 }
             }
         }

@@ -1,3 +1,4 @@
+using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
@@ -33,8 +34,9 @@ namespace VsQuest
                     var be = world.BlockAccessor.GetBlockEntity(pos) as BlockEntityBossHuntArena;
                     be?.OnRemovedServerSide();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    world?.Api?.Logger?.Error($"[vsquest] Exception in OnBlockRemoved: {ex}");
                 }
             }
 

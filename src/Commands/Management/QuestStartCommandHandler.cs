@@ -45,8 +45,9 @@ namespace VsQuest
                     questGiverId = hub.EntityId;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                sapi?.Logger?.Error($"[vsquest] Exception in finding hub: {ex}");
             }
 
             var msg = new QuestAcceptedMessage()
