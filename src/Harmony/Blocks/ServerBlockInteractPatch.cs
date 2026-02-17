@@ -10,6 +10,7 @@ namespace VsQuest.Harmony
     {
         public static void Postfix(Block __instance, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, bool __result)
         {
+            if (!HarmonyPatchSwitches.ServerBlockInteractEnabled(HarmonyPatchSwitches.ServerBlockInteract_Block_OnBlockInteractStart)) return;
             if (world.Api.Side != EnumAppSide.Server || !__result || blockSel == null) return;
 
             var sapi = world.Api as ICoreServerAPI;

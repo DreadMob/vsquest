@@ -389,6 +389,39 @@ namespace VsQuest
             return claimed;
         }
 
+        public void OnClaimReputationRewardsMessage(IServerPlayer player, ClaimReputationRewardsMessage message, ICoreServerAPI sapi)
+        {
+            if (sapi == null || player == null || message == null) return;
+
+            if (!TryResolveQuestGiverReputation(sapi, message.questGiverId, out string repNpcId, out string repFactionId))
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(message.scope) || string.Equals(message.scope, "npc", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(repNpcId))
+                {
+                    ClaimPendingRewards(sapi, player, ReputationScope.Npc, repNpcId);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(message.scope) || string.Equals(message.scope, "faction", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(repFactionId))
+                {
+                    ClaimPendingRewards(sapi, player, ReputationScope.Faction, repFactionId);
+                }
+            }
+
+            var questGiver = sapi.World.GetEntityById(message.questGiverId);
+            var questGiverBehavior = questGiver?.GetBehavior<EntityBehaviorQuestGiver>();
+            if (questGiverBehavior != null && player.Entity is EntityPlayer entityPlayer)
+            {
+                questGiverBehavior.SendQuestInfoMessageToClient(sapi, entityPlayer);
+            }
+        }
+
         public void SetReputationValue(IPlayer player, ReputationScope scope, string id, int value)
         {
             if (player?.Entity?.WatchedAttributes == null) return;

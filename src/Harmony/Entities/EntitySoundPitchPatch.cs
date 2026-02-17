@@ -13,6 +13,7 @@ namespace VsQuest.Harmony
         {
             try
             {
+                if (!HarmonyPatchSwitches.EntitySoundPitchEnabled(HarmonyPatchSwitches.EntitySoundPitch_Entity_PlayEntitySound)) return true;
                 if (__instance?.Properties?.Attributes == null) return true;
 
                 float mult = 1f;

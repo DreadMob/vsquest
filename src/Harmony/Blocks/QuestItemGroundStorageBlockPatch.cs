@@ -27,6 +27,7 @@ namespace VsQuest.Harmony
 
             public static bool Prefix(ItemSlot itemslot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handHandling, ref EnumHandling handling)
             {
+                if (!HarmonyPatchSwitches.QuestItemGroundStorageBlockEnabled(HarmonyPatchSwitches.QuestItemGroundStorageBlock_CollectibleBehaviorGroundStorable_Interact)) return true;
                 if (itemslot?.Itemstack == null) return true;
 
                 // Only block the special ground storage placement (Shift + right click).

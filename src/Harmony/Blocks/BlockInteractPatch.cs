@@ -19,6 +19,7 @@ namespace VsQuest.Harmony
 
         public static void Postfix(Block __instance, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, bool __result)
         {
+            if (!HarmonyPatchSwitches.BlockInteractEnabled(HarmonyPatchSwitches.BlockInteract_Block_OnBlockInteractStart)) return;
             if (world.Api.Side != EnumAppSide.Client || blockSel == null) return;
 
             if (__result)

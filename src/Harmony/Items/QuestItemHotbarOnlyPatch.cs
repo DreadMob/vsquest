@@ -32,6 +32,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(ItemSlot __instance, ItemSlot sourceSlot, EnumMergePriority priority, ref bool __result)
             {
+                if (!HarmonyPatchSwitches.QuestItemHotbarOnlyEnabled(HarmonyPatchSwitches.QuestItemHotbarOnly_ItemSlot_CanTakeFrom)) return true;
                 if (IsRestrictedMoveItem(sourceSlot) && !IsAllowedSlot(__instance))
                 {
                     __result = false;
@@ -47,6 +48,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(ItemSlot __instance, ItemSlot sourceSlot, ref bool __result)
             {
+                if (!HarmonyPatchSwitches.QuestItemHotbarOnlyEnabled(HarmonyPatchSwitches.QuestItemHotbarOnly_ItemSlot_CanHold)) return true;
                 if (IsRestrictedMoveItem(sourceSlot) && !IsAllowedSlot(__instance))
                 {
                     __result = false;

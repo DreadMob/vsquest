@@ -53,6 +53,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource, ref float __result)
             {
+                if (!HarmonyPatchSwitches.PlayerEnabled(HarmonyPatchSwitches.Player_ModSystemWearableStats_handleDamaged_PlayerAttributes)) return;
                 if (__result <= 0f) return;
 
                 if (player?.Entity?.WatchedAttributes == null) return;
@@ -80,6 +81,7 @@ namespace VsQuest.Harmony
 
             public static void Prefix(EntityAgent __instance)
             {
+                if (!HarmonyPatchSwitches.PlayerEnabled(HarmonyPatchSwitches.Player_EntityAgent_OnGameTick_Unified)) return;
                 if (__instance is not EntityPlayer player) return;
                 
                 // Process on every tick when side is client for smoother control overriding
@@ -101,8 +103,8 @@ namespace VsQuest.Harmony
 
                 long nowMs = 0;
                 double nowHours = 0;
-                try { nowMs = player.World.ElapsedMilliseconds; } catch { }
-                try { nowHours = player.World.Calendar.TotalHours; } catch { }
+                try { nowMs = player.World.ElapsedMilliseconds; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessServerSide ElapsedMilliseconds: {e}"); }
+                try { nowHours = player.World.Calendar.TotalHours; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessServerSide TotalHours: {e}"); }
 
                 // Walkspeed: avoid calling Stats.GetBlended too often on server (can cause lag spikes with many players).
                 // Update on a fixed tick cadence. Do NOT apply cached speed between updates - let the game handle walkSpeed
@@ -129,8 +131,8 @@ namespace VsQuest.Harmony
 
                 long nowMs = 0;
                 double nowHours = 0;
-                try { nowMs = player.World.ElapsedMilliseconds; } catch { }
-                try { nowHours = player.World.Calendar.TotalHours; } catch { }
+                try { nowMs = player.World.ElapsedMilliseconds; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessClientSide ElapsedMilliseconds: {e}"); }
+                try { nowHours = player.World.Calendar.TotalHours; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessClientSide TotalHours: {e}"); }
 
                 ProcessBossGrabClient(player, nowMs);
                 ProcessAshFloorClient(player, nowHours);
@@ -171,7 +173,7 @@ namespace VsQuest.Harmony
                         }
                     }
                 }
-                catch { }
+                catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessRepulseStun: {e}"); }
             }
 
             private static void ProcessBossGrab(EntityPlayer player, long nowMs)
@@ -191,7 +193,7 @@ namespace VsQuest.Harmony
                         player.Stats.Remove("walkspeed", BossGrabWalkSpeedStatKey);
                     }
                 }
-                catch { }
+                catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessBossGrab: {e}"); }
             }
 
             private static void ProcessAshFloorServer(EntityPlayer player, double nowHours)
@@ -205,7 +207,7 @@ namespace VsQuest.Harmony
                     {
                         // Only clear stats if they were previously set
                         float currentMod = 0f;
-                        try { currentMod = player.Stats?.GetBlended("walkspeed") ?? 0f; } catch { }
+                        try { currentMod = player.Stats?.GetBlended("walkspeed") ?? 0f; } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessAshFloorServer GetBlended(walkspeed): {e}"); }
                         if (currentMod != 0f)
                         {
                             player.Stats?.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
@@ -237,8 +239,9 @@ namespace VsQuest.Harmony
 
                         if (nearestBossWithAsh == null) return;
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        player?.Api?.Logger?.Error($"[vsquest] ProcessAshFloorServer GetNearestEntity: {e}");
                         return;
                     }
 
@@ -256,7 +259,7 @@ namespace VsQuest.Harmony
                             onAshFloor = true;
                         }
                     }
-                    catch { }
+                    catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessAshFloorServer BlockCheck: {e}"); }
 
                     // Only clear debuff if player is NOT on ash floor AND debuff is active
                     if (!onAshFloor)
@@ -270,7 +273,7 @@ namespace VsQuest.Harmony
                         player.Stats.Set("walkspeed", AshFloorWalkSpeedStatKey, 0f, true);
                     }
                 }
-                catch { }
+                catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessAshFloorServer: {e}"); }
             }
 
             private static void ProcessSecondChanceDebuff(EntityPlayer player, double nowHours)
@@ -293,7 +296,7 @@ namespace VsQuest.Harmony
 
                     ApplyDebuffStats(player);
                 }
-                catch { }
+                catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessSecondChanceDebuff: {e}"); }
             }
 
             private static void ProcessUraniumMaskCharge(EntityPlayer player, double nowHours)
@@ -344,7 +347,7 @@ namespace VsQuest.Harmony
                         // Slots are marked dirty individually above when modified
                     }
                 }
-                catch { }
+                catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessUraniumMaskCharge: {e}"); }
             }
 
             private static void ProcessBossGrabClient(EntityPlayer player, long nowMs)
@@ -365,7 +368,7 @@ namespace VsQuest.Harmony
                         player.Controls.Sneak = false;
                     }
                 }
-                catch { }
+                catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessBossGrabClient: {e}"); }
             }
 
             private static void ProcessAshFloorClient(EntityPlayer player, double nowHours)
@@ -387,7 +390,7 @@ namespace VsQuest.Harmony
                         player.Controls.Sneak = false;
                     }
                 }
-                catch { }
+                catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] ProcessAshFloorClient: {e}"); }
             }
 
             private static void UpdateWalkSpeed(EntityPlayer player)
@@ -395,7 +398,7 @@ namespace VsQuest.Harmony
                 try
                 {
                     float targetWalkSpeed = 0f;
-                    try { targetWalkSpeed = player.Stats.GetBlended("walkspeed"); } catch { }
+                    try { targetWalkSpeed = player.Stats.GetBlended("walkspeed"); } catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] UpdateWalkSpeed GetBlended(walkspeed): {e}"); }
 
                     if (Math.Abs(player.walkSpeed - targetWalkSpeed) > 0.001f)
                     {
@@ -408,7 +411,7 @@ namespace VsQuest.Harmony
                         CachedWalkSpeedByEntityId.Clear();
                     }
                 }
-                catch { }
+                catch (Exception e) { player?.Api?.Logger?.Error($"[vsquest] UpdateWalkSpeed: {e}"); }
             }
         }
 
@@ -419,8 +422,10 @@ namespace VsQuest.Harmony
             {
                 type = dmgSource?.Type ?? EnumDamageType.Injury;
             }
-            catch
+            catch (Exception e)
             {
+                var api = dmgSource?.SourceEntity?.Api ?? dmgSource?.GetCauseEntity()?.Api;
+                api?.Logger?.Error($"[vsquest] IsProtectionApplicable Get DamageSource.Type: {e}");
                 type = EnumDamageType.Injury;
             }
 
@@ -438,6 +443,7 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityBehaviorHealth __instance, DamageSource damageSource, ref float damage)
             {
+                if (!HarmonyPatchSwitches.PlayerEnabled(HarmonyPatchSwitches.Player_EntityBehaviorHealth_OnEntityReceiveDamage_SecondChance)) return;
                 if (damageSource?.Type == EnumDamageType.Heal) return;
                 if (__instance?.entity is not EntityPlayer player) return;
                 if (player.World?.Side == EnumAppSide.Client) return;
@@ -469,6 +475,7 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityBehaviorHealth __instance, DamageSource damageSourceForDeath)
             {
+                if (!HarmonyPatchSwitches.PlayerEnabled(HarmonyPatchSwitches.Player_EntityBehaviorHealth_OnEntityDeath_SecondChanceReset)) return;
                 if (__instance?.entity is not EntityPlayer player) return;
                 if (player.Player?.InventoryManager == null) return;
 
@@ -479,8 +486,9 @@ namespace VsQuest.Harmony
                     var system = sapi?.ModLoader?.GetModSystem<VsQuest.BossHuntArenaSystem>();
                     system?.TryHandlePlayerDeath(player);
                 }
-                catch
+                catch (Exception e)
                 {
+                    player?.Api?.Logger?.Error($"[vsquest] EntityBehaviorHealth.OnEntityDeath Prefix: {e}");
                 }
 
                 if (!TryGetSecondChanceSlot(player, out var slot)) return;
@@ -543,8 +551,9 @@ namespace VsQuest.Harmony
                 AssetLocation soundLoc = AssetLocation.Create(SecondChanceProcSound, "game").WithPathPrefixOnce("sounds/");
                 player.World.PlaySoundAt(soundLoc, player.ServerPos.X, player.ServerPos.Y, player.ServerPos.Z, null, randomizePitch: true, SecondChanceProcSoundRange);
             }
-            catch
+            catch (Exception e)
             {
+                player?.Api?.Logger?.Error($"[vsquest] TryPlaySecondChanceSound: {e}");
             }
         }
 
@@ -569,6 +578,7 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityAgent __instance, DamageSource damageSource, ref float damage)
             {
+                if (!HarmonyPatchSwitches.PlayerEnabled(HarmonyPatchSwitches.Player_EntityAgent_ReceiveDamage_PlayerAttackPower)) return;
                 // Fast path: skip processing if this is a normal entity interaction
                 // Only process if: target is a boss, source has quest attributes, or attacker is a player
                 bool targetHasQuestData = false;
@@ -590,7 +600,7 @@ namespace VsQuest.Harmony
                         }
                     }
                 }
-                catch { }
+                catch (Exception e) { __instance?.Api?.Logger?.Error($"[vsquest] EntityAgent.ReceiveDamage Prefix target check: {e}"); }
 
                 try
                 {
@@ -621,7 +631,7 @@ namespace VsQuest.Harmony
                         }
                     }
                 }
-                catch { }
+                catch (Exception e) { __instance?.Api?.Logger?.Error($"[vsquest] EntityAgent.ReceiveDamage Prefix source check: {e}"); }
 
                 // Early exit if neither target nor source have quest-related data
                 if (!targetHasQuestData && !sourceHasQuestData)
@@ -649,8 +659,9 @@ namespace VsQuest.Harmony
                             return;
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        __instance?.Api?.Logger?.Error($"[vsquest] EntityAgent.ReceiveDamage Prefix boss/invulnerable check: {e}");
                     }
 
                     try
@@ -679,8 +690,9 @@ namespace VsQuest.Harmony
                             }
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        __instance?.Api?.Logger?.Error($"[vsquest] EntityAgent.ReceiveDamage Prefix knockback bonus: {e}");
                     }
                 }
 
@@ -747,8 +759,9 @@ namespace VsQuest.Harmony
                             damage *= mult;
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        __instance?.Api?.Logger?.Error($"[vsquest] EntityAgent.ReceiveDamage Prefix bossclone damagemult: {e}");
                     }
 
                     try
@@ -759,8 +772,9 @@ namespace VsQuest.Harmony
                             damage *= growthMult;
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        __instance?.Api?.Logger?.Error($"[vsquest] EntityAgent.ReceiveDamage Prefix growth ritual damagemult: {e}");
                     }
                 }
 
@@ -780,6 +794,7 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityBehaviorBodyTemperature __instance)
             {
+                if (!HarmonyPatchSwitches.PlayerEnabled(HarmonyPatchSwitches.Player_EntityBehaviorBodyTemperature_OnGameTick_PlayerWarmth)) return;
                 var entity = __instance?.entity as EntityPlayer;
                 if (entity?.WatchedAttributes == null) return;
 
@@ -813,8 +828,9 @@ namespace VsQuest.Harmony
 
                     entity.WatchedAttributes.SetFloat(AppliedKey, desiredBonus);
                 }
-                catch
+                catch (Exception e)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] EntityBehaviorBodyTemperature.OnGameTick Prefix warmth bonus: {e}");
                 }
             }
         }

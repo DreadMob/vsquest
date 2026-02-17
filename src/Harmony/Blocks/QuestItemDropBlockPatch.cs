@@ -35,6 +35,7 @@ namespace VsQuest.Harmony
 
             public static bool Prefix(ItemSlot slot, ref bool __result)
             {
+                if (!HarmonyPatchSwitches.QuestItemDropBlockEnabled(HarmonyPatchSwitches.QuestItemDropBlock_InventoryManager_DropItem)) return true;
                 if (slot?.Itemstack == null) return true;
 
                 if (ItemAttributeUtils.IsActionItemBlockedDrop(slot.Itemstack))

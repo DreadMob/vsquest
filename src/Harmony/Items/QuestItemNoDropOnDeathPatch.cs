@@ -37,6 +37,7 @@ namespace VsQuest.Harmony
 
             public static bool Prefix(object __instance)
             {
+                if (!HarmonyPatchSwitches.QuestItemNoDropOnDeathEnabled(HarmonyPatchSwitches.QuestItemNoDropOnDeath_PlayerInventoryManager_OnDeath)) return true;
                 try
                 {
                     var playerField = __instance.GetType().GetField("player", BindingFlags.Instance | BindingFlags.Public);
@@ -90,6 +91,7 @@ namespace VsQuest.Harmony
 
             public static void Postfix(object __instance)
             {
+                if (!HarmonyPatchSwitches.QuestItemNoDropOnDeathEnabled(HarmonyPatchSwitches.QuestItemNoDropOnDeath_PlayerInventoryManager_OnDeath)) return;
                 try
                 {
                     var playerField = __instance.GetType().GetField("player", BindingFlags.Instance | BindingFlags.Public);

@@ -18,6 +18,7 @@ namespace VsQuest.Harmony
             {
                 try
                 {
+                    if (!HarmonyPatchSwitches.EntityShiverStrokeEnabled(HarmonyPatchSwitches.EntityShiverStroke_EntityShiver_OnGameTick_StrokeFreq)) return true;
                     if (__instance?.Api == null) return true;
                     if (__instance.Api.Side != EnumAppSide.Server) return true;
 

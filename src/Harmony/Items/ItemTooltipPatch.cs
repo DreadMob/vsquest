@@ -296,6 +296,7 @@ namespace VsQuest.Harmony
     {
         public static void Postfix(ItemSlot inSlot, StringBuilder dsc)
         {
+            if (!HarmonyPatchSwitches.ItemTooltipEnabled(HarmonyPatchSwitches.ItemTooltip_CollectibleObject_GetHeldItemInfo)) return;
             ItemTooltipPatcher.ModifyTooltip(inSlot, dsc);
         }
     }
@@ -305,6 +306,7 @@ namespace VsQuest.Harmony
     {
         public static void Postfix(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
         {
+            if (!HarmonyPatchSwitches.ItemTooltipEnabled(HarmonyPatchSwitches.ItemTooltip_ItemWearable_GetHeldItemInfo)) return;
             ItemTooltipPatcher.ModifyTooltip(inSlot, dsc);
         }
     }

@@ -13,6 +13,7 @@ namespace VsQuest.Harmony
         {
             try
             {
+                if (!HarmonyPatchSwitches.EntityInfoTextEnabled(HarmonyPatchSwitches.EntityInfoText_Entity_GetInfoText)) return true;
                 if (__instance == null) return true;
 
                 if (!ShouldHideInfo(__instance))
@@ -63,6 +64,7 @@ namespace VsQuest.Harmony
         {
             try
             {
+                if (!HarmonyPatchSwitches.EntityInfoTextEnabled(HarmonyPatchSwitches.EntityInfoText_EntityAgent_GetInfoText)) return true;
                 if (__instance == null) return true;
 
                 if (!EntityInfoTextPatch.ShouldHideInfo(__instance))

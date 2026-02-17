@@ -1,6 +1,7 @@
 using HarmonyLib;
 using System;
 using Vintagestory.API.Common;
+using VsQuest;
 
 namespace VsQuest.Harmony
 {
@@ -27,11 +28,13 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(ref ItemStackMoveOperation op)
             {
+                if (!HarmonyPatchSwitches.ItemMoveActingPlayerContextEnabled(HarmonyPatchSwitches.ItemMoveActingPlayerContext_InventoryBase_ActivateSlot)) return;
                 ItemMoveActingPlayerContext.Set(op?.ActingPlayer);
             }
 
             public static void Postfix()
             {
+                if (!HarmonyPatchSwitches.ItemMoveActingPlayerContextEnabled(HarmonyPatchSwitches.ItemMoveActingPlayerContext_InventoryBase_ActivateSlot)) return;
                 ItemMoveActingPlayerContext.Clear();
             }
         }
@@ -41,11 +44,13 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(ref ItemStackMoveOperation op)
             {
+                if (!HarmonyPatchSwitches.ItemMoveActingPlayerContextEnabled(HarmonyPatchSwitches.ItemMoveActingPlayerContext_ItemSlot_ActivateSlot)) return;
                 ItemMoveActingPlayerContext.Set(op?.ActingPlayer);
             }
 
             public static void Postfix()
             {
+                if (!HarmonyPatchSwitches.ItemMoveActingPlayerContextEnabled(HarmonyPatchSwitches.ItemMoveActingPlayerContext_ItemSlot_ActivateSlot)) return;
                 ItemMoveActingPlayerContext.Clear();
             }
         }

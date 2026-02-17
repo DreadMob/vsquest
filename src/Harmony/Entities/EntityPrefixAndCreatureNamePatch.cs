@@ -12,6 +12,7 @@ namespace VsQuest.Harmony
         {
             try
             {
+                if (!HarmonyPatchSwitches.EntityPrefixAndCreatureNameEnabled(HarmonyPatchSwitches.EntityPrefixAndCreatureName_Entity_GetPrefixAndCreatureName)) return true;
                 if (__instance == null) return true;
 
                 // Cheap domain check first before expensive GetBehavior calls

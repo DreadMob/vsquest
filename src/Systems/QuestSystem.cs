@@ -40,6 +40,32 @@ namespace VsQuest
 
         public QuizSystem QuizSystem => quizSystem;
 
+        private static T LoadOrCreateModConfig<T>(ICoreAPI api, string filename) where T : class, new()
+        {
+            T loaded = null;
+
+            try {
+
+                loaded = api.LoadModConfig<T>(filename);
+
+                loaded ??= new T();
+
+                /* Always store after load to ensure the config file exists and stays schema-up-to-date. */
+                api.StoreModConfig(loaded, filename);
+            } catch (Exception e) {
+                api.Logger.Error("[alegacyvsquest] Failed to load mod config {0}: {1}", filename, e);
+            }
+
+            return loaded;
+        }
+
+        private void LoadConfigs(ICoreAPI api)
+        {
+            Config = LoadOrCreateModConfig<QuestConfig>(api, "questconfig.json");
+            CoreConfig = LoadOrCreateModConfig<AlegacyVsQuestConfig>(api, "alegacy-vsquest-config.json");
+            HarmonyPatchSwitches.ApplyFromConfig(CoreConfig);
+        }
+
         public bool TryReloadConfigs(out string resultMessage)
         {
             resultMessage = null;
@@ -51,62 +77,15 @@ namespace VsQuest
 
             try
             {
-                QuestConfig loadedConfig = null;
-                AlegacyVsQuestConfig loadedCoreConfig = null;
-
-                try
-                {
-                    loadedConfig = api.LoadModConfig<QuestConfig>("questconfig.json");
-                }
-                catch
-                {
-                    loadedConfig = null;
-                }
-
-                if (loadedConfig == null)
-                {
-                    loadedConfig = new QuestConfig();
-                }
-
-                try
-                {
-                    loadedCoreConfig = api.LoadModConfig<AlegacyVsQuestConfig>("alegacy-vsquest-config.json");
-                }
-                catch
-                {
-                    loadedCoreConfig = null;
-                }
-
-                if (loadedCoreConfig == null)
-                {
-                    loadedCoreConfig = new AlegacyVsQuestConfig();
-                }
-
-                Config = loadedConfig;
-                CoreConfig = loadedCoreConfig;
-
-                try
-                {
-                    api.StoreModConfig(Config, "questconfig.json");
-                    api.StoreModConfig(CoreConfig, "alegacy-vsquest-config.json");
-                }
-                catch
-                {
-                }
+                LoadConfigs(api);
 
                 resultMessage = "Reloaded mod configs (questconfig.json, alegacy-vsquest-config.json).";
                 return true;
             }
             catch (Exception e)
             {
-                try
-                {
-                    api.Logger.Error("[alegacyvsquest] Failed to reload configs: {0}", e);
-                }
-                catch
-                {
-                }
 
+                api.Logger.Error("[alegacyvsquest] Failed to reload configs: {0}", e);
                 resultMessage = $"Reload failed: {e.Message}";
                 return false;
             }
@@ -123,7 +102,7 @@ namespace VsQuest
         {
             base.Start(api);
 
-            // Инициализация кэша QuestSystem
+            /* QuestSystem cache (used by other subsystems to safely resolve the active instance). */
             QuestSystemCache.Initialize(api);
 
             MobLocalizationUtils.LoadFromAssets(api);
@@ -131,6 +110,7 @@ namespace VsQuest
             quizSystem = new QuizSystem(this);
 
             var harmony = new HarmonyLib.Harmony("alegacyvsquest");
+            /* Centralized patch entry-point; individual patches decide whether they activate. */
             harmony.PatchAll();
 
             LocalizationUtils.LoadFromAssets(api);
@@ -142,64 +122,9 @@ namespace VsQuest
 
             networkChannelRegistry = new QuestNetworkChannelRegistry(this);
 
-            try
-            {
-                try
-                {
-                    Config = api.LoadModConfig<QuestConfig>("questconfig.json");
-                    if (Config != null)
-                    {
-                        api.Logger.Notification("Mod Config successfully loaded.");
-                    }
-                    else
-                    {
-                        api.Logger.Notification("No Mod Config specified. Falling back to default settings");
-                        Config = new QuestConfig();
-                    }
-                }
-                catch
-                {
-                    Config = new QuestConfig();
-                    api.Logger.Error("Failed to load custom mod configuration. Falling back to default settings!");
-                }
-                finally
-                {
-                    api.StoreModConfig(Config, "questconfig.json");
-                }
+            LoadConfigs(api);
 
-                try
-                {
-                    CoreConfig = api.LoadModConfig<AlegacyVsQuestConfig>("alegacy-vsquest-config.json");
-                    if (CoreConfig != null)
-                    {
-                        api.Logger.Notification("Alegacy VS Quest core config successfully loaded.");
-                    }
-                    else
-                    {
-                        api.Logger.Notification("No Alegacy VS Quest core config specified. Falling back to default settings");
-                        CoreConfig = new AlegacyVsQuestConfig();
-                    }
-                }
-                catch
-                {
-                    CoreConfig = new AlegacyVsQuestConfig();
-                    api.Logger.Error("Failed to load Alegacy VS Quest core configuration. Falling back to default settings!");
-                }
-                finally
-                {
-                    api.StoreModConfig(CoreConfig, "alegacy-vsquest-config.json");
-                }
-            }
-            catch
-            {
-                api.Logger.Error("Failed to load mod configuration. Falling back to default settings!");
-            }
-            finally
-            {
-                api.StoreModConfig(Config, "questconfig.json");
-                api.StoreModConfig(CoreConfig, "alegacy-vsquest-config.json");
-            }
-
+            /* discoveryHud is client-only; it will be replaced in StartClientSide when available. */
             notificationHandler = new QuestNotificationHandler(discoveryHud);
             questSelectGuiManager = new QuestSelectGuiManager(Config);
         }
@@ -219,33 +144,7 @@ namespace VsQuest
             journalHotkeyHandler = new QuestJournalHotkeyHandler(capi);
             journalHotkeyHandler.Register();
 
-            capi.RegisterVtmlTagConverter("qhover", (clientApi, token, fontStack, onClick) =>
-            {
-                if (token == null) return null;
-
-                string displayText = token.ContentText;
-                string hoverText = null;
-                if (token.Attributes != null && token.Attributes.TryGetValue("text", out var attrText))
-                {
-                    hoverText = attrText;
-                }
-
-                if (string.IsNullOrWhiteSpace(hoverText))
-                {
-                    return new RichTextComponent(clientApi, displayText, fontStack.Peek());
-                }
-
-                return new RichTextComponentQuestHover(clientApi, displayText, hoverText, fontStack.Peek());
-            });
-
-            try
-            {
-                discoveryHud = new VsQuestDiscoveryHud(capi);
-            }
-            catch
-            {
-                discoveryHud = null;
-            }
+            discoveryHud = QuestClientUiSetup.Initialize(capi);
 
             notificationHandler = new QuestNotificationHandler(discoveryHud);
             questSelectGuiManager = new QuestSelectGuiManager(Config);
@@ -255,32 +154,14 @@ namespace VsQuest
         {
             base.StartServerSide(sapi);
 
-            // Инициализация кэша QuestSystem для серверного потока
             QuestSystemCache.Initialize(sapi);
 
             sapi.Logger.VerboseDebug($"[alegacyvsquest] QuestSystem.StartServerSide loaded ({DateTime.UtcNow:O})");
 
+            /* Server-only wiring: persistence + lifecycle logic + event subscriptions. */
             persistenceManager = new QuestPersistenceManager(sapi);
             lifecycleManager = new QuestLifecycleManager(QuestRegistry, ActionRegistry, api);
             eventHandler = new QuestEventHandler(QuestRegistry, persistenceManager, sapi);
-
-            try
-            {
-                lagMonitorListenerId = sapi.Event.RegisterGameTickListener(dt => OnLagMonitorTick(sapi, dt), 1000);
-            }
-            catch
-            {
-                lagMonitorListenerId = 0;
-            }
-
-            try
-            {
-                QuestProfiler.Initialize(sapi);
-                QuestProfiler.Enabled = true;
-            }
-            catch
-            {
-            }
 
             if (networkChannelRegistry == null)
             {
@@ -290,6 +171,7 @@ namespace VsQuest
 
             networkChannelRegistry.RegisterServer(sapi);
 
+            /* Registers quest actions and binds acceptance to lifecycleManager. */
             actionRegistry = new QuestActionRegistry(ActionRegistry, api, sapi, OnQuestAccepted);
             actionRegistry.Register();
 
@@ -301,67 +183,22 @@ namespace VsQuest
 
         public override void Dispose()
         {
-            try
+
+            if (api is ICoreServerAPI sapi && lagMonitorListenerId != 0)
             {
-                if (api is ICoreServerAPI sapi && lagMonitorListenerId != 0)
-                {
-                    sapi.Event.UnregisterGameTickListener(lagMonitorListenerId);
-                    lagMonitorListenerId = 0;
-                }
-            }
-            catch
-            {
-            }
+                /* Defensive cleanup for optional lag monitor tick listener (if ever enabled). */
+                sapi.Event.UnregisterGameTickListener(lagMonitorListenerId);
+                lagMonitorListenerId = 0;
+             }
 
             base.Dispose();
-        }
-
-        private void OnLagMonitorTick(ICoreServerAPI sapi, float dt)
-        {
-            if (sapi == null) return;
-
-            float ms = dt * 1000f;
-            if (ms < 200f) return;
-
-            long now;
-            try
-            {
-                now = sapi.World.ElapsedMilliseconds;
-            }
-            catch
-            {
-                now = 0;
-            }
-
-            if (now != 0 && lastLagLogMs != 0 && now - lastLagLogMs < 5000) return;
-            lastLagLogMs = now;
-
-            int plrCount = 0;
-            try
-            {
-                plrCount = sapi.World.AllOnlinePlayers?.Length ?? 0;
-            }
-            catch
-            {
-                plrCount = 0;
-            }
-
-            sapi.Logger.Warning("[VsQuestLagMonitor] Large dt spike: dt={0:0.000}s ({1:0}ms), players={2}", dt, ms, plrCount);
-
-            try
-            {
-                QuestProfiler.LogStats();
-            }
-            catch
-            {
-            }
         }
 
         public override void AssetsLoaded(ICoreAPI api)
         {
             base.AssetsLoaded(api);
 
-            // Очистка кэшей при перезагрузке квестов
+            /* Clear caches on asset reload so quest/objective evaluation stays consistent. */
             QuestTimeGateUtil.ClearCache();
             QuestTickUtil.ClearAllCaches();
 
@@ -371,6 +208,7 @@ namespace VsQuest
             quizSystem?.LoadFromAssets(api);
             foreach (var mod in api.ModLoader.Mods)
             {
+                /* Load per-mod quest assets from the standard config/quests folder. */
                 var questAssets = api.Assets.GetMany<Quest>(api.Logger, "config/quests", mod.Info.ModID);
                 foreach (var questAsset in questAssets)
                 {
@@ -384,6 +222,7 @@ namespace VsQuest
                     }
                 }
 
+                /* Also support bundled config/quests.json or config/quest.json files. */
                 LoadQuestAssetsFromFile(api, mod.Info.ModID);
             }
         }
@@ -393,6 +232,7 @@ namespace VsQuest
             if (api == null || string.IsNullOrWhiteSpace(domain)) return;
 
             var assets = api.Assets;
+            /* Compatibility: allow both quests.json (array) and quest.json (single object). */
             var asset = assets.TryGet(new AssetLocation(domain, "config/quests.json"))
                 ?? assets.TryGet(new AssetLocation(domain, "config/quest.json"));
 
@@ -405,6 +245,7 @@ namespace VsQuest
 
                 if (root.IsArray())
                 {
+                    /* File contains a quest list. */
                     var array = root.AsArray();
                     if (array == null) return;
 
@@ -418,6 +259,7 @@ namespace VsQuest
                     return;
                 }
 
+                /* File contains a single quest definition. */
                 var singleQuest = root.AsObject<Quest>();
                 TryRegisterQuest(api, singleQuest, asset.Location?.ToString() ?? "config/quests.json");
             }
@@ -444,6 +286,7 @@ namespace VsQuest
 
         public void SavePlayerQuests(string playerUID, List<ActiveQuest> activeQuests)
         {
+            /* Persistence is write-behind; MarkDirty schedules an autosave via QuestPersistenceManager. */
             persistenceManager.MarkDirty(playerUID);
         }
 
@@ -454,7 +297,7 @@ namespace VsQuest
 
             if (QuestRegistry.ContainsKey(questId)) return questId;
 
-            // Try case-insensitive lookup
+            /* Try case-insensitive lookup to tolerate older content / manual edits. */
             foreach (var kvp in QuestRegistry)
             {
                 if (string.Equals(kvp.Key, questId, StringComparison.OrdinalIgnoreCase))
@@ -472,6 +315,7 @@ namespace VsQuest
             if (QuestRegistry == null) return new string[0];
 
             var wa = player.Entity.WatchedAttributes;
+            /* Stored as raw strings in watched attributes; normalize and filter to currently-registered quests. */
             var codes = wa.GetStringArray("alegacyvsquest:playercompleted");
             if (codes == null || codes.Length == 0) return new string[0];
 
@@ -554,11 +398,13 @@ namespace VsQuest
         {
             try
             {
+                /* Optional integration: preload only if the music subsystem is present client-side. */
                 var sys = capi?.ModLoader?.GetModSystem<BossMusicUrlSystem>();
                 sys?.Preload(message?.Url);
             }
             catch
             {
+                api.Logger.Error("[alegacyvsquest] Failed to preload boss music: {0}", message?.Url);
             }
         }
 
@@ -568,65 +414,21 @@ namespace VsQuest
             if (string.IsNullOrWhiteSpace(message.Trigger)) return;
             if (message.EntityId <= 0) return;
 
+            /* Reuse the action execution pipeline by wrapping dialog triggers as a synthetic quest accept. */
             var qm = new QuestAcceptedMessage { questGiverId = message.EntityId, questId = "dialog-action" };
             ActionStringExecutor.Execute(sapi, qm, player, message.Trigger);
         }
 
         internal void OnClaimReputationRewardsMessage(IServerPlayer player, ClaimReputationRewardsMessage message, ICoreServerAPI sapi)
         {
-            if (sapi == null || player == null || message == null) return;
-
-            var repSystem = sapi.ModLoader.GetModSystem<ReputationSystem>();
-            if (repSystem == null) return;
-
-            if (!repSystem.TryResolveQuestGiverReputation(sapi, message.questGiverId, out string repNpcId, out string repFactionId))
-            {
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(message.scope) || string.Equals(message.scope, "npc", StringComparison.OrdinalIgnoreCase))
-            {
-                if (!string.IsNullOrWhiteSpace(repNpcId))
-                {
-                    repSystem.ClaimPendingRewards(sapi, player, ReputationScope.Npc, repNpcId);
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(message.scope) || string.Equals(message.scope, "faction", StringComparison.OrdinalIgnoreCase))
-            {
-                if (!string.IsNullOrWhiteSpace(repFactionId))
-                {
-                    repSystem.ClaimPendingRewards(sapi, player, ReputationScope.Faction, repFactionId);
-                }
-            }
-
-            var questGiver = sapi.World.GetEntityById(message.questGiverId);
-            var questGiverBehavior = questGiver?.GetBehavior<EntityBehaviorQuestGiver>();
-            if (questGiverBehavior != null && player.Entity is EntityPlayer entityPlayer)
-            {
-                questGiverBehavior.SendQuestInfoMessageToClient(sapi, entityPlayer);
-            }
+            var repSystem = sapi?.ModLoader?.GetModSystem<ReputationSystem>();
+            repSystem?.OnClaimReputationRewardsMessage(player, message, sapi);
         }
 
         internal void OnClaimQuestCompletionRewardMessage(IServerPlayer player, ClaimQuestCompletionRewardMessage message, ICoreServerAPI sapi)
         {
-            if (sapi == null || player == null || message == null) return;
-
-            var rewardSystem = sapi.ModLoader.GetModSystem<QuestCompletionRewardSystem>();
-            var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
-            if (rewardSystem == null || questSystem == null) return;
-
-            var reward = rewardSystem.GetRewardById(message.rewardId);
-            if (reward == null) return;
-
-            rewardSystem.TryGrantReward(player, reward, questSystem, sapi);
-
-            var questGiver = sapi.World.GetEntityById(message.questGiverId);
-            var questGiverBehavior = questGiver?.GetBehavior<EntityBehaviorQuestGiver>();
-            if (questGiverBehavior != null && player.Entity is EntityPlayer entityPlayer)
-            {
-                questGiverBehavior.SendQuestInfoMessageToClient(sapi, entityPlayer);
-            }
+            var rewardSystem = sapi?.ModLoader?.GetModSystem<QuestCompletionRewardSystem>();
+            rewardSystem?.OnClaimQuestCompletionRewardMessage(player, message, sapi);
         }
     }
 }

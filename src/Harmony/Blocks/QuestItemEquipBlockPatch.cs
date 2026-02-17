@@ -16,6 +16,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(ItemSlotCharacter __instance, ItemSlot itemstackFromSourceSlot, ref bool __result)
             {
+                if (!HarmonyPatchSwitches.QuestItemEquipBlockEnabled(HarmonyPatchSwitches.QuestItemEquipBlock_ItemSlotCharacter_CanHold)) return true;
                 if (IsBlockedQuestItem(itemstackFromSourceSlot))
                 {
                     __result = false;
@@ -31,6 +32,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(ItemSlotCharacter __instance, ItemSlot sourceSlot, EnumMergePriority priority, ref bool __result)
             {
+                if (!HarmonyPatchSwitches.QuestItemEquipBlockEnabled(HarmonyPatchSwitches.QuestItemEquipBlock_ItemSlotCharacter_CanTakeFrom)) return true;
                 if (IsBlockedQuestItem(sourceSlot))
                 {
                     __result = false;

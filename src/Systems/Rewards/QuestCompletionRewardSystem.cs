@@ -109,6 +109,26 @@ namespace VsQuest
             return true;
         }
 
+        public void OnClaimQuestCompletionRewardMessage(IServerPlayer player, ClaimQuestCompletionRewardMessage message, ICoreServerAPI sapi)
+        {
+            if (sapi == null || player == null || message == null) return;
+
+            var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+            if (questSystem == null) return;
+
+            var reward = GetRewardById(message.rewardId);
+            if (reward == null) return;
+
+            TryGrantReward(player, reward, questSystem, sapi);
+
+            var questGiver = sapi.World.GetEntityById(message.questGiverId);
+            var questGiverBehavior = questGiver?.GetBehavior<EntityBehaviorQuestGiver>();
+            if (questGiverBehavior != null && player.Entity is EntityPlayer entityPlayer)
+            {
+                questGiverBehavior.SendQuestInfoMessageToClient(sapi, entityPlayer);
+            }
+        }
+
         public string BuildOnceKey(QuestCompletionReward reward)
         {
             if (reward == null) return null;

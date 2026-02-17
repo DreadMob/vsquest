@@ -130,6 +130,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(ItemStack itemStack, ref string __result)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_GetHeldItemName)) return;
                 if (itemStack?.Attributes == null) return;
 
                 string actions = itemStack.Attributes.GetString(ItemAttributeUtils.ActionItemActionsKey);
@@ -154,6 +155,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(EntityPlayer entity)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ModSystemWearableStats_onFootStep)) return true;
                 var stats = WearableStatsCache.GetCachedStats(entity);
                 return stats == null || stats.Stealth <= 0f;
             }
@@ -164,6 +166,7 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityBehaviorHealth __instance, ref float __state)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_EntityBehaviorHealth_OnFallToGround)) return;
                 if (__instance?.entity is not EntityPlayer player) return;
 
                 var stats = WearableStatsCache.GetCachedStats(player);
@@ -176,6 +179,7 @@ namespace VsQuest.Harmony
 
             public static void Postfix(EntityBehaviorHealth __instance, float __state)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_EntityBehaviorHealth_OnFallToGround)) return;
                 if (__instance?.entity == null) return;
                 if (__state <= 0f) return;
 
@@ -188,12 +192,14 @@ namespace VsQuest.Harmony
         {
             public static void Prefix(EntityBehaviorTemporalStabilityAffected __instance, ref double __state)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_EntityBehaviorTemporalStabilityAffected_OnGameTick)) return;
                 if (!EnableTemporalStabilityWearablePatch) return;
                 __state = __instance?.OwnStability ?? 0.0;
             }
 
             public static void Postfix(EntityBehaviorTemporalStabilityAffected __instance, double __state)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_EntityBehaviorTemporalStabilityAffected_OnGameTick)) return;
                 if (!EnableTemporalStabilityWearablePatch) return;
                 if (__instance?.entity is not EntityPlayer player) return;
 
@@ -214,6 +220,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(CollectibleObject __instance, IItemStack withItemStack, ref float __result)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_GetAttackPower)) return;
                 if (withItemStack is ItemStack stack)
                 {
                     float bonus = ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrAttackPower);
@@ -234,6 +241,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, ref EnumHandHandling handling)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_OnHeldAttackStart_AttackSpeed)) return true;
                 if (byEntity is not EntityPlayer player) return true;
 
                 var stats = WearableStatsCache.GetCachedStats(player);
@@ -260,6 +268,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(ItemWearable __instance, ItemSlot inslot, ref float __result)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ItemWearable_GetWarmth)) return;
                 if (inslot.Itemstack is ItemStack stack)
                 {
                     float bonus = ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrWarmth);
@@ -273,6 +282,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer, ref float __result)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_GetMiningSpeed_MiningSpeedMult)) return;
                 if (__result <= 0f) return;
                 if (forPlayer?.Entity is not EntityPlayer player) return;
 
@@ -289,6 +299,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource, ref float __result)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ModSystemWearableStats_handleDamaged)) return;
                 if (__result <= 0f) return;
                 if (player?.Entity is not EntityPlayer entity) return;
 
@@ -308,6 +319,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(ModSystemWearableStats __instance, IInventory inv, IServerPlayer player)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ModSystemWearableStats_updateWearableStats)) return;
                 if (player == null || player.Entity == null || player.Entity.Stats == null) return;
 
                 StatModifiers bonusMods = new StatModifiers();
@@ -443,6 +455,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(CollectibleObject __instance, ItemStackMergeOperation op)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return true;
                 if (TryHandleSecondChanceCharge(op)) return false;
                 if (TryHandleUraniumMaskCharge(op)) return false;
                 return true;
@@ -454,6 +467,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(ItemWearable __instance, ItemStackMergeOperation op)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ItemWearable_TryMergeStacks_SecondChanceCharge)) return true;
                 if (TryHandleSecondChanceCharge(op)) return false;
                 if (TryHandleUraniumMaskCharge(op)) return false;
                 return true;
@@ -465,6 +479,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(ItemWearable __instance, ItemStack sinkStack, ItemStack sourceStack, EnumMergePriority priority, ref int __result)
             {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ItemWearable_GetMergableQuantity_SecondChanceCharge)) return true;
                 if (CanChargeSecondChance(sinkStack, sourceStack) || CanChargeUraniumMask(sinkStack, sourceStack))
                 {
                     __result = 1;

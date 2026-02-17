@@ -26,6 +26,7 @@ namespace VsQuest.Harmony
 
         public static void Postfix(EntityBehaviorConversable __instance, EntityAgent triggeringEntity, string value, JsonObject data)
         {
+            if (!HarmonyPatchSwitches.ConversableEnabled(HarmonyPatchSwitches.Conversable_EntityBehaviorConversable_Controller_DialogTriggers)) return;
             if (VanillaTriggers.Contains(value)) return;
 
             var sapi = __instance.entity.Api as ICoreServerAPI;

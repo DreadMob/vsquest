@@ -38,6 +38,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(CollectibleObject __instance, ItemSlot slot, IClientPlayer forPlayer, BlockSelection blockSel, ref SkillItem[] __result)
             {
+                if (!HarmonyPatchSwitches.ActionItemModeEnabled(HarmonyPatchSwitches.ActionItemMode_CollectibleObject_GetToolModes_ActionItemModes)) return;
                 if (slot?.Itemstack?.Attributes == null) return;
                 if (!TryGetModes(slot.Itemstack.Attributes, out var modes)) return;
 
@@ -79,6 +80,7 @@ namespace VsQuest.Harmony
         {
             public static void Postfix(CollectibleObject __instance, ItemSlot slot, IPlayer byPlayer, BlockSelection blockSelection, ref int __result)
             {
+                if (!HarmonyPatchSwitches.ActionItemModeEnabled(HarmonyPatchSwitches.ActionItemMode_CollectibleObject_GetToolMode_ActionItemModes)) return;
                 if (slot?.Itemstack?.Attributes == null) return;
                 if (!TryGetModes(slot.Itemstack.Attributes, out var modes)) return;
 
@@ -95,6 +97,7 @@ namespace VsQuest.Harmony
         {
             public static bool Prefix(CollectibleObject __instance, ItemSlot slot, IPlayer byPlayer, BlockSelection blockSelection, int toolMode)
             {
+                if (!HarmonyPatchSwitches.ActionItemModeEnabled(HarmonyPatchSwitches.ActionItemMode_CollectibleObject_SetToolMode_ActionItemModes)) return true;
                 if (slot?.Itemstack?.Attributes == null) return true;
                 if (!TryGetModes(slot.Itemstack.Attributes, out var modes)) return true;
 

@@ -30,6 +30,7 @@ namespace VsQuest.Harmony
 
         public static void Postfix(EntityBehavior __instance, object[] __args)
         {
+            if (!HarmonyPatchSwitches.EntityInteractEnabled(HarmonyPatchSwitches.EntityInteract_EntityBehavior_OnInteract)) return;
             var entity = __instance?.entity;
             if (entity == null) return;
 

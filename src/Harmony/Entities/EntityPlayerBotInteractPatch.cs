@@ -31,6 +31,7 @@ namespace VsQuest.Harmony
         {
             try
             {
+                if (!HarmonyPatchSwitches.EntityPlayerBotInteractEnabled(HarmonyPatchSwitches.EntityPlayerBotInteract_EntityPlayerBot_OnInteract)) return true;
                 if (__instance is not EntityAgent entity || entity?.Properties?.Attributes?[
                         "alegacyvsquestNoUndress"].AsBool(false) != true)
                 {
