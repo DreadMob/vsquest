@@ -92,33 +92,71 @@ namespace VsQuest.Harmony.Players
         private const float SecondChanceDebuffWalkspeed = -0.2f;
         private const float SecondChanceDebuffHungerRate = 0.4f;
         private const float SecondChanceDebuffHealing = -0.3f;
+        
+        // Cached slot lookups to avoid scanning inventory every damage tick
+        private static readonly System.Collections.Generic.Dictionary<long, ItemSlot> CachedSlots = new();
+        private static readonly System.Collections.Generic.Dictionary<long, int> SlotCheckCounters = new();
+        private const int SlotRecheckInterval = 100; // Recheck every 100 calls to handle item moves
 
         public static bool TryGetSecondChanceSlot(EntityPlayer player, out ItemSlot slot)
         {
             slot = null;
+            long entityId = player.EntityId;
+            
+            // Try cached slot first
+            if (CachedSlots.TryGetValue(entityId, out var cachedSlot) && cachedSlot != null)
+            {
+                // Validate cached slot is still valid
+                if (!cachedSlot.Empty && cachedSlot.Itemstack?.Attributes != null)
+                {
+                    string key = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrSecondChanceCharges);
+                    if (cachedSlot.Itemstack.Attributes.HasAttribute(key))
+                    {
+                        slot = cachedSlot;
+                        return true;
+                    }
+                }
+                // Cached slot invalid, remove it
+                CachedSlots.Remove(entityId);
+            }
+            
+            // Periodic recheck counter
+            if (SlotCheckCounters.TryGetValue(entityId, out int counter))
+            {
+                if (counter < SlotRecheckInterval)
+                {
+                    SlotCheckCounters[entityId] = counter + 1;
+                    return false; // Skip scan this time
+                }
+            }
+            SlotCheckCounters[entityId] = 0;
 
+            // Full inventory scan
             var inv = player.Player?.InventoryManager?.GetOwnInventory("character");
-
             if (inv == null) return false;
 
             foreach (ItemSlot s in inv)
             {
                 if (s?.Empty != false) continue;
-
                 var stack = s.Itemstack;
-
                 if (!ItemAttributeUtils.IsActionItem(stack)) continue;
 
                 string key = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrSecondChanceCharges);
-
                 if (stack.Attributes.HasAttribute(key))
                 {
+                    CachedSlots[entityId] = s;
                     slot = s;
                     return true;
                 }
             }
 
             return false;
+        }
+
+        public static void InvalidateCache(long entityId)
+        {
+            CachedSlots.Remove(entityId);
+            SlotCheckCounters.Remove(entityId);
         }
 
         public static float GetSecondChanceCharges(ItemStack stack)

@@ -224,6 +224,9 @@ namespace VsQuest
 			public bool ConversablePatchesEnabled { get; set; } = true;
 			public ConversablePatchesCoreConfig Conversable { get; set; } = new ConversablePatchesCoreConfig();
 
+			// Individual patch settings
+			public bool Item_InventoryChangeTracking { get; set; } = true;
+
 		}
 
 		public class ItemAttributePatchesCoreConfig

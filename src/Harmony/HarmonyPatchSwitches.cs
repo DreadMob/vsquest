@@ -81,6 +81,8 @@ namespace VsQuest
         public static bool QuestItemGroundStorageBlockPatchesEnabled { get; private set; } = true;
         public static bool QuestItemGroundStorageBlock_CollectibleBehaviorGroundStorable_Interact { get; private set; } = true;
 
+        public static bool Item_InventoryChangeTracking { get; private set; } = true;
+
         public static bool ConversablePatchesEnabled { get; private set; } = true;
         public static bool Conversable_EntityBehaviorConversable_Controller_DialogTriggers { get; private set; } = true;
 
@@ -184,6 +186,8 @@ namespace VsQuest
             QuestItemGroundStorageBlockPatchesEnabled = harmony?.QuestItemGroundStorageBlockPatchesEnabled ?? true;
             var ground = harmony?.QuestItemGroundStorageBlock;
             QuestItemGroundStorageBlock_CollectibleBehaviorGroundStorable_Interact = ground?.CollectibleBehaviorGroundStorable_Interact ?? true;
+
+            Item_InventoryChangeTracking = harmony?.Item_InventoryChangeTracking ?? true;
 
             ConversablePatchesEnabled = harmony?.ConversablePatchesEnabled ?? true;
             var conversable = harmony?.Conversable;

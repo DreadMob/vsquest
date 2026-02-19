@@ -60,27 +60,48 @@ namespace VsQuest.Harmony.Items
         [HarmonyPatch(typeof(EntityBehaviorTemporalStabilityAffected), "OnGameTick")]
         public class EntityBehaviorTemporalStabilityAffected_OnGameTick_Patch
         {
-            public static void Prefix(EntityBehaviorTemporalStabilityAffected __instance, ref double __state)
-            {
-                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_EntityBehaviorTemporalStabilityAffected_OnGameTick)) return;
-                if (!EnableTemporalStabilityWearablePatch) return;
-                __state = __instance?.OwnStability ?? 0.0;
-            }
-
-            public static void Postfix(EntityBehaviorTemporalStabilityAffected __instance, double __state)
+            private static readonly System.Collections.Generic.Dictionary<long, long> LastCheckByEntityId = new();
+            private const int CheckIntervalMs = 250; // Check only 4 times per second instead of every tick
+            
+            public static void Postfix(EntityBehaviorTemporalStabilityAffected __instance)
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_EntityBehaviorTemporalStabilityAffected_OnGameTick)) return;
                 if (!EnableTemporalStabilityWearablePatch) return;
                 if (__instance?.entity is not EntityPlayer player) return;
+                
+                // Throttle checks to reduce CPU usage
+                long entityId = player.EntityId;
+                long nowMs = player.World?.ElapsedMilliseconds ?? 0;
+                if (LastCheckByEntityId.TryGetValue(entityId, out long lastCheck) && (nowMs - lastCheck) < CheckIntervalMs)
+                {
+                    return;
+                }
+                LastCheckByEntityId[entityId] = nowMs;
+                
+                // Cleanup occasionally
+                if (LastCheckByEntityId.Count > 512)
+                {
+                    LastCheckByEntityId.Clear();
+                }
 
                 var stats = WearableStatsCache.GetCachedStats(player);
+                // Fast exit: check cached value first before stability read
                 if (stats == null || Math.Abs(stats.TemporalDrainReduction) <= 0.0001f) return;
-
-                double delta = __instance.OwnStability - __state;
-                if (delta >= 0) return;
-
+                
+                double currentStability = __instance.OwnStability;
+                double prevStability = player.WatchedAttributes.GetDouble("vsquest:temporal:prev", currentStability);
+                
+                // Store current for next check
+                player.WatchedAttributes.SetDouble("vsquest:temporal:prev", currentStability);
+                
+                // Only adjust when stability decreases (drain)
+                double delta = currentStability - prevStability;
+                if (delta >= 0) return; // Not draining or gained stability
+                
+                // Calculate actual drain without our modification
+                // The vanilla drain happened between prev and current
                 float mult = GameMath.Clamp(1f - stats.TemporalDrainReduction, 0f, 3f);
-                double adjusted = __state + delta * mult;
+                double adjusted = prevStability + delta * mult;
                 __instance.OwnStability = GameMath.Clamp(adjusted, 0.0, 1.0);
             }
         }
@@ -194,6 +215,22 @@ namespace VsQuest.Harmony.Items
             private const string LastAppliedPrefix = "vsquest:wearablestats:last:";
             private const float CompareEpsilon = 0.0001f;
 
+            // Pooled dictionary to avoid allocation on every call
+            private static readonly Dictionary<string, float> StatsDictPool = new Dictionary<string, float>(7);
+            private static int _cleanupCounter = 0;
+            
+            // Inventory change tracker to avoid recalculating on every damage tick
+            private static InventoryChangeTracker _inventoryTracker;
+            
+            private static InventoryChangeTracker GetTracker(ICoreAPI api)
+            {
+                if (_inventoryTracker == null && api != null)
+                {
+                    _inventoryTracker = new InventoryChangeTracker(api);
+                }
+                return _inventoryTracker;
+            }
+
             private static bool ApproximatelyEqual(float a, float b)
             {
                 if (float.IsNaN(a) && float.IsNaN(b)) return true;
@@ -204,24 +241,19 @@ namespace VsQuest.Harmony.Items
             public static void Postfix(ModSystemWearableStats __instance, IInventory inv, IServerPlayer player)
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ModSystemWearableStats_updateWearableStats)) return;
-                if (player == null || player.Entity == null || player.Entity.Stats == null) return;
+                if (player?.Entity?.Stats == null) return;
 
-                // Early exit: Check if inventory actually changed using fast fingerprinting
+                // Skip recalculation if inventory hasn't changed (avoids recalc on damage)
                 if (player.Entity is EntityPlayer entityPlayer)
                 {
-                    if (!InventoryFingerprintSystem.ShouldRecalculateWearableStats(entityPlayer))
+                    var tracker = GetTracker(player.Entity.Api);
+                    if (tracker != null && !tracker.ShouldRecalculate(entityPlayer))
                     {
-                        // Inventory hasn't meaningfully changed, skip all calculations
-                        return;
+                        return; // Equipment unchanged, use cached values
                     }
                 }
 
                 StatModifiers bonusMods = new StatModifiers();
-                bonusMods.walkSpeed = 0f;
-                bonusMods.healingeffectivness = 0f;
-                bonusMods.hungerrate = 0f;
-                bonusMods.rangedWeaponsAcc = 0f;
-                bonusMods.rangedWeaponsSpeed = 0f;
                 float miningSpeedMult = 0f;
                 float jumpHeightMult = 0f;
                 float maxHealthFlat = 0f;
@@ -231,62 +263,57 @@ namespace VsQuest.Harmony.Items
                 {
                     if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
                     {
-                        bonusMods.walkSpeed += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrWalkSpeed);
-                        bonusMods.hungerrate += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrHungerRate);
-                        bonusMods.healingeffectivness += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrHealingEffectiveness);
-                        bonusMods.rangedWeaponsAcc += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrRangedAccuracy);
-                        bonusMods.rangedWeaponsSpeed += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrRangedSpeed);
-                        miningSpeedMult += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrMiningSpeedMult);
-                        jumpHeightMult += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrJumpHeightMul);
-                        maxHealthFlat += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrMaxHealthFlat);
-                        maxOxygenBonus += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrMaxOxygen);
+                        var stack = slot.Itemstack;
+                        bonusMods.walkSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrWalkSpeed);
+                        bonusMods.hungerrate += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrHungerRate);
+                        bonusMods.healingeffectivness += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrHealingEffectiveness);
+                        bonusMods.rangedWeaponsAcc += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedAccuracy);
+                        bonusMods.rangedWeaponsSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedSpeed);
+                        miningSpeedMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMiningSpeedMult);
+                        jumpHeightMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrJumpHeightMul);
+                        maxHealthFlat += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMaxHealthFlat);
+                        maxOxygenBonus += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMaxOxygen);
                     }
                 }
 
-                // If nothing changed since last apply, do nothing. This avoids repeated stat writes when vanilla calls updateWearableStats frequently (e.g. on damage).
+                // Batch read last applied values from WatchedAttributes using TreeAttribute
                 var wa = player.Entity.WatchedAttributes;
-                float lastWalkSpeed = wa.GetFloat(LastAppliedPrefix + "walkspeed", float.NaN);
-                float lastHealing = wa.GetFloat(LastAppliedPrefix + "healingeffectivness", float.NaN);
-                float lastHunger = wa.GetFloat(LastAppliedPrefix + "hungerrate", float.NaN);
-                float lastAcc = wa.GetFloat(LastAppliedPrefix + "rangedWeaponsAcc", float.NaN);
-                float lastRangedSpeed = wa.GetFloat(LastAppliedPrefix + "rangedWeaponsSpeed", float.NaN);
-                float lastMining = wa.GetFloat(LastAppliedPrefix + "miningSpeedMul", float.NaN);
-                float lastJump = wa.GetFloat(LastAppliedPrefix + "jumpHeightMul", float.NaN);
-                float lastMaxHealthFlat = wa.GetFloat(LastAppliedPrefix + "maxHealthFlat", float.NaN);
-                float lastMaxOxygenBonus = wa.GetFloat(LastAppliedPrefix + "maxOxygenBonus", float.NaN);
-
-                bool changed =
-                    !ApproximatelyEqual(lastWalkSpeed, bonusMods.walkSpeed) ||
-                    !ApproximatelyEqual(lastHealing, bonusMods.healingeffectivness) ||
-                    !ApproximatelyEqual(lastHunger, bonusMods.hungerrate) ||
-                    !ApproximatelyEqual(lastAcc, bonusMods.rangedWeaponsAcc) ||
-                    !ApproximatelyEqual(lastRangedSpeed, bonusMods.rangedWeaponsSpeed) ||
-                    !ApproximatelyEqual(lastMining, miningSpeedMult) ||
-                    !ApproximatelyEqual(lastJump, jumpHeightMult) ||
-                    !ApproximatelyEqual(lastMaxHealthFlat, maxHealthFlat) ||
-                    !ApproximatelyEqual(lastMaxOxygenBonus, maxOxygenBonus);
-
-                if (!changed)
+                var lastTree = wa.GetTreeAttribute(LastAppliedPrefix.TrimEnd(':'));
+                
+                bool changed = true;
+                if (lastTree != null)
                 {
-                    return;
+                    changed =
+                        !ApproximatelyEqual(lastTree.GetFloat("walkspeed", float.NaN), bonusMods.walkSpeed) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("healing", float.NaN), bonusMods.healingeffectivness) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("hunger", float.NaN), bonusMods.hungerrate) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("acc", float.NaN), bonusMods.rangedWeaponsAcc) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("rangeSpeed", float.NaN), bonusMods.rangedWeaponsSpeed) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("mining", float.NaN), miningSpeedMult) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("jump", float.NaN), jumpHeightMult) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("health", float.NaN), maxHealthFlat) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("oxygen", float.NaN), maxOxygenBonus);
                 }
 
-                // Use StatCoalescingEngine for batched updates instead of individual Stats.Set calls
-                // This reduces network traffic by coalescing multiple stat changes into one sync
+                if (!changed) return;
+
+                // Use pooled dictionary to avoid allocation
                 if (player.Entity is EntityPlayer ep && ep.Api is ICoreServerAPI sapi)
                 {
-                    var statsToUpdate = new Dictionary<string, float>
+                    lock (StatsDictPool)
                     {
-                        ["walkspeed"] = bonusMods.walkSpeed,
-                        ["healingeffectivness"] = bonusMods.healingeffectivness,
-                        ["hungerrate"] = bonusMods.hungerrate,
-                        ["rangedWeaponsAcc"] = bonusMods.rangedWeaponsAcc,
-                        ["rangedWeaponsSpeed"] = bonusMods.rangedWeaponsSpeed,
-                        ["miningSpeedMul"] = miningSpeedMult,
-                        ["jumpHeightMul"] = jumpHeightMult
-                    };
+                        StatsDictPool.Clear();
+                        StatsDictPool["walkspeed"] = bonusMods.walkSpeed;
+                        StatsDictPool["healingeffectivness"] = bonusMods.healingeffectivness;
+                        StatsDictPool["hungerrate"] = bonusMods.hungerrate;
+                        StatsDictPool["rangedWeaponsAcc"] = bonusMods.rangedWeaponsAcc;
+                        StatsDictPool["rangedWeaponsSpeed"] = bonusMods.rangedWeaponsSpeed;
+                        StatsDictPool["miningSpeedMul"] = miningSpeedMult;
+                        StatsDictPool["jumpHeightMul"] = jumpHeightMult;
 
-                    StatCoalescingEngine.QueueStatUpdates(sapi, ep, statsToUpdate);
+                        StatCoalescingEngine.QueueStatUpdates(sapi, ep, StatsDictPool);
+                        StatsDictPool.Clear();
+                    }
                 }
                 else
                 {
@@ -330,28 +357,21 @@ namespace VsQuest.Harmony.Items
                     player.Entity.WatchedAttributes.SetFloat(AppliedBonusKey, maxOxygenBonus);
                 }
 
-                // Throttle walkSpeed updates to reduce rubberbanding under frequent updateWearableStats calls
+                // Throttle walkSpeed updates - cleanup only every 1000 calls
                 long nowMs = player.Entity.World?.ElapsedMilliseconds ?? 0;
                 long entityId = player.Entity.EntityId;
-                bool shouldUpdateWalkSpeed = true;
-
-                if (LastWalkSpeedUpdateByEntityId.TryGetValue(entityId, out long lastUpdate))
-                {
-                    if ((nowMs - lastUpdate) < WalkSpeedUpdateThrottleMs)
-                    {
-                        shouldUpdateWalkSpeed = false;
-                    }
-                }
-
-                if (shouldUpdateWalkSpeed)
+                
+                if (!LastWalkSpeedUpdateByEntityId.TryGetValue(entityId, out long lastUpdate) || 
+                    (nowMs - lastUpdate) >= WalkSpeedUpdateThrottleMs)
                 {
                     BossBehaviorUtils.UpdatePlayerWalkSpeed(player.Entity);
                     LastWalkSpeedUpdateByEntityId[entityId] = nowMs;
 
-                    // Cleanup to prevent memory bloat
-                    if (LastWalkSpeedUpdateByEntityId.Count > 512)
+                    // Cleanup only occasionally to prevent memory bloat
+                    if (++_cleanupCounter > 1000 && LastWalkSpeedUpdateByEntityId.Count > 512)
                     {
                         LastWalkSpeedUpdateByEntityId.Clear();
+                        _cleanupCounter = 0;
                     }
                 }
                 
@@ -361,16 +381,18 @@ namespace VsQuest.Harmony.Items
                     WearableStatsCache.InvalidateCache(entityPlayer2);
                 }
 
-                // Persist last applied values so we can skip redundant writes next time.
-                wa.SetFloat(LastAppliedPrefix + "walkspeed", bonusMods.walkSpeed);
-                wa.SetFloat(LastAppliedPrefix + "healingeffectivness", bonusMods.healingeffectivness);
-                wa.SetFloat(LastAppliedPrefix + "hungerrate", bonusMods.hungerrate);
-                wa.SetFloat(LastAppliedPrefix + "rangedWeaponsAcc", bonusMods.rangedWeaponsAcc);
-                wa.SetFloat(LastAppliedPrefix + "rangedWeaponsSpeed", bonusMods.rangedWeaponsSpeed);
-                wa.SetFloat(LastAppliedPrefix + "miningSpeedMul", miningSpeedMult);
-                wa.SetFloat(LastAppliedPrefix + "jumpHeightMul", jumpHeightMult);
-                wa.SetFloat(LastAppliedPrefix + "maxHealthFlat", maxHealthFlat);
-                wa.SetFloat(LastAppliedPrefix + "maxOxygenBonus", maxOxygenBonus);
+                // Batch write last applied values to WatchedAttributes using TreeAttribute
+                var newTree = new Vintagestory.API.Datastructures.TreeAttribute();
+                newTree.SetFloat("walkspeed", bonusMods.walkSpeed);
+                newTree.SetFloat("healing", bonusMods.healingeffectivness);
+                newTree.SetFloat("hunger", bonusMods.hungerrate);
+                newTree.SetFloat("acc", bonusMods.rangedWeaponsAcc);
+                newTree.SetFloat("rangeSpeed", bonusMods.rangedWeaponsSpeed);
+                newTree.SetFloat("mining", miningSpeedMult);
+                newTree.SetFloat("jump", jumpHeightMult);
+                newTree.SetFloat("health", maxHealthFlat);
+                newTree.SetFloat("oxygen", maxOxygenBonus);
+                wa.SetAttribute(LastAppliedPrefix.TrimEnd(':'), newTree);
             }
         }
     }
