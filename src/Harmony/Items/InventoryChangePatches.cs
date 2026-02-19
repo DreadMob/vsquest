@@ -83,30 +83,6 @@ namespace VsQuest.Harmony.Items
         }
 
         /// <summary>
-        /// Patches item taking to invalidate cache when item removed.
-        /// </summary>
-        [HarmonyPatch(typeof(ItemSlot), "TryTakeOut")]
-        public class ItemSlot_TryTakeOut_InvalidateCache_Patch
-        {
-            public static void Postfix(ItemSlot __instance)
-            {
-                if (!HarmonyPatchSwitches.ItemEnabled(HarmonyPatchSwitches.Item_InventoryChangeTracking)) return;
-                
-                var inv = __instance?.Inventory;
-                if (inv?.ClassName != "character") return;
-                
-                // Find player who owns this inventory
-                var player = FindPlayerFromInventory(inv);
-                if (player?.Entity is EntityPlayer entityPlayer)
-                {
-                    var tracker = GetTracker(player.Entity.Api);
-                    tracker?.Invalidate(entityPlayer.EntityId);
-                    WearableStatsCache.InvalidateCache(entityPlayer);
-                }
-            }
-        }
-        
-        /// <summary>
         /// Helper to find player from their character inventory.
         /// </summary>
         private static IPlayer FindPlayerFromInventory(IInventory inv)
