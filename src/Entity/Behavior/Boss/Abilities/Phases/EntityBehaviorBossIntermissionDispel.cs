@@ -164,8 +164,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -322,8 +323,9 @@ namespace VsQuest
                     {
                         entity?.AnimManager?.StopAnimation(stage.animation);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in StopIntermission StopAnimation: {ex}");
                     }
                 }
             }
@@ -343,8 +345,9 @@ namespace VsQuest
                     if (e == null) continue;
                     sapi.World.DespawnEntity(e, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in DespawnSpawnedAdds: {ex}");
                 }
             }
 
@@ -363,8 +366,9 @@ namespace VsQuest
                     if (e == null) continue;
                     sapi.World.DespawnEntity(e, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in DespawnSpawnedDispels: {ex}");
                 }
             }
 
@@ -513,16 +517,18 @@ namespace VsQuest
 
                     spawnedDispelIds.Add(dispel.EntityId);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in SpawnDispelObjects: {ex}");
                     if (dispel != null)
                     {
                         try
                         {
                             sapi.World.DespawnEntity(dispel, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                         }
-                        catch
+                        catch (Exception innerEx)
                         {
+                            entity?.Api?.Logger?.Error($"[vsquest] Exception in SpawnDispelObjects DespawnEntity: {innerEx}");
                         }
                     }
                 }
@@ -538,8 +544,9 @@ namespace VsQuest
                 dispel.WatchedAttributes.SetBool(DispelFlagKey, true);
                 dispel.WatchedAttributes.MarkPathDirty(DispelFlagKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyDispelFlags SetBool DispelFlagKey: {ex}");
             }
 
             try
@@ -547,8 +554,9 @@ namespace VsQuest
                 dispel.WatchedAttributes.SetLong(DispelOwnerIdKey, entity.EntityId);
                 dispel.WatchedAttributes.MarkPathDirty(DispelOwnerIdKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyDispelFlags SetLong DispelOwnerIdKey: {ex}");
             }
 
             try
@@ -556,8 +564,9 @@ namespace VsQuest
                 dispel.WatchedAttributes.SetBool("alegacyvsquest:bossclone:invulnerable", stage.dispelInvulnerable);
                 dispel.WatchedAttributes.MarkPathDirty("alegacyvsquest:bossclone:invulnerable");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyDispelFlags SetBool invulnerable: {ex}");
             }
 
             try
@@ -565,8 +574,9 @@ namespace VsQuest
                 dispel.WatchedAttributes.SetBool("showHealthbar", false);
                 dispel.WatchedAttributes.MarkPathDirty("showHealthbar");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyDispelFlags SetBool showHealthbar: {ex}");
             }
         }
 
@@ -576,8 +586,9 @@ namespace VsQuest
             {
                 return entity?.WatchedAttributes?.GetBool(DispelFlagKey, false) ?? false;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in IsDispelEntity: {ex}");
                 return false;
             }
         }
@@ -591,8 +602,9 @@ namespace VsQuest
             {
                 ownerId = entity.WatchedAttributes.GetLong(DispelOwnerIdKey, 0);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in DespawnIfOwnerMissing GetLong: {ex}");
             }
 
             if (ownerId <= 0)
@@ -636,8 +648,9 @@ namespace VsQuest
 
                 return alive;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in CountAliveNearby: {ex}");
                 return 0;
             }
         }
@@ -651,8 +664,9 @@ namespace VsQuest
             {
                 entity?.AnimManager?.StartAnimation(stage.animation);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation Start: {ex}");
             }
 
             int stopMs = stage.animationStopMs;
@@ -666,13 +680,15 @@ namespace VsQuest
                     {
                         entity?.AnimManager?.StopAnimation(stage.animation);
                     }
-                    catch
+                    catch (Exception innerEx)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation callback Stop: {innerEx}");
                     }
                 }, stopMs);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation RegisterCallback: {ex}");
             }
         }
 
@@ -692,8 +708,9 @@ namespace VsQuest
                     {
                         sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, stage.soundVolume);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound callback: {ex}");
                     }
                 }, stage.soundStartMs);
             }
@@ -703,8 +720,9 @@ namespace VsQuest
                 {
                     sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, stage.soundVolume);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound immediate: {ex}");
                 }
             }
         }

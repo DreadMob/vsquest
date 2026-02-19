@@ -97,8 +97,9 @@ namespace VsQuest
                 owner.ReceiveDamage(damageSource, damage);
                 damage = 0f;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in OnEntityReceiveDamage ReceiveDamage: {ex}");
             }
         }
 
@@ -172,8 +173,9 @@ namespace VsQuest
                     {
                         sapi.World.DespawnEntity(clone, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in UpdateClones DespawnEntity: {ex}");
                     }
                 }
 
@@ -221,23 +223,26 @@ namespace VsQuest
                         CopyPlayerInventory(player, clone);
                         clone.MarkShapeModified();
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in SpawnCloneFor callback: {ex}");
                     }
                 }, "bossplayerclone-copy");
 
                 cloneByPlayerUid[player.PlayerUID] = clone.EntityId;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in SpawnCloneFor: {ex}");
                 if (clone != null)
                 {
                     try
                     {
                         sapi.World.DespawnEntity(clone, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                     }
-                    catch
+                    catch (Exception innerEx)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in SpawnCloneFor DespawnEntity: {innerEx}");
                     }
                 }
             }
@@ -271,8 +276,9 @@ namespace VsQuest
                 clone.WatchedAttributes.MarkPathDirty(ClonePlayerNameKey);
                 clone.WatchedAttributes.MarkPathDirty("showHealthbar");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyCloneFlags SetAttributes: {ex}");
             }
 
             try
@@ -282,8 +288,9 @@ namespace VsQuest
                 clone.WatchedAttributes.SetAttribute("nametag", tag);
                 clone.WatchedAttributes.MarkPathDirty("nametag");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in ApplyCloneFlags nametag: {ex}");
             }
 
             CopyAppearanceAttributes(player, clone);
@@ -317,8 +324,9 @@ namespace VsQuest
                 target.WatchedAttributes.SetAttribute(key, tree.Clone());
                 target.WatchedAttributes.MarkPathDirty(key);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryCopyTreeAttribute: {ex}");
             }
         }
 
@@ -355,8 +363,9 @@ namespace VsQuest
                             }
                             targetSlot.MarkDirty();
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            entity?.Api?.Logger?.Error($"[vsquest] Exception in CopyPlayerInventory item copy: {ex}");
                         }
                     }
                 }
@@ -364,8 +373,9 @@ namespace VsQuest
                 TrySetHandItem(targetInv, HandSlotRight, player.Entity.RightHandItemSlot);
                 TrySetHandItem(targetInv, HandSlotLeft, player.Entity.LeftHandItemSlot);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in CopyPlayerInventory: {ex}");
             }
         }
 
@@ -389,8 +399,9 @@ namespace VsQuest
                 }
                 targetSlot.MarkDirty();
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TrySetHandItem: {ex}");
             }
         }
 
@@ -418,8 +429,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in SyncClone: {ex}");
             }
         }
 
@@ -431,8 +443,9 @@ namespace VsQuest
                 if (ownerId <= 0 || sapi == null) return null;
                 return sapi.World.GetEntityById(ownerId);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in GetCloneOwner: {ex}");
                 return null;
             }
         }
@@ -443,8 +456,9 @@ namespace VsQuest
             {
                 return entity?.WatchedAttributes?.GetBool(CloneFlagKey, false) ?? false;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in IsCloneEntity: {ex}");
                 return false;
             }
         }
@@ -457,8 +471,9 @@ namespace VsQuest
             {
                 sapi.World.DespawnEntity(entity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in DespawnClone: {ex}");
             }
         }
 
@@ -478,8 +493,9 @@ namespace VsQuest
                         sapi.World.DespawnEntity(clone, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupClones: {ex}");
                 }
             }
 

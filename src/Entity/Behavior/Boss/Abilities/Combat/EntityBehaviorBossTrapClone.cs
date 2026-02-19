@@ -698,8 +698,9 @@ namespace VsQuest
                             sapi.World.DespawnEntity(entity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TickTrap OwnerCheck: {ex}");
                     }
                 }
 
@@ -726,8 +727,9 @@ namespace VsQuest
                 explodeSoundRange = wa.GetFloat(TrapExplodeSoundRangeKey, 0f);
                 explodeSoundVolume = wa.GetFloat(TrapExplodeSoundVolumeKey, 1f);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TickTrap ReadParameters: {ex}");
             }
 
             if (ownerId <= 0)
@@ -751,8 +753,9 @@ namespace VsQuest
                     wa.SetLong(TrapExplodeAtMsKey, now + ExplodeRetryDelayMs);
                     wa.MarkPathDirty(TrapExplodeAtMsKey);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TickTrap SetExplodeAt: {ex}");
                 }
 
                 return;
@@ -790,8 +793,9 @@ namespace VsQuest
                     {
                         limiterEntityId = owner?.EntityId ?? 0;
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryExplode GetLimiterEntityId: {ex}");
                         limiterEntityId = 0;
                     }
 
@@ -839,8 +843,9 @@ namespace VsQuest
                     }, damage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryExplode DealDamage: {ex}");
                 return false;
             }
 
@@ -884,8 +889,9 @@ namespace VsQuest
                 flash.MinPos = center.AddCopy(-0.1, 0.2, -0.1);
                 sapi.World.SpawnParticles(flash);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryExplode SpawnParticles: {ex}");
             }
 
             return true;
@@ -923,8 +929,9 @@ namespace VsQuest
                 dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryFindTarget: {ex}");
                 return false;
             }
         }
@@ -937,8 +944,9 @@ namespace VsQuest
             {
                 entity?.AnimManager?.StartAnimation(animation);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation: {ex}");
             }
         }
 
@@ -964,8 +972,9 @@ namespace VsQuest
                     {
                         sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound callback: {ex}");
                     }
                 }, stage.soundStartMs);
             }
@@ -975,8 +984,9 @@ namespace VsQuest
                 {
                     sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound immediate: {ex}");
                 }
             }
         }

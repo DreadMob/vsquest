@@ -36,6 +36,7 @@ namespace VsQuest
             var bossHuntSkipHandler = new BossHuntSkipCommandHandler(sapi);
             var bossHuntStatusHandler = new BossHuntStatusCommandHandler(sapi);
             var bossHuntReloadHandler = new BossHuntReloadCommandHandler(sapi);
+            var bossClearCorpseHandler = new BossClearCorpseCommandHandler(sapi);
 
             var questWAttrHandler = new QuestWAttrCommandHandler(sapi);
 
@@ -287,6 +288,12 @@ namespace VsQuest
                         .WithArgs(sapi.ChatCommands.Parsers.OptionalInt("radiusBlocks", 512))
                         .HandleWith(bossHuntReloadHandler.Handle)
                     .EndSubCommand()
+                .EndSubCommand()
+                .BeginSubCommand("clearcorpse")
+                    .WithDescription("Despawns dead boss corpses from regular boss encounters (not bosshunt). Radius 0 = all loaded chunks.")
+                    .RequiresPrivilege(Privilege.give)
+                    .WithArgs(sapi.ChatCommands.Parsers.OptionalInt("radiusBlocks", 0))
+                    .HandleWith(bossClearCorpseHandler.Handle)
                 .EndSubCommand()
                 .BeginSubCommand("ai")
                     .WithDescription("Action item durability tools")

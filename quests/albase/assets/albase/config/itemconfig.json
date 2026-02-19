@@ -31,7 +31,6 @@
       "attributes": {
         "protectionperc": -0.1,
         "walkspeed": -0.1,
-        "weightlimit": 0.2,
         "hungerrate": 0.8,
         "miningspeedmult": 0.45,
         "temporaldrainmult": 0.1
@@ -39,7 +38,6 @@
       "showAttributes": [
         "protectionperc",
         "walkspeed",
-        "weightlimit",
         "hungerrate",
         "miningspeedmult",
         "temporaldrainmult"
@@ -149,7 +147,6 @@
         "protectionperc": 0.15,
         "walkspeed": -0.2,
         "hungerrate": 0.3,
-        "weightlimit": 0.15,
         "viewdistance": -0.35
       },
       "showAttributes": [
@@ -157,7 +154,6 @@
         "protectionperc",
         "walkspeed",
         "hungerrate",
-        "weightlimit",
         "viewdistance"
       ],
       "hideVanillaTooltips": [

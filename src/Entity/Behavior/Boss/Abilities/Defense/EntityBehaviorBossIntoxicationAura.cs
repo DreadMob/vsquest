@@ -61,8 +61,9 @@ namespace VsQuest
                     if (stage.range > maxRange) maxRange = stage.range;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -153,8 +154,9 @@ namespace VsQuest
                 {
                     until = plr.WatchedAttributes.GetLong(IntoxUntilMsKey, 0);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredIntoxication GetLong: {ex}");
                     until = 0;
                 }
 
@@ -179,8 +181,9 @@ namespace VsQuest
                             plr.WatchedAttributes.MarkPathDirty("intoxication");
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredIntoxication GetFloat: {ex}");
                     }
 
                     continue;
@@ -198,8 +201,9 @@ namespace VsQuest
                             plr.WatchedAttributes.SetLong(IntoxUntilMsKey, 0);
                             plr.WatchedAttributes.MarkPathDirty(IntoxUntilMsKey);
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredIntoxication SetLong stale: {ex}");
                         }
 
                         try
@@ -207,8 +211,9 @@ namespace VsQuest
                             plr.WatchedAttributes.SetFloat("intoxication", 0f);
                             plr.WatchedAttributes.MarkPathDirty("intoxication");
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredIntoxication SetFloat stale: {ex}");
                         }
 
                         continue;
@@ -222,8 +227,9 @@ namespace VsQuest
                         plr.WatchedAttributes.SetLong(IntoxUntilMsKey, 0);
                         plr.WatchedAttributes.MarkPathDirty(IntoxUntilMsKey);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredIntoxication SetLong expired: {ex}");
                     }
 
                     try
@@ -231,8 +237,9 @@ namespace VsQuest
                         plr.WatchedAttributes.SetFloat("intoxication", 0f);
                         plr.WatchedAttributes.MarkPathDirty("intoxication");
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in CleanupExpiredIntoxication SetFloat expired: {ex}");
                     }
                 }
             }

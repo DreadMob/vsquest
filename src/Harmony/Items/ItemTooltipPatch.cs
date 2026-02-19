@@ -13,6 +13,60 @@ namespace VsQuest.Harmony
 {
     public static class ItemTooltipPatcher
     {
+        // Tooltip cache to avoid recomputing every frame on hover
+        private static readonly Dictionary<int, CachedTooltip> TooltipCache = new Dictionary<int, CachedTooltip>();
+        private const int MaxCacheSize = 128;
+
+        private class CachedTooltip
+        {
+            public string Tooltip;
+            public int StackFingerprint;
+            public long Timestamp;
+        }
+
+        private static int GetStackFingerprint(ItemStack stack)
+        {
+            if (stack?.Attributes == null) return 0;
+            // Fast fingerprint based on item code + attributes hash
+            int hash = stack.Collectible?.Code?.GetHashCode() ?? 0;
+            hash = hash * 31 + stack.Attributes.GetHashCode();
+            return hash;
+        }
+
+        private static string GetCachedTooltip(ItemSlot inSlot, string inputTooltip)
+        {
+            if (inSlot?.Itemstack == null) return null;
+            int fp = GetStackFingerprint(inSlot.Itemstack);
+            if (fp == 0) return null;
+
+            long now = DateTime.UtcNow.Ticks;
+            if (TooltipCache.TryGetValue(fp, out var cached) && cached.StackFingerprint == fp)
+            {
+                // Cache valid if same stack fingerprint
+                return cached.Tooltip;
+            }
+            return null;
+        }
+
+        private static void SetCachedTooltip(ItemSlot inSlot, string result)
+        {
+            if (inSlot?.Itemstack == null) return;
+            int fp = GetStackFingerprint(inSlot.Itemstack);
+            if (fp == 0) return;
+
+            // Prevent cache bloat
+            if (TooltipCache.Count >= MaxCacheSize)
+            {
+                TooltipCache.Clear();
+            }
+
+            TooltipCache[fp] = new CachedTooltip
+            {
+                Tooltip = result,
+                StackFingerprint = fp,
+                Timestamp = DateTime.UtcNow.Ticks
+            };
+        }
         private static void TrimEndNewlines(StringBuilder sb)
         {
             if (sb == null) return;
@@ -46,6 +100,16 @@ namespace VsQuest.Harmony
 
             string actionsJson = inSlot.Itemstack.Attributes.GetString("alegacyvsquest:actions");
             if (string.IsNullOrEmpty(actionsJson)) return;
+
+            // Check cache first
+            string originalTooltip = dsc.ToString();
+            string cached = GetCachedTooltip(inSlot, originalTooltip);
+            if (cached != null)
+            {
+                dsc.Clear();
+                dsc.Append(cached);
+                return;
+            }
 
             ITreeAttribute attrs = inSlot.Itemstack.Attributes;
 
@@ -288,6 +352,10 @@ namespace VsQuest.Harmony
                     }
                 }
             }
+            // Cache the final tooltip result
+            TrimEndNewlines(dsc);
+            string result = dsc.ToString();
+            SetCachedTooltip(inSlot, result);
         }
     }
 

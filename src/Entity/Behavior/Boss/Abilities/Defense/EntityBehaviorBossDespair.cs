@@ -92,7 +92,10 @@ namespace VsQuest
                 {
                     sapi.World.PlaySoundAt(new AssetLocation("sounds/creature/shiver/aggro"), entity, null, randomizePitch: true, 16f);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in despair sound loop: {ex}");
+                }
             }, 1000);
 
             healListenerId = sapi.Event.RegisterGameTickListener(_ =>
@@ -101,7 +104,10 @@ namespace VsQuest
                 {
                     HealDuringDespair();
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in despair heal: {ex}");
+                }
             }, 500);
 
             int baseSeconds = (int)(sapi.World.Rand.NextDouble() * 3.0 + 3.0);
@@ -113,7 +119,10 @@ namespace VsQuest
                 {
                     entity.AnimManager.StopAnimation("despair");
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in despair StopAnimation: {ex}");
+                }
 
                 sapi.Event.RegisterCallback(__ =>
                 {
@@ -122,7 +131,10 @@ namespace VsQuest
                         StopDespairEffects();
                         Unfreeze();
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in despair StopDespairEffects: {ex}");
+                    }
                 }, 200);
 
             }, durationMs);

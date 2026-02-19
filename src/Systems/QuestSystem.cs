@@ -63,6 +63,11 @@ namespace VsQuest
             Config = LoadOrCreateModConfig<QuestConfig>(api, "questconfig.json");
             CoreConfig = LoadOrCreateModConfig<AlegacyVsQuestConfig>(api, "alegacy-vsquest-config.json");
             HarmonyPatchSwitches.ApplyFromConfig(CoreConfig);
+            
+            // Initialize performance config
+            Systems.Performance.PerformanceConfig.Initialize(CoreConfig.Performance);
+            api.Logger.Notification("[vsquest] Performance config initialized (optimizations: {0})", 
+                CoreConfig.Performance.EnablePerformanceOptimizations);
         }
 
         public bool TryReloadConfigs(out string resultMessage)

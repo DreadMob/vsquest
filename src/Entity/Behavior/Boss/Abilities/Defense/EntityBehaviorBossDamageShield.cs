@@ -107,8 +107,9 @@ namespace VsQuest
                     stages.Add(stage);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -258,8 +259,9 @@ namespace VsQuest
                     {
                         entity?.AnimManager?.StopAnimation(stage.animation);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in StopShield StopAnimation: {ex}");
                     }
                 }
             }
@@ -276,8 +278,9 @@ namespace VsQuest
             {
                 entity?.AnimManager?.StartAnimation(stage.animation);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation Start: {ex}");
             }
 
             int stopMs = stage.animationStopMs;
@@ -293,14 +296,16 @@ namespace VsQuest
                         {
                             entity?.AnimManager?.StopAnimation(stage.animation);
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation callback Stop: {ex}");
                         }
                     }, stopMs);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlayAnimation RegisterCallback: {ex}");
             }
         }
 
@@ -320,8 +325,9 @@ namespace VsQuest
                     {
                         sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound callback: {ex}");
                     }
                 }, stage.soundStartMs);
             }
@@ -331,8 +337,9 @@ namespace VsQuest
                 {
                     sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound immediate: {ex}");
                 }
             }
         }

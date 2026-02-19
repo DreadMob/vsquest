@@ -73,8 +73,9 @@ namespace VsQuest
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in parsing stages: {ex}");
             }
         }
 
@@ -104,8 +105,9 @@ namespace VsQuest
                     wa.MarkPathDirty(CloneOwnerIdKey);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TryRebindPlayerClones: {ex}");
             }
         }
 
@@ -182,16 +184,18 @@ namespace VsQuest
 
                 sapi.World.DespawnEntity(entity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in TrySwapForm: {ex}");
                 if (newEntity != null)
                 {
                     try
                     {
                         sapi.World.DespawnEntity(newEntity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
                     }
-                    catch
+                    catch (Exception innerEx)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TrySwapForm DespawnEntity: {innerEx}");
                     }
                 }
             }
@@ -213,8 +217,9 @@ namespace VsQuest
                     {
                         sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySwapSound callback: {ex}");
                     }
                 }, stage.soundStartMs);
             }
@@ -224,8 +229,9 @@ namespace VsQuest
                 {
                     sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySwapSound immediate: {ex}");
                 }
             }
         }
@@ -253,8 +259,9 @@ namespace VsQuest
                 newEntity.WatchedAttributes.SetString(TargetIdKey, targetId);
                 newEntity.WatchedAttributes.MarkPathDirty(TargetIdKey);
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in CopyTargetId: {ex}");
             }
         }
 
@@ -281,8 +288,9 @@ namespace VsQuest
                 newEntity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "z");
                 newEntity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "dim");
             }
-            catch
+            catch (Exception ex)
             {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in CopyAnchor: {ex}");
             }
         }
     }
