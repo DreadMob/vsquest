@@ -166,11 +166,11 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.75,
-            "entityCode": "wolf-eurasian-adult-male",
-            "maxNearby": 4,
+            "entityCode": "albase:bone-wolf",
+            "maxNearby": 6,
             "nearbyRange": 35,
-            "minCount": 1,
-            "maxCount": 2,
+            "minCount": 2,
+            "maxCount": 3,
             "ritualMs": 2400,
             "cooldownSeconds": 18,
             "spawnRange": 9,
@@ -182,11 +182,11 @@
           },
           {
             "whenHealthRelBelow": 0.4,
-            "entityCode": "wolf-eurasian-adult-male",
-            "maxNearby": 6,
+            "entityCode": "albase:bone-wolf",
+            "maxNearby": 10,
             "nearbyRange": 35,
-            "minCount": 2,
-            "maxCount": 3,
+            "minCount": 3,
+            "maxCount": 5,
             "ritualMs": 2600,
             "cooldownSeconds": 11,
             "spawnRange": 11,
@@ -235,8 +235,8 @@
       {
         "code": "bosswoundedmark",
         "stages": [
-          { "whenHealthRelBelow": 0.55, "cooldownSeconds": 16, "range": 18, "damageBoost": 0.14 },
-          { "whenHealthRelBelow": 0.25, "cooldownSeconds": 10, "range": 22, "damageBoost": 0.24 }
+          { "whenHealthRelBelow": 0.55, "cooldownSeconds": 16, "range": 18, "damageBoost": 0.14, "markDurationSeconds": 15 },
+          { "whenHealthRelBelow": 0.25, "cooldownSeconds": 10, "range": 22, "damageBoost": 0.24, "markDurationSeconds": 15 }
         ]
       },
       {
@@ -298,7 +298,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 28.5,
+            "damage": 31.0,
             "damageTier": 3,
             "minDist": 4.4,
             "minVerDist": 3.4,
@@ -315,7 +315,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.2,
-            "damage": 28.5,
+            "damage": 31.0,
             "damageTier": 4,
             "minDist": 5.6,
             "minVerDist": 4.0,
@@ -353,7 +353,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.6,
-            "damage": 28.5,
+            "damage": 31.0,
             "damageTier": 4,
             "minDist": 6.2,
             "minVerDist": 4.2,

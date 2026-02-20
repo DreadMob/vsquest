@@ -133,7 +133,7 @@
             "maxNearby": 10,
             "nearbyRange": 20,
             "ritualMs": 4800,
-            "healPerSecond": 4,
+            "healPerSecond": 2,
             "spawnRange": 10,
             "circleRadius": 3.5,
             "circleMoveSpeed": 1.1,
@@ -156,7 +156,7 @@
             "maxNearby": 10,
             "nearbyRange": 20,
             "ritualMs": 4800,
-            "healPerSecond": 5,
+            "healPerSecond": 2.5,
             "spawnRange": 12,
             "circleRadius": 4.0,
             "circleMoveSpeed": 1.25,
@@ -247,7 +247,7 @@
         ]
       },
       {
-        "code": "bossdynamicscaling", "hpPerPlayer": 120, "regenPerPlayer": 0.8
+        "code": "bossdynamicscaling", "hpPerPlayer": 120, "regenPerPlayer": 0.3
       },
       {
         "code": "bossdamageinvulnerability"
@@ -269,8 +269,8 @@
       {
         "code": "bosswoundedmark",
         "stages": [
-          { "whenHealthRelBelow": 0.6, "cooldownSeconds": 15, "range": 20, "damageBoost": 0.15 },
-          { "whenHealthRelBelow": 0.25, "cooldownSeconds": 10, "range": 25, "damageBoost": 0.25 }
+          { "whenHealthRelBelow": 0.6, "cooldownSeconds": 15, "range": 20, "damageBoost": 0.15, "markDurationSeconds": 15 },
+          { "whenHealthRelBelow": 0.25, "cooldownSeconds": 10, "range": 25, "damageBoost": 0.25, "markDurationSeconds": 15 }
         ]
       },
       {
@@ -285,13 +285,14 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.65,
-            "cooldownSeconds": 14,
+            "cooldownSeconds": 10,
             "range": 15,
             "windupMs": 800,
             "durationMs": 8000,
-            "tickIntervalMs": 500,
-            "drainPerTick": 1.5,
-            "healMultiplier": 0.6,
+            "tickIntervalMs": 1000,
+            "drainPerSecond": 1.5,
+            "damage": 10,
+            "healMultiplier": 0.2,
             "animation": "attack",
             "sound": "albase:mechanical/mecha rage",
             "soundRange": 28,
@@ -299,13 +300,14 @@
           },
           {
             "whenHealthRelBelow": 0.3,
-            "cooldownSeconds": 10,
+            "cooldownSeconds": 12,
             "range": 20,
             "windupMs": 600,
             "durationMs": 10000,
-            "tickIntervalMs": 400,
-            "drainPerTick": 2.2,
-            "healMultiplier": 0.8,
+            "tickIntervalMs": 1000,
+            "drainPerSecond": 2.2,
+            "damage": 10,
+            "healMultiplier": 0.25,
             "animation": "rundrill",
             "sound": "albase:mechanical/mecha rage",
             "soundRange": 32,
@@ -335,7 +337,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 26.5,
+            "damage": 29.0,
             "damageTier": 2,
             "minDist": 7.5,
             "minVerDist": 4.8,
@@ -353,7 +355,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.2,
-            "damage": 32.5,
+            "damage": 35.0,
             "damageTier": 4,
             "minDist": 10.0,
             "minVerDist": 5.8,
@@ -372,7 +374,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.4,
-            "damage": 38.5,
+            "damage": 41.0,
             "damageTier": 5,
             "minDist": 11.0,
             "minVerDist": 6.3,

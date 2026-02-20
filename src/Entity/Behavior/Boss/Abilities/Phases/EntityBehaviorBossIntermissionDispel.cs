@@ -76,6 +76,8 @@ namespace VsQuest
         private readonly List<long> spawnedAddIds = new List<long>();
         private readonly List<long> spawnedDispelIds = new List<long>();
 
+        private long lastTickMs;
+
         public EntityBehaviorBossIntermissionDispel(Entity entity) : base(entity)
         {
         }
@@ -174,6 +176,10 @@ namespace VsQuest
         {
             base.OnGameTick(dt);
             if (sapi == null || entity == null) return;
+
+            long now = sapi.World.ElapsedMilliseconds;
+            if (now - lastTickMs < 500) return;
+            lastTickMs = now;
 
             if (IsDispelEntity())
             {

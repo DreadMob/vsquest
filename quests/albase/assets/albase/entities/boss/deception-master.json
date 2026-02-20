@@ -524,7 +524,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 11.5,
+            "damage": 14.0,
             "damageTier": 4,
             "minDist": 2.8,
             "minVerDist": 2.8,

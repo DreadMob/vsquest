@@ -2,6 +2,7 @@ using System;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.GameContent;
 using VsQuest;
@@ -22,7 +23,11 @@ namespace VsQuest.Harmony.Players
             public const string BossGrowthRitualDamageMult = "alegacyvsquest:bossgrowthritual:damagemult";
             public const string AdminAttackPower = "vsquestadmin:attr:attackpower";
             public const string FiredBy = "firedBy";
+            public const string HasInvulnBehavior = "vsquest:hasinvuln";
+            public const string InvulnCheckTime = "vsquest:invulncheck";
         }
+
+        private const int InvulnCheckIntervalMs = 5000; // Only check HasBehavior every 5 seconds
 
         public static bool Prefix(EntityAgent __instance, DamageSource damageSource, ref float damage, ref bool __result)
         {
@@ -48,17 +53,17 @@ namespace VsQuest.Harmony.Players
             var causeEntity = damageSource.GetCauseEntity() ?? sourceEntity;
             var sourceAttrs = sourceEntity?.WatchedAttributes ?? causeEntity?.WatchedAttributes;
 
-            // Boss knockback immunity (zero knockback for bosses)
-            if (damageSource.KnockbackStrength > 0f && BossDetection.IsBossTarget(__instance))
+            // Boss knockback immunity (zero knockback for bosses) - cached check
+            if (damageSource.KnockbackStrength > 0f && BossDetection.IsBossTargetFast(__instance))
             {
                 damageSource.KnockbackStrength = 0f;
             }
 
-            // Knockback bonus from attacker gear (only for player attackers)
-            if (causeEntity is EntityPlayer attacker && attacker.Player?.InventoryManager != null)
+            // Knockback bonus from attacker gear - only if knockback still present and attacker is player
+            if (damageSource.KnockbackStrength > 0f && causeEntity is EntityPlayer attacker && attacker.Player?.InventoryManager != null)
             {
                 var cached = WearableStatsCache.GetCachedStats(attacker);
-                if (cached?.KnockbackMult != 0f && damageSource.KnockbackStrength > 0f)
+                if (cached?.KnockbackMult != 0f)
                 {
                     damageSource.KnockbackStrength *= GameMath.Clamp(1f + cached.KnockbackMult, 0f, 5f);
                 }
@@ -105,10 +110,9 @@ namespace VsQuest.Harmony.Players
                 }
             }
 
-            // Boss damage invulnerability check - blocks damage for X ms after each hit
-            if (__instance.HasBehavior<EntityBehaviorBossDamageInvulnerability>())
+            // Boss damage invulnerability check - cached to avoid HasBehavior spam
+            if (HasInvulnerabilityBehaviorCached(__instance, out bool hasInvuln) && hasInvuln)
             {
-                var behavior = __instance.GetBehavior<EntityBehaviorBossDamageInvulnerability>();
                 long now = __instance.Api.World.ElapsedMilliseconds;
                 
                 // Check if currently invulnerable
@@ -120,12 +124,49 @@ namespace VsQuest.Harmony.Players
                     return false; // Skip original - damage blocked
                 }
                 
-                // Not invulnerable - allow damage but start invulnerability period
-                int durationMs = behavior?.DurationMs ?? 1000;
-                EntityBehaviorBossDamageInvulnerability.OnDamageReceived(__instance, durationMs);
+                // Only start invulnerability if damage will actually be dealt (> 0)
+                if (damage > 0)
+                {
+                    var behavior = __instance.GetBehavior<EntityBehaviorBossDamageInvulnerability>();
+                    int durationMs = behavior?.DurationMs ?? 1000;
+                    EntityBehaviorBossDamageInvulnerability.OnDamageReceived(__instance, durationMs);
+                }
             }
 
             // Continue to original method
+            return true;
+        }
+
+        /// <summary>
+        /// Cached check for invulnerability behavior - avoids expensive HasBehavior calls every tick.
+        /// Returns true if cache valid, outputs result in hasInvuln.
+        /// </summary>
+        private static bool HasInvulnerabilityBehaviorCached(EntityAgent entity, out bool hasInvuln)
+        {
+            hasInvuln = false;
+            if (entity?.WatchedAttributes == null) return false;
+
+            long now = entity.World?.ElapsedMilliseconds ?? 0;
+            var tree = entity.WatchedAttributes.GetTreeAttribute(AttrKeys.HasInvulnBehavior);
+            
+            if (tree != null)
+            {
+                long checkTime = tree.GetLong(AttrKeys.InvulnCheckTime);
+                if (now - checkTime < InvulnCheckIntervalMs)
+                {
+                    hasInvuln = tree.GetBool("has");
+                    return true;
+                }
+            }
+
+            // Cache expired or missing - do expensive check and cache result
+            hasInvuln = entity.HasBehavior<EntityBehaviorBossDamageInvulnerability>();
+            
+            var newTree = new TreeAttribute();
+            newTree.SetBool("has", hasInvuln);
+            newTree.SetLong(AttrKeys.InvulnCheckTime, now);
+            entity.WatchedAttributes.SetAttribute(AttrKeys.HasInvulnBehavior, newTree);
+            
             return true;
         }
     }
@@ -134,7 +175,50 @@ namespace VsQuest.Harmony.Players
     {
         private const string BossTargetKey = "vsquest:isBossTarget";
         private const string BossTag = "albase-boss";
+        private const string BossCheckTimeKey = "vsquest:bosschecktime";
+        private const int BossCheckIntervalMs = 10000; // 10 seconds
 
+        /// <summary>
+        /// Fast boss check - uses cached result if available, avoids expensive HasBehavior calls.
+        /// </summary>
+        public static bool IsBossTargetFast(EntityAgent target)
+        {
+            if (target == null) return false;
+
+            // Fast path 1: cached attribute
+            var watched = target.WatchedAttributes;
+            if (watched == null) return false;
+            
+            if (watched.GetBool(BossTargetKey, false))
+                return true;
+
+            // Fast path 2: Check if we've recently verified this is NOT a boss
+            long now = target.World?.ElapsedMilliseconds ?? 0;
+            var tree = watched.GetTreeAttribute(BossCheckTimeKey);
+            if (tree != null)
+            {
+                long lastCheck = tree.GetLong("time");
+                if (now - lastCheck < BossCheckIntervalMs)
+                {
+                    return tree.GetBool("isboss", false);
+                }
+            }
+
+            // Full check needed
+            bool isBoss = IsBossTargetInternal(target);
+            
+            // Cache result
+            var newTree = new TreeAttribute();
+            newTree.SetLong("time", now);
+            newTree.SetBool("isboss", isBoss);
+            watched.SetAttribute(BossCheckTimeKey, newTree);
+            
+            return isBoss;
+        }
+
+        /// <summary>
+        /// Standard boss check - slower but always accurate.
+        /// </summary>
         public static bool IsBossTarget(EntityAgent target)
         {
             if (target == null) return false;
@@ -143,6 +227,11 @@ namespace VsQuest.Harmony.Players
             if (target.WatchedAttributes?.GetBool(BossTargetKey, false) == true)
                 return true;
 
+            return IsBossTargetInternal(target);
+        }
+
+        private static bool IsBossTargetInternal(EntityAgent target)
+        {
             // Check for boss tag
             if (target.Properties?.Attributes?["alegacy-boss"].AsBool(false) == true)
                 return true;
@@ -160,10 +249,22 @@ namespace VsQuest.Harmony.Players
                     return true;
             }
 
-            // Last resort: HasBehavior - check for actual boss behaviors
-            return target.HasBehavior<EntityBehaviorBossCombatMarker>() ||
-                   target.HasBehavior<EntityBehaviorBossHuntCombatMarker>() ||
-                   target.HasBehavior<EntityBehaviorQuestBoss>();
+            // Last resort: Check behaviors - combined into single iteration
+            var behaviors = target.SidedProperties?.Behaviors;
+            if (behaviors != null)
+            {
+                foreach (var behavior in behaviors)
+                {
+                    if (behavior is EntityBehaviorBossCombatMarker ||
+                        behavior is EntityBehaviorBossHuntCombatMarker ||
+                        behavior is EntityBehaviorQuestBoss)
+                    {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
         }
     }
 }

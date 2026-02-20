@@ -24,6 +24,10 @@ namespace VsQuest
         private readonly Dictionary<string, int> lastDimensionByPlayerUid = new Dictionary<string, int>(StringComparer.Ordinal);
         private readonly Dictionary<string, long> lastActionMsByPlayerUid = new Dictionary<string, long>(StringComparer.Ordinal);
 
+        // Cache: playerUID -> (questId, config, lastCheckMs) - avoid recalculating every tick
+        private readonly Dictionary<string, (string questId, QuestLandConfig config, long checkMs)> playerQuestCache = new Dictionary<string, (string, QuestLandConfig, long)>(StringComparer.Ordinal);
+        private const long PlayerCacheValidityMs = 10000; // 10 seconds
+
         public override void StartServerSide(ICoreServerAPI api)
         {
             sapi = api;
@@ -199,7 +203,22 @@ namespace VsQuest
             if (questSystem == null) return false;
             if (configs == null || configs.Count == 0) return false;
 
-            var active = questSystem.GetPlayerQuests(sp.PlayerUID);
+            string uid = sp.PlayerUID;
+            if (string.IsNullOrWhiteSpace(uid)) return false;
+
+            // Check player-level cache first (valid for 10 seconds)
+            long nowMs = sapi.World.ElapsedMilliseconds;
+            if (playerQuestCache.TryGetValue(uid, out var cached))
+            {
+                if (nowMs - cached.checkMs < PlayerCacheValidityMs && cached.config != null)
+                {
+                    questId = cached.questId;
+                    config = cached.config;
+                    return !string.IsNullOrWhiteSpace(questId);
+                }
+            }
+
+            var active = questSystem.GetPlayerQuests(uid);
             if (active == null || active.Count == 0) return false;
 
             // Prefer the config with the most specific (longest) prefix match.
@@ -235,6 +254,9 @@ namespace VsQuest
             }
 
             if (bestConfig == null || string.IsNullOrWhiteSpace(bestQuestId)) return false;
+
+            // Cache the result
+            playerQuestCache[uid] = (bestQuestId, bestConfig, nowMs);
 
             questId = bestQuestId;
             config = bestConfig;
@@ -311,11 +333,9 @@ namespace VsQuest
 
             if (string.IsNullOrWhiteSpace(actionTemplate))
             {
-                // Safe default: just notify
                 actionTemplate = "notify '{message}'";
             }
 
-            // Replace placeholders
             string safeMsg = (message ?? "").Replace("'", "\\'");
             string safeClaim = (claimName ?? "").Replace("'", "\\'");
             string safeLast = (lastClaimName ?? "").Replace("'", "\\'");
@@ -325,8 +345,33 @@ namespace VsQuest
                 .Replace("{claim}", safeClaim)
                 .Replace("{lastclaim}", safeLast);
 
+            var actionStrings = actionString.Split(';').Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            if (actionStrings.Length == 0) return;
+
             var msg = new QuestAcceptedMessage { questGiverId = sp.Entity.EntityId, questId = questId };
-            ActionStringExecutor.Execute(sapi, msg, sp, actionString);
+
+            // Execute actions with small delays to spread network load and reduce jitter
+            if (actionStrings.Length == 1)
+            {
+                ActionStringExecutor.Execute(sapi, msg, sp, actionStrings[0]);
+            }
+            else
+            {
+                ExecuteActionsWithDelay(sp, msg, actionStrings, 0);
+            }
+        }
+
+        private void ExecuteActionsWithDelay(IServerPlayer sp, QuestMessage msg, string[] actions, int index)
+        {
+            if (index >= actions.Length) return;
+
+            ActionStringExecutor.Execute(sapi, msg, sp, actions[index]);
+
+            // Small delay between actions to spread network load
+            if (index < actions.Length - 1)
+            {
+                sapi.Event.RegisterCallback(_ => ExecuteActionsWithDelay(sp, msg, actions, index + 1), 50);
+            }
         }
 
         private string GetEnterMessage(QuestLandConfig config, string claimName)

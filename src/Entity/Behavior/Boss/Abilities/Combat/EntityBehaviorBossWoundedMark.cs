@@ -21,10 +21,14 @@ namespace VsQuest
         private int cooldownMs;
         private int maxTargets;
         private float detectionRange;
+        private int markDurationMs = 15000;
 
         private long lastCastMs;
-        private Dictionary<long, bool> woundedPlayers = new Dictionary<long, bool>();
-        private HashSet<long> playersWhoHealed = new HashSet<long>();
+        private long lastTickCheckMs;
+        private long lastParticleTickMs;
+        private const int TickCheckIntervalMs = 750;
+        private const int ParticleTickIntervalMs = 500;
+        private Dictionary<long, long> woundedPlayers = new Dictionary<long, long>();
 
         public EntityBehaviorBossWoundedMark(Entity entity) : base(entity)
         {
@@ -37,11 +41,12 @@ namespace VsQuest
             base.Initialize(properties, attributes);
             sapi = entity?.Api as ICoreServerAPI;
             triggerHpPercent = attributes["triggerHp"].AsFloat(0.45f);
-            explosionDamage = attributes["explosionDamage"].AsFloat(35f);
+            explosionDamage = attributes["explosionDamage"].AsFloat(210f); // 35 * 6 = increased for less frequent ticks
             explosionRange = attributes["range"].AsFloat(10f);
             cooldownMs = attributes["cooldownSeconds"].AsInt(18) * 1000;
             maxTargets = attributes["maxTargets"].AsInt(2);
             detectionRange = attributes["detectionRange"].AsFloat(40f);
+            markDurationMs = attributes["markDurationSeconds"].AsInt(15) * 1000;
 
             lastCastMs = 0;
         }
@@ -60,8 +65,19 @@ namespace VsQuest
                 TryApplyMark(now);
             }
 
-            // Check for healing explosions
-            CheckForHealingExplosions();
+            // Check for healing explosions - only every 750ms instead of every tick
+            if (now - lastTickCheckMs >= TickCheckIntervalMs)
+            {
+                lastTickCheckMs = now;
+                CheckForHealingExplosions();
+            }
+
+            // Spawn particles on marked players - every 500ms
+            if (now - lastParticleTickMs >= ParticleTickIntervalMs)
+            {
+                lastParticleTickMs = now;
+                SpawnParticlesOnMarkedPlayers(now);
+            }
         }
 
         private void TryApplyMark(long now)
@@ -99,7 +115,7 @@ namespace VsQuest
                 var target = targets[idx];
                 targets.RemoveAt(idx);
 
-                woundedPlayers[target.EntityId] = false; // Not exploded yet
+                woundedPlayers[target.EntityId] = now + markDurationMs; // Store expiry time
 
                 // Visual effect - pulsing red aura
                 var targetPos = target.ServerPos.XYZ;
@@ -128,10 +144,12 @@ namespace VsQuest
         private void CheckForHealingExplosions()
         {
             List<long> toRemove = new List<long>();
+            long now = sapi.World.ElapsedMilliseconds;
 
             foreach (var kvp in woundedPlayers)
             {
-                if (kvp.Value) // Already exploded
+                // Check if mark expired
+                if (now >= kvp.Value)
                 {
                     toRemove.Add(kvp.Key);
                     continue;
@@ -145,20 +163,46 @@ namespace VsQuest
                 }
 
                 // Check if player healed (health increased)
-                // This is a simplified check - in practice you'd track health changes
-                // For now, we check if player used healing items recently via stats
                 float healRate = player.Stats.GetBlended("healrate");
-                if (healRate > 0 && player.WatchedAttributes.GetLong("lastHealMs", 0) > sapi.World.ElapsedMilliseconds - 1000)
+                if (healRate > 0 && player.WatchedAttributes.GetLong("lastHealMs", 0) > now - 1000)
                 {
                     // Explosion!
                     ExplodeOnPlayer(player);
-                    woundedPlayers[kvp.Key] = true;
+                    toRemove.Add(kvp.Key);
                 }
             }
 
             foreach (var id in toRemove)
             {
                 woundedPlayers.Remove(id);
+            }
+        }
+
+        private void SpawnParticlesOnMarkedPlayers(long now)
+        {
+            foreach (var kvp in woundedPlayers)
+            {
+                if (now >= kvp.Value) continue; // Skip expired
+
+                var player = sapi.World.PlayerByUid(kvp.Key.ToString())?.Entity;
+                if (player?.ServerPos == null) continue;
+
+                var targetPos = player.ServerPos.XYZ;
+                sapi.World.SpawnParticles(
+                    new SimpleParticleProperties(
+                        8, 12,
+                        ColorUtil.ToRgba(200, 255, 50, 80),
+                        targetPos.Add(-0.2, 0.5, -0.2),
+                        targetPos.Add(0.2, 1.5, 0.2),
+                        new Vec3f(-0.1f, 0.1f, -0.1f),
+                        new Vec3f(0.1f, 0.2f, 0.1f),
+                        0.8f,
+                        0f,
+                        0.3f,
+                        0.3f,
+                        EnumParticleModel.Quad
+                    )
+                );
             }
         }
 

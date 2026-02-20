@@ -1,0 +1,94 @@
+{
+  "code": "bone-wolf",
+  "class": "EntityAgent",
+  "canClimb": false,
+  "fallDamageMultiplier": 0.0,
+  "hitboxSize": { "x": 0.6, "y": 0.8 },
+  "deadHitboxSize": { "x": 0.6, "y": 0.5 },
+  "eyeHeight": 0.7,
+  "drops": [],
+  "attributes": {
+    "alegacyvsquestHideInfoText": true
+  },
+  "client": {
+    "renderer": "Shape",
+    "shape": { "base": "game:entity/animal/mammal/wolf/eurasian-adult" },
+    "texture": { "base": "albase:boss-bonecolossus-wolf" },
+    "size": 1.05,
+    "behaviors": [
+      { "code": "repulseagents" },
+      { "code": "controlledphysics", "stepHeight": 1.1251 },
+      { "code": "floatupwhenstuck", "onlyWhenDead": true },
+      { "code": "interpolateposition" },
+      { "code": "alegacyvsquestbosshealthbar", "show": false }
+    ],
+    "animations": [
+      { "code": "idle", "animation": "idle", "blendMode": "Average", "triggeredBy": { "defaultAnim": true } },
+      { "code": "hurt", "animation": "hurt", "animationSpeed": 1.5, "weight": 5 },
+      { "code": "death", "animation": "death", "animationSpeed": 1.2, "weight": 10 },
+      { "code": "run", "animation": "run", "animationSpeed": 1.5, "weight": 1 },
+      { "code": "attack", "animation": "attack", "animationSpeed": 1.5, "weight": 1 }
+    ]
+  },
+  "server": {
+    "behaviors": [
+      { "code": "repulseagents" },
+      { "code": "controlledphysics", "stepHeight": 1.1251 },
+      { "code": "health", "currenthealth": 45, "maxhealth": 45 },
+      {
+        "code": "taskai",
+        "aitasks": [
+          {
+            "code": "seekentity",
+            "entityCodes": ["player"],
+            "priority": 2.0,
+            "mincooldown": 200,
+            "maxcooldown": 500,
+            "movespeed": 0.08,
+            "seekingRange": 35,
+            "maxFollowTime": 120,
+            "animation": "run",
+            "animationSpeed": 1.5
+          },
+          {
+            "code": "meleeattack",
+            "entityCodes": ["player"],
+            "priority": 2.5,
+            "damage": 15,
+            "damageTier": 4,
+            "minDist": 1.5,
+            "minVerDist": 2.0,
+            "attackAngleRangeDeg": 120,
+            "mincooldown": 800,
+            "maxcooldown": 1500,
+            "damagePlayerAtMs": 350,
+            "attackDurationMs": 600,
+            "animation": "attack",
+            "animationSpeed": 1.5,
+            "sound": "game:creature/wolf/attack",
+            "soundRange": 16,
+            "soundStartMs": 100,
+            "soundVolume": 0.25
+          },
+          {
+            "code": "wander",
+            "priority": 1.0,
+            "movespeed": 0.04,
+            "animation": "run",
+            "animationSpeed": 0.8,
+            "preferredLightLevel": 15
+          },
+          { "code": "lookaround", "priority": 0.5 }
+        ]
+      },
+      { "code": "deaddecay", "hoursToDecay": 2 }
+    ]
+  },
+  "idleSoundRange": 20,
+  "idleSoundChance": 0.02,
+  "sounds": {
+    "hurt": "game:creature/wolf/hurt",
+    "death": "game:creature/wolf/death",
+    "idle": "game:creature/wolf/howl*"
+  }
+}

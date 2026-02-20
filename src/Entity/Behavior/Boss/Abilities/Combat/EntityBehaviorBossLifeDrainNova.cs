@@ -16,9 +16,10 @@ namespace VsQuest
             public float whenHealthRelBelow;
             public int cooldownMs;
             public float range;
-            public float damage;
+            public int durationMs;
+            public int tickIntervalMs;
+            public float drainPerSecond;
             public float healMult;
-            public int waves;
         }
 
         private ICoreServerAPI sapi;
@@ -27,6 +28,9 @@ namespace VsQuest
 
         private long lastCastMs;
         private int currentStageIndex;
+        private long novaEndMs;
+        private long lastTickMs;
+        private bool isNovaActive;
 
         public EntityBehaviorBossLifeDrainNova(Entity entity) : base(entity)
         {
@@ -50,9 +54,10 @@ namespace VsQuest
                     whenHealthRelBelow = stageObj["whenHealthRelBelow"].AsFloat(1f),
                     cooldownMs = stageObj["cooldownSeconds"].AsInt(18) * 1000,
                     range = stageObj["range"].AsFloat(22f),
-                    damage = stageObj["damage"].AsFloat(12f),
-                    healMult = stageObj["healMult"].AsFloat(2f),
-                    waves = stageObj["waves"].AsInt(2)
+                    durationMs = stageObj["durationMs"].AsInt(8000),
+                    tickIntervalMs = stageObj["tickIntervalMs"].AsInt(1000),
+                    drainPerSecond = stageObj["drainPerSecond"].AsFloat(stageObj["drainPerTick"].AsFloat(1.5f)),
+                    healMult = stageObj["healMult"].AsFloat(stageObj["healMultiplier"].AsFloat(0.5f))
                 });
             }
 
@@ -84,35 +89,42 @@ namespace VsQuest
             // Check cooldown
             if (now - lastCastMs < stage.cooldownMs) return;
 
-            // Perform nova
+            // Start nova
             PerformNova(stage, now);
             lastCastMs = now;
+            novaEndMs = now + stage.durationMs;
+            lastTickMs = now;
+            isNovaActive = true;
+
+            // Process active nova ticks
+            ProcessActiveNova(stage, now);
+        }
+
+        private void ProcessActiveNova(Stage stage, long now)
+        {
+            if (!isNovaActive || now > novaEndMs)
+            {
+                isNovaActive = false;
+                return;
+            }
+
+            // Process damage tick
+            if (now - lastTickMs >= stage.tickIntervalMs)
+            {
+                lastTickMs = now;
+                LaunchNovaTick(stage);
+            }
         }
 
         private void PerformNova(Stage stage, long now)
         {
-            // White glow effect on boss during nova
-            entity.WatchedAttributes.SetFloat("entityBrightness", 1.0f);
-            entity.WatchedAttributes.MarkPathDirty("entityBrightness");
-            
-            // Reset glow after nova duration
-            sapi.Event.RegisterCallback((_) =>
-            {
-                entity.WatchedAttributes.SetFloat("entityBrightness", 0);
-                entity.WatchedAttributes.MarkPathDirty("entityBrightness");
-            }, stage.waves * 800 + 500);
-
-            // Launch waves
-            for (int wave = 0; wave < stage.waves; wave++)
-            {
-                sapi.Event.RegisterCallback((_) =>
-                {
-                    LaunchNovaWave(stage);
-                }, wave * 800);
-            }
+            // Visual nova ring at start
+            SpawnNovaRing(stage);
+            // First tick immediately
+            LaunchNovaTick(stage);
         }
 
-        private void LaunchNovaWave(Stage stage)
+        private void LaunchNovaTick(Stage stage)
         {
             float totalDamage = 0;
             var damagedPlayers = new List<EntityPlayer>();
@@ -126,6 +138,7 @@ namespace VsQuest
                 double dist = player.Entity.ServerPos.DistanceTo(entity.ServerPos);
                 if (dist > stage.range) continue;
 
+                float damage = stage.drainPerSecond * (stage.tickIntervalMs / 1000f);
                 player.Entity.ReceiveDamage(
                     new DamageSource
                     {
@@ -133,10 +146,10 @@ namespace VsQuest
                         SourceEntity = entity,
                         Type = EnumDamageType.PiercingAttack
                     },
-                    stage.damage
+                    damage
                 );
 
-                totalDamage += stage.damage;
+                totalDamage += damage;
                 damagedPlayers.Add(player.Entity);
             }
 
@@ -179,6 +192,18 @@ namespace VsQuest
             }
 
             // Visual nova ring
+            SpawnNovaRing(stage);
+
+            // Sound
+            sapi.World.PlaySoundAt(
+                new AssetLocation("albase:magic-sparkling"),
+                entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z,
+                null, false, 32, 0.4f
+            );
+        }
+
+        private void SpawnNovaRing(Stage stage)
+        {
             for (int i = 0; i < 36; i++)
             {
                 double angle = i * 10 * GameMath.DEG2RAD;
@@ -201,13 +226,6 @@ namespace VsQuest
                     )
                 );
             }
-
-            // Sound
-            sapi.World.PlaySoundAt(
-                new AssetLocation("albase:magic-sparkling"),
-                entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z,
-                null, false, 32, 0.4f
-            );
         }
     }
 }

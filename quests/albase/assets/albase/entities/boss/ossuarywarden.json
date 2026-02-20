@@ -133,8 +133,8 @@
       {
         "code": "bosswoundedmark",
         "stages": [
-          { "whenHealthRelBelow": 0.5, "cooldownSeconds": 18, "range": 18, "damageBoost": 0.12 },
-          { "whenHealthRelBelow": 0.2, "cooldownSeconds": 12, "range": 22, "damageBoost": 0.22 }
+          { "whenHealthRelBelow": 0.5, "cooldownSeconds": 18, "range": 18, "damageBoost": 0.12, "markDurationSeconds": 15 },
+          { "whenHealthRelBelow": 0.2, "cooldownSeconds": 12, "range": 22, "damageBoost": 0.22, "markDurationSeconds": 15 }
         ]
       },
       {
@@ -183,7 +183,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 24.5,
+            "damage": 27.0,
             "damageTier": 4,
             "minDist": 5.2,
             "minVerDist": 2.4,
@@ -201,7 +201,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.25,
-            "damage": 29.5,
+            "damage": 32.0,
             "damageTier": 4,
             "minDist": 6.4,
             "minVerDist": 3.2,
@@ -220,7 +220,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.35,
-            "damage": 37.0,
+            "damage": 39.5,
             "damageTier": 5,
             "minDist": 8.5,
             "minVerDist": 4.0,

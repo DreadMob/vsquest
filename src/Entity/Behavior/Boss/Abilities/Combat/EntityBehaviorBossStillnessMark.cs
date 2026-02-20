@@ -13,7 +13,10 @@ namespace VsQuest
         private const string MarkUntilKey = "alegacyvsquest:bossstillnessmark:until";
         private const string MarkDamageKey = "alegacyvsquest:bossstillnessmark:damage";
 
-        private const int DamageTickIntervalMs = 1000;
+        private const int DamageTickIntervalMs = 3000;
+        private const int ProcessTickIntervalMs = 500; // Only process every 500ms instead of every tick
+
+        private long lastProcessTickMs;
 
         private ICoreServerAPI sapi;
         private int durationMs;
@@ -26,6 +29,7 @@ namespace VsQuest
         private long lastCastMs;
         private Dictionary<long, long> markedPlayers = new Dictionary<long, long>();
         private Dictionary<long, long> lastDamageTickMsByPlayer = new Dictionary<long, long>();
+        private Dictionary<long, EntityPlayer> cachedPlayers = new Dictionary<long, EntityPlayer>(); // Cache player references
 
         public EntityBehaviorBossStillnessMark(Entity entity) : base(entity)
         {
@@ -67,8 +71,12 @@ namespace VsQuest
                 TryApplyMark(now);
             }
 
-            // Process marked players
-            ProcessMarkedPlayers(dt, now);
+            // Process marked players - only every 500ms instead of every tick
+            if (now - lastProcessTickMs >= ProcessTickIntervalMs)
+            {
+                lastProcessTickMs = now;
+                ProcessMarkedPlayers(dt, now);
+            }
         }
 
         private void TryApplyMark(long now)
@@ -136,28 +144,28 @@ namespace VsQuest
                     continue;
                 }
 
-                // Find player by EntityId
+                // Find player by EntityId - use cached lookup
                 EntityPlayer player = null;
-                foreach (var onlinePlayer in sapi.World.AllOnlinePlayers)
+                if (!cachedPlayers.TryGetValue(kvp.Key, out player) || player == null || !player.Alive)
                 {
-                    if (onlinePlayer.Entity?.EntityId == kvp.Key)
+                    // Cache miss or invalid - find player
+                    foreach (var onlinePlayer in sapi.World.AllOnlinePlayers)
                     {
-                        player = onlinePlayer.Entity;
-                        break;
+                        if (onlinePlayer.Entity?.EntityId == kvp.Key)
+                        {
+                            player = onlinePlayer.Entity;
+                            cachedPlayers[kvp.Key] = player;
+                            break;
+                        }
                     }
                 }
                 
-                if (player == null)
+                if (player == null || !player.Alive || player.ServerPos?.Dimension != entity.ServerPos.Dimension)
                 {
                     toRemove.Add(kvp.Key);
+                    cachedPlayers.Remove(kvp.Key);
                     continue;
                 }
-
-                // Disable player actions while marked
-                player.WatchedAttributes.SetBool("alegacyvsquest:canshift", false);
-                player.WatchedAttributes.SetBool("alegacyvsquest:canjump", false);
-                player.WatchedAttributes.SetBool("alegacyvsquest:canuseitems", false);
-                player.WatchedAttributes.SetBool("alegacyvsquest:canmove", false);
 
                 // Check if moving - apply damage if they try to move
                 float walkSpeed = player.Stats.GetBlended("walkspeed");
@@ -203,25 +211,7 @@ namespace VsQuest
             {
                 markedPlayers.Remove(id);
                 lastDamageTickMsByPlayer.Remove(id);
-                
-                // Re-enable player actions when mark expires
-                EntityPlayer player = null;
-                foreach (var onlinePlayer in sapi.World.AllOnlinePlayers)
-                {
-                    if (onlinePlayer.Entity?.EntityId == id)
-                    {
-                        player = onlinePlayer.Entity;
-                        break;
-                    }
-                }
-                
-                if (player != null)
-                {
-                    player.WatchedAttributes.SetBool("alegacyvsquest:canshift", true);
-                    player.WatchedAttributes.SetBool("alegacyvsquest:canjump", true);
-                    player.WatchedAttributes.SetBool("alegacyvsquest:canuseitems", true);
-                    player.WatchedAttributes.SetBool("alegacyvsquest:canmove", true);
-                }
+                cachedPlayers.Remove(id);
             }
         }
     }

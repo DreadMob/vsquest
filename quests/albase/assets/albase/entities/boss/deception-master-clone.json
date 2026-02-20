@@ -290,7 +290,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 9.5,
+            "damage": 12.0,
             "damageTier": 3,
             "minDist": 2.8,
             "minVerDist": 2.8,

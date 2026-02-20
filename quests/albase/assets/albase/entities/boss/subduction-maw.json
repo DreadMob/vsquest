@@ -73,7 +73,7 @@
             "spawnRange": 10,
             "adds": [
               {
-                "entityCode": "game:shiver-surface",
+                "entityCode": "game:shiver-nightmare",
                 "maxNearby": 6,
                 "nearbyRange": 28,
                 "minCount": 1,
@@ -101,7 +101,7 @@
             "spawnRange": 12,
             "adds": [
               {
-                "entityCode": "game:shiver-surface",
+                "entityCode": "game:shiver-nightmare",
                 "maxNearby": 6,
                 "nearbyRange": 30,
                 "minCount": 2,
@@ -278,7 +278,7 @@
           {
             "whenHealthRelBelow": 0.75,
             "cooldownSeconds": 12,
-            "entityCode": "game:shiver-bellhead",
+            "entityCode": "game:shiver-nightmare",
             "maxNearby": 4,
             "nearbyRange": 28,
             "minCount": 1,
@@ -294,7 +294,7 @@
           {
             "whenHealthRelBelow": 0.4,
             "cooldownSeconds": 10,
-            "entityCode": "game:shiver-bellhead",
+            "entityCode": "game:shiver-nightmare",
             "maxNearby": 6,
             "nearbyRange": 30,
             "minCount": 2,
@@ -313,19 +313,10 @@
         "code": "bossdynamicscaling", "hpPerPlayer": 160, "regenPerPlayer": 0.7
       },
       {
-        "code": "bossdamageinvulnerability"
-      },
-      {
         "code": "bosspushback",
         "stages": [
           { "whenHealthRelBelow": 0.8, "cooldownSeconds": 14, "range": 5, "force": 1.1 },
           { "whenHealthRelBelow": 0.4, "cooldownSeconds": 9, "range": 6, "force": 1.4 }
-        ]
-      },
-      {
-        "code": "bossstillnessmark",
-        "stages": [
-          { "whenHealthRelBelow": 0.7, "cooldownSeconds": 18, "range": 20, "durationMs": 3500, "playerStunMs": 2500 }
         ]
       },
       {
@@ -348,7 +339,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 4,
-            "damage": 32.5,
+            "damage": 35.0,
             "damageTier": 4,
             "mincooldown": 220,
             "maxcooldown": 420,

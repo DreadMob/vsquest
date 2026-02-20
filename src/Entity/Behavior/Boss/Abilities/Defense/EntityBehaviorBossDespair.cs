@@ -21,6 +21,7 @@ namespace VsQuest
         private float lockedYaw;
         private bool yawLocked;
         private long healListenerId;
+        private long lastTickMs;
 
         public EntityBehaviorBossDespair(Entity entity) : base(entity)
         {
@@ -41,6 +42,11 @@ namespace VsQuest
         {
             base.OnGameTick(dt);
             if (sapi == null || entity == null) return;
+
+            long now = sapi.World.ElapsedMilliseconds;
+            if (now - lastTickMs < 500) return;
+            lastTickMs = now;
+
             if (!entity.Alive)
             {
                 StopDespairEffects();

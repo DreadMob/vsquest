@@ -23,6 +23,8 @@ namespace VsQuest
         private float regenPerSecond;
         private int checkIntervalMs;
         private int playerDetectionRange;
+        private int regenIntervalMs = 500;
+        private long lastRegenMs;
 
         private EntityBehaviorHealth healthBehavior;
 
@@ -38,9 +40,9 @@ namespace VsQuest
             sapi = entity?.Api as ICoreServerAPI;
 
             baseHealthMult = attributes["baseHealthMult"].AsFloat(1.6f);
-            playerScaling = attributes["playerScaling"].AsFloat(0.30f);
+            playerScaling = attributes["hpPerPlayer"].AsFloat(0.30f);
             maxMultiplier = attributes["maxMultiplier"].AsFloat(4.0f);
-            regenPerSecond = attributes["regenPerSecond"].AsFloat(0.5f);
+            regenPerSecond = attributes["regenPerPlayer"].AsFloat(0.2f);
             checkIntervalMs = attributes["checkIntervalMs"].AsInt(2000);
             playerDetectionRange = attributes["playerDetectionRange"].AsInt(60);
 
@@ -99,11 +101,12 @@ namespace VsQuest
                 wa.SetLong(LastUpdateMsKey, now);
             }
 
-            // Regeneration
-            if (playerCount > 0 && regenPerSecond > 0)
+            // Regeneration - only every 500ms to reduce server load
+            if (playerCount > 0 && regenPerSecond > 0 && now - lastRegenMs >= regenIntervalMs)
             {
+                lastRegenMs = now;
                 float regenMult = 1f + (playerCount - 1) * 0.20f;
-                float totalRegen = regenPerSecond * regenMult * dt;
+                float totalRegen = regenPerSecond * regenMult * (regenIntervalMs / 1000f);
 
                 if (totalRegen > 0 && healthBehavior.Health < healthBehavior.MaxHealth)
                 {

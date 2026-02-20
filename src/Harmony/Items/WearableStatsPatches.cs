@@ -215,8 +215,6 @@ namespace VsQuest.Harmony.Items
             private const string LastAppliedPrefix = "vsquest:wearablestats:last:";
             private const float CompareEpsilon = 0.0001f;
 
-            // Pooled dictionary to avoid allocation on every call
-            private static readonly Dictionary<string, float> StatsDictPool = new Dictionary<string, float>(7);
             private static int _cleanupCounter = 0;
             
             // Inventory change tracker to avoid recalculating on every damage tick
@@ -297,23 +295,19 @@ namespace VsQuest.Harmony.Items
 
                 if (!changed) return;
 
-                // Use pooled dictionary to avoid allocation
+                // Use local dictionary to avoid lock contention with multiple players
+                var statsDict = new Dictionary<string, float>(7);
                 if (player.Entity is EntityPlayer ep && ep.Api is ICoreServerAPI sapi)
                 {
-                    lock (StatsDictPool)
-                    {
-                        StatsDictPool.Clear();
-                        StatsDictPool["walkspeed"] = bonusMods.walkSpeed;
-                        StatsDictPool["healingeffectivness"] = bonusMods.healingeffectivness;
-                        StatsDictPool["hungerrate"] = bonusMods.hungerrate;
-                        StatsDictPool["rangedWeaponsAcc"] = bonusMods.rangedWeaponsAcc;
-                        StatsDictPool["rangedWeaponsSpeed"] = bonusMods.rangedWeaponsSpeed;
-                        StatsDictPool["miningSpeedMul"] = miningSpeedMult;
-                        StatsDictPool["jumpHeightMul"] = jumpHeightMult;
+                    statsDict["walkspeed"] = bonusMods.walkSpeed;
+                    statsDict["healingeffectivness"] = bonusMods.healingeffectivness;
+                    statsDict["hungerrate"] = bonusMods.hungerrate;
+                    statsDict["rangedWeaponsAcc"] = bonusMods.rangedWeaponsAcc;
+                    statsDict["rangedWeaponsSpeed"] = bonusMods.rangedWeaponsSpeed;
+                    statsDict["miningSpeedMul"] = miningSpeedMult;
+                    statsDict["jumpHeightMul"] = jumpHeightMult;
 
-                        StatCoalescingEngine.QueueStatUpdates(sapi, ep, StatsDictPool);
-                        StatsDictPool.Clear();
-                    }
+                    StatCoalescingEngine.QueueStatUpdates(sapi, ep, statsDict);
                 }
                 else
                 {

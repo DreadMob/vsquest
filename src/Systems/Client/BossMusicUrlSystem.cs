@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -31,11 +32,9 @@ namespace VsQuest
         private CancellationTokenSource cts;
         private Task playTask;
 
-        private readonly object preloadLock = new object();
-        private readonly Dictionary<string, Task> preloadTasksByUrl = new Dictionary<string, Task>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, Task> preloadTasksByUrl = new ConcurrentDictionary<string, Task>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly object durationLock = new object();
-        private readonly Dictionary<string, float> durationSecondsByUrl = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, float> durationSecondsByUrl = new ConcurrentDictionary<string, float>(StringComparer.OrdinalIgnoreCase);
 
         private Task fadeTask;
         private CancellationTokenSource fadeCts;
@@ -103,10 +102,7 @@ namespace VsQuest
                 string normalized = NormalizeUrl(url);
                 if (string.IsNullOrWhiteSpace(normalized)) return;
 
-                lock (durationLock)
-                {
-                    if (durationSecondsByUrl.ContainsKey(normalized)) return;
-                }
+                if (durationSecondsByUrl.ContainsKey(normalized)) return;
 
                 float seconds = 0f;
                 try
@@ -122,10 +118,7 @@ namespace VsQuest
 
                 if (seconds <= 0.01f) return;
 
-                lock (durationLock)
-                {
-                    durationSecondsByUrl[normalized] = seconds;
-                }
+                durationSecondsByUrl[normalized] = seconds;
             }
             catch
             {
@@ -141,42 +134,36 @@ namespace VsQuest
             if (string.IsNullOrWhiteSpace(resolvedUrl)) return;
 
             Task task;
-            lock (preloadLock)
+            if (preloadTasksByUrl.TryGetValue(resolvedUrl, out task))
             {
-                if (preloadTasksByUrl.TryGetValue(resolvedUrl, out task))
-                {
-                    return;
-                }
+                return;
+            }
 
-                task = Task.Run(async () =>
+            task = Task.Run(async () =>
+            {
+                try
+                {
+                    using var cts = new CancellationTokenSource();
+                    string cached = await EnsureCachedAsync(resolvedUrl, cts.Token);
+                    TryCacheDurationSeconds(resolvedUrl, cached);
+                }
+                catch (Exception e)
                 {
                     try
                     {
-                        using var cts = new CancellationTokenSource();
-                        string cached = await EnsureCachedAsync(resolvedUrl, cts.Token);
-                        TryCacheDurationSeconds(resolvedUrl, cached);
+                        capi?.Logger?.Warning("[alegacyvsquest] Boss music preload failed: {0}", e.Message);
                     }
-                    catch (Exception e)
+                    catch
                     {
-                        try
-                        {
-                            capi?.Logger?.Warning("[alegacyvsquest] Boss music preload failed: {0}", e.Message);
-                        }
-                        catch
-                        {
-                        }
                     }
-                    finally
-                    {
-                        lock (preloadLock)
-                        {
-                            preloadTasksByUrl.Remove(resolvedUrl);
-                        }
-                    }
-                });
+                }
+                finally
+                {
+                    preloadTasksByUrl.TryRemove(resolvedUrl, out _);
+                }
+            });
 
-                preloadTasksByUrl[resolvedUrl] = task;
-            }
+            preloadTasksByUrl[resolvedUrl] = task;
         }
 
         public bool TryGetDurationSeconds(string url, out float seconds)
@@ -189,10 +176,7 @@ namespace VsQuest
                 string normalized = NormalizeUrl(url);
                 if (string.IsNullOrWhiteSpace(normalized)) return false;
 
-                lock (durationLock)
-                {
-                    return durationSecondsByUrl.TryGetValue(normalized, out seconds);
-                }
+                return durationSecondsByUrl.TryGetValue(normalized, out seconds);
             }
             catch
             {

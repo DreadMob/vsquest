@@ -17,6 +17,11 @@ namespace VsQuest.Harmony
         private static readonly Dictionary<int, CachedTooltip> TooltipCache = new Dictionary<int, CachedTooltip>();
         private const int MaxCacheSize = 128;
 
+        public static void ClearCache()
+        {
+            TooltipCache.Clear();
+        }
+
         private class CachedTooltip
         {
             public string Tooltip;
@@ -27,9 +32,11 @@ namespace VsQuest.Harmony
         private static int GetStackFingerprint(ItemStack stack)
         {
             if (stack?.Attributes == null) return 0;
-            // Fast fingerprint based on item code + attributes hash
+            // Fast fingerprint based on item code + attributes hash + durability
             int hash = stack.Collectible?.Code?.GetHashCode() ?? 0;
             hash = hash * 31 + stack.Attributes.GetHashCode();
+            // Include durability to ensure damaged items have different cache entries
+            hash = hash * 31 + stack.Attributes.GetInt("durability", 0);
             return hash;
         }
 
