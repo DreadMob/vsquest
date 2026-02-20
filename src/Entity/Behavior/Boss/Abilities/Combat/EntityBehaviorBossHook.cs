@@ -216,6 +216,9 @@ namespace VsQuest
                     targetPlayer.Stats.Set("walkspeed", WalkSpeedStatCodeHook, modifier, true);
                     targetPlayer.walkSpeed = targetPlayer.Stats.GetBlended("walkspeed");
                 }
+
+                // Disable jumping while hooked
+                targetPlayer.WatchedAttributes.SetBool("alegacyvsquest:canjump", false);
             }
             catch (Exception ex)
             {
@@ -394,6 +397,9 @@ namespace VsQuest
 
                     targetPlayer.WatchedAttributes.SetFloat("onHurt", 0f);
                     targetPlayer.WatchedAttributes.MarkPathDirty("onHurt");
+
+                    // Re-enable jumping
+                    targetPlayer.WatchedAttributes.SetBool("alegacyvsquest:canjump", true);
                 }
             }
             catch (Exception ex)

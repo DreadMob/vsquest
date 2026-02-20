@@ -1,12 +1,13 @@
 {
   "code": "ossuarywarden",
   "class": "EntityDrifter",
-  "tags": ["albase-boss"],
+  "tags": ["alegacy-boss"],
   "canClimb": true,
   "hitboxSize": { "x": 2.4, "y": 2.2 },
   "deadHitboxSize": { "x": 2.0, "y": 1.2 },
   "eyeHeight": 2.0,
   "attributes": {
+    "knockbackResistance": 1.0,
     "killedByInfoText": "deadcreature-vile",
     "deadEntityCode": "albase:item-dead-creature-ossuarywarden",
     "reckless": true,
@@ -54,7 +55,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 450, "maxhealth": 450 },
+      { "code": "health", "currenthealth": 720, "maxhealth": 720 },
       { "code": "bossrebirth2", "nextEntityCode": "albase:ossuarywarden-reborn", "isFinalStage": false, "spawnDelayMs": 5500, "spawnLightning": true, "sound": "effect/translocate-active", "soundRange": 32, "soundStartMs": 0, "spawnSound": "weather/lightning-verynear", "spawnSoundRange": 48, "spawnSoundStartMs": 0, "loopSound": "effect/translocate-idle", "loopSoundRange": 24, "loopSoundIntervalMs": 250 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
@@ -72,7 +73,7 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.75,
-            "cooldownSeconds": 12,
+            "cooldownSeconds": 8,
             "minTargetRange": 0,
             "maxTargetRange": 5.8,
             "windupMs": 200,
@@ -91,7 +92,7 @@
           },
           {
             "whenHealthRelBelow": 0.45,
-            "cooldownSeconds": 9,
+            "cooldownSeconds": 6,
             "minTargetRange": 0,
             "maxTargetRange": 6.2,
             "windupMs": 150,
@@ -111,13 +112,78 @@
         ]
       },
       {
+        "code": "bossdynamicscaling", "hpPerPlayer": 140, "regenPerPlayer": 0.6
+      },
+      {
+        "code": "bossdamageinvulnerability"
+      },
+      {
+        "code": "bosspushback",
+        "stages": [
+          { "whenHealthRelBelow": 0.75, "cooldownSeconds": 12, "range": 4, "force": 1.0 },
+          { "whenHealthRelBelow": 0.3, "cooldownSeconds": 8, "range": 5, "force": 1.3 }
+        ]
+      },
+      {
+        "code": "bossstillnessmark",
+        "stages": [
+          { "whenHealthRelBelow": 0.7, "cooldownSeconds": 15, "range": 16, "durationMs": 2500, "playerStunMs": 1800 }
+        ]
+      },
+      {
+        "code": "bosswoundedmark",
+        "stages": [
+          { "whenHealthRelBelow": 0.5, "cooldownSeconds": 18, "range": 18, "damageBoost": 0.12 },
+          { "whenHealthRelBelow": 0.2, "cooldownSeconds": 12, "range": 22, "damageBoost": 0.22 }
+        ]
+      },
+      {
+        "code": "bosssurroundedresponse",
+        "stages": [
+          { "whenHealthRelBelow": 0.6, "cooldownSeconds": 20, "minPlayers": 3, "range": 28, "response": "repulse" }
+        ]
+      },
+      {
+        "code": "bossrequiemchains",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.65,
+            "cooldownSeconds": 16,
+            "range": 20,
+            "windupMs": 1000,
+            "durationMs": 5000,
+            "chainCount": 3,
+            "chainDamage": 2.0,
+            "slowAmount": 0.4,
+            "animation": "crawlcry",
+            "sound": "albase:dark-magic-charge-up",
+            "soundRange": 30,
+            "soundVolume": 0.2
+          },
+          {
+            "whenHealthRelBelow": 0.25,
+            "cooldownSeconds": 12,
+            "range": 24,
+            "windupMs": 800,
+            "durationMs": 7000,
+            "chainCount": 5,
+            "chainDamage": 2.8,
+            "slowAmount": 0.55,
+            "animation": "crawldespair",
+            "sound": "albase:dark-magic-charge-up",
+            "soundRange": 34,
+            "soundVolume": 0.24
+          }
+        ]
+      },
+      {
         "code": "taskai",
         "aitasks": [
           {
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 21.5,
+            "damage": 24.5,
             "damageTier": 4,
             "minDist": 5.2,
             "minVerDist": 2.4,
@@ -135,7 +201,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.25,
-            "damage": 26.5,
+            "damage": 29.5,
             "damageTier": 4,
             "minDist": 6.4,
             "minVerDist": 3.2,
@@ -154,7 +220,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.35,
-            "damage": 34.0,
+            "damage": 37.0,
             "damageTier": 5,
             "minDist": 8.5,
             "minVerDist": 4.0,

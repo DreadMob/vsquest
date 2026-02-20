@@ -50,6 +50,14 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("bossperiodicspawn", typeof(EntityBehaviorBossPeriodicSpawn));
             api.RegisterEntityBehaviorClass("bossashfloor", typeof(EntityBehaviorBossAshFloor));
             api.RegisterEntityBehaviorClass("shiverdebug", typeof(EntityBehaviorShiverDebug));
+            api.RegisterEntityBehaviorClass("bossdynamicscaling", typeof(EntityBehaviorBossDynamicScaling));
+            api.RegisterEntityBehaviorClass("bossdamageinvulnerability", typeof(EntityBehaviorBossDamageInvulnerability));
+            api.RegisterEntityBehaviorClass("bosspushback", typeof(EntityBehaviorBossPushback));
+            api.RegisterEntityBehaviorClass("bossstillnessmark", typeof(EntityBehaviorBossStillnessMark));
+            api.RegisterEntityBehaviorClass("bosswoundedmark", typeof(EntityBehaviorBossWoundedMark));
+            api.RegisterEntityBehaviorClass("bosssurroundedresponse", typeof(EntityBehaviorBossSurroundedResponse));
+            api.RegisterEntityBehaviorClass("bosslifedrainnova", typeof(EntityBehaviorBossLifeDrainNova));
+            api.RegisterEntityBehaviorClass("explodeondeath", typeof(EntityBehaviorExplodeOnDeath));
         }
 
         private static void RegisterItems(ICoreAPI api)

@@ -11,6 +11,8 @@ namespace VsQuest
 {
     public class EntityBehaviorBossTrapClone : EntityBehavior
     {
+        private static readonly HashSet<string> WarnedNoStagesEntityCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         private const string LastStartMsKey = "alegacyvsquest:bosstrapclone:lastStartMs";
 
         private const string TrapFlagKey = "alegacyvsquest:bosstrapclone:trap";
@@ -113,7 +115,20 @@ namespace VsQuest
             stages.Clear();
             try
             {
-                foreach (var stageObj in attributes["stages"].AsArray())
+                var stagesArray = attributes["stages"].AsArray();
+                if (stagesArray == null)
+                {
+                    if (entity?.WatchedAttributes?.GetBool(TrapFlagKey, false) == true) return;
+
+                    string code = entity?.Code?.ToString();
+                    if (!string.IsNullOrWhiteSpace(code) && WarnedNoStagesEntityCodes.Add(code))
+                    {
+                        entity.Api?.Logger?.Warning($"[BossTrapClone] No stages defined for {entity.Code}");
+                    }
+                    return;
+                }
+                
+                foreach (var stageObj in stagesArray)
                 {
                     if (stageObj == null || !stageObj.Exists) continue;
 
@@ -805,13 +820,16 @@ namespace VsQuest
                         explodeSound = null;
                     }
 
-                    var soundLoc = AssetLocation.Create(explodeSound, "game").WithPathPrefixOnce("sounds/");
-                    if (soundLoc != null)
+                    if (!string.IsNullOrWhiteSpace(explodeSound))
                     {
-                        float range = explodeSoundRange > 0f ? explodeSoundRange : 24f;
-                        float volume = explodeSoundVolume;
-                        if (volume <= 0f) volume = 1f;
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range, volume);
+                        var soundLoc = AssetLocation.Create(explodeSound, "game")?.WithPathPrefixOnce("sounds/");
+                        if (soundLoc != null)
+                        {
+                            float range = explodeSoundRange > 0f ? explodeSoundRange : 24f;
+                            float volume = explodeSoundVolume;
+                            if (volume <= 0f) volume = 1f;
+                            sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range, volume);
+                        }
                     }
                 }
             }

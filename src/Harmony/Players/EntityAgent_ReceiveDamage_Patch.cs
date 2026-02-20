@@ -24,22 +24,23 @@ namespace VsQuest.Harmony.Players
             public const string FiredBy = "firedBy";
         }
 
-        public static void Prefix(EntityAgent __instance, DamageSource damageSource, ref float damage)
+        public static bool Prefix(EntityAgent __instance, DamageSource damageSource, ref float damage, ref bool __result)
         {
             // Ultra-fast rejects first (3 simple comparisons)
-            if (damage <= 0f) return;
-            if (damageSource == null) return;
-            if (__instance?.Api?.Side != EnumAppSide.Server) return;
+            if (damage <= 0f) return true; // Run original
+            if (damageSource == null) return true; // Run original
+            if (__instance?.Api?.Side != EnumAppSide.Server) return true; // Run original
 
             var watchedAttrs = __instance.WatchedAttributes;
-            if (watchedAttrs == null) return;
+            if (watchedAttrs == null) return true; // Run original
 
             // Boss clone invulnerability check
             if (watchedAttrs.GetBool(AttrKeys.BossCloneInvulnerable, false))
             {
                 damage = 0f;
                 damageSource.KnockbackStrength = 0f;
-                return;
+                __result = false; // Damage was handled (blocked)
+                return false; // Skip original
             }
 
             // Single cached computation of source/cause entities
@@ -71,7 +72,8 @@ namespace VsQuest.Harmony.Players
                 {
                     damage = 0f;
                     damageSource.KnockbackStrength = 0f;
-                    return;
+                    __result = false; // Damage was handled (blocked)
+                    return false; // Skip original
                 }
 
                 // Damage multiplier from clone
@@ -96,34 +98,42 @@ namespace VsQuest.Harmony.Players
                         {
                             damage = 0f;
                             damageSource.KnockbackStrength = 0f;
-                            return;
+                            __result = false; // Damage was handled (blocked)
+                            return false; // Skip original
                         }
                     }
                 }
             }
 
-            // Growth ritual damage multiplier
-            if (sourceAttrs != null)
+            // Boss damage invulnerability check - blocks damage for X ms after each hit
+            if (__instance.HasBehavior<EntityBehaviorBossDamageInvulnerability>())
             {
-                float growthMult = sourceAttrs.GetFloat(AttrKeys.BossGrowthRitualDamageMult, 1f);
-                if (growthMult > 0f && Math.Abs(growthMult - 1f) > 0.001f)
+                var behavior = __instance.GetBehavior<EntityBehaviorBossDamageInvulnerability>();
+                long now = __instance.Api.World.ElapsedMilliseconds;
+                
+                // Check if currently invulnerable
+                if (EntityBehaviorBossDamageInvulnerability.ShouldBlockDamage(__instance, now))
                 {
-                    damage *= growthMult;
+                    damage = 0f;
+                    damageSource.KnockbackStrength = 0f;
+                    __result = false;
+                    return false; // Skip original - damage blocked
                 }
+                
+                // Not invulnerable - allow damage but start invulnerability period
+                int durationMs = behavior?.DurationMs ?? 1000;
+                EntityBehaviorBossDamageInvulnerability.OnDamageReceived(__instance, durationMs);
             }
 
-            // Admin attack power bonus
-            if (sourceEntity is EntityPlayer admin && admin.WatchedAttributes != null)
-            {
-                float bonus = admin.WatchedAttributes.GetFloat(AttrKeys.AdminAttackPower, 0f);
-                if (bonus != 0f) damage += bonus;
-            }
+            // Continue to original method
+            return true;
         }
     }
 
     public static class BossDetection
     {
         private const string BossTargetKey = "vsquest:isBossTarget";
+        private const string BossTag = "albase-boss";
 
         public static bool IsBossTarget(EntityAgent target)
         {
@@ -131,6 +141,12 @@ namespace VsQuest.Harmony.Players
 
             // Fast path: cached attribute
             if (target.WatchedAttributes?.GetBool(BossTargetKey, false) == true)
+                return true;
+
+            // Check for boss tag
+            if (target.Properties?.Attributes?["alegacy-boss"].AsBool(false) == true)
+                return true;
+            if (target.Properties?.Attributes?["boss"].AsBool(false) == true)
                 return true;
 
             // Fallback: entity code patterns
@@ -144,8 +160,9 @@ namespace VsQuest.Harmony.Players
                     return true;
             }
 
-            // Last resort: HasBehavior
-            return target.HasBehavior<EntityBehaviorBoss>() ||
+            // Last resort: HasBehavior - check for actual boss behaviors
+            return target.HasBehavior<EntityBehaviorBossCombatMarker>() ||
+                   target.HasBehavior<EntityBehaviorBossHuntCombatMarker>() ||
                    target.HasBehavior<EntityBehaviorQuestBoss>();
         }
     }

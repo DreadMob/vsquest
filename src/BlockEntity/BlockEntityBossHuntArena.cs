@@ -1,10 +1,12 @@
 using System;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.API.Config;
+using Vintagestory.GameContent;
 
 namespace VsQuest
 {
@@ -12,12 +14,16 @@ namespace VsQuest
     {
         private const string AttrYOffset = "alegacyvsquest:bosshuntarena:yOffset";
         private const string AttrKeepInventory = "alegacyvsquest:bosshuntarena:keepInventory";
+        private const string AttrHealingReduction = "alegacyvsquest:bosshuntarena:healingReduction";
 
         private const int PacketOpenGui = 3000;
         private const int PacketSave = 3001;
 
         private float yOffset;
         private bool keepInventory;
+        private float healingReduction = 0.35f;
+
+        private long healSuppressionTickId = -1;
 
         private BossHuntArenaConfigGui dlg;
 
@@ -28,6 +34,7 @@ namespace VsQuest
             if (Api?.Side == EnumAppSide.Server)
             {
                 TryRegister();
+                RegisterHealSuppressionTick();
             }
         }
 
@@ -124,6 +131,9 @@ namespace VsQuest
         {
             if (Api?.Side != EnumAppSide.Server) return;
 
+            UnregisterHealSuppressionTick();
+            ClearHealSuppression();
+
             try
             {
                 var system = Api.ModLoader.GetModSystem<BossHuntArenaSystem>();
@@ -132,6 +142,91 @@ namespace VsQuest
             catch (Exception ex)
             {
                 Api?.Logger?.Error($"[vsquest] Exception in UnregisterArena: {ex}");
+            }
+        }
+
+        private void RegisterHealSuppressionTick()
+        {
+            if (Api?.Side != EnumAppSide.Server) return;
+            if (healSuppressionTickId >= 0) return;
+            healSuppressionTickId = Api.Event.RegisterGameTickListener(OnHealSuppressionTick, 2000);
+        }
+
+        private void UnregisterHealSuppressionTick()
+        {
+            if (healSuppressionTickId >= 0)
+            {
+                Api.Event.UnregisterGameTickListener(healSuppressionTickId);
+                healSuppressionTickId = -1;
+            }
+        }
+
+        private void OnHealSuppressionTick(float dt)
+        {
+            if (Api?.Side != EnumAppSide.Server) return;
+
+            var activeBoss = FindActiveBossInArena();
+            if (activeBoss == null || !activeBoss.Alive)
+            {
+                ClearHealSuppression();
+                return;
+            }
+
+            float reduction = GetHealingReductionForBoss(activeBoss);
+            ApplyHealSuppressionToPlayers(reduction);
+        }
+
+        private Entity FindActiveBossInArena()
+        {
+            var sapi = Api as ICoreServerAPI;
+            if (sapi == null) return null;
+
+            foreach (var entity in sapi.World.LoadedEntities.Values)
+            {
+                if (entity == null || !entity.Alive) continue;
+                if (!entity.HasBehavior<EntityBehaviorBoss>()) continue;
+                if (entity.ServerPos.DistanceTo(Pos.ToVec3d()) <= 80)
+                    return entity;
+            }
+            return null;
+        }
+
+        private float GetHealingReductionForBoss(Entity boss)
+        {
+            var health = boss.GetBehavior<EntityBehaviorHealth>();
+            if (health == null) return healingReduction;
+
+            float hpPercent = health.Health / health.MaxHealth;
+            if (hpPercent <= 0.25f) return 0.65f;
+            if (hpPercent <= 0.50f) return 0.50f;
+            return healingReduction;
+        }
+
+        private void ApplyHealSuppressionToPlayers(float reduction)
+        {
+            var sapi = Api as ICoreServerAPI;
+            if (sapi == null) return;
+
+            foreach (var player in sapi.World.AllOnlinePlayers)
+            {
+                if (player.Entity?.ServerPos == null) continue;
+                if (player.Entity.ServerPos.Dimension != Pos.dimension) continue;
+                if (player.Entity.ServerPos.DistanceTo(Pos.ToVec3d()) <= 80)
+                {
+                    player.Entity.Stats.Set("healrate", "bosshuntarenasuppression", -reduction, true);
+                }
+            }
+        }
+
+        private void ClearHealSuppression()
+        {
+            var sapi = Api as ICoreServerAPI;
+            if (sapi == null) return;
+
+            foreach (var player in sapi.World.AllOnlinePlayers)
+            {
+                if (player.Entity == null) continue;
+                player.Entity.Stats.Set("healrate", "bosshuntarenasuppression", 0f, true);
             }
         }
 

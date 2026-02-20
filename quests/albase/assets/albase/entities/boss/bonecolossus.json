@@ -1,12 +1,13 @@
 {
   "code": "bonecolossus",
   "class": "EntityAgent",
-  "tags": ["albase-boss"],
+  "tags": ["alegacy-boss"],
   "hitboxSize": { "x": 0.96, "y": 0.78 },
   "deadHitboxSize": { "x": 0.78, "y": 0.6 },
   "eyeHeight": 0.6,
   "drops": [],
   "attributes": {
+    "knockbackResistance": 1.0,
     "killedByInfoText": "deadcreature-eaten-large",
     "deadEntityCode": "albase:item-dead-creature-bonecolossus",
     "reckless": true,
@@ -57,7 +58,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 400, "maxhealth": 400 },
+      { "code": "health", "currenthealth": 640, "maxhealth": 640 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:bonecolossus", "leashRange": 120, "returnMoveSpeed": 0.075, "leashCheckMs": 1000 },
@@ -67,7 +68,7 @@
           {
             "whenHealthRelBelow": 0.95,
             "checkIntervalMs": 350,
-            "cooldownSeconds": 18,
+            "cooldownSeconds": 13,
             "searchRange": 42,
             "farRange": 18,
             "farSeconds": 2.6,
@@ -99,7 +100,7 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.65,
-            "cooldownSeconds": 9,
+            "cooldownSeconds": 6,
             "minTargetRange": 5,
             "maxTargetRange": 20,
             "windupMs": 350,
@@ -114,7 +115,7 @@
           },
           {
             "whenHealthRelBelow": 0.3,
-            "cooldownSeconds": 6,
+            "cooldownSeconds": 4,
             "minTargetRange": 6,
             "maxTargetRange": 24,
             "windupMs": 250,
@@ -134,7 +135,7 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.85,
-            "cooldownSeconds": 14,
+            "cooldownSeconds": 10,
             "range": 6.5,
             "knockbackStrength": 0.0,
             "maxPlayerMotion": 0.45,
@@ -143,11 +144,11 @@
             "sound": "albase:shock-sound-effect-horror",
             "soundRange": 26,
             "soundStartMs": 0,
-            "soundVolume": 0.14
+            "soundVolume": 0.08
           },
           {
             "whenHealthRelBelow": 0.35,
-            "cooldownSeconds": 11,
+            "cooldownSeconds": 8,
             "range": 7.2,
             "knockbackStrength": 0.0,
             "maxPlayerMotion": 0.55,
@@ -156,7 +157,7 @@
             "sound": "albase:shock-sound-effect-horror",
             "soundRange": 30,
             "soundStartMs": 0,
-            "soundVolume": 0.14
+            "soundVolume": 0.08
           }
         ]
       },
@@ -187,7 +188,7 @@
             "minCount": 2,
             "maxCount": 3,
             "ritualMs": 2600,
-            "cooldownSeconds": 16,
+            "cooldownSeconds": 11,
             "spawnRange": 11,
             "animation": "howl",
             "sound": "game:creature/wolf/howl1",
@@ -213,6 +214,71 @@
         ]
       },
       {
+        "code": "bossdynamicscaling", "hpPerPlayer": 100, "regenPerPlayer": 0.5
+      },
+      {
+        "code": "bossdamageinvulnerability"
+      },
+      {
+        "code": "bosspushback",
+        "stages": [
+          { "whenHealthRelBelow": 0.7, "cooldownSeconds": 11, "range": 4.5, "force": 0.9 },
+          { "whenHealthRelBelow": 0.35, "cooldownSeconds": 7, "range": 5.5, "force": 1.2 }
+        ]
+      },
+      {
+        "code": "bossstillnessmark",
+        "stages": [
+          { "whenHealthRelBelow": 0.65, "cooldownSeconds": 14, "range": 15, "durationMs": 2800, "playerStunMs": 2200 }
+        ]
+      },
+      {
+        "code": "bosswoundedmark",
+        "stages": [
+          { "whenHealthRelBelow": 0.55, "cooldownSeconds": 16, "range": 18, "damageBoost": 0.14 },
+          { "whenHealthRelBelow": 0.25, "cooldownSeconds": 10, "range": 22, "damageBoost": 0.24 }
+        ]
+      },
+      {
+        "code": "bosssurroundedresponse",
+        "stages": [
+          { "whenHealthRelBelow": 0.6, "cooldownSeconds": 18, "minPlayers": 3, "range": 28, "response": "howl" }
+        ]
+      },
+      {
+        "code": "bosscorpseexplosion",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.55,
+            "cooldownSeconds": 22,
+            "range": 20,
+            "corpseSearchRange": 30,
+            "windupMs": 1500,
+            "explosionRadius": 5,
+            "explosionDamage": 18,
+            "damageTier": 4,
+            "animation": "attack-withwindup",
+            "sound": "albase:dark-magic-charge-up",
+            "soundRange": 32,
+            "soundVolume": 0.2
+          },
+          {
+            "whenHealthRelBelow": 0.2,
+            "cooldownSeconds": 16,
+            "range": 25,
+            "corpseSearchRange": 35,
+            "windupMs": 1200,
+            "explosionRadius": 7,
+            "explosionDamage": 26,
+            "damageTier": 5,
+            "animation": "attack-withwindup",
+            "sound": "albase:dark-magic-charge-up",
+            "soundRange": 36,
+            "soundVolume": 0.24
+          }
+        ]
+      },
+      {
         "code": "taskai",
         "aitasks": [
           {
@@ -232,7 +298,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 25.5,
+            "damage": 28.5,
             "damageTier": 3,
             "minDist": 4.4,
             "minVerDist": 3.4,
@@ -249,7 +315,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.2,
-            "damage": 25.5,
+            "damage": 28.5,
             "damageTier": 4,
             "minDist": 5.6,
             "minVerDist": 4.0,
@@ -287,7 +353,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.6,
-            "damage": 25.5,
+            "damage": 28.5,
             "damageTier": 4,
             "minDist": 6.2,
             "minVerDist": 4.2,

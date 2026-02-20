@@ -1,7 +1,7 @@
 {
   "code": "ashenlurker",
   "class": "EntityLocust",
-  "tags": ["albase-boss"],
+  "tags": ["alegacy-boss"],
   "canClimb": true,
   "canClimbAnywhere": true,
   "climbTouchDistance": 0.1,
@@ -11,6 +11,7 @@
   "deadHitboxSize": { "x": 2.7, "y": 2.1 },
   "eyeHeight": 1.25,
   "attributes": {
+    "knockbackResistance": 1.0,
     "killedByInfoText": "deadcreature-vile",
     "deadEntityCode": "albase:item-dead-creature-ashenlurker",
     "spawnDamageParticles": true,
@@ -49,7 +50,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 2.1251 },
-      { "code": "health", "currenthealth": 440, "maxhealth": 440 },
+      { "code": "health", "currenthealth": 704, "maxhealth": 704 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:ashenlurker", "leashRange": 120, "returnMoveSpeed": 0.05, "leashCheckMs": 1000 },
@@ -66,12 +67,12 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.75,
-            "cooldownSeconds": 8,
+            "cooldownSeconds": 6,
             "minTargetRange": 6,
             "maxTargetRange": 24,
             "windupMs": 250,
             "dashMs": 320,
-            "dashSpeed": 1.4,
+            "dashSpeed": 2.8,
             "windupAnimation": "idle",
             "dashAnimation": "rundrill",
             "sound": "albase:mechanical/mecha plimm",
@@ -86,7 +87,7 @@
             "maxTargetRange": 28,
             "windupMs": 180,
             "dashMs": 360,
-            "dashSpeed": 1.7,
+            "dashSpeed": 3.4,
             "windupAnimation": "idle",
             "dashAnimation": "rundrill",
             "sound": "albase:mechanical/mecha plimm",
@@ -101,7 +102,7 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.5,
-            "cooldownSeconds": 4,
+            "cooldownSeconds": 3,
             "minTargetRange": 10,
             "maxTargetRange": 36,
             "minRadius": 4,
@@ -123,9 +124,9 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.7,
-            "cooldownSeconds": 14,
+            "cooldownSeconds": 10,
             "spawns": [
-              { "entityCode": "game:locust-bronze", "minCount": 4, "maxCount": 5 },
+              { "entityCode": "game:locust-corrupt", "minCount": 4, "maxCount": 5 },
               { "entityCode": "game:locust-corrupt", "minCount": 1, "maxCount": 1 },
               { "entityCode": "game:locust-corrupt-sawblade", "minCount": 1, "maxCount": 1, "chance": 0.1 }
             ],
@@ -146,9 +147,9 @@
           },
           {
             "whenHealthRelBelow": 0.35,
-            "cooldownSeconds": 12,
+            "cooldownSeconds": 8,
             "spawns": [
-              { "entityCode": "game:locust-bronze", "minCount": 4, "maxCount": 5 },
+              { "entityCode": "game:locust-corrupt", "minCount": 4, "maxCount": 5 },
               { "entityCode": "game:locust-corrupt", "minCount": 1, "maxCount": 1 },
               { "entityCode": "game:locust-corrupt-sawblade", "minCount": 1, "maxCount": 1, "chance": 0.1 }
             ],
@@ -174,7 +175,7 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.95,
-            "cooldownSeconds": 10,
+            "cooldownSeconds": 7,
             "entityCode": "albase:explosive-locust",
             "minCount": 1,
             "maxCount": 2,
@@ -207,7 +208,7 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.95,
-            "cooldownSeconds": 20,
+            "cooldownSeconds": 14,
             "minTargetRange": 4,
             "maxTargetRange": 45,
             "minRadius": 2,
@@ -226,7 +227,7 @@
           },
           {
             "whenHealthRelBelow": 0.35,
-            "cooldownSeconds": 16,
+            "cooldownSeconds": 11,
             "minTargetRange": 4,
             "maxTargetRange": 55,
             "minRadius": 6,
@@ -242,6 +243,73 @@
             "soundRange": 28,
             "soundStartMs": 0,
             "soundVolume": 0.18
+          }
+        ]
+      },
+      {
+        "code": "bossdynamicscaling", "hpPerPlayer": 120, "regenPerPlayer": 0.8
+      },
+      {
+        "code": "bossdamageinvulnerability"
+      },
+      {
+        "code": "bosspushback",
+        "stages": [
+          { "whenHealthRelBelow": 0.8, "cooldownSeconds": 10, "range": 5, "force": 1.2 },
+          { "whenHealthRelBelow": 0.35, "cooldownSeconds": 6, "range": 6, "force": 1.5 }
+        ]
+      },
+      {
+        "code": "bossstillnessmark",
+        "stages": [
+          { "whenHealthRelBelow": 0.75, "cooldownSeconds": 12, "range": 18, "durationMs": 3000, "playerStunMs": 2000 },
+          { "whenHealthRelBelow": 0.35, "cooldownSeconds": 8, "range": 22, "durationMs": 4500, "playerStunMs": 2800 }
+        ]
+      },
+      {
+        "code": "bosswoundedmark",
+        "stages": [
+          { "whenHealthRelBelow": 0.6, "cooldownSeconds": 15, "range": 20, "damageBoost": 0.15 },
+          { "whenHealthRelBelow": 0.25, "cooldownSeconds": 10, "range": 25, "damageBoost": 0.25 }
+        ]
+      },
+      {
+        "code": "bosssurroundedresponse",
+        "stages": [
+          { "whenHealthRelBelow": 0.7, "cooldownSeconds": 18, "minPlayers": 3, "range": 30, "response": "repulse" },
+          { "whenHealthRelBelow": 0.3, "cooldownSeconds": 12, "minPlayers": 2, "range": 35, "response": "spin" }
+        ]
+      },
+      {
+        "code": "bosslifedrainnova",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.65,
+            "cooldownSeconds": 14,
+            "range": 15,
+            "windupMs": 800,
+            "durationMs": 8000,
+            "tickIntervalMs": 500,
+            "drainPerTick": 1.5,
+            "healMultiplier": 0.6,
+            "animation": "attack",
+            "sound": "albase:mechanical/mecha rage",
+            "soundRange": 28,
+            "soundVolume": 0.22
+          },
+          {
+            "whenHealthRelBelow": 0.3,
+            "cooldownSeconds": 10,
+            "range": 20,
+            "windupMs": 600,
+            "durationMs": 10000,
+            "tickIntervalMs": 400,
+            "drainPerTick": 2.2,
+            "healMultiplier": 0.8,
+            "animation": "rundrill",
+            "sound": "albase:mechanical/mecha rage",
+            "soundRange": 32,
+            "soundVolume": 0.25
           }
         ]
       },
@@ -267,7 +335,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 23.5,
+            "damage": 26.5,
             "damageTier": 2,
             "minDist": 7.5,
             "minVerDist": 4.8,
@@ -285,7 +353,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.2,
-            "damage": 29.5,
+            "damage": 32.5,
             "damageTier": 4,
             "minDist": 10.0,
             "minVerDist": 5.8,
@@ -304,7 +372,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.4,
-            "damage": 35.5,
+            "damage": 38.5,
             "damageTier": 5,
             "minDist": 11.0,
             "minVerDist": 6.3,

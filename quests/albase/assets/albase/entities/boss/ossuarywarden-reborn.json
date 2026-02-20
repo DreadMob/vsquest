@@ -1,12 +1,13 @@
 {
   "code": "ossuarywarden-reborn",
   "class": "EntityDrifter",
-  "tags": ["albase-boss"],
+  "tags": ["alegacy-boss"],
   "canClimb": true,
   "hitboxSize": { "x": 2.4, "y": 2.2 },
   "deadHitboxSize": { "x": 2.0, "y": 1.2 },
   "eyeHeight": 2.0,
   "attributes": {
+    "knockbackResistance": 1.0,
     "killedByInfoText": "deadcreature-vile",
     "deadEntityCode": "albase:item-dead-creature-ossuarywarden-reborn",
     "reckless": true,
@@ -53,7 +54,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 450, "maxhealth": 450 },
+      { "code": "health", "currenthealth": 720, "maxhealth": 720 },
       { "code": "bossrebirth2", "isFinalStage": true },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
@@ -70,12 +71,12 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.7,
-            "cooldownSeconds": 9,
+            "cooldownSeconds": 6,
             "minTargetRange": 5,
             "maxTargetRange": 22,
             "windupMs": 300,
             "dashMs": 220,
-            "dashSpeed": 1.6,
+            "dashSpeed": 3.2,
             "windupAnimation": "standcry",
             "dashAnimation": "standrun",
             "sound": "albase:dash",
@@ -85,12 +86,12 @@
           },
           {
             "whenHealthRelBelow": 0.35,
-            "cooldownSeconds": 6,
+            "cooldownSeconds": 4,
             "minTargetRange": 6,
             "maxTargetRange": 26,
             "windupMs": 250,
             "dashMs": 260,
-            "dashSpeed": 1.9,
+            "dashSpeed": 3.8,
             "windupAnimation": "standdespair",
             "dashAnimation": "standrun",
             "sound": "albase:dash",
@@ -121,12 +122,12 @@
           },
           {
             "whenHealthRelBelow": 0.35,
-            "cooldownSeconds": 7,
+            "cooldownSeconds": 4,
             "minTargetRange": 4,
             "maxTargetRange": 28,
             "windupMs": 200,
-            "pullMs": 1100,
-            "pullSpeed": 0.14,
+            "pullMs": 2200,
+            "pullSpeed": 0.42,
             "maxPlayerMotion": 0.25,
             "windupAnimation": "standdespair",
             "pullAnimation": "standattack",
@@ -160,19 +161,85 @@
         ]
       },
       {
+        "code": "bossdynamicscaling", "hpPerPlayer": 150, "regenPerPlayer": 0.7
+      },
+      {
+        "code": "bossdamageinvulnerability"
+      },
+      {
+        "code": "bosspushback",
+        "stages": [
+          { "whenHealthRelBelow": 0.7, "cooldownSeconds": 10, "range": 5, "force": 1.2 },
+          { "whenHealthRelBelow": 0.3, "cooldownSeconds": 6, "range": 6, "force": 1.5 }
+        ]
+      },
+      {
+        "code": "bossstillnessmark",
+        "stages": [
+          { "whenHealthRelBelow": 0.65, "cooldownSeconds": 12, "range": 18, "durationMs": 2800, "playerStunMs": 2000 },
+          { "whenHealthRelBelow": 0.3, "cooldownSeconds": 8, "range": 22, "durationMs": 4000, "playerStunMs": 2800 }
+        ]
+      },
+      {
+        "code": "bosswoundedmark",
+        "stages": [
+          { "whenHealthRelBelow": 0.55, "cooldownSeconds": 16, "range": 20, "damageBoost": 0.15 },
+          { "whenHealthRelBelow": 0.25, "cooldownSeconds": 10, "range": 24, "damageBoost": 0.25 }
+        ]
+      },
+      {
+        "code": "bosssurroundedresponse",
+        "stages": [
+          { "whenHealthRelBelow": 0.6, "cooldownSeconds": 18, "minPlayers": 3, "range": 30, "response": "teleport" }
+        ]
+      },
+      {
+        "code": "bossrequiemchains",
+        "stages": [
+          {
+            "whenHealthRelBelow": 0.6,
+            "cooldownSeconds": 14,
+            "range": 22,
+            "windupMs": 900,
+            "durationMs": 6000,
+            "chainCount": 4,
+            "chainDamage": 2.5,
+            "slowAmount": 0.5,
+            "animation": "standcry",
+            "sound": "albase:magic-sparkling",
+            "soundRange": 32,
+            "soundVolume": 0.2
+          },
+          {
+            "whenHealthRelBelow": 0.25,
+            "cooldownSeconds": 10,
+            "range": 26,
+            "windupMs": 700,
+            "durationMs": 8000,
+            "chainCount": 6,
+            "chainDamage": 3.2,
+            "slowAmount": 0.6,
+            "animation": "standdespair",
+            "sound": "albase:magic-sparkling",
+            "soundRange": 36,
+            "soundVolume": 0.24
+          }
+        ]
+      },
+      {
         "code": "taskai",
         "aitasks": [
           {
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 27.0,
+            "damage": 33.0,
             "damageTier": 3,
             "minDist": 6.2,
             "minVerDist": 3.2,
             "attackAngleRangeDeg": 120,
-            "mincooldown": 300,
-            "maxcooldown": 900,
+            "mincooldown": 210,
+            "maxcooldown": 630,
             "damagePlayerAtMs": 350,
             "attackDurationMs": 900,
             "animation": "standattack",
@@ -185,7 +252,7 @@
             "entityCodes": ["player"],
             "priority": 2.2,
             "projectileCode": "game:thrownstone-{rock}",
-            "projectileDamage": 23.0,
+            "projectileDamage": 26.0,
             "projectileDamageTier": 4,
             "maxDist": 18,
             "seekingRange": 18,
@@ -205,7 +272,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.35,
-            "damage": 32.0,
+            "damage": 35.0,
             "damageTier": 4,
             "minDist": 6.8,
             "minVerDist": 3.6,

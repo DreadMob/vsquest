@@ -1,7 +1,7 @@
 {
   "code": "crypt-mirror-trap",
   "class": "EntityAgent",
-  "tags": ["albase-boss"],
+  "tags": ["alegacy-boss"],
   "hitboxSize": { "x": 0.4, "y": 0.9 },
   "eyeHeight": 0.5,
   "drops": [],
