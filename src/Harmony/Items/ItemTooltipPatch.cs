@@ -32,11 +32,13 @@ namespace VsQuest.Harmony
         private static int GetStackFingerprint(ItemStack stack)
         {
             if (stack?.Attributes == null) return 0;
-            // Fast fingerprint based on item code + attributes hash + durability
+            // Fast fingerprint based on item code + attributes hash + durability + condition
             int hash = stack.Collectible?.Code?.GetHashCode() ?? 0;
             hash = hash * 31 + stack.Attributes.GetHashCode();
-            // Include durability to ensure damaged items have different cache entries
+            // Include durability for tools
             hash = hash * 31 + stack.Attributes.GetInt("durability", 0);
+            // Include condition for wearables (clothing)
+            hash = hash * 31 + (int)(stack.Attributes.GetFloat("condition", 1f) * 1000);
             return hash;
         }
 
@@ -86,20 +88,6 @@ namespace VsQuest.Harmony
             }
         }
 
-        private static string GetPatternStart(string keyOrPattern)
-        {
-            // If this is already a pattern string (contains format braces), do not pass it to Lang.Get()
-            // because TranslationService will try to format it and may throw if args are missing.
-            string source = keyOrPattern;
-            if (keyOrPattern != null && keyOrPattern.IndexOf('{') < 0)
-            {
-                source = Lang.Get(keyOrPattern);
-            }
-
-            int idx = source.IndexOf('{');
-            if (idx > 0) return source.Substring(0, idx).Trim();
-            return source.Trim();
-        }
 
         public static void ModifyTooltip(ItemSlot inSlot, StringBuilder dsc)
         {
@@ -136,32 +124,6 @@ namespace VsQuest.Harmony
 
             dsc.Clear();
 
-            // 1. Durability/Condition line check: more robust prefixes and patterns
-            bool isConditionOrDurabilityLine(string trimmed)
-            {
-                if (string.IsNullOrWhiteSpace(trimmed)) return false;
-                
-                // Common vanilla prefixes (unlocalized)
-                if (trimmed.StartsWith("Durability:", StringComparison.OrdinalIgnoreCase) || 
-                    trimmed.StartsWith("Condition:", StringComparison.OrdinalIgnoreCase)) return true;
-
-                // Localized prefixes
-                string durPrefix = Lang.Get("Durability:");
-                string condPrefix = Lang.Get("Condition:");
-                
-                if (trimmed.StartsWith(durPrefix, StringComparison.OrdinalIgnoreCase)) return true;
-                if (trimmed.StartsWith(condPrefix, StringComparison.OrdinalIgnoreCase)) return true;
-
-                // Pattern-based checks (for "{0} / {1}" or "{0}%")
-                if (trimmed.StartsWith(GetPatternStart("Durability: {0} / {1}"), StringComparison.OrdinalIgnoreCase)) return true;
-                if (trimmed.StartsWith(GetPatternStart("Condition: {0}%"), StringComparison.OrdinalIgnoreCase)) return true;
-                
-                // Explicit Russian checks (common for the user)
-                if (trimmed.StartsWith("Прочность:", StringComparison.OrdinalIgnoreCase) || 
-                    trimmed.StartsWith("Состояние:", StringComparison.OrdinalIgnoreCase)) return true;
-                
-                return false;
-            }
 
             if (hasCustomDesc && currentTooltip.Contains(customDesc))
             {
@@ -191,15 +153,10 @@ namespace VsQuest.Harmony
                 }
 
                 // If the action item provides its own description, drop the leading vanilla description block
-                // (first paragraph). Do not drop if the tooltip begins with durability/condition lines.
+                // (first paragraph).
                 if (!skippedLeadingDescBlock)
                 {
-                    if (isConditionOrDurabilityLine(trimmed))
-                    {
-                        skippedLeadingDescBlock = true;
-                        // Don't skip this line!
-                    }
-                    else if (!startedSkippingLeadingDesc)
+                    if (!startedSkippingLeadingDesc)
                     {
                         if (isLineEmpty) continue;
                         startedSkippingLeadingDesc = true;
@@ -207,7 +164,7 @@ namespace VsQuest.Harmony
                     }
                     else
                     {
-                        // If we reach a durability/condition line or empty line, we're done skipping the desc block
+                        // If we reach an empty line, we're done skipping the desc block
                         if (isLineEmpty)
                         {
                             skippedLeadingDescBlock = true;
@@ -232,7 +189,14 @@ namespace VsQuest.Harmony
 
                 if (hideVanilla.Contains("durability"))
                 {
-                    if (isConditionOrDurabilityLine(trimmed)) shouldHide = true;
+                    // Hide durability lines (tools) or condition lines (wearables)
+                    if (trimmed.StartsWith("Durability:") || trimmed.StartsWith(Lang.Get("Durability:")) ||
+                        trimmed.StartsWith("Прочность:") ||
+                        trimmed.StartsWith("Condition:") || trimmed.StartsWith(Lang.Get("Condition:")) ||
+                        trimmed.StartsWith("Состояние:"))
+                    {
+                        shouldHide = true;
+                    }
                 }
 
                 if (!shouldHide && hideVanilla.Contains("miningspeed"))
@@ -243,46 +207,39 @@ namespace VsQuest.Harmony
 
                 if (!shouldHide && hideVanilla.Contains("attackpower"))
                 {
-                    if (trimmed.StartsWith("Attack power:") || trimmed.StartsWith(GetPatternStart("Attack power: -{0} hp"))) shouldHide = true;
-                    else if (trimmed.StartsWith("Attack tier:") || trimmed.StartsWith(GetPatternStart("Attack tier: {0}"))) shouldHide = true;
-                    else if (trimmed.StartsWith("Уровень атаки:")) shouldHide = true;
-                    else if (trimmed.StartsWith("Сила атаки:")) shouldHide = true;
-                    else if (trimmed.Contains("Attack power:")) shouldHide = true;
-                    else if (trimmed.Contains("Attack tier:")) shouldHide = true;
-                    else if (trimmed.Contains("Уровень атаки:")) shouldHide = true;
-                    else if (trimmed.Contains("Сила атаки:")) shouldHide = true;
+                    if (trimmed.StartsWith("Attack power:") || trimmed.StartsWith(Lang.Get("Attack power: -{0} hp"))) shouldHide = true;
+                    else if (trimmed.StartsWith("Attack tier:") || trimmed.StartsWith(Lang.Get("Attack tier: {0}"))) shouldHide = true;
+                    else if (trimmed.Contains("Attack power:") || trimmed.Contains("Attack tier:")) shouldHide = true;
+                    else if (trimmed.Contains("Уровень атаки:") || trimmed.Contains("Сила атаки:")) shouldHide = true;
                 }
 
                 if (!shouldHide && (hideVanilla.Contains("protection") || hideVanilla.Contains("armor")))
                 {
-                    if (trimmed.StartsWith("Flat damage reduction:") || trimmed.StartsWith(GetPatternStart("Flat damage reduction: {0} hp"))) shouldHide = true;
-                    else if (trimmed.StartsWith("Percent protection:") || trimmed.StartsWith(GetPatternStart("Percent protection: {0}%"))) shouldHide = true;
-                    else if (trimmed.StartsWith("Protection tier:") || trimmed.StartsWith(GetPatternStart("Protection tier: {0}"))) shouldHide = true;
-                    else if (trimmed.Contains("Protection from rain")) shouldHide = true;
-                    else if (trimmed.StartsWith("High damage tier resistant")) shouldHide = true;
+                    if (trimmed.StartsWith("Flat damage reduction:") || trimmed.StartsWith("Percent protection:") || trimmed.StartsWith("Protection tier:")) shouldHide = true;
+                    else if (trimmed.Contains("Protection from rain") || trimmed.StartsWith("High damage tier resistant")) shouldHide = true;
                 }
 
                 if (!shouldHide && hideVanilla.Contains("warmth"))
                 {
-                    // Vanilla wearables show Condition + Warmth on the same line. Do not hide the line if it begins with Condition.
-                    string condPrefix = Lang.Get("Condition:");
-                    bool isConditionLine = trimmed.StartsWith("Condition:")
-                        || trimmed.StartsWith(condPrefix)
-                        || trimmed.StartsWith(GetPatternStart("Condition:"))
-                        || trimmed.StartsWith("Состояние:");
-
-                    if (!isConditionLine && trimmed.Contains("°C") && (trimmed.Contains("+") || trimmed.Contains("Warmth"))) shouldHide = true;
+                    // Hide warmth lines but not condition lines
+                    if (trimmed.Contains("°C") && (trimmed.Contains("+") || trimmed.Contains("Warmth") || trimmed.Contains("тепло")))
+                    {
+                        // Don't hide if it's a condition line (vanilla shows condition + warmth together)
+                        if (!trimmed.StartsWith("Condition:") && !trimmed.StartsWith(Lang.Get("Condition:")) && !trimmed.StartsWith("Состояние:"))
+                        {
+                            shouldHide = true;
+                        }
+                    }
                 }
 
                 if (!shouldHide && hideVanilla.Contains("temperature"))
                 {
-                    if (trimmed.StartsWith("Temperature:") || trimmed.StartsWith(GetPatternStart("Temperature: {0}°C"))) shouldHide = true;
+                    if (trimmed.StartsWith("Temperature:")) shouldHide = true;
                 }
 
                 if (!shouldHide && hideVanilla.Contains("nutrition"))
                 {
-                    if (trimmed.StartsWith("Satiety:") || trimmed.StartsWith(GetPatternStart("Satiety: {0}"))) shouldHide = true;
-                    else if (trimmed.StartsWith("Nutrients:") || trimmed.StartsWith("Food Category:")) shouldHide = true;
+                    if (trimmed.StartsWith("Satiety:") || trimmed.StartsWith("Nutrients:") || trimmed.StartsWith("Food Category:")) shouldHide = true;
                     else if (trimmed.Contains("sat") && (trimmed.Contains("veg") || trimmed.Contains("fruit") || trimmed.Contains("grain") || trimmed.Contains("prot") || trimmed.Contains("dairy"))) shouldHide = true;
                 }
 
@@ -294,8 +251,7 @@ namespace VsQuest.Harmony
 
                 if (!shouldHide && hideVanilla.Contains("combustible"))
                 {
-                    if (trimmed.StartsWith("Burn temperature:") || trimmed.StartsWith(GetPatternStart("Burn temperature: {0}°C"))) shouldHide = true;
-                    else if (trimmed.StartsWith("Burn duration:") || trimmed.StartsWith(GetPatternStart("Burn duration: {0}s"))) shouldHide = true;
+                    if (trimmed.StartsWith("Burn temperature:") || trimmed.StartsWith("Burn duration:")) shouldHide = true;
                 }
 
                 if (!shouldHide && (hideVanilla.Contains("grinding") || hideVanilla.Contains("crushing")))
@@ -305,7 +261,7 @@ namespace VsQuest.Harmony
 
                 if (!shouldHide && hideVanilla.Contains("modsource"))
                 {
-                    if (trimmed.StartsWith("Mod:") || trimmed.StartsWith(GetPatternStart("Mod: {0}"))) shouldHide = true;
+                    if (trimmed.StartsWith("Mod:")) shouldHide = true;
                 }
 
                 if (!shouldHide && hideVanilla.Contains("walkspeed"))

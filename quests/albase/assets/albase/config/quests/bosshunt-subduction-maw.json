@@ -77,7 +77,8 @@
       "args": [
         "1",
         "albase:bosshunt-reward-duelist",
-        "albase:bosshunt-reward-subduction-filter"
+        "albase:bosshunt-reward-subduction-filter",
+        "albase:bosshunt-reward-subduction-quiver"
       ]
     },
     {

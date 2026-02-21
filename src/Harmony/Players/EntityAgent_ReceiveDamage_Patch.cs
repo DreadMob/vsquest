@@ -77,10 +77,24 @@ namespace VsQuest.Harmony.Players
             if (causeEntity is EntityPlayer attackPlayer && attackPlayer.Player?.InventoryManager != null)
             {
                 var cached = WearableStatsCache.GetCachedStats(attackPlayer);
-                if (cached != null && Math.Abs(cached.AttackPower) > 0.0001f)
+                if (cached != null)
                 {
-                    damage += cached.AttackPower;
-                    if (damage < 0.1f) damage = 0.1f; // Minimum damage
+                    // Flat attack power bonus
+                    if (Math.Abs(cached.AttackPower) > 0.0001f)
+                    {
+                        damage += cached.AttackPower;
+                        if (damage < 0.1f) damage = 0.1f; // Minimum damage
+                    }
+                    
+                    // Ranged damage multiplier for projectiles (arrows, spears, stones, etc.)
+                    if (cached.RangedDamageMult != 0f && damageSource?.SourceEntity != null)
+                    {
+                        // Check if it's a projectile fired by player (source entity is different from cause entity)
+                        if (damageSource.SourceEntity != causeEntity)
+                        {
+                            damage *= GameMath.Clamp(1f + cached.RangedDamageMult, 0.1f, 5f);
+                        }
+                    }
                 }
             }
 

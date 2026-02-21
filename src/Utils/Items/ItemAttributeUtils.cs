@@ -39,6 +39,7 @@ namespace VsQuest
         public const string AttrHealingEffectiveness = "healingeffectiveness";
         public const string AttrRangedAccuracy = "rangedaccuracy";
         public const string AttrRangedSpeed = "rangedchargspeed";
+        public const string AttrRangedDamageMult = "rangeddamagemult";
         public const string AttrMiningSpeedMult = "miningspeedmult";
         public const string AttrFallDamageMult = "falldamagemult";
         public const string AttrTemporalDrainMult = "temporaldrainmult";
@@ -158,7 +159,7 @@ namespace VsQuest
 
             if (shortKey == AttrProtectionPerc || shortKey == AttrWalkSpeed ||
                 shortKey == AttrHungerRate || shortKey == AttrHealingEffectiveness ||
-                shortKey == AttrRangedAccuracy || shortKey == AttrRangedSpeed ||
+                shortKey == AttrRangedAccuracy || shortKey == AttrRangedSpeed || shortKey == AttrRangedDamageMult ||
                 shortKey == AttrMiningSpeedMult || shortKey == AttrFallDamageMult ||
                 shortKey == AttrTemporalDrainMult || shortKey == AttrJumpHeightMul ||
                 shortKey == AttrKnockbackMult || shortKey == AttrMeleeAttackSpeed || shortKey == AttrWeightLimit ||
@@ -195,6 +196,10 @@ namespace VsQuest
                 const float OxygenUnitsPerSecond = 800f;
                 float seconds = value / OxygenUnitsPerSecond;
                 return $"{displayName}: {prefix}{seconds:0.#}";
+            }
+            else if (shortKey == AttrHealOnKill)
+            {
+                return $"{displayName}: {prefix}{value * 100:0.#}%";
             }
 
             return $"{displayName}: {prefix}{value:0.##}";

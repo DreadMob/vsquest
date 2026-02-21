@@ -26,6 +26,7 @@ namespace VsQuest.Harmony.Items
             public float PercProtection { get; set; }
             public float KnockbackMult { get; set; }
             public float AttackPower { get; set; }
+            public float RangedDamageMult { get; set; }
             public long Timestamp { get; set; }
 
             // Fast check if cache is still valid
@@ -36,7 +37,8 @@ namespace VsQuest.Harmony.Items
         {
             if (player?.Player?.InventoryManager == null) return null;
             var inv = player.Player.InventoryManager.GetOwnInventory("character");
-            if (inv == null) return null;
+            var backpackInv = player.Player.InventoryManager.GetOwnInventory("backpack");
+            if (inv == null && backpackInv == null) return null;
 
             long nowMs = player.World?.ElapsedMilliseconds ?? 0;
 
@@ -45,7 +47,7 @@ namespace VsQuest.Harmony.Items
             if (cached != null) return cached;
 
             // Recalculate and cache
-            var stats = CalculateStats(inv);
+            var stats = CalculateStats(inv, backpackInv);
             stats.Timestamp = nowMs;
             StoreStatsInCache(player, stats);
             return stats;
@@ -58,24 +60,47 @@ namespace VsQuest.Harmony.Items
             tree?.SetLong("t", 0);
         }
 
-        private static CachedStats CalculateStats(IInventory inv)
+        private static CachedStats CalculateStats(IInventory inv, IInventory backpackInv)
         {
             var stats = new CachedStats();
-            foreach (ItemSlot slot in inv)
+
+            // Check character slots for ItemWearable
+            if (inv != null)
             {
-                if (slot.Empty || slot.Itemstack?.Item is not ItemWearable) continue;
-                var stack = slot.Itemstack;
-                stats.Stealth += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrStealth);
-                stats.FallDamageReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrFallDamageMult);
-                stats.TemporalDrainReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrTemporalDrainMult);
-                stats.MeleeAttackSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMeleeAttackSpeed);
-                stats.MiningSpeedMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMiningSpeedMult);
-                stats.FlatProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtection);
-                stats.PercProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtectionPerc);
-                stats.KnockbackMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrKnockbackMult);
-                stats.AttackPower += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrAttackPower);
+                foreach (ItemSlot slot in inv)
+                {
+                    if (slot.Empty || slot.Itemstack?.Item is not ItemWearable) continue;
+                    AddItemAttributes(stats, slot.Itemstack);
+                }
             }
+
+            // Check backpack slots for attachments (quiver, etc.)
+            if (backpackInv != null)
+            {
+                foreach (ItemSlot slot in backpackInv)
+                {
+                    if (slot.Empty || slot.Itemstack?.Collectible == null) continue;
+                    var backpackAttr = slot.Itemstack.Collectible.Attributes?["backpack"];
+                    if (backpackAttr == null || !backpackAttr.Exists) continue;
+                    AddItemAttributes(stats, slot.Itemstack);
+                }
+            }
+
             return stats;
+        }
+
+        private static void AddItemAttributes(CachedStats stats, ItemStack stack)
+        {
+            stats.Stealth += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrStealth);
+            stats.FallDamageReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrFallDamageMult);
+            stats.TemporalDrainReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrTemporalDrainMult);
+            stats.MeleeAttackSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMeleeAttackSpeed);
+            stats.MiningSpeedMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMiningSpeedMult);
+            stats.FlatProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtection);
+            stats.PercProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtectionPerc);
+            stats.KnockbackMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrKnockbackMult);
+            stats.AttackPower += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrAttackPower);
+            stats.RangedDamageMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedDamageMult);
         }
 
         private static CachedStats GetStatsFromCache(EntityPlayer player, long nowMs)
@@ -100,6 +125,7 @@ namespace VsQuest.Harmony.Items
                         PercProtection = tree.GetFloat("pp"),
                         KnockbackMult = tree.GetFloat("k"),
                         AttackPower = tree.GetFloat("ap"),
+                        RangedDamageMult = tree.GetFloat("rd"),
                         Timestamp = timestamp
                     };
                 }
@@ -123,6 +149,7 @@ namespace VsQuest.Harmony.Items
                 tree.SetFloat("pp", stats.PercProtection);
                 tree.SetFloat("k", stats.KnockbackMult);
                 tree.SetFloat("ap", stats.AttackPower);
+                tree.SetFloat("rd", stats.RangedDamageMult);
                 tree.SetLong("t", stats.Timestamp);
                 player.WatchedAttributes.SetAttribute(CacheKey, tree);
             }

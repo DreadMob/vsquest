@@ -89,7 +89,7 @@
         "protectionperc": -0.15,
         "hungerrate": 0.4,
         "walkspeed": -0.05,
-        "knockbackmult": 0.3
+        "knockbackmult": 0.44
       },
       "showAttributes": [
         "attackpower",
@@ -376,6 +376,60 @@
         "healingeffectiveness"
       ],
       "hideVanillaTooltips": []
+    },
+    {
+      "id": "albase:bosshunt-reward-subduction-quiver",
+      "itemCode": "albase:bosshunt-subduction-quiver",
+      "name": "<font color=\"#A16207\">Колчан Подземелья</font>",
+      "description": "<font color=\"#CA8A04\">Потёртый кожаный колчан с костяными вставками. Стрелы в нём лежат плотнее, чем должны, и воздух вокруг них сухо потрескивает — будто сама земля готовится к выстрелу.</font>",
+      "actions": [],
+      "attributes": {
+        "rangedaccuracy": 0.25,
+        "rangeddamagemult": 0.15,
+        "rangedchargspeed": 0.1,
+        "walkspeed": -0.05,
+        "protectionperc": -0.1
+      },
+      "showAttributes": [
+        "rangedaccuracy",
+        "rangeddamagemult",
+        "rangedchargspeed",
+        "walkspeed",
+        "protectionperc"
+      ],
+      "hideVanillaTooltips": [
+        "armor",
+        "protection",
+        "warmth",
+        "walkspeed",
+        "modsource"
+      ]
+    },
+    {
+      "id": "albase:bosshunt-reward-ossuary-mask",
+      "itemCode": "albase:bosshunt-ossuary-mask",
+      "name": "<font color=\"#6B7280\">Маска Стража Оссуария</font>",
+      "description": "<font color=\"#9CA3AF\">Поблёкшая маска забытой знати. В прорезях для глаз чувствуется холод, а на внутренней стороне остались следы от чьих-то пальцев — будто её снимали в спешке, в темноте, под грохот обрушающихся сводов.</font>",
+      "actions": [],
+      "attributes": {
+        "healonkill": 0.55,
+        "hungerrate": 0.25,
+        "protectionperc": -0.1,
+        "walkspeed": -0.05
+      },
+      "showAttributes": [
+        "healonkill",
+        "hungerrate",
+        "protectionperc",
+        "walkspeed"
+      ],
+      "hideVanillaTooltips": [
+        "armor",
+        "protection",
+        "warmth",
+        "walkspeed",
+        "modsource"
+      ]
     }
   ]
 }
