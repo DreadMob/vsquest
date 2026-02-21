@@ -128,7 +128,7 @@
             "spawns": [
               { "entityCode": "game:locust-corrupt", "minCount": 4, "maxCount": 5 },
               { "entityCode": "game:locust-corrupt", "minCount": 1, "maxCount": 1 },
-              { "entityCode": "game:locust-corrupt-sawblade", "minCount": 1, "maxCount": 1, "chance": 0.1 }
+              { "entityCode": "game:locust-corrupt-sawblade", "minCount": 2, "maxCount": 3, "chance": 0.5 }
             ],
             "maxNearby": 10,
             "nearbyRange": 20,
@@ -151,7 +151,7 @@
             "spawns": [
               { "entityCode": "game:locust-corrupt", "minCount": 4, "maxCount": 5 },
               { "entityCode": "game:locust-corrupt", "minCount": 1, "maxCount": 1 },
-              { "entityCode": "game:locust-corrupt-sawblade", "minCount": 1, "maxCount": 1, "chance": 0.1 }
+              { "entityCode": "game:locust-corrupt-sawblade", "minCount": 2, "maxCount": 3, "chance": 0.5 }
             ],
             "maxNearby": 10,
             "nearbyRange": 20,
@@ -337,7 +337,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 29.0,
+            "damage": 36.0,
             "damageTier": 2,
             "minDist": 7.5,
             "minVerDist": 4.8,
@@ -355,7 +355,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.2,
-            "damage": 35.0,
+            "damage": 42.0,
             "damageTier": 4,
             "minDist": 10.0,
             "minVerDist": 5.8,
@@ -374,7 +374,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2.4,
-            "damage": 41.0,
+            "damage": 48.0,
             "damageTier": 5,
             "minDist": 11.0,
             "minVerDist": 6.3,

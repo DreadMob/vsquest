@@ -9,6 +9,8 @@ using Vintagestory.GameContent;
 
 namespace VsQuest
 {
+    // DISABLED - Boss HP scaling by player count not working correctly
+    /*
     public class EntityBehaviorBossDynamicScaling : EntityBehavior
     {
         private const string BaseHealthKey = "alegacyvsquest:bossdynam scaling:baseHealth";
@@ -144,4 +146,5 @@ namespace VsQuest
             return Math.Min(multiplier, baseHealthMult * maxMultiplier);
         }
     }
+    */
 }

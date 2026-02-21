@@ -977,7 +977,12 @@ namespace VsQuest
                     // Next loop iteration uses the latest requested phase offset.
                     loopStartAtSeconds = Math.Max(0f, desiredLoopStartAtSeconds);
 
-                    if (!reachedEnd)
+                    if (reachedEnd)
+                    {
+                        // Track ended naturally and will loop - ensure stopPending doesn't prevent restart
+                        stopPending = false;
+                    }
+                    else
                     {
                         // We stopped for some other reason (e.g. source invalid), don't tight-loop.
                         await Task.Delay(200, token);

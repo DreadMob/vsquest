@@ -52,6 +52,8 @@ namespace VsQuest
             var actionItemDurabilityHandler = new ActionItemDurabilityCommandHandler();
             var reloadHandler = new QuestReloadCommandHandler(sapi, questSystem);
             var profilerHandler = new QuestProfilerCommandHandler(sapi);
+            var fullDietHandler = new FullDietCommandHandler(sapi);
+            var debugDamageHandler = new DebugDamageCommandHandler(sapi);
 
             sapi.ChatCommands.GetOrCreate("avq")
                 .WithDescription("Quest administration commands")
@@ -198,6 +200,14 @@ namespace VsQuest
                     )
                     .HandleWith(questWAttrHandler.FixPlayer)
                 .EndSubCommand()
+                .BeginSubCommand("fulldiet")
+                    .WithDescription("Sets a player's nutrition to full for all categories.")
+                    .RequiresPrivilege(Privilege.give)
+                    .WithArgs(
+                        sapi.ChatCommands.Parsers.OptionalWord("playerName")
+                    )
+                    .HandleWith(fullDietHandler.Handle)
+                .EndSubCommand()
                 .BeginSubCommand("qlist")
                     .WithDescription("Lists all registered quest IDs and their titles.")
                     .RequiresPrivilege(Privilege.give)
@@ -332,6 +342,25 @@ namespace VsQuest
                         .WithDescription("Clears profiler statistics")
                         .RequiresPrivilege(Privilege.give)
                         .HandleWith(profilerHandler.Clear)
+                    .EndSubCommand()
+                .EndSubCommand()
+                .BeginSubCommand("debugdamage")
+                    .WithDescription("Debug damage logging - shows damage you deal to entities in chat")
+                    .RequiresPrivilege(Privilege.give)
+                    .BeginSubCommand("enable")
+                        .WithDescription("Enable damage debug messages")
+                        .RequiresPrivilege(Privilege.give)
+                        .HandleWith(debugDamageHandler.Enable)
+                    .EndSubCommand()
+                    .BeginSubCommand("disable")
+                        .WithDescription("Disable damage debug messages")
+                        .RequiresPrivilege(Privilege.give)
+                        .HandleWith(debugDamageHandler.Disable)
+                    .EndSubCommand()
+                    .BeginSubCommand("status")
+                        .WithDescription("Show damage debug status")
+                        .RequiresPrivilege(Privilege.give)
+                        .HandleWith(debugDamageHandler.Status)
                     .EndSubCommand()
                 .EndSubCommand()
                 ;

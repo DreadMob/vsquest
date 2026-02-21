@@ -136,12 +136,30 @@ namespace VsQuest.Harmony
 
             dsc.Clear();
 
+            // 1. Durability/Condition line check: more robust prefixes and patterns
             bool isConditionOrDurabilityLine(string trimmed)
             {
                 if (string.IsNullOrWhiteSpace(trimmed)) return false;
-                if (trimmed.StartsWith("Durability:") || trimmed.StartsWith(GetPatternStart("Durability: {0} / {1}"))) return true;
-                if (trimmed.StartsWith("Condition:") || trimmed.StartsWith(GetPatternStart("Condition: {0}%"))) return true;
-                if (trimmed.StartsWith("Прочность:") || trimmed.StartsWith("Состояние:")) return true;
+                
+                // Common vanilla prefixes (unlocalized)
+                if (trimmed.StartsWith("Durability:", StringComparison.OrdinalIgnoreCase) || 
+                    trimmed.StartsWith("Condition:", StringComparison.OrdinalIgnoreCase)) return true;
+
+                // Localized prefixes
+                string durPrefix = Lang.Get("Durability:");
+                string condPrefix = Lang.Get("Condition:");
+                
+                if (trimmed.StartsWith(durPrefix, StringComparison.OrdinalIgnoreCase)) return true;
+                if (trimmed.StartsWith(condPrefix, StringComparison.OrdinalIgnoreCase)) return true;
+
+                // Pattern-based checks (for "{0} / {1}" or "{0}%")
+                if (trimmed.StartsWith(GetPatternStart("Durability: {0} / {1}"), StringComparison.OrdinalIgnoreCase)) return true;
+                if (trimmed.StartsWith(GetPatternStart("Condition: {0}%"), StringComparison.OrdinalIgnoreCase)) return true;
+                
+                // Explicit Russian checks (common for the user)
+                if (trimmed.StartsWith("Прочность:", StringComparison.OrdinalIgnoreCase) || 
+                    trimmed.StartsWith("Состояние:", StringComparison.OrdinalIgnoreCase)) return true;
+                
                 return false;
             }
 
@@ -176,38 +194,27 @@ namespace VsQuest.Harmony
                 // (first paragraph). Do not drop if the tooltip begins with durability/condition lines.
                 if (!skippedLeadingDescBlock)
                 {
-                    if (!startedSkippingLeadingDesc)
+                    if (isConditionOrDurabilityLine(trimmed))
+                    {
+                        skippedLeadingDescBlock = true;
+                        // Don't skip this line!
+                    }
+                    else if (!startedSkippingLeadingDesc)
                     {
                         if (isLineEmpty) continue;
-                        if (isConditionOrDurabilityLine(trimmed))
-                        {
-                            skippedLeadingDescBlock = true;
-                        }
-                        else
-                        {
-                            startedSkippingLeadingDesc = true;
-                            continue;
-                        }
+                        startedSkippingLeadingDesc = true;
+                        continue;
                     }
                     else
                     {
-                        // If we reach a durability/condition line without an empty separator, do not skip it.
-                        // Stop skipping and let the line be processed normally below.
-                        if (isConditionOrDurabilityLine(trimmed))
+                        // If we reach a durability/condition line or empty line, we're done skipping the desc block
+                        if (isLineEmpty)
                         {
-                            skippedLeadingDescBlock = true;
-                        }
-                        else if (isLineEmpty)
-                        {
-                            // End of the leading description block.
                             skippedLeadingDescBlock = true;
                             continue;
                         }
-                        else
-                        {
-                            // Still skipping vanilla description.
-                            continue;
-                        }
+                        // Still skipping vanilla description.
+                        continue;
                     }
                 }
 
@@ -225,8 +232,7 @@ namespace VsQuest.Harmony
 
                 if (hideVanilla.Contains("durability"))
                 {
-                    if (trimmed.StartsWith("Durability:") || trimmed.StartsWith(GetPatternStart("Durability: {0} / {1}"))) shouldHide = true;
-                    else if (trimmed.StartsWith("Condition:") || trimmed.StartsWith(GetPatternStart("Condition: {0}%"))) shouldHide = true;
+                    if (isConditionOrDurabilityLine(trimmed)) shouldHide = true;
                 }
 
                 if (!shouldHide && hideVanilla.Contains("miningspeed"))
@@ -259,7 +265,9 @@ namespace VsQuest.Harmony
                 if (!shouldHide && hideVanilla.Contains("warmth"))
                 {
                     // Vanilla wearables show Condition + Warmth on the same line. Do not hide the line if it begins with Condition.
+                    string condPrefix = Lang.Get("Condition:");
                     bool isConditionLine = trimmed.StartsWith("Condition:")
+                        || trimmed.StartsWith(condPrefix)
                         || trimmed.StartsWith(GetPatternStart("Condition:"))
                         || trimmed.StartsWith("Состояние:");
 

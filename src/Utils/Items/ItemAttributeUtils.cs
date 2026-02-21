@@ -52,6 +52,7 @@ namespace VsQuest
         public const string AttrWeightLimit = "weightlimit";
         public const string AttrViewDistance = "viewdistance";
         public const string AttrUraniumMaskChargeHours = "uraniummaskchargehours";
+        public const string AttrHealOnKill = "healonkill";
 
         public static string GetKey(string attributeName)
         {

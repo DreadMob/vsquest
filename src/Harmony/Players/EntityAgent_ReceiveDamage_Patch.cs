@@ -36,63 +36,78 @@ namespace VsQuest.Harmony.Players
             if (damageSource == null) return true; // Run original
             if (__instance?.Api?.Side != EnumAppSide.Server) return true; // Run original
 
+            // 1. Single attribute fetch to minimize tree traversals
             var watchedAttrs = __instance.WatchedAttributes;
-            if (watchedAttrs == null) return true; // Run original
+            if (watchedAttrs == null) return true;
+
+            // Fast boss check - uses cached result
+            bool isBoss = BossDetection.IsBossTargetFast(__instance);
 
             // Boss clone invulnerability check
             if (watchedAttrs.GetBool(AttrKeys.BossCloneInvulnerable, false))
             {
                 damage = 0f;
-                damageSource.KnockbackStrength = 0f;
-                __result = false; // Damage was handled (blocked)
-                return false; // Skip original
+                if (damageSource != null) damageSource.KnockbackStrength = 0f;
+                __result = false;
+                return false;
             }
 
             // Single cached computation of source/cause entities
-            var sourceEntity = damageSource.SourceEntity;
-            var causeEntity = damageSource.GetCauseEntity() ?? sourceEntity;
+            var sourceEntity = damageSource?.SourceEntity;
+            var causeEntity = damageSource?.GetCauseEntity() ?? sourceEntity;
             var sourceAttrs = sourceEntity?.WatchedAttributes ?? causeEntity?.WatchedAttributes;
 
-            // Boss knockback immunity (zero knockback for bosses) - cached check
-            if (damageSource.KnockbackStrength > 0f && BossDetection.IsBossTargetFast(__instance))
+            // Boss knockback immunity (zero knockback for bosses)
+            if (isBoss && damageSource != null && damageSource.KnockbackStrength > 0f)
             {
                 damageSource.KnockbackStrength = 0f;
             }
 
             // Knockback bonus from attacker gear - only if knockback still present and attacker is player
-            if (damageSource.KnockbackStrength > 0f && causeEntity is EntityPlayer attacker && attacker.Player?.InventoryManager != null)
+            if (damageSource != null && damageSource.KnockbackStrength > 0f && causeEntity is EntityPlayer attacker && attacker.Player?.InventoryManager != null)
             {
                 var cached = WearableStatsCache.GetCachedStats(attacker);
-                if (cached?.KnockbackMult != 0f)
+                if (cached != null && cached.KnockbackMult != 0f)
                 {
                     damageSource.KnockbackStrength *= GameMath.Clamp(1f + cached.KnockbackMult, 0f, 5f);
                 }
             }
 
-            // Boss clone damage handling (single block)
+            // Attack power bonus from attacker's equipped wearables
+            if (causeEntity is EntityPlayer attackPlayer && attackPlayer.Player?.InventoryManager != null)
+            {
+                var cached = WearableStatsCache.GetCachedStats(attackPlayer);
+                if (cached != null && Math.Abs(cached.AttackPower) > 0.0001f)
+                {
+                    damage += cached.AttackPower;
+                    if (damage < 0.1f) damage = 0.1f; // Minimum damage
+                }
+            }
+
+            // Boss clone damage handling
             if (sourceAttrs != null && sourceAttrs.GetBool(AttrKeys.BossClone, false))
             {
                 long ownerId = sourceAttrs.GetLong(AttrKeys.BossCloneOwnerId, 0);
                 if (ownerId > 0 && __instance.EntityId == ownerId)
                 {
                     damage = 0f;
-                    damageSource.KnockbackStrength = 0f;
-                    __result = false; // Damage was handled (blocked)
-                    return false; // Skip original
+                    if (damageSource != null) damageSource.KnockbackStrength = 0f;
+                    __result = false;
+                    return false;
                 }
 
                 // Damage multiplier from clone
                 float mult = sourceAttrs.GetFloat(AttrKeys.BossCloneDamageMult, 1f);
-                if (mult > 0f && mult < 0.999f)
+                if (mult >= 0f && mult < 0.999f)
                 {
                     damage *= mult;
                 }
             }
 
-            // Fired by boss clone check (rare, keep simple)
-            if (sourceEntity?.WatchedAttributes?.HasAttribute(AttrKeys.FiredBy) == true)
+            // Fired by boss clone check (rare)
+            if (sourceEntity != null && sourceAttrs?.HasAttribute(AttrKeys.FiredBy) == true)
             {
-                long firedById = sourceEntity.WatchedAttributes.GetLong(AttrKeys.FiredBy, 0);
+                long firedById = sourceAttrs.GetLong(AttrKeys.FiredBy, 0);
                 if (firedById > 0 && __instance.World?.GetEntityById(firedById) is Entity firedBy)
                 {
                     var fbAttrs = firedBy.WatchedAttributes;
@@ -102,29 +117,27 @@ namespace VsQuest.Harmony.Players
                         if (ownerId > 0 && __instance.EntityId == ownerId)
                         {
                             damage = 0f;
-                            damageSource.KnockbackStrength = 0f;
-                            __result = false; // Damage was handled (blocked)
-                            return false; // Skip original
+                            if (damageSource != null) damageSource.KnockbackStrength = 0f;
+                            __result = false;
+                            return false;
                         }
                     }
                 }
             }
 
-            // Boss damage invulnerability check - cached to avoid HasBehavior spam
+            // Boss damage invulnerability check
             if (HasInvulnerabilityBehaviorCached(__instance, out bool hasInvuln) && hasInvuln)
             {
                 long now = __instance.Api.World.ElapsedMilliseconds;
                 
-                // Check if currently invulnerable
                 if (EntityBehaviorBossDamageInvulnerability.ShouldBlockDamage(__instance, now))
                 {
                     damage = 0f;
-                    damageSource.KnockbackStrength = 0f;
+                    if (damageSource != null) damageSource.KnockbackStrength = 0f;
                     __result = false;
-                    return false; // Skip original - damage blocked
+                    return false;
                 }
                 
-                // Only start invulnerability if damage will actually be dealt (> 0)
                 if (damage > 0)
                 {
                     var behavior = __instance.GetBehavior<EntityBehaviorBossDamageInvulnerability>();

@@ -56,7 +56,7 @@
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "bossdamagesourceimmunity", "ignoreWeather": true, "ignoreExplosion": true, "ignoreElectricity": true, "onlyAllowPlayerDamage": true },
-      { "code": "health", "currenthealth": 896, "maxhealth": 896 },
+      { "code": "health", "currenthealth": 746, "maxhealth": 746 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:subduction-maw", "leashRange": 120, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
@@ -73,7 +73,7 @@
             "spawnRange": 10,
             "adds": [
               {
-                "entityCode": "game:shiver-nightmare",
+                "entityCode": "game:shiver-tainted",
                 "maxNearby": 6,
                 "nearbyRange": 28,
                 "minCount": 1,
@@ -101,7 +101,7 @@
             "spawnRange": 12,
             "adds": [
               {
-                "entityCode": "game:shiver-nightmare",
+                "entityCode": "game:shiver-tainted",
                 "maxNearby": 6,
                 "nearbyRange": 30,
                 "minCount": 2,
@@ -278,7 +278,7 @@
           {
             "whenHealthRelBelow": 0.75,
             "cooldownSeconds": 12,
-            "entityCode": "game:shiver-nightmare",
+            "entityCode": "game:shiver-tainted",
             "maxNearby": 4,
             "nearbyRange": 28,
             "minCount": 1,
@@ -294,7 +294,7 @@
           {
             "whenHealthRelBelow": 0.4,
             "cooldownSeconds": 10,
-            "entityCode": "game:shiver-nightmare",
+            "entityCode": "game:shiver-tainted",
             "maxNearby": 6,
             "nearbyRange": 30,
             "minCount": 2,

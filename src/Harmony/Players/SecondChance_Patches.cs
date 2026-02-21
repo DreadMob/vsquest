@@ -25,19 +25,26 @@ namespace VsQuest.Harmony.Players
 
             if (damage <= 0f) return;
 
-            float health = __instance.Health;
+            // Use entity.Health for current health value
+            float health = (float)(player.WatchedAttributes?.GetDecimal("health") ?? 0f);
 
+            // Only trigger if this damage would kill the player
             if (health - damage > 0f) return;
 
+            // Fast check: use cached flag instead of inventory scan
+            const string cacheKey = "alegacyvsquest:secondchance:hasmask";
+            if (!player.WatchedAttributes.GetBool(cacheKey)) return;
+
+            // Now get the actual slot and charges
             if (!SecondChanceHelper.TryGetSecondChanceSlot(player, out var slot)) return;
 
             float charges = SecondChanceHelper.GetSecondChanceCharges(slot.Itemstack);
 
             if (charges < 1f) return;
 
+            // Heal player to 70% max health
             float targetHealth = Math.Max(0.1f, __instance.MaxHealth * 0.7f);
-
-            __instance.Health = Math.Max(targetHealth, __instance.Health);
+            __instance.Health = targetHealth;
 
             damage = 0f;
 
@@ -101,51 +108,21 @@ namespace VsQuest.Harmony.Players
         public static bool TryGetSecondChanceSlot(EntityPlayer player, out ItemSlot slot)
         {
             slot = null;
-            long entityId = player.EntityId;
             
-            // Try cached slot first
-            if (CachedSlots.TryGetValue(entityId, out var cachedSlot) && cachedSlot != null)
-            {
-                // Validate cached slot is still valid
-                if (!cachedSlot.Empty && cachedSlot.Itemstack?.Attributes != null)
-                {
-                    string key = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrSecondChanceCharges);
-                    if (cachedSlot.Itemstack.Attributes.HasAttribute(key))
-                    {
-                        slot = cachedSlot;
-                        return true;
-                    }
-                }
-                // Cached slot invalid, remove it
-                CachedSlots.Remove(entityId);
-            }
-            
-            // Periodic recheck counter
-            if (SlotCheckCounters.TryGetValue(entityId, out int counter))
-            {
-                if (counter < SlotRecheckInterval)
-                {
-                    SlotCheckCounters[entityId] = counter + 1;
-                    return false; // Skip scan this time
-                }
-            }
-            SlotCheckCounters[entityId] = 0;
-
-            // Full inventory scan
+            // Only check the face slot (mask must be equipped)
             var inv = player.Player?.InventoryManager?.GetOwnInventory("character");
             if (inv == null) return false;
 
-            foreach (ItemSlot s in inv)
+            // Face slot is typically index 9 in character inventory
+            // Also check other wearable slots that might contain face items
+            var faceSlot = inv[(int)EnumCharacterDressType.Face];
+            
+            if (faceSlot?.Empty == false && faceSlot.Itemstack?.Attributes != null)
             {
-                if (s?.Empty != false) continue;
-                var stack = s.Itemstack;
-                if (!ItemAttributeUtils.IsActionItem(stack)) continue;
-
                 string key = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrSecondChanceCharges);
-                if (stack.Attributes.HasAttribute(key))
+                if (faceSlot.Itemstack.Attributes.HasAttribute(key))
                 {
-                    CachedSlots[entityId] = s;
-                    slot = s;
+                    slot = faceSlot;
                     return true;
                 }
             }

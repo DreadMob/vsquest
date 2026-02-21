@@ -85,8 +85,15 @@ namespace VsQuest.Harmony.Items
         {
             if (sinkStack?.Attributes == null || sourceStack?.Collectible?.Code == null) return false;
 
+            // Check if this is a Second Chance mask by item code
+            if (!IsSecondChanceMask(sinkStack.Collectible.Code)) return false;
+
             string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrSecondChanceCharges);
-            if (!sinkStack.Attributes.HasAttribute(chargeKey)) return false;
+            // Initialize attribute if missing (for items from creative inventory)
+            if (!sinkStack.Attributes.HasAttribute(chargeKey))
+            {
+                sinkStack.Attributes.SetFloat(chargeKey, 0f);
+            }
 
             if (!IsDiamondRough(sourceStack.Collectible.Code)) return false;
             if (!HasHighPotential(sourceStack)) return false;
@@ -99,8 +106,15 @@ namespace VsQuest.Harmony.Items
         {
             if (sinkStack?.Attributes == null || sourceStack?.Collectible?.Code == null) return false;
 
+            // Check if this is a Uranium Mask by item code
+            if (!IsUraniumMask(sinkStack.Collectible.Code)) return false;
+
             string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrUraniumMaskChargeHours);
-            if (!sinkStack.Attributes.HasAttribute(chargeKey)) return false;
+            // Initialize attribute if missing (for items from creative inventory)
+            if (!sinkStack.Attributes.HasAttribute(chargeKey))
+            {
+                sinkStack.Attributes.SetFloat(chargeKey, 0f);
+            }
 
             if (!IsUraniumChunk(sourceStack.Collectible.Code)) return false;
 
@@ -127,7 +141,20 @@ namespace VsQuest.Harmony.Items
 
         private static bool IsUraniumChunk(AssetLocation code)
         {
-            return code.Path.Contains("uranium") && (code.Path.Contains("chunk") || code.Path.Contains("ore"));
+            // Accept: ore-*-uranium-*, nugget-uranium, gem-uranium-*
+            string path = code.Path;
+            if (!path.Contains("uranium")) return false;
+            return path.Contains("chunk") || path.Contains("ore") || path.Contains("nugget") || path.Contains("gem");
+        }
+
+        private static bool IsUraniumMask(AssetLocation code)
+        {
+            return code.Path.Contains("uranium-mask");
+        }
+
+        private static bool IsSecondChanceMask(AssetLocation code)
+        {
+            return code.Path.Contains("2cnah-mask");
         }
     }
 }

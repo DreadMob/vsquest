@@ -19,6 +19,9 @@ namespace VsQuest.Harmony.Players
             LastWearableHoursField = AccessTools.Field(typeof(EntityBehaviorBodyTemperature), "lastWearableHoursTotalUpdate");
         }
 
+        private static long lastCheckMs = 0;
+        private const int CheckIntervalMs = 500; // Run only 2 times per second
+
         public static void Prefix(EntityBehaviorBodyTemperature __instance)
         {
             if (!HarmonyPatchSwitches.PlayerEnabled(HarmonyPatchSwitches.Player_EntityBehaviorBodyTemperature_OnGameTick_PlayerWarmth)) return;
@@ -28,6 +31,10 @@ namespace VsQuest.Harmony.Players
             
             var entity = __instance?.entity as EntityPlayer;
             if (entity?.WatchedAttributes == null) return;
+
+            long now = entity.World.ElapsedMilliseconds;
+            if (now - lastCheckMs < CheckIntervalMs) return;
+            lastCheckMs = now;
 
             // Batch read WatchedAttributes
             var wa = entity.WatchedAttributes;

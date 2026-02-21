@@ -64,7 +64,7 @@
         "code": "explosivelocust",
         "fuseMs": 3000,
         "explosionRadius": 3.0,
-        "explosionDamage": 10.0,
+        "explosionDamage": 18.0,
         "damageTier": 4,
         "damageType": "PiercingAttack",
         "leapCooldownSeconds": 1.2,

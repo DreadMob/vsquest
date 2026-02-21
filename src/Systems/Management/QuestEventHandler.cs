@@ -159,6 +159,18 @@ namespace VsQuest
             {
             }
 
+            // Heal player on kill if wearing item with healonkill attribute (e.g., Kennel Master mask)
+            try
+            {
+                if (damageSource?.SourceEntity is EntityPlayer killerPlayer && killerPlayer.Alive && entity != null && entity != killerPlayer)
+                {
+                    TryHealPlayerOnKill(killerPlayer);
+                }
+            }
+            catch
+            {
+            }
+
             if (damageSource?.SourceEntity is EntityPlayer player && !string.IsNullOrWhiteSpace(player.PlayerUID))
             {
                 credited.Add(player.PlayerUID);
@@ -308,6 +320,49 @@ namespace VsQuest
 
                 healthTree.SetFloat("currenthealth", next);
                 boss.WatchedAttributes.MarkPathDirty("health");
+            }
+            catch
+            {
+            }
+        }
+
+        private void TryHealPlayerOnKill(EntityPlayer player)
+        {
+            if (player == null) return;
+
+            try
+            {
+                // Check if player is wearing an item with healonkill attribute
+                float healOnKill = 0f;
+                var inv = player.Player?.InventoryManager?.GetOwnInventory("character");
+                if (inv != null)
+                {
+                    foreach (var slot in inv)
+                    {
+                        if (slot?.Itemstack == null) continue;
+                        if (!(slot.Itemstack.Item is Vintagestory.GameContent.ItemWearable)) continue;
+                        float val = ItemAttributeUtils.GetAttributeFloat(slot.Itemstack, ItemAttributeUtils.AttrHealOnKill, 0f);
+                        if (val > 0f) healOnKill += val;
+                    }
+                }
+
+                if (healOnKill <= 0f) return;
+
+                var healthTree = player.WatchedAttributes?.GetTreeAttribute("health");
+                if (healthTree == null) return;
+
+                float currentHealth = healthTree.GetFloat("currenthealth", 0f);
+                float maxHealth = healthTree.GetFloat("maxhealth", 0f);
+                if (maxHealth <= 0f) return;
+
+                float add = maxHealth * healOnKill;
+                if (add <= 0f) return;
+
+                float next = currentHealth + add;
+                if (next > maxHealth) next = maxHealth;
+
+                healthTree.SetFloat("currenthealth", next);
+                player.WatchedAttributes.MarkPathDirty("health");
             }
             catch
             {

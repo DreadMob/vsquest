@@ -78,6 +78,9 @@ namespace VsQuest.Harmony.Items
                     var tracker = GetTracker(player.Entity.Api);
                     tracker?.Invalidate(entityPlayer.EntityId);
                     WearableStatsCache.InvalidateCache(entityPlayer);
+                    
+                    // Update Second Chance mask flag cache
+                    UpdateSecondChanceCache(entityPlayer, inv);
                 }
             }
         }
@@ -102,6 +105,29 @@ namespace VsQuest.Harmony.Items
                 }
             }
             return null;
+        }
+        
+        /// <summary>
+        /// Updates the Second Chance mask flag in player's WatchedAttributes.
+        /// </summary>
+        private static void UpdateSecondChanceCache(EntityPlayer player, IInventory inv)
+        {
+            const string cacheKey = "alegacyvsquest:secondchance:hasmask";
+            
+            bool hasMask = false;
+            
+            // Check face slot for Second Chance mask
+            var faceSlot = inv[(int)EnumCharacterDressType.Face];
+            if (faceSlot?.Empty == false && faceSlot.Itemstack?.Attributes != null)
+            {
+                string key = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrSecondChanceCharges);
+                if (faceSlot.Itemstack.Attributes.HasAttribute(key))
+                {
+                    hasMask = true;
+                }
+            }
+            
+            player.WatchedAttributes.SetBool(cacheKey, hasMask);
         }
     }
 }

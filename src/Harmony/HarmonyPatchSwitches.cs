@@ -86,6 +86,9 @@ namespace VsQuest
         public static bool ConversablePatchesEnabled { get; private set; } = true;
         public static bool Conversable_EntityBehaviorConversable_Controller_DialogTriggers { get; private set; } = true;
 
+        public static bool DebugDamagePatchesEnabled { get; private set; } = true;
+        public static bool DebugDamage_EntityAgent_ReceiveDamage { get; private set; } = true;
+
         public static void ApplyFromConfig(AlegacyVsQuestConfig config)
         {
             var harmony = config?.HarmonyPatches;
@@ -192,6 +195,10 @@ namespace VsQuest
             ConversablePatchesEnabled = harmony?.ConversablePatchesEnabled ?? true;
             var conversable = harmony?.Conversable;
             Conversable_EntityBehaviorConversable_Controller_DialogTriggers = conversable?.EntityBehaviorConversable_Controller_DialogTriggers ?? true;
+
+            DebugDamagePatchesEnabled = harmony?.DebugDamagePatchesEnabled ?? true;
+            var debugDamage = harmony?.DebugDamage;
+            DebugDamage_EntityAgent_ReceiveDamage = debugDamage?.EntityAgent_ReceiveDamage ?? true;
         }
 
         public static bool ItemEnabled(bool perPatch) => ItemAttributePatchesEnabled && perPatch;
@@ -213,5 +220,6 @@ namespace VsQuest
         public static bool QuestItemEquipBlockEnabled(bool perPatch) => QuestItemEquipBlockPatchesEnabled && perPatch;
         public static bool QuestItemGroundStorageBlockEnabled(bool perPatch) => QuestItemGroundStorageBlockPatchesEnabled && perPatch;
         public static bool ConversableEnabled(bool perPatch) => ConversablePatchesEnabled && perPatch;
+        public static bool DebugDamageEnabled(bool perPatch) => DebugDamagePatchesEnabled && perPatch;
     }
 }

@@ -50,7 +50,7 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("bossperiodicspawn", typeof(EntityBehaviorBossPeriodicSpawn));
             api.RegisterEntityBehaviorClass("bossashfloor", typeof(EntityBehaviorBossAshFloor));
             api.RegisterEntityBehaviorClass("shiverdebug", typeof(EntityBehaviorShiverDebug));
-            api.RegisterEntityBehaviorClass("bossdynamicscaling", typeof(EntityBehaviorBossDynamicScaling));
+            // api.RegisterEntityBehaviorClass("bossdynamicscaling", typeof(EntityBehaviorBossDynamicScaling)); // DISABLED
             api.RegisterEntityBehaviorClass("bossdamageinvulnerability", typeof(EntityBehaviorBossDamageInvulnerability));
             api.RegisterEntityBehaviorClass("bosspushback", typeof(EntityBehaviorBossPushback));
             api.RegisterEntityBehaviorClass("bossstillnessmark", typeof(EntityBehaviorBossStillnessMark));

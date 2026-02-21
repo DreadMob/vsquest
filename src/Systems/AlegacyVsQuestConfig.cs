@@ -224,6 +224,9 @@ namespace VsQuest
 			public bool ConversablePatchesEnabled { get; set; } = true;
 			public ConversablePatchesCoreConfig Conversable { get; set; } = new ConversablePatchesCoreConfig();
 
+			public bool DebugDamagePatchesEnabled { get; set; } = true;
+			public DebugDamagePatchesCoreConfig DebugDamage { get; set; } = new DebugDamagePatchesCoreConfig();
+
 			// Individual patch settings
 			public bool Item_InventoryChangeTracking { get; set; } = true;
 
@@ -346,6 +349,11 @@ namespace VsQuest
 		public class ConversablePatchesCoreConfig
 		{
 			public bool EntityBehaviorConversable_Controller_DialogTriggers { get; set; } = true;
+		}
+
+		public class DebugDamagePatchesCoreConfig
+		{
+			public bool EntityAgent_ReceiveDamage { get; set; } = true;
 		}
 
 		public class PerformanceCoreConfig

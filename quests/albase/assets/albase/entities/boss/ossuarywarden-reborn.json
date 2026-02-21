@@ -54,7 +54,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 720, "maxhealth": 720 },
+      { "code": "health", "currenthealth": 600, "maxhealth": 600 },
       { "code": "bossrebirth2", "isFinalStage": true },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
@@ -106,7 +106,7 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.7,
-            "cooldownSeconds": 9,
+            "cooldownSeconds": 12,
             "minTargetRange": 4,
             "maxTargetRange": 26,
             "windupMs": 250,
@@ -122,7 +122,7 @@
           },
           {
             "whenHealthRelBelow": 0.35,
-            "cooldownSeconds": 4,
+            "cooldownSeconds": 7,
             "minTargetRange": 4,
             "maxTargetRange": 28,
             "windupMs": 200,
@@ -191,39 +191,6 @@
         "code": "bosssurroundedresponse",
         "stages": [
           { "whenHealthRelBelow": 0.6, "cooldownSeconds": 18, "minPlayers": 3, "range": 30, "response": "teleport" }
-        ]
-      },
-      {
-        "code": "bossrequiemchains",
-        "stages": [
-          {
-            "whenHealthRelBelow": 0.6,
-            "cooldownSeconds": 14,
-            "range": 22,
-            "windupMs": 900,
-            "durationMs": 6000,
-            "chainCount": 4,
-            "chainDamage": 2.5,
-            "slowAmount": 0.5,
-            "animation": "standcry",
-            "sound": "albase:magic-sparkling",
-            "soundRange": 32,
-            "soundVolume": 0.2
-          },
-          {
-            "whenHealthRelBelow": 0.25,
-            "cooldownSeconds": 10,
-            "range": 26,
-            "windupMs": 700,
-            "durationMs": 8000,
-            "chainCount": 6,
-            "chainDamage": 3.2,
-            "slowAmount": 0.6,
-            "animation": "standdespair",
-            "sound": "albase:magic-sparkling",
-            "soundRange": 36,
-            "soundVolume": 0.24
-          }
         ]
       },
       {

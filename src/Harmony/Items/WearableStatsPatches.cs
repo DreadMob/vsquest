@@ -106,27 +106,6 @@ namespace VsQuest.Harmony.Items
             }
         }
 
-        [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
-        public class CollectibleObject_GetAttackPower_Patch
-        {
-            public static void Postfix(CollectibleObject __instance, IItemStack withItemStack, ref float __result)
-            {
-                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_GetAttackPower)) return;
-                if (withItemStack is ItemStack stack)
-                {
-                    float bonus = ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrAttackPower);
-                    __result += bonus;
-
-                    // Some vanilla logic can break interactions (attacks/mining) if attack power becomes <= 0.
-                    // Allow debuffs, but never let the final value drop below a tiny positive threshold.
-                    if (__result <= 0.001f)
-                    {
-                        __result = 0.001f;
-                    }
-                }
-            }
-        }
-
         [HarmonyPatch(typeof(CollectibleObject), "OnHeldAttackStart")]
         public class CollectibleObject_OnHeldAttackStart_AttackSpeed_Patch
         {

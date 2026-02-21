@@ -25,6 +25,7 @@ namespace VsQuest.Harmony.Items
             public float FlatProtection { get; set; }
             public float PercProtection { get; set; }
             public float KnockbackMult { get; set; }
+            public float AttackPower { get; set; }
             public long Timestamp { get; set; }
 
             // Fast check if cache is still valid
@@ -72,6 +73,7 @@ namespace VsQuest.Harmony.Items
                 stats.FlatProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtection);
                 stats.PercProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtectionPerc);
                 stats.KnockbackMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrKnockbackMult);
+                stats.AttackPower += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrAttackPower);
             }
             return stats;
         }
@@ -97,6 +99,7 @@ namespace VsQuest.Harmony.Items
                         FlatProtection = tree.GetFloat("pf"),
                         PercProtection = tree.GetFloat("pp"),
                         KnockbackMult = tree.GetFloat("k"),
+                        AttackPower = tree.GetFloat("ap"),
                         Timestamp = timestamp
                     };
                 }
@@ -119,6 +122,7 @@ namespace VsQuest.Harmony.Items
                 tree.SetFloat("pf", stats.FlatProtection);
                 tree.SetFloat("pp", stats.PercProtection);
                 tree.SetFloat("k", stats.KnockbackMult);
+                tree.SetFloat("ap", stats.AttackPower);
                 tree.SetLong("t", stats.Timestamp);
                 player.WatchedAttributes.SetAttribute(CacheKey, tree);
             }
