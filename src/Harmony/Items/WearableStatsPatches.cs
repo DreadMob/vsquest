@@ -60,7 +60,6 @@ namespace VsQuest.Harmony.Items
         {
             private static readonly System.Collections.Generic.Dictionary<long, long> LastCheckByEntityId = new();
             private const int CheckIntervalMs = 250; // Check only 4 times per second instead of every tick
-            private const string UraniumMaskLastHoursKey = "vsquest:uraniummask:lasthours";
             
             public static void Postfix(EntityBehaviorTemporalStabilityAffected __instance)
             {
@@ -81,9 +80,6 @@ namespace VsQuest.Harmony.Items
                 {
                     LastCheckByEntityId.Clear();
                 }
-
-                // Handle uranium mask charge drain
-                TryDrainUraniumMaskCharge(player);
 
                 if (!EnableTemporalStabilityWearablePatch) return;
 
@@ -106,43 +102,6 @@ namespace VsQuest.Harmony.Items
                 float mult = GameMath.Clamp(1f - stats.TemporalDrainReduction, 0f, 3f);
                 double adjusted = prevStability + delta * mult;
                 __instance.OwnStability = GameMath.Clamp(adjusted, 0.0, 1.0);
-            }
-
-            private static void TryDrainUraniumMaskCharge(EntityPlayer player)
-            {
-                if (player?.Player?.InventoryManager == null) return;
-
-                // Find uranium mask in face slot
-                var inv = player.Player.InventoryManager.GetOwnInventory("character");
-                if (inv == null) return;
-
-                var faceSlot = inv[(int)EnumCharacterDressType.Face];
-                if (faceSlot?.Empty != false || faceSlot.Itemstack?.Attributes == null) return;
-
-                // Ensure action item attributes from itemconfig.json are applied
-                WearableStatsCache.EnsureItemAttributes(faceSlot.Itemstack);
-
-                string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrUraniumMaskChargeHours);
-                if (!faceSlot.Itemstack.Attributes.HasAttribute(chargeKey)) return;
-
-                float currentHours = faceSlot.Itemstack.Attributes.GetFloat(chargeKey, 0f);
-                if (currentHours <= 0f) return;
-
-                // Get current game time and calculate delta
-                double currentTotalHours = player.World.Calendar.TotalHours;
-                double lastTotalHours = player.WatchedAttributes.GetDouble(UraniumMaskLastHoursKey, currentTotalHours);
-                
-                // Store current for next check
-                player.WatchedAttributes.SetDouble(UraniumMaskLastHoursKey, currentTotalHours);
-
-                // Calculate elapsed game hours
-                double elapsedHours = currentTotalHours - lastTotalHours;
-                if (elapsedHours <= 0) return;
-
-                // Drain charge (1 game hour = 1 charge hour)
-                float newHours = Math.Max(0f, currentHours - (float)elapsedHours);
-                faceSlot.Itemstack.Attributes.SetFloat(chargeKey, newHours);
-                faceSlot.MarkDirty();
             }
         }
 

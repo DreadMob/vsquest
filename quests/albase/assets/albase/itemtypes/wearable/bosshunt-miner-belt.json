@@ -21,6 +21,7 @@
     }
   },
   "renderAlphaTest": 0.25,
+  "lightHsv": [8, 7, 2],
   "fpHandTransform": {
     "translation": {
       "x": 0.6,

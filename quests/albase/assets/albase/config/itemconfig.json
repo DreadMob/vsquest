@@ -377,9 +377,9 @@
       "actions": [],
       "attributes": {
         "rangedaccuracy": 0.25,
-        "rangeddamagemult": 0.15,
+        "rangeddamagemult": 0.175,
         "rangedchargspeed": 0.1,
-        "walkspeed": -0.05,
+        "walkspeed": -0.065,
         "maxhealthflat": -2.0
       },
       "showAttributes": [
@@ -406,8 +406,8 @@
       "attributes": {
         "healonkill": 0.22,
         "hungerrate": 0.25,
-        "maxhealthflat": -4.0,
-        "walkspeed": -0.05
+        "maxhealthflat": -8.0,
+        "walkspeed": -0.08
       },
       "showAttributes": [
         "healonkill",

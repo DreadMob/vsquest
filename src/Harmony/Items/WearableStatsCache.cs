@@ -72,15 +72,17 @@ namespace VsQuest.Harmony.Items
                 }
             }
 
-            // Check backpack slot for the equipped backpack/quiver itself (not items inside it)
-            // A quiver equipped "instead of backpack" has backpack attribute and may provide stat bonuses
+            // Check all 4 backpack slots - each can hold a bag/quiver
+            // Other slots contain items STORED INSIDE the bags - we should NOT apply their stats
             if (backpackInv != null)
             {
-                foreach (ItemSlot slot in backpackInv)
+                for (int i = 0; i < backpackInv.Count && i < 4; i++)
                 {
-                    if (slot.Empty || slot.Itemstack?.Attributes == null) continue;
-                    // Only read attributes from the equipped bag/quiver itself, not from items stored inside
-                    AddItemAttributes(stats, slot.Itemstack);
+                    var bagSlot = backpackInv[i];
+                    if (!bagSlot.Empty && bagSlot.Itemstack?.Attributes != null)
+                    {
+                        AddItemAttributes(stats, bagSlot.Itemstack);
+                    }
                 }
             }
 
