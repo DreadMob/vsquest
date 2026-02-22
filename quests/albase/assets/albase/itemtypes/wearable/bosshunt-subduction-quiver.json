@@ -33,7 +33,7 @@
   ],
   "shape": { "base": "game:item/bag/quiver" },
   "textures": {
-    "quiver": { "base": "game:item/bag/quiver" }
+    "quiver": { "base": "albase:quiver" }
   },
   "creativeinventory": { "general": ["*"], "items": ["*"] },
   "guiTransform": {

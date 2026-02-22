@@ -15,8 +15,8 @@
     "seraph": {
       "base": "game:block/transparent"
     },
-    "forgotten": {
-      "base": "game:entity/humanoid/seraph/clothing/face/forgotten"
+    "mask-forgottennoble": {
+      "base": "albase:ossuary-mask"
     }
   },
   "renderAlphaTest": 0.25,

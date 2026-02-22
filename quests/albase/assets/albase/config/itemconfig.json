@@ -380,7 +380,7 @@
     {
       "id": "albase:bosshunt-reward-subduction-quiver",
       "itemCode": "albase:bosshunt-subduction-quiver",
-      "name": "<font color=\"#A16207\">Колчан Крипты</font>",
+      "name": "<font color=\"#C0C0C0\">Колчан Крипты</font>",
       "description": "<font color=\"#CA8A04\">Потёртый кожаный колчан с костяными вставками. Стрелы лежат плотнее, чем должны.</font>",
       "actions": [],
       "attributes": {
@@ -408,7 +408,7 @@
     {
       "id": "albase:bosshunt-reward-ossuary-mask",
       "itemCode": "albase:bosshunt-ossuary-mask",
-      "name": "<font color=\"#6B7280\">Маска Оссуария</font>",
+      "name": "<font color=\"#5599DD\">Маска Оссуария</font>",
       "description": "<font color=\"#9CA3AF\">Поблёкшая маска забытой знати. В прорезях для глаз чувствуется холод.</font>",
       "actions": [],
       "attributes": {

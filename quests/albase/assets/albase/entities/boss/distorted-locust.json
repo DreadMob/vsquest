@@ -14,6 +14,8 @@
   "attributes": {
     "spawnDamageParticles": true,
     "isMechanical": true,
+    "killedByInfoText": "deadcreature-eaten-large",
+    "deadEntityCode": "albase:item-dead-creature-distorted-locust",
     "alegacyvsquestHideInfoText": true
   },
   "client": {
@@ -41,6 +43,7 @@
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "health", "currenthealth": 12, "maxhealth": 12 },
+      { "code": "deaddecay", "hoursToDecay": 1 },
       {
         "code": "taskai",
         "aitasks": [

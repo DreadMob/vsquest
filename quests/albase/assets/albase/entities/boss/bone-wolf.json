@@ -8,6 +8,8 @@
   "eyeHeight": 0.7,
   "drops": [],
   "attributes": {
+    "killedByInfoText": "deadcreature-eaten-large",
+    "deadEntityCode": "albase:item-dead-creature-bone-wolf",
     "alegacyvsquestHideInfoText": true
   },
   "client": {
