@@ -7,6 +7,8 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Util;
+using Vintagestory.API.Client;
 using Vintagestory.GameContent;
 
 namespace VsQuest.Harmony
@@ -189,10 +191,18 @@ namespace VsQuest.Harmony
 
                 if (hideVanilla.Contains("durability"))
                 {
-                    // Hide durability lines (tools) or condition lines (wearables)
+                    // Hide durability lines (tools)
                     if (trimmed.StartsWith("Durability:") || trimmed.StartsWith(Lang.Get("Durability:")) ||
-                        trimmed.StartsWith("Прочность:") ||
-                        trimmed.StartsWith("Condition:") || trimmed.StartsWith(Lang.Get("Condition:")) ||
+                        trimmed.StartsWith("Прочность:"))
+                    {
+                        shouldHide = true;
+                    }
+                }
+
+                if (!shouldHide && hideVanilla.Contains("condition"))
+                {
+                    // Hide condition lines (wearables)
+                    if (trimmed.StartsWith("Condition:") || trimmed.StartsWith(Lang.Get("Condition:")) ||
                         trimmed.StartsWith("Состояние:"))
                     {
                         shouldHide = true;
@@ -323,6 +333,40 @@ namespace VsQuest.Harmony
                     }
                 }
             }
+            // Show condition for wearable action items (ItemWearable)
+            if (inSlot.Itemstack?.Collectible is ItemWearable)
+            {
+                float condition = attrs.GetFloat("condition", 1f);
+                string condStr = (((double)condition > 0.5) ? Lang.Get("clothingcondition-good", (int)(condition * 100f)) : (((double)condition > 0.4) ? Lang.Get("clothingcondition-worn", (int)(condition * 100f)) : (((double)condition > 0.3) ? Lang.Get("clothingcondition-heavilyworn", (int)(condition * 100f)) : (((double)condition > 0.2) ? Lang.Get("clothingcondition-tattered", (int)(condition * 100f)) : ((!((double)condition > 0.1)) ? Lang.Get("clothingcondition-terrible", (int)(condition * 100f)) : Lang.Get("clothingcondition-heavilytattered", (int)(condition * 100f)))))));
+                string color = ColorUtil.Int2Hex(GuiStyle.DamageColorGradient[(int)Math.Min(99f, condition * 200f)]);
+                string condLine = Lang.Get("Condition:") + " <font color=\"" + color + "\">" + condStr + "</font>";
+                currentDsc = dsc.ToString();
+                if (!currentDsc.Contains(condLine) && !currentDsc.Contains("Condition:") && !currentDsc.Contains("Состояние:"))
+                {
+                    TrimEndNewlines(dsc);
+                    if (dsc.Length > 0) dsc.AppendLine();
+                    dsc.AppendLine(condLine);
+                }
+            }
+
+            // Show durability for action items if not already shown
+            if (attrs.HasAttribute("durability"))
+            {
+                int durability = attrs.GetInt("durability", 0);
+                int maxDurability = inSlot.Itemstack.Collectible.GetMaxDurability(inSlot.Itemstack);
+                if (maxDurability > 1)
+                {
+                    string durLine = Lang.Get("Durability: {0} / {1}", durability, maxDurability);
+                    currentDsc = dsc.ToString();
+                    if (!currentDsc.Contains(durLine) && !currentDsc.Contains("Durability:") && !currentDsc.Contains("Прочность:"))
+                    {
+                        TrimEndNewlines(dsc);
+                        if (dsc.Length > 0) dsc.AppendLine();
+                        dsc.AppendLine(durLine);
+                    }
+                }
+            }
+
             // Cache the final tooltip result
             TrimEndNewlines(dsc);
             string result = dsc.ToString();

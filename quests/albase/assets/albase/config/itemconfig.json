@@ -380,8 +380,8 @@
     {
       "id": "albase:bosshunt-reward-subduction-quiver",
       "itemCode": "albase:bosshunt-subduction-quiver",
-      "name": "<font color=\"#A16207\">Колчан Подземелья</font>",
-      "description": "<font color=\"#CA8A04\">Потёртый кожаный колчан с костяными вставками. Стрелы в нём лежат плотнее, чем должны, и воздух вокруг них сухо потрескивает — будто сама земля готовится к выстрелу.</font>",
+      "name": "<font color=\"#A16207\">Колчан Крипты</font>",
+      "description": "<font color=\"#CA8A04\">Потёртый кожаный колчан с костяными вставками. Стрелы лежат плотнее, чем должны.</font>",
       "actions": [],
       "attributes": {
         "rangedaccuracy": 0.25,
@@ -408,8 +408,8 @@
     {
       "id": "albase:bosshunt-reward-ossuary-mask",
       "itemCode": "albase:bosshunt-ossuary-mask",
-      "name": "<font color=\"#6B7280\">Маска Стража Оссуария</font>",
-      "description": "<font color=\"#9CA3AF\">Поблёкшая маска забытой знати. В прорезях для глаз чувствуется холод, а на внутренней стороне остались следы от чьих-то пальцев — будто её снимали в спешке, в темноте, под грохот обрушающихся сводов.</font>",
+      "name": "<font color=\"#6B7280\">Маска Оссуария</font>",
+      "description": "<font color=\"#9CA3AF\">Поблёкшая маска забытой знати. В прорезях для глаз чувствуется холод.</font>",
       "actions": [],
       "attributes": {
         "healonkill": 0.55,
