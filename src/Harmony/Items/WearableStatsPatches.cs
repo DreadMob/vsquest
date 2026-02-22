@@ -16,8 +16,6 @@ namespace VsQuest.Harmony.Items
     /// </summary>
     public class WearableStatsPatches
     {
-        private const string MeleeAttackCooldownKey = "alegacyvsquest:meleeattackspeed:last";
-        private const int BaseMeleeAttackCooldownMs = 650;
         private static readonly bool EnableTemporalStabilityWearablePatch = true;
 
         [HarmonyPatch(typeof(ModSystemWearableStats), "onFootStep")]
@@ -121,6 +119,9 @@ namespace VsQuest.Harmony.Items
                 var faceSlot = inv[(int)EnumCharacterDressType.Face];
                 if (faceSlot?.Empty != false || faceSlot.Itemstack?.Attributes == null) return;
 
+                // Ensure action item attributes from itemconfig.json are applied
+                WearableStatsCache.EnsureItemAttributes(faceSlot.Itemstack);
+
                 string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrUraniumMaskChargeHours);
                 if (!faceSlot.Itemstack.Attributes.HasAttribute(chargeKey)) return;
 
@@ -142,33 +143,6 @@ namespace VsQuest.Harmony.Items
                 float newHours = Math.Max(0f, currentHours - (float)elapsedHours);
                 faceSlot.Itemstack.Attributes.SetFloat(chargeKey, newHours);
                 faceSlot.MarkDirty();
-            }
-        }
-
-        [HarmonyPatch(typeof(CollectibleObject), "OnHeldAttackStart")]
-        public class CollectibleObject_OnHeldAttackStart_AttackSpeed_Patch
-        {
-            public static bool Prefix(ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, ref EnumHandHandling handling)
-            {
-                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_OnHeldAttackStart_AttackSpeed)) return true;
-                if (byEntity is not EntityPlayer player) return true;
-
-                var stats = WearableStatsCache.GetCachedStats(player);
-                if (stats == null || Math.Abs(stats.MeleeAttackSpeed) < 0.001f) return true;
-
-                float mult = GameMath.Clamp(1f - stats.MeleeAttackSpeed, 0.15f, 3f);
-                long nowMs = byEntity.World.ElapsedMilliseconds;
-                long lastMs = byEntity.WatchedAttributes.GetLong(MeleeAttackCooldownKey, 0);
-                long cooldownMs = (long)(BaseMeleeAttackCooldownMs * mult);
-
-                if (nowMs - lastMs < cooldownMs)
-                {
-                    handling = EnumHandHandling.PreventDefault;
-                    return false;
-                }
-
-                byEntity.WatchedAttributes.SetLong(MeleeAttackCooldownKey, nowMs);
-                return true;
             }
         }
 
@@ -232,7 +206,6 @@ namespace VsQuest.Harmony.Items
 
                 float newDamage = __result;
                 newDamage = System.Math.Max(0f, newDamage - stats.FlatProtection);
-                newDamage *= (1f - stats.PercProtection);
 
                 __result = newDamage;
             }

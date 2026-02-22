@@ -20,10 +20,8 @@ namespace VsQuest.Harmony.Items
             public float Stealth { get; set; }
             public float FallDamageReduction { get; set; }
             public float TemporalDrainReduction { get; set; }
-            public float MeleeAttackSpeed { get; set; }
             public float MiningSpeedMult { get; set; }
             public float FlatProtection { get; set; }
-            public float PercProtection { get; set; }
             public float KnockbackMult { get; set; }
             public float AttackPower { get; set; }
             public float RangedDamageMult { get; set; }
@@ -97,16 +95,14 @@ namespace VsQuest.Harmony.Items
             stats.Stealth += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrStealth);
             stats.FallDamageReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrFallDamageMult);
             stats.TemporalDrainReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrTemporalDrainMult);
-            stats.MeleeAttackSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMeleeAttackSpeed);
             stats.MiningSpeedMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMiningSpeedMult);
             stats.FlatProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtection);
-            stats.PercProtection += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrProtectionPerc);
             stats.KnockbackMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrKnockbackMult);
             stats.AttackPower += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrAttackPower);
             stats.RangedDamageMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedDamageMult);
         }
 
-        private static void EnsureItemAttributes(ItemStack stack)
+        public static void EnsureItemAttributes(ItemStack stack)
         {
             if (stack?.Attributes == null) return;
             if (ItemAttributeUtils.IsActionItem(stack)) return; // Already has action item attributes
@@ -151,10 +147,8 @@ namespace VsQuest.Harmony.Items
                         Stealth = tree.GetFloat("s"),
                         FallDamageReduction = tree.GetFloat("f"),
                         TemporalDrainReduction = tree.GetFloat("tp"),
-                        MeleeAttackSpeed = tree.GetFloat("a"),
                         MiningSpeedMult = tree.GetFloat("m"),
                         FlatProtection = tree.GetFloat("pf"),
-                        PercProtection = tree.GetFloat("pp"),
                         KnockbackMult = tree.GetFloat("k"),
                         AttackPower = tree.GetFloat("ap"),
                         RangedDamageMult = tree.GetFloat("rd"),
@@ -175,10 +169,8 @@ namespace VsQuest.Harmony.Items
                 tree.SetFloat("s", stats.Stealth);
                 tree.SetFloat("f", stats.FallDamageReduction);
                 tree.SetFloat("tp", stats.TemporalDrainReduction);
-                tree.SetFloat("a", stats.MeleeAttackSpeed);
                 tree.SetFloat("m", stats.MiningSpeedMult);
                 tree.SetFloat("pf", stats.FlatProtection);
-                tree.SetFloat("pp", stats.PercProtection);
                 tree.SetFloat("k", stats.KnockbackMult);
                 tree.SetFloat("ap", stats.AttackPower);
                 tree.SetFloat("rd", stats.RangedDamageMult);

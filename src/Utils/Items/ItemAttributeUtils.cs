@@ -33,7 +33,6 @@ namespace VsQuest
         public const string AttrAttackPower = "attackpower";
         public const string AttrWarmth = "warmth";
         public const string AttrProtection = "protection";
-        public const string AttrProtectionPerc = "protectionperc";
         public const string AttrWalkSpeed = "walkspeed";
         public const string AttrHungerRate = "hungerrate";
         public const string AttrHealingEffectiveness = "healingeffectiveness";
@@ -45,7 +44,6 @@ namespace VsQuest
         public const string AttrTemporalDrainMult = "temporaldrainmult";
         public const string AttrJumpHeightMul = "jumpheightmul";
         public const string AttrKnockbackMult = "knockbackmult";
-        public const string AttrMeleeAttackSpeed = "meleeattackspeed";
         public const string AttrMaxHealthFlat = "maxhealthflat";
         public const string AttrMaxOxygen = "maxoxygen";
         public const string AttrStealth = "stealth";
@@ -157,12 +155,12 @@ namespace VsQuest
 
             string prefix = value >= 0 ? "+" : "";
 
-            if (shortKey == AttrProtectionPerc || shortKey == AttrWalkSpeed ||
+            if (shortKey == AttrWalkSpeed ||
                 shortKey == AttrHungerRate || shortKey == AttrHealingEffectiveness ||
                 shortKey == AttrRangedAccuracy || shortKey == AttrRangedSpeed || shortKey == AttrRangedDamageMult ||
                 shortKey == AttrMiningSpeedMult || shortKey == AttrFallDamageMult ||
                 shortKey == AttrTemporalDrainMult || shortKey == AttrJumpHeightMul ||
-                shortKey == AttrKnockbackMult || shortKey == AttrMeleeAttackSpeed || shortKey == AttrWeightLimit ||
+                shortKey == AttrKnockbackMult || shortKey == AttrWeightLimit ||
                 shortKey == AttrViewDistance)
             {
                 return $"{displayName}: {prefix}{value * 100:0.#}%";

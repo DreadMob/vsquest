@@ -10,7 +10,6 @@ namespace VsQuest
         public static bool Item_EntityBehaviorHealth_OnFallToGround { get; private set; } = true;
         public static bool Item_EntityBehaviorTemporalStabilityAffected_OnGameTick { get; private set; } = true;
         public static bool Item_CollectibleObject_GetAttackPower { get; private set; } = true;
-        public static bool Item_CollectibleObject_OnHeldAttackStart_AttackSpeed { get; private set; } = true;
         public static bool Item_ItemWearable_GetWarmth { get; private set; } = true;
         public static bool Item_CollectibleObject_GetMiningSpeed_MiningSpeedMult { get; private set; } = true;
         public static bool Item_ModSystemWearableStats_handleDamaged { get; private set; } = true;
@@ -102,7 +101,6 @@ namespace VsQuest
             Item_EntityBehaviorHealth_OnFallToGround = item?.EntityBehaviorHealth_OnFallToGround ?? true;
             Item_EntityBehaviorTemporalStabilityAffected_OnGameTick = item?.EntityBehaviorTemporalStabilityAffected_OnGameTick ?? true;
             Item_CollectibleObject_GetAttackPower = item?.CollectibleObject_GetAttackPower ?? true;
-            Item_CollectibleObject_OnHeldAttackStart_AttackSpeed = item?.CollectibleObject_OnHeldAttackStart_AttackSpeed ?? true;
             Item_ItemWearable_GetWarmth = item?.ItemWearable_GetWarmth ?? true;
             Item_CollectibleObject_GetMiningSpeed_MiningSpeedMult = item?.CollectibleObject_GetMiningSpeed_MiningSpeedMult ?? true;
             Item_ModSystemWearableStats_handleDamaged = item?.ModSystemWearableStats_handleDamaged ?? true;

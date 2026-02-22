@@ -34,21 +34,12 @@ namespace VsQuest.Harmony.Players
             if (tree == null) return;
             
             float playerFlat = tree.GetFloat("attr:protection", 0f);
-            float playerPerc = tree.GetFloat("attr:protectionperc", 0f);
 
             // Fast exit: no protection
-            if (playerFlat <= 0f && playerPerc <= 0f) return;
+            if (playerFlat <= 0f) return;
 
             float newDamage = __result;
-            if (playerFlat > 0f)
-            {
-                newDamage = System.Math.Max(0f, newDamage - playerFlat);
-            }
-            if (playerPerc > 0f)
-            {
-                playerPerc = System.Math.Min(0.95f, playerPerc);
-                newDamage *= (1f - playerPerc);
-            }
+            newDamage = System.Math.Max(0f, newDamage - playerFlat);
 
             __result = newDamage;
         }

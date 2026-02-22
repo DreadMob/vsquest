@@ -55,7 +55,6 @@ namespace VsQuest
                 ItemAttributeUtils.AttrAttackPower,
                 ItemAttributeUtils.AttrWarmth,
                 ItemAttributeUtils.AttrProtection,
-                ItemAttributeUtils.AttrProtectionPerc,
                 ItemAttributeUtils.AttrWalkSpeed,
                 ItemAttributeUtils.AttrHungerRate,
                 ItemAttributeUtils.AttrHealingEffectiveness,
@@ -71,7 +70,6 @@ namespace VsQuest
                 case ItemAttributeUtils.AttrAttackPower:
                 case ItemAttributeUtils.AttrWarmth:
                 case ItemAttributeUtils.AttrProtection:
-                case ItemAttributeUtils.AttrProtectionPerc:
                     return true;
             }
 

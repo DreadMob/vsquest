@@ -168,7 +168,7 @@ namespace VsQuest
                     sapi.World.SpawnParticles(
                         new SimpleParticleProperties(
                             5, 8,
-                            ColorUtil.ToRgba(200, 255, 50, 50),
+                            ColorUtil.ToRgba(200, 180, 180, 190),
                             startPos,
                             startPos,
                             new Vec3f(
@@ -213,7 +213,7 @@ namespace VsQuest
                 sapi.World.SpawnParticles(
                     new SimpleParticleProperties(
                         2, 3,
-                        ColorUtil.ToRgba(200, 255, 100, 100),
+                        ColorUtil.ToRgba(200, 160, 165, 175),
                         entity.ServerPos.XYZ.Add(x, 0.5, z),
                         entity.ServerPos.XYZ.Add(x, 1.5, z),
                         new Vec3f(-0.1f, 0.05f, -0.1f),
