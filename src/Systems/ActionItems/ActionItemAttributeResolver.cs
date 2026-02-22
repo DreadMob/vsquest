@@ -75,15 +75,29 @@ namespace VsQuest
 
             if (ItemAttributeUtils.IsActionItem(slot.Itemstack)) return true;
 
-            string actionItemId = slot.Itemstack.Attributes.GetString(ItemAttributeUtils.ActionItemIdKey);
-            if (string.IsNullOrWhiteSpace(actionItemId)) return false;
             if (actionItemRegistry == null || actionItemRegistry.Count == 0) return false;
 
-            if (!actionItemRegistry.TryGetValue(actionItemId, out var actionItem)) return false;
+            // First try to find by actionItemId in attributes
+            string actionItemId = slot.Itemstack.Attributes.GetString(ItemAttributeUtils.ActionItemIdKey);
+            if (!string.IsNullOrWhiteSpace(actionItemId))
+            {
+                if (actionItemRegistry.TryGetValue(actionItemId, out var actionItemById))
+                {
+                    ItemAttributeUtils.ApplyActionItemAttributes(slot.Itemstack, actionItemById);
+                    slot.MarkDirty();
+                    return true;
+                }
+            }
 
-            ItemAttributeUtils.ApplyActionItemAttributes(slot.Itemstack, actionItem);
-            slot.MarkDirty();
-            return true;
+            // Fallback: try to find by itemCode (for items that don't have actionItemId yet)
+            if (TryGetActionItemByStack(slot.Itemstack, out var actionItemByCode))
+            {
+                ItemAttributeUtils.ApplyActionItemAttributes(slot.Itemstack, actionItemByCode);
+                slot.MarkDirty();
+                return true;
+            }
+
+            return false;
         }
 
         private bool TryGetActionItemByStack(ItemStack stack, out ActionItem actionItem)

@@ -286,7 +286,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.01 },
-      { "code": "health", "currenthealth": 520, "maxhealth": 520 },
+      { "code": "health", "currenthealth": 1040, "maxhealth": 1040 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:crypt-mirror", "leashRange": 120, "returnMoveSpeed": 0.04, "leashCheckMs": 1000 },

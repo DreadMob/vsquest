@@ -44,6 +44,9 @@ namespace VsQuest
 
         private readonly Dictionary<string, (string invKey, int slot)> inventoryScanCursorByPlayerUid = new Dictionary<string, (string invKey, int slot)>(StringComparer.Ordinal);
 
+        // Static registry for access from WearableStatsCache without needing ItemSystem instance
+        public static Dictionary<string, ActionItem> StaticActionItemRegistry { get; private set; } = new Dictionary<string, ActionItem>();
+
         public Dictionary<string, ActionItem> ActionItemRegistry { get; private set; } = new Dictionary<string, ActionItem>();
 
         public override void StartPre(ICoreAPI api)
@@ -86,6 +89,7 @@ namespace VsQuest
                         foreach (var actionItem in asset.Value.actionItems)
                         {
                             ActionItemRegistry[actionItem.id] = actionItem;
+                            StaticActionItemRegistry[actionItem.id] = actionItem;
                         }
                     }
                 }

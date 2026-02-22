@@ -36,7 +36,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 35, "maxhealth": 35 },
+      { "code": "health", "currenthealth": 20, "maxhealth": 20 },
       {
         "code": "taskai",
         "aitasks": [
@@ -90,7 +90,7 @@
   "idleSoundChance": 0.02,
   "sounds": {
     "hurt": "game:creature/wolf/hurt",
-    "death": "game:creature/wolf/death",
+    "death": "game:creature/wolf/hurt",
     "idle": "game:creature/wolf/howl*"
   }
 }

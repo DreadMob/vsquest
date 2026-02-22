@@ -7,6 +7,7 @@
     "clothescategory": "shoulder",
     "wearableAttachment": true,
     "warmth": 0.01,
+    "repairItemCode": { "code": "gear-temporal", "strength": 0.4 },
     "disableElements": [
       "hoodupperover",
       "Hair tile upper part",

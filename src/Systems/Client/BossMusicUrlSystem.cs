@@ -46,7 +46,7 @@ namespace VsQuest
 
         private long suppressVanillaMusicListenerId;
 
-        private float bossMusicVolumeMul = 0.3f;
+        private float bossMusicVolumeMul = 0.36f;
         private float defaultFadeOutSeconds = 2f;
 
         public override bool ShouldLoad(EnumAppSide forSide) => forSide == EnumAppSide.Client;

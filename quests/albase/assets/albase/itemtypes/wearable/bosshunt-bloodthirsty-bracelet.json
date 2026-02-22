@@ -6,7 +6,8 @@
   "attributes": {
     "clothescategory": "arm",
     "wearableAttachment": true,
-    "warmth": 0.01
+    "warmth": 0.01,
+    "repairItemCode": { "code": "gear-temporal", "strength": 0.4 }
   },
   "shape": {
     "base": "game:entity/humanoid/seraph/clothing/arm/rusty-wrist-manacles"

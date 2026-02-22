@@ -6,7 +6,8 @@
   "attributes": {
     "clothescategory": "waist",
     "wearableAttachment": true,
-    "warmth": 0.01
+    "warmth": 0.01,
+    "repairItemCode": { "code": "gear-temporal", "strength": 0.4 }
   },
   "shape": {
     "base": "game:entity/humanoid/villageraccessories/waist/miner-accessories"

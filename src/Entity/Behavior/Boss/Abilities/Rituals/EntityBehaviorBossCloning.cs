@@ -27,6 +27,7 @@ namespace VsQuest
             public float cloneDamageMult;
             public float cloneWalkSpeedMult;
             public bool cloneInvulnerable;
+            public bool cloneFollowOwner;
         }
 
         private ICoreServerAPI sapi;
@@ -63,7 +64,8 @@ namespace VsQuest
                         spawnRange = stageObj["spawnRange"].AsFloat(6f),
                         cloneDamageMult = stageObj["cloneDamageMult"].AsFloat(0.35f),
                         cloneWalkSpeedMult = stageObj["cloneWalkSpeedMult"].AsFloat(0.85f),
-                        cloneInvulnerable = stageObj["cloneInvulnerable"].AsBool(true)
+                        cloneInvulnerable = stageObj["cloneInvulnerable"].AsBool(true),
+                        cloneFollowOwner = stageObj["cloneFollowOwner"].AsBool(false)
                     };
 
                     if (stage.cloneCount > 0)
@@ -249,6 +251,15 @@ namespace VsQuest
             catch
             {
             }
+
+            try
+            {
+                clone.WatchedAttributes.SetBool("alegacyvsquest:bossclone:followowner", stage.cloneFollowOwner);
+                clone.WatchedAttributes.MarkPathDirty("alegacyvsquest:bossclone:followowner");
+            }
+            catch
+            {
+            }
         }
 
         private void CleanupClones()
@@ -368,6 +379,37 @@ namespace VsQuest
             if (owner == null || !owner.Alive)
             {
                 sapi.World.DespawnEntity(entity, new EntityDespawnData { Reason = EnumDespawnReason.Removed });
+                return;
+            }
+
+            // Check if this clone should follow owner
+            bool followOwner = false;
+            try
+            {
+                followOwner = entity.WatchedAttributes.GetBool("alegacyvsquest:bossclone:followowner", false);
+            }
+            catch
+            {
+            }
+
+            if (!followOwner) return;
+
+            // Follow the owner - teleport if too far away
+            double dx = entity.ServerPos.X - owner.ServerPos.X;
+            double dz = entity.ServerPos.Z - owner.ServerPos.Z;
+            double distSq = dx * dx + dz * dz;
+            double maxDist = 25.0; // Max distance before teleport
+
+            if (distSq > maxDist * maxDist)
+            {
+                // Teleport clone near the owner
+                double angle = sapi.World.Rand.NextDouble() * Math.PI * 2.0;
+                double offsetDist = 3.0 + sapi.World.Rand.NextDouble() * 4.0;
+                double newX = owner.ServerPos.X + Math.Cos(angle) * offsetDist;
+                double newZ = owner.ServerPos.Z + Math.Sin(angle) * offsetDist;
+
+                entity.ServerPos.SetPos(newX, owner.ServerPos.Y, newZ);
+                entity.Pos.SetFrom(entity.ServerPos);
             }
         }
     }

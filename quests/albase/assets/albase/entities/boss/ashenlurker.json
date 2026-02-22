@@ -50,7 +50,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 2.1251 },
-      { "code": "health", "currenthealth": 704, "maxhealth": 704 },
+      { "code": "health", "currenthealth": 1408, "maxhealth": 1408 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:ashenlurker", "leashRange": 120, "returnMoveSpeed": 0.05, "leashCheckMs": 1000 },
@@ -126,9 +126,7 @@
             "whenHealthRelBelow": 0.7,
             "cooldownSeconds": 10,
             "spawns": [
-              { "entityCode": "game:locust-corrupt", "minCount": 4, "maxCount": 5 },
-              { "entityCode": "game:locust-corrupt", "minCount": 1, "maxCount": 1 },
-              { "entityCode": "game:locust-corrupt-sawblade", "minCount": 2, "maxCount": 3, "chance": 0.5 }
+              { "entityCode": "albase:distorted-locust", "minCount": 5, "maxCount": 6 }
             ],
             "maxNearby": 10,
             "nearbyRange": 20,
@@ -149,9 +147,7 @@
             "whenHealthRelBelow": 0.35,
             "cooldownSeconds": 8,
             "spawns": [
-              { "entityCode": "game:locust-corrupt", "minCount": 4, "maxCount": 5 },
-              { "entityCode": "game:locust-corrupt", "minCount": 1, "maxCount": 1 },
-              { "entityCode": "game:locust-corrupt-sawblade", "minCount": 2, "maxCount": 3, "chance": 0.5 }
+              { "entityCode": "albase:distorted-locust", "minCount": 5, "maxCount": 6 }
             ],
             "maxNearby": 10,
             "nearbyRange": 20,

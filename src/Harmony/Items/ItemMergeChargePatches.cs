@@ -16,7 +16,8 @@ namespace VsQuest.Harmony.Items
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return true;
                 if (TryHandleSecondChanceCharge(op)) return false;
-                if (TryHandleUraniumMaskCharge(op)) return false;
+                if (TryHandleCryptSightMaskCharge(op)) return false;
+                if (TryHandleCustomItemRepair(op)) return false;
                 return true;
             }
         }
@@ -28,7 +29,8 @@ namespace VsQuest.Harmony.Items
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ItemWearable_TryMergeStacks_SecondChanceCharge)) return true;
                 if (TryHandleSecondChanceCharge(op)) return false;
-                if (TryHandleUraniumMaskCharge(op)) return false;
+                if (TryHandleCryptSightMaskCharge(op)) return false;
+                if (TryHandleCustomItemRepair(op)) return false;
                 return true;
             }
         }
@@ -39,7 +41,7 @@ namespace VsQuest.Harmony.Items
             public static bool Prefix(ItemWearable __instance, ItemStack sinkStack, ItemStack sourceStack, EnumMergePriority priority, ref int __result)
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ItemWearable_GetMergableQuantity_SecondChanceCharge)) return true;
-                if (CanChargeSecondChance(sinkStack, sourceStack) || CanChargeUraniumMask(sinkStack, sourceStack))
+                if (CanChargeSecondChance(sinkStack, sourceStack) || CanChargeCryptSightMask(sinkStack, sourceStack) || CanRepairWithCustomItem(sinkStack, sourceStack))
                 {
                     __result = 1;
                     return false;
@@ -64,12 +66,12 @@ namespace VsQuest.Harmony.Items
             return true;
         }
 
-        private static bool TryHandleUraniumMaskCharge(ItemStackMergeOperation op)
+        private static bool TryHandleCryptSightMaskCharge(ItemStackMergeOperation op)
         {
             if (op?.SinkSlot?.Itemstack == null || op.SourceSlot?.Itemstack == null) return false;
 
             var sinkStack = op.SinkSlot.Itemstack;
-            if (!CanChargeUraniumMask(sinkStack, op.SourceSlot.Itemstack)) return false;
+            if (!CanChargeCryptSightMask(sinkStack, op.SourceSlot.Itemstack)) return false;
 
             string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrUraniumMaskChargeHours);
             float hours = sinkStack.Attributes.GetFloat(chargeKey, 0f);
@@ -102,12 +104,12 @@ namespace VsQuest.Harmony.Items
             return charges < 0.5f;
         }
 
-        private static bool CanChargeUraniumMask(ItemStack sinkStack, ItemStack sourceStack)
+        private static bool CanChargeCryptSightMask(ItemStack sinkStack, ItemStack sourceStack)
         {
             if (sinkStack?.Attributes == null || sourceStack?.Collectible?.Code == null) return false;
 
-            // Check if this is a Uranium Mask by item code
-            if (!IsUraniumMask(sinkStack.Collectible.Code)) return false;
+            // Check if this is a Crypt Sight Mask by item code
+            if (!IsCryptSightMask(sinkStack.Collectible.Code)) return false;
 
             string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrUraniumMaskChargeHours);
             // Initialize attribute if missing (for items from creative inventory)
@@ -116,7 +118,7 @@ namespace VsQuest.Harmony.Items
                 sinkStack.Attributes.SetFloat(chargeKey, 0f);
             }
 
-            if (!IsUraniumChunk(sourceStack.Collectible.Code)) return false;
+            if (!IsPhosphoriteChunk(sourceStack.Collectible.Code)) return false;
 
             float hours = ItemAttributeUtils.GetAttributeFloat(sinkStack, ItemAttributeUtils.AttrUraniumMaskChargeHours, 0f);
             return hours < 100f;
@@ -139,15 +141,15 @@ namespace VsQuest.Harmony.Items
             return true;
         }
 
-        private static bool IsUraniumChunk(AssetLocation code)
+        private static bool IsPhosphoriteChunk(AssetLocation code)
         {
-            // Accept: ore-*-uranium-*, nugget-uranium, gem-uranium-*
+            // Accept: ore-*-phosphorite-*, chunk-phosphorite, gem-phosphorite-*
             string path = code.Path;
-            if (!path.Contains("uranium")) return false;
+            if (!path.Contains("phosphorite")) return false;
             return path.Contains("chunk") || path.Contains("ore") || path.Contains("nugget") || path.Contains("gem");
         }
 
-        private static bool IsUraniumMask(AssetLocation code)
+        private static bool IsCryptSightMask(AssetLocation code)
         {
             return code.Path.Contains("uranium-mask");
         }
@@ -155,6 +157,78 @@ namespace VsQuest.Harmony.Items
         private static bool IsSecondChanceMask(AssetLocation code)
         {
             return code.Path.Contains("2cnah-mask");
+        }
+
+        /// <summary>
+        /// Handles custom item repair based on repairItemCode attribute.
+        /// Items can specify repairItemCode to define what item repairs them.
+        /// repairItemCode can be:
+        ///   - string: "gear-temporal" (repairs 100%)
+        ///   - object: { "code": "gear-temporal", "strength": 0.4 } (repairs 40%)
+        /// </summary>
+        private static bool TryHandleCustomItemRepair(ItemStackMergeOperation op)
+        {
+            if (op?.SinkSlot?.Itemstack == null || op.SourceSlot?.Itemstack == null) return false;
+
+            var sinkStack = op.SinkSlot.Itemstack;
+            var sourceStack = op.SourceSlot.Itemstack;
+
+            if (!CanRepairWithCustomItem(sinkStack, sourceStack, out float repairStrength)) return false;
+
+            // Repair the item
+            float currentCondition = sinkStack.Attributes.GetFloat("condition", 1f);
+            float newCondition = System.Math.Min(1f, currentCondition + repairStrength);
+            sinkStack.Attributes.SetFloat("condition", newCondition);
+            op.MovedQuantity = 1;
+            op.SourceSlot.TakeOut(1);
+            op.SinkSlot.MarkDirty();
+            return true;
+        }
+
+        private static bool CanRepairWithCustomItem(ItemStack sinkStack, ItemStack sourceStack, out float repairStrength)
+        {
+            repairStrength = 1f;
+            if (sinkStack?.Collectible?.Code == null || sourceStack?.Collectible?.Code == null) return false;
+
+            // Check if sink item has repairItemCode attribute
+            var repairItemAttr = sinkStack.ItemAttributes?["repairItemCode"];
+            if (repairItemAttr == null || !repairItemAttr.Exists) return false;
+
+            string repairItemCode;
+            
+            // Check if repairItemCode is an object with code and strength
+            if (repairItemAttr.Token is Newtonsoft.Json.Linq.JObject obj)
+            {
+                repairItemCode = obj["code"]?.ToString();
+                if (obj["strength"] != null)
+                {
+                    repairStrength = (float)obj["strength"];
+                }
+            }
+            else
+            {
+                // Simple string format
+                repairItemCode = repairItemAttr.AsString(null);
+            }
+            
+            if (string.IsNullOrEmpty(repairItemCode)) return false;
+
+            // Check if source item matches the repair item code
+            string sourceCode = sourceStack.Collectible.Code.ToString();
+            if (!string.Equals(sourceCode, repairItemCode, System.StringComparison.OrdinalIgnoreCase) &&
+                !sourceCode.EndsWith(repairItemCode, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            // Check if item needs repair (condition < 1.0)
+            float condition = sinkStack.Attributes.GetFloat("condition", 1f);
+            return condition < 1f;
+        }
+
+        private static bool CanRepairWithCustomItem(ItemStack sinkStack, ItemStack sourceStack)
+        {
+            return CanRepairWithCustomItem(sinkStack, sourceStack, out _);
         }
     }
 }

@@ -6,7 +6,8 @@
   "attributes": {
     "clothescategory": "face",
     "wearableAttachment": true,
-    "warmth": 0.1
+    "warmth": 0.1,
+    "repairItemCode": { "code": "gear-temporal", "strength": 0.4 }
   },
   "shape": {
     "base": "game:entity/humanoid/seraph/clothing/face/corroded"

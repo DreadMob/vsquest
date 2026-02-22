@@ -324,6 +324,12 @@ namespace VsQuest
             url = preferKey ? null : musicUrl;
             offset = startAtSeconds;
 
+            // Resolve URL from key early so we can use it for phase offset calculation
+            if (preferKey && sys != null)
+            {
+                url = sys.ResolveUrl(musicKey);
+            }
+
             if (usePhases && phases.Count > 0)
             {
                 float frac = 1f;
@@ -375,11 +381,6 @@ namespace VsQuest
             }
 
             if (offset < 0f) offset = 0f;
-
-            if (string.IsNullOrWhiteSpace(url) && !string.IsNullOrWhiteSpace(musicKey))
-            {
-                url = sys.ResolveUrl(musicKey);
-            }
         }
     }
 }

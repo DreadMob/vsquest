@@ -56,7 +56,7 @@
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "bossdamagesourceimmunity", "ignoreWeather": true, "ignoreExplosion": true, "ignoreElectricity": true, "onlyAllowPlayerDamage": true },
-      { "code": "health", "currenthealth": 746, "maxhealth": 746 },
+      { "code": "health", "currenthealth": 946, "maxhealth": 946 },
       { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:subduction-maw", "leashRange": 120, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
@@ -73,7 +73,7 @@
             "spawnRange": 10,
             "adds": [
               {
-                "entityCode": "game:shiver-tainted",
+                "entityCode": "game:shiver-corrupt",
                 "maxNearby": 6,
                 "nearbyRange": 28,
                 "minCount": 1,
@@ -101,7 +101,7 @@
             "spawnRange": 12,
             "adds": [
               {
-                "entityCode": "game:shiver-tainted",
+                "entityCode": "game:shiver-corrupt",
                 "maxNearby": 6,
                 "nearbyRange": 30,
                 "minCount": 2,
@@ -163,9 +163,9 @@
       {
         "code": "bosscloning",
         "stages": [
-          { "whenHealthRelBelow": 0.8, "cloneCount": 2, "durationMs": 9000, "cooldownSeconds": 12, "spawnRange": 7, "cloneDamageMult": 0.7, "cloneWalkSpeedMult": 1.1, "cloneInvulnerable": true },
-          { "whenHealthRelBelow": 0.66, "cloneCount": 3, "durationMs": 9000, "cooldownSeconds": 12, "spawnRange": 8, "cloneDamageMult": 0.65, "cloneWalkSpeedMult": 1.15, "cloneInvulnerable": true },
-          { "whenHealthRelBelow": 0.4, "cloneCount": 5, "durationMs": 11000, "cooldownSeconds": 11, "spawnRange": 8, "cloneDamageMult": 0.6, "cloneWalkSpeedMult": 1.2, "cloneInvulnerable": true }
+          { "whenHealthRelBelow": 0.8, "cloneCount": 2, "durationMs": 9000, "cooldownSeconds": 12, "spawnRange": 7, "cloneDamageMult": 0.7, "cloneWalkSpeedMult": 1.1, "cloneInvulnerable": true, "cloneFollowOwner": true },
+          { "whenHealthRelBelow": 0.66, "cloneCount": 3, "durationMs": 9000, "cooldownSeconds": 12, "spawnRange": 8, "cloneDamageMult": 0.65, "cloneWalkSpeedMult": 1.15, "cloneInvulnerable": true, "cloneFollowOwner": true },
+          { "whenHealthRelBelow": 0.4, "cloneCount": 5, "durationMs": 11000, "cooldownSeconds": 11, "spawnRange": 8, "cloneDamageMult": 0.6, "cloneWalkSpeedMult": 1.2, "cloneInvulnerable": true, "cloneFollowOwner": true }
         ]
       },
       {
@@ -278,7 +278,7 @@
           {
             "whenHealthRelBelow": 0.75,
             "cooldownSeconds": 12,
-            "entityCode": "game:shiver-tainted",
+            "entityCode": "game:shiver-corrupt",
             "maxNearby": 4,
             "nearbyRange": 28,
             "minCount": 1,
@@ -294,7 +294,7 @@
           {
             "whenHealthRelBelow": 0.4,
             "cooldownSeconds": 10,
-            "entityCode": "game:shiver-tainted",
+            "entityCode": "game:shiver-corrupt",
             "maxNearby": 6,
             "nearbyRange": 30,
             "minCount": 2,
@@ -311,6 +311,9 @@
       },
       {
         "code": "bossdynamicscaling", "hpPerPlayer": 160, "regenPerPlayer": 0.7
+      },
+      {
+        "code": "bossdamageinvulnerability"
       },
       {
         "code": "bosspushback",

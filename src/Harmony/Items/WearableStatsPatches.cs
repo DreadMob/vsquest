@@ -62,11 +62,11 @@ namespace VsQuest.Harmony.Items
         {
             private static readonly System.Collections.Generic.Dictionary<long, long> LastCheckByEntityId = new();
             private const int CheckIntervalMs = 250; // Check only 4 times per second instead of every tick
+            private const string UraniumMaskLastHoursKey = "vsquest:uraniummask:lasthours";
             
             public static void Postfix(EntityBehaviorTemporalStabilityAffected __instance)
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_EntityBehaviorTemporalStabilityAffected_OnGameTick)) return;
-                if (!EnableTemporalStabilityWearablePatch) return;
                 if (__instance?.entity is not EntityPlayer player) return;
                 
                 // Throttle checks to reduce CPU usage
@@ -83,6 +83,11 @@ namespace VsQuest.Harmony.Items
                 {
                     LastCheckByEntityId.Clear();
                 }
+
+                // Handle uranium mask charge drain
+                TryDrainUraniumMaskCharge(player);
+
+                if (!EnableTemporalStabilityWearablePatch) return;
 
                 var stats = WearableStatsCache.GetCachedStats(player);
                 // Fast exit: check cached value first before stability read
@@ -103,6 +108,40 @@ namespace VsQuest.Harmony.Items
                 float mult = GameMath.Clamp(1f - stats.TemporalDrainReduction, 0f, 3f);
                 double adjusted = prevStability + delta * mult;
                 __instance.OwnStability = GameMath.Clamp(adjusted, 0.0, 1.0);
+            }
+
+            private static void TryDrainUraniumMaskCharge(EntityPlayer player)
+            {
+                if (player?.Player?.InventoryManager == null) return;
+
+                // Find uranium mask in face slot
+                var inv = player.Player.InventoryManager.GetOwnInventory("character");
+                if (inv == null) return;
+
+                var faceSlot = inv[(int)EnumCharacterDressType.Face];
+                if (faceSlot?.Empty != false || faceSlot.Itemstack?.Attributes == null) return;
+
+                string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrUraniumMaskChargeHours);
+                if (!faceSlot.Itemstack.Attributes.HasAttribute(chargeKey)) return;
+
+                float currentHours = faceSlot.Itemstack.Attributes.GetFloat(chargeKey, 0f);
+                if (currentHours <= 0f) return;
+
+                // Get current game time and calculate delta
+                double currentTotalHours = player.World.Calendar.TotalHours;
+                double lastTotalHours = player.WatchedAttributes.GetDouble(UraniumMaskLastHoursKey, currentTotalHours);
+                
+                // Store current for next check
+                player.WatchedAttributes.SetDouble(UraniumMaskLastHoursKey, currentTotalHours);
+
+                // Calculate elapsed game hours
+                double elapsedHours = currentTotalHours - lastTotalHours;
+                if (elapsedHours <= 0) return;
+
+                // Drain charge (1 game hour = 1 charge hour)
+                float newHours = Math.Max(0f, currentHours - (float)elapsedHours);
+                faceSlot.Itemstack.Attributes.SetFloat(chargeKey, newHours);
+                faceSlot.MarkDirty();
             }
         }
 
@@ -167,18 +206,33 @@ namespace VsQuest.Harmony.Items
         [HarmonyPatch(typeof(ModSystemWearableStats), "handleDamaged")]
         public class ModSystemWearableStats_handleDamaged_Patch
         {
+            // Damage types that protection applies to
+            private static bool IsPhysicalDamage(DamageSource dmgSource)
+            {
+                if (dmgSource == null) return false;
+                var type = dmgSource.Type;
+                return type == EnumDamageType.BluntAttack
+                    || type == EnumDamageType.SlashingAttack
+                    || type == EnumDamageType.PiercingAttack
+                    || type == EnumDamageType.Crushing
+                    || type == EnumDamageType.Injury;
+            }
+
             public static void Postfix(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource, ref float __result)
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ModSystemWearableStats_handleDamaged)) return;
                 if (__result <= 0f) return;
                 if (player?.Entity is not EntityPlayer entity) return;
 
+                // Only apply protection to physical damage types
+                if (!IsPhysicalDamage(dmgSource)) return;
+
                 var stats = WearableStatsCache.GetCachedStats(entity);
                 if (stats == null) return;
 
                 float newDamage = __result;
                 newDamage = System.Math.Max(0f, newDamage - stats.FlatProtection);
-                newDamage *= (1f - System.Math.Max(0f, stats.PercProtection));
+                newDamage *= (1f - stats.PercProtection);
 
                 __result = newDamage;
             }

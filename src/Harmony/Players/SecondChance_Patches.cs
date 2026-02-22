@@ -25,8 +25,8 @@ namespace VsQuest.Harmony.Players
 
             if (damage <= 0f) return;
 
-            // Use entity.Health for current health value
-            float health = (float)(player.WatchedAttributes?.GetDecimal("health") ?? 0f);
+            // Use EntityBehaviorHealth.Health for current health value
+            float health = __instance.Health;
 
             // Only trigger if this damage would kill the player
             if (health - damage > 0f) return;

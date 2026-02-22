@@ -196,9 +196,9 @@ namespace VsQuest
 
             // Sound
             sapi.World.PlaySoundAt(
-                new AssetLocation("albase:magic-sparkling"),
+                new AssetLocation("albase:sounds/mechanical/mecha switch power"),
                 entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z,
-                null, false, 32, 0.4f
+                null, true, 32, 0.133f
             );
         }
 

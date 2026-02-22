@@ -16,7 +16,8 @@
     "groundStorageTransform": {
       "translation": { "x": 0, "y": -0.03, "z": -0.1 },
       "rotation": { "x": -68, "y": -134, "z": 0 }
-    }
+    },
+    "repairItemCode": { "code": "gear-temporal", "strength": 0.4 }
   },
   "behaviors": [
     {

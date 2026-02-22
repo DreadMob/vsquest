@@ -64,24 +64,24 @@ namespace VsQuest.Harmony.Items
         {
             var stats = new CachedStats();
 
-            // Check character slots for ItemWearable
+            // Check character slots for items with attributes (ItemWearable or action items)
             if (inv != null)
             {
                 foreach (ItemSlot slot in inv)
                 {
-                    if (slot.Empty || slot.Itemstack?.Item is not ItemWearable) continue;
+                    if (slot.Empty || slot.Itemstack?.Attributes == null) continue;
                     AddItemAttributes(stats, slot.Itemstack);
                 }
             }
 
-            // Check backpack slots for attachments (quiver, etc.)
+            // Check backpack slot for the equipped backpack/quiver itself (not items inside it)
+            // A quiver equipped "instead of backpack" has backpack attribute and may provide stat bonuses
             if (backpackInv != null)
             {
                 foreach (ItemSlot slot in backpackInv)
                 {
-                    if (slot.Empty || slot.Itemstack?.Collectible == null) continue;
-                    var backpackAttr = slot.Itemstack.Collectible.Attributes?["backpack"];
-                    if (backpackAttr == null || !backpackAttr.Exists) continue;
+                    if (slot.Empty || slot.Itemstack?.Attributes == null) continue;
+                    // Only read attributes from the equipped bag/quiver itself, not from items stored inside
                     AddItemAttributes(stats, slot.Itemstack);
                 }
             }
@@ -91,6 +91,9 @@ namespace VsQuest.Harmony.Items
 
         private static void AddItemAttributes(CachedStats stats, ItemStack stack)
         {
+            // Ensure action item attributes are applied from itemconfig.json
+            EnsureItemAttributes(stack);
+
             stats.Stealth += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrStealth);
             stats.FallDamageReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrFallDamageMult);
             stats.TemporalDrainReduction += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrTemporalDrainMult);
@@ -101,6 +104,35 @@ namespace VsQuest.Harmony.Items
             stats.KnockbackMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrKnockbackMult);
             stats.AttackPower += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrAttackPower);
             stats.RangedDamageMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedDamageMult);
+        }
+
+        private static void EnsureItemAttributes(ItemStack stack)
+        {
+            if (stack?.Attributes == null) return;
+            if (ItemAttributeUtils.IsActionItem(stack)) return; // Already has action item attributes
+
+            var registry = ItemSystem.StaticActionItemRegistry;
+            if (registry == null || registry.Count == 0) return;
+
+            // Try to find by itemCode and apply attributes
+            if (stack.Collectible?.Code == null) return;
+            string code = stack.Collectible.Code.ToString();
+
+            ActionItem found = null;
+            foreach (var entry in registry.Values)
+            {
+                if (entry?.itemCode == null) continue;
+                if (string.Equals(entry.itemCode, code, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    found = entry;
+                    break;
+                }
+            }
+
+            if (found != null)
+            {
+                ItemAttributeUtils.ApplyActionItemAttributes(stack, found);
+            }
         }
 
         private static CachedStats GetStatsFromCache(EntityPlayer player, long nowMs)
