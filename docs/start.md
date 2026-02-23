@@ -1,6 +1,6 @@
 # Alegacy VS Quest Mod Structure Documentation
 
-> **Documentation Version:** v1.4.0
+> **Documentation Version:** v2.5.0
 
 ---
 
@@ -18,6 +18,8 @@
 | [dialogue.md](dialogue.md) | NPC dialogue system |
 | [commands.md](commands.md) | Chat commands |
 | [questland.md](questland.md) | QuestLand (land-claim notifications) |
+| [bosshunt.md](bosshunt.md) | Boss Hunt system (rotation, anchors, tracking) |
+| [bossbehaviors.md](bossbehaviors.md) | Boss Entity Behaviors (abilities, phases, defense) |
 
 ---
 
