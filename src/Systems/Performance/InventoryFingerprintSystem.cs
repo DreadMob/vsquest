@@ -62,20 +62,10 @@ namespace VsQuest.Systems.Performance
                 // Slot position (order matters for some calculations)
                 hash = hash * 31 + slotIndex;
 
-                // Key attributes that affect wearable stats
+                // Key attributes that affect wearable stats - use stable hash method
                 if (stack.Attributes != null)
                 {
-                    // Uranium mask charge
-                    if (stack.Attributes.HasAttribute("uraniumMaskChargeHours"))
-                    {
-                        hash = hash * 31 + stack.Attributes.GetFloat("uraniumMaskChargeHours").GetHashCode();
-                    }
-
-                    // Second chance charges
-                    if (stack.Attributes.HasAttribute("secondChanceCharges"))
-                    {
-                        hash = hash * 31 + stack.Attributes.GetFloat("secondChanceCharges").GetHashCode();
-                    }
+                    hash = hash * 31 + ItemAttributeUtils.GetStableAttributeHash(stack);
                 }
 
                 slotIndex++;

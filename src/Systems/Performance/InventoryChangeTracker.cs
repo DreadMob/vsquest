@@ -91,7 +91,7 @@ namespace VsQuest.Systems.Performance
                 // Combine item code hash and stack fingerprint
                 var stack = slot.Itemstack;
                 int itemHash = stack.Collectible?.Code?.GetHashCode() ?? 0;
-                int attrHash = stack.Attributes?.GetHashCode() ?? 0;
+                int attrHash = ItemAttributeUtils.GetStableAttributeHash(stack);
                 
                 hash = hash * 31 + itemHash;
                 hash = hash * 31 + attrHash;

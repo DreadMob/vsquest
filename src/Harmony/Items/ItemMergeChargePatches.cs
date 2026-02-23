@@ -18,6 +18,8 @@ namespace VsQuest.Harmony.Items
                 if (TryHandleSecondChanceCharge(op)) return false;
                 if (TryHandleCryptSightMaskCharge(op)) return false;
                 if (TryHandleCustomItemRepair(op)) return false;
+                // Block vanilla repair if item has custom repairItemCode
+                if (HasCustomRepairItem(op?.SinkSlot?.Itemstack)) return false;
                 return true;
             }
         }
@@ -31,6 +33,8 @@ namespace VsQuest.Harmony.Items
                 if (TryHandleSecondChanceCharge(op)) return false;
                 if (TryHandleCryptSightMaskCharge(op)) return false;
                 if (TryHandleCustomItemRepair(op)) return false;
+                // Block vanilla repair if item has custom repairItemCode
+                if (HasCustomRepairItem(op?.SinkSlot?.Itemstack)) return false;
                 return true;
             }
         }
@@ -229,6 +233,13 @@ namespace VsQuest.Harmony.Items
         private static bool CanRepairWithCustomItem(ItemStack sinkStack, ItemStack sourceStack)
         {
             return CanRepairWithCustomItem(sinkStack, sourceStack, out _);
+        }
+
+        private static bool HasCustomRepairItem(ItemStack sinkStack)
+        {
+            if (sinkStack?.ItemAttributes == null) return false;
+            var repairItemAttr = sinkStack.ItemAttributes["repairItemCode"];
+            return repairItemAttr != null && repairItemAttr.Exists;
         }
     }
 }

@@ -29,10 +29,10 @@
       "description": "<font color=\"#FBBF24\">Тугой ремень с холодной пряжкой и костяной крошкой в трещинах. Он пахнет сырой землёй и железом, а по коже тянутся царапины — будто своды Оссуария пытались удержать того, кто проходил здесь до тебя.</font>",
       "actions": [],
       "attributes": {
-        "maxhealthflat": -2.0,
-        "walkspeed": -0.1,
-        "hungerrate": 0.8,
-        "miningspeedmult": 0.45,
+        "maxhealthflat": -3.0,
+        "walkspeed": -0.14,
+        "hungerrate": 0.85,
+        "miningspeedmult": 0.67,
         "temporaldrainmult": 0.1
       },
       "showAttributes": [
@@ -85,7 +85,6 @@
       "actions": [],
       "attributes": {
         "attackpower": 1.2,
-        "healonkill": 0.05,
         "maxhealthflat": -3.0,
         "hungerrate": 0.4,
         "walkspeed": -0.05,
@@ -93,7 +92,6 @@
       },
       "showAttributes": [
         "attackpower",
-        "healonkill",
         "maxhealthflat",
         "hungerrate",
         "walkspeed",

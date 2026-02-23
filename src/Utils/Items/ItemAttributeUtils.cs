@@ -125,7 +125,19 @@ namespace VsQuest
                 return value * chargeMult;
             }
 
-            if (attributeName == AttrHungerRate) return value;
+            if (attributeName == AttrHungerRate)
+            {
+                // Negative hungerrate (hunger reduction bonus) should scale with condition
+                // and go to 0 when item is broken. Positive hungerrate (debuff) stays constant.
+                if (value < 0f)
+                {
+                    float hungerMult = GetConditionMultiplier(stack);
+                    // At condition 0, mult should be 0, so negative bonus disappears
+                    hungerMult = GameMath.Clamp(hungerMult, 0f, 1f);
+                    return value * hungerMult;
+                }
+                return value;
+            }
 
             // Debuffs should not scale with item condition/durability.
             // Only positive bonuses are reduced when the item is in poor condition.
@@ -362,6 +374,42 @@ namespace VsQuest
             {
                 stack.Attributes.SetString(ActionItemHideVanillaKey, JsonConvert.SerializeObject(actionItem.hideVanillaTooltips));
             }
+        }
+
+        /// <summary>
+        /// Computes a stable hash of item attributes for change detection.
+        /// Float values that change frequently (like charge timers) are rounded to avoid jitter.
+        /// </summary>
+        public static int GetStableAttributeHash(ItemStack stack)
+        {
+            if (stack?.Attributes == null) return 0;
+
+            int hash = 17;
+
+            // Time-based charges - round to 0.5h precision to avoid jitter on every tick
+            if (stack.Attributes.HasAttribute(GetKey(AttrUraniumMaskChargeHours)))
+            {
+                float charge = stack.Attributes.GetFloat(GetKey(AttrUraniumMaskChargeHours));
+                int rounded = (int)System.Math.Round(charge * 2);
+                hash = hash * 31 + rounded;
+            }
+
+            // Integer-based charges - use directly
+            if (stack.Attributes.HasAttribute(GetKey(AttrSecondChanceCharges)))
+            {
+                float charges = stack.Attributes.GetFloat(GetKey(AttrSecondChanceCharges));
+                hash = hash * 31 + charges.GetHashCode();
+            }
+
+            // Condition affects stats - include with rounding
+            if (stack.Attributes.HasAttribute("condition"))
+            {
+                float condition = stack.Attributes.GetFloat("condition", 1f);
+                int rounded = (int)System.Math.Round(condition * 100); // Round to 1% precision
+                hash = hash * 31 + rounded;
+            }
+
+            return hash;
         }
     }
 }

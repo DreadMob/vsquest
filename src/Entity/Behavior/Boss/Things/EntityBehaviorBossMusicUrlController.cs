@@ -283,7 +283,7 @@ namespace VsQuest
 
                     long now = Environment.TickCount64;
                     bool allowResolve = !lastShouldPlay || phaseSwitching || playbackStopped;
-                    if (allowResolve && (!lastShouldPlay || now - lastResolveMs >= ResolveThrottleMs))
+                    if (allowResolve && (!lastShouldPlay || playbackStopped || now - lastResolveMs >= ResolveThrottleMs))
                     {
                         lastResolveMs = now;
 

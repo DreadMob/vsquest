@@ -977,6 +977,13 @@ namespace VsQuest
                     // Next loop iteration uses the latest requested phase offset.
                     loopStartAtSeconds = Math.Max(0f, desiredLoopStartAtSeconds);
 
+                    // Check if phase URL changed while we were playing
+                    if (!stopPending && !string.Equals(currentUrl ?? "", url ?? "", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Phase changed - restart with new URL
+                        break;
+                    }
+
                     if (reachedEnd)
                     {
                         // Track ended naturally and will loop - ensure stopPending doesn't prevent restart

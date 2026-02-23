@@ -31,6 +31,8 @@ namespace VsQuest.Harmony.Players
 
         public static bool Prefix(EntityAgent __instance, DamageSource damageSource, ref float damage, ref bool __result)
         {
+            if (!HarmonyPatchSwitches.PlayerEnabled(HarmonyPatchSwitches.Player_EntityAgent_ReceiveDamage_PlayerAttackPower)) return true;
+
             // Ultra-fast rejects first (3 simple comparisons)
             if (damage <= 0f) return true; // Run original
             if (damageSource == null) return true; // Run original
