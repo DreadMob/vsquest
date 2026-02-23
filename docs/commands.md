@@ -1,6 +1,6 @@
 # Alegacy VS Quest Chat Commands
 
-> **Documentation Version:** v1.4.0
+> **Documentation Version:** v2.5.0
 
 All commands require **`give` privilege** and are accessed via the `/avq` command.
 

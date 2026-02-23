@@ -1,11 +1,13 @@
 # Boss Hunt System
 
+> **Documentation Version:** v2.5.0
+
 ## Overview
 The boss hunt system spawns a single active boss at a time, rotates it on a long schedule, and provides a questline with a tracker item. The active boss is chosen from configs in `quests/albase/assets/albase/config/bosshunt/*.json`.
 
 ## Core concepts
 - **Boss config**: JSON file describing one boss (bossKey, entity code, quest id, points, timers).
-- **Active boss**: Only one boss is considered active at a time. **Documentation Version:** v1.4.0 every `rotationDays` (currently 360 in-game days) per config.
+- **Active boss**: Only one boss is considered active at a time. Rotates every `rotationDays` (currently 360 in-game days) per config.
 - **Anchors/points**: Bosses can spawn at configured points, or at anchor points set in-world (Boss Hunt Anchor block). Anchors can be named and ordered, and override `points` when present.
 
 ## Rotation logic

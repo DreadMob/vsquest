@@ -1,6 +1,6 @@
 # Alegacy VS Quest Action Items
 
-> **Documentation Version:** v1.4.0
+> **Documentation Version:** v2.5.0
 
 ---
 
@@ -128,24 +128,25 @@ Custom attributes that can be applied to items via the `attributes` object. Thes
 | `attackpower` | Adds bonus attack damage | +X hp |
 | `warmth` | Adds warmth to wearable items | +X°C |
 | `protection` | Flat damage reduction (armor) | +X dmg |
-| `protectionperc` | Percentage damage reduction | +X% |
 | `walkspeed` | Modifies walk speed | +X% |
 | `hungerrate` | Modifies hunger rate | +X% |
 | `healingeffectiveness` | Modifies healing received | +X% |
 | `rangedaccuracy` | Modifies ranged weapon accuracy | +X% |
 | `rangedchargspeed` | Modifies ranged weapon charge speed | +X% |
+| `rangeddamagemult` | Modifies ranged weapon damage | +X% |
 | `miningspeedmult` | Modifies mining speed | +X% |
 | `falldamagemult` | Modifies fall damage taken | +X% |
 | `temporaldrainmult` | Modifies temporal stability drain | +X% |
 | `jumpheightmul` | Modifies jump height | +X% |
 | `knockbackmult` | Modifies knockback dealt | +X% |
-| `meleeattackspeed` | Modifies melee attack speed | +X% |
 | `maxhealthflat` | Adds max health | +X hp |
-| `maxoxygen` | Adds max oxygen | +X |
+| `maxoxygen` | Adds max oxygen (displayed as seconds) | +X |
 | `stealth` | Reduces detection (AI aggro) | +X |
-| `secondchancecharges` | Second chance charges | +X |
+| `secondchancecharges` | Second chance (auto-revive) charges | X |
 | `weightlimit` | Modifies weight limit | +X% |
 | `viewdistance` | Modifies fog/view distance | +X% |
+| `uraniummaskchargehours` | Uranium mask charge in hours | Xh |
+| `healonkill` | Heals percentage of max HP on kill | +X% |
 
 > [!NOTE]
 > Percentage-based attributes use decimal values (e.g., `0.1` = 10%, `0.25` = 25%)

@@ -1,6 +1,6 @@
 # Alegacy VS Quest Objectives
 
-> **Documentation Version:** v1.4.0
+> **Documentation Version:** v2.5.0
 
 ---
 

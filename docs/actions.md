@@ -1,6 +1,6 @@
 # Alegacy VS Quest Actions
 
-> **Documentation Version:** v1.4.0
+> **Documentation Version:** v2.5.0
 
 ---
 
@@ -494,14 +494,6 @@ Starts a quiz for the player.
 
 **Arguments:**
 - `<quizId>` — The identifier of the quiz to start (required)
-
----
-
-### `showtreasurerquiz`
-
-Starts the hardcoded treasurer survey quiz.
-
-**Arguments:** None
 
 ---
 
