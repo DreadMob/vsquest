@@ -1,22 +1,20 @@
 {
-  "id": "alstory:ritual-crystals",
+  "id": "alstory:village_heart",
   "cooldown": -1,
   "perPlayer": true,
-  "predecessor": "alstory:echo-proklyatiya",
   "onAcceptedActions": [
     {
       "id": "addjournalentry",
       "args": [
-        "alstory:ritual-crystals",
-        "alstory:ritual-crystals-journal-title",
-        "alstory:ritual-crystals-journal-step0"
+        "alstory:village_heart",
+        "alstory:village_heart-journal-title",
+        "alstory:village_heart-journal-step0"
       ]
     },
     {
-      "id": "consumeactionitem",
+      "id": "questitem",
       "args": [
-        "alstory-ritual-crystalbreaker",
-        "99"
+        "alstory-keepers-key"
       ]
     },
     {
@@ -28,7 +26,7 @@
     {
       "id": "addplayerattribute",
       "args": [
-        "alstory_rc_stage",
+        "alstory_vh_stage",
         "start"
       ]
     },
@@ -45,7 +43,7 @@
       "id": "sequence",
       "objectiveId": "main",
       "args": [
-        "alstory:ritual-crystals",
+        "alstory:village_heart",
         "main",
         "heinrich",
         "village",
@@ -56,9 +54,9 @@
     {
       "id": "interactwithentity",
       "objectiveId": "heinrich",
-      "onCompleteActions": "addjournalentry alstory:ritual-crystals alstory:ritual-crystals-journal-title alstory:ritual-crystals-journal-step0; addplayerattribute alstory_rc_stage talkedheinrich",
+      "onCompleteActions": "addjournalentry alstory:village_heart alstory:village_heart-journal-title alstory:village_heart-journal-step0; addplayerattribute alstory_vh_stage talkedheinrich",
       "args": [
-        "alstory:ritual-crystals",
+        "alstory:village_heart",
         "alstory:heinrich",
         "1",
         "dialog"
@@ -67,7 +65,7 @@
     {
       "id": "inland",
       "objectiveId": "village",
-      "onCompleteActions": "addjournalentry alstory:ritual-crystals alstory:ritual-crystals-journal-title alstory:ritual-crystals-journal-step1; addplayerattribute alstory_rc_stage village",
+      "onCompleteActions": "addjournalentry alstory:village_heart alstory:village_heart-journal-title alstory:village_heart-journal-step1; addplayerattribute alstory_vh_stage village",
       "args": [
         "derevnia"
       ]
@@ -99,7 +97,7 @@
     {
       "id": "interactcount",
       "objectiveId": "crystals",
-      "onCompleteActions": "addjournalentry alstory:ritual-crystals alstory:ritual-crystals-journal-title alstory:ritual-crystals-journal-step2; addplayerattribute alstory_rc_stage crystals; consumeactionitem alstory-ritual-crystalbreaker 1",
+      "onCompleteActions": "addjournalentry alstory:village_heart alstory:village_heart-journal-title alstory:village_heart-journal-step2; addplayerattribute alstory_vh_stage crystals; consumeactionitem alstory-ritual-crystalbreaker 1",
       "args": [
         "51200,3,51200",
         "51200,4,51200",
@@ -109,9 +107,9 @@
     {
       "id": "interactwithentity",
       "objectiveId": "illa",
-      "onCompleteActions": "addjournalentry alstory:ritual-crystals alstory:ritual-crystals-journal-title alstory:ritual-crystals-journal-step3; addplayerattribute alstory_rc_stage illa",
+      "onCompleteActions": "addjournalentry alstory:village_heart alstory:village_heart-journal-title alstory:village_heart-journal-step3; addplayerattribute alstory_vh_stage illa; questitem alstory-armor-legs",
       "args": [
-        "alstory:ritual-crystals",
+        "alstory:village_heart",
         "alstory:illa",
         "1",
         "dialog"
@@ -119,6 +117,21 @@
     }
   ],
   "actionRewards": [
+    {
+      "id": "addjournalentry",
+      "args": [
+        "alstory:village_heart",
+        "alstory:village_heart-journal-title",
+        "alstory:village_heart-journal-step4"
+      ]
+    },
+    {
+      "id": "playsound",
+      "args": [
+        "alegacyvsquest:sounds/quecomp",
+        "0.175"
+      ]
+    },
     {
       "id": "showquestfinaldialog",
       "args": [

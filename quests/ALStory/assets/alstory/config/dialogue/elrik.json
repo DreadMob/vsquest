@@ -16,7 +16,7 @@
       "text": [
         { "value": "alstory:dialogue-elrik-who", "jumpTo": "who" },
         { "value": "alstory:dialogue-elrik-what", "jumpTo": "what" },
-        { "value": "alstory:dialogue-elrik-return", "jumpTo": "return", "conditions": [ { "variable": "player.alstory_fm_stage", "isValue": "loranboss" } ] },
+        { "value": "alstory:dialogue-elrik-return", "jumpTo": "return", "conditions": [ { "variable": "player.alstory_nj_stage", "isValue": "loranboss" } ] },
         { "value": "alstory:dialogue-elrik-quests", "jumpTo": "openquests" },
         { "value": "alstory:dialogue-elrik-closechoice", "jumpTo": "close" }
       ]
@@ -25,7 +25,7 @@
       "code": "return",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:fallen-magister alstory:elrik elrikreturn alstory:loranbosskilled 1",
+      "trigger": "markentityinteraction alstory:necropolis_judgment alstory:elrik elrikreturn alstory:loranbosskilled 1",
       "text": [
         { "value": "alstory:dialogue-elrik-return-answer" }
       ],

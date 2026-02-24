@@ -1,21 +1,21 @@
 {
-  "id": "alstory:fallen-magister",
+  "id": "alstory:necropolis_judgment",
   "cooldown": -1,
   "perPlayer": true,
-  "predecessor": "alstory:ritual-crystals",
+  "predecessor": "alstory:village_heart",
   "onAcceptedActions": [
     {
       "id": "addjournalentry",
       "args": [
-        "alstory:fallen-magister",
-        "alstory:fallen-magister-journal-title",
-        "alstory:fallen-magister-journal-step0"
+        "alstory:necropolis_judgment",
+        "alstory:necropolis_judgment-journal-title",
+        "alstory:necropolis_judgment-journal-step0"
       ]
     },
     {
       "id": "addplayerattribute",
       "args": [
-        "alstory_fm_stage",
+        "alstory_nj_stage",
         "start"
       ]
     },
@@ -32,7 +32,7 @@
       "id": "sequence",
       "objectiveId": "main",
       "args": [
-        "alstory:fallen-magister",
+        "alstory:necropolis_judgment",
         "main",
         "final",
         "loran",
@@ -43,7 +43,7 @@
     {
       "id": "inland",
       "objectiveId": "final",
-      "onCompleteActions": "addjournalentry alstory:fallen-magister alstory:fallen-magister-journal-title alstory:fallen-magister-journal-step1; addplayerattribute alstory_fm_stage final; questitem alstory-tablet-epitaph; questitem alstory-note-necropolisfragment",
+      "onCompleteActions": "addjournalentry alstory:necropolis_judgment alstory:necropolis_judgment-journal-title alstory:necropolis_judgment-journal-step1; addplayerattribute alstory_nj_stage final; questitem alstory-tablet-epitaph; questitem alstory-note-necropolisfragment",
       "args": [
         "nekropol kvest"
       ]
@@ -51,9 +51,9 @@
     {
       "id": "interactwithentity",
       "objectiveId": "loran",
-      "onCompleteActions": "addjournalentry alstory:fallen-magister alstory:fallen-magister-journal-title alstory:fallen-magister-journal-step2; addplayerattribute alstory_fm_stage loran",
+      "onCompleteActions": "addjournalentry alstory:necropolis_judgment alstory:necropolis_judgment-journal-title alstory:necropolis_judgment-journal-step2; addplayerattribute alstory_nj_stage loran",
       "args": [
-        "alstory:fallen-magister",
+        "alstory:necropolis_judgment",
         "alstory:loran",
         "1",
         "dialog"
@@ -62,20 +62,20 @@
     {
       "id": "killactiontarget",
       "objectiveId": "loranboss",
-      "onCompleteActions": "addplayerattribute alstory_fm_stage loranboss; addplayerint alstory:loranbosskilled 1 1 alstory:loranbosskilledonce",
+      "onCompleteActions": "addplayerattribute alstory_nj_stage loranboss; addplayerint alstory:loranbosskilled 1 1 alstory:loranbosskilledonce; setglobalvariable alstory:necropolis_judgment_complete 1",
       "args": [
-        "alstory:fallen-magister",
+        "alstory:necropolis_judgment",
         "loranboss",
-        "alstory:fallen-magister:loran",
+        "alstory:necropolis_judgment:loran",
         "1"
       ]
     },
     {
       "id": "interactwithentity",
       "objectiveId": "elrikreturn",
-      "onCompleteActions": "addplayerattribute alstory_fm_stage elrikreturn",
+      "onCompleteActions": "addplayerattribute alstory_nj_stage elrikreturn",
       "args": [
-        "alstory:fallen-magister",
+        "alstory:necropolis_judgment",
         "alstory:elrik",
         "1",
         "dialog"
@@ -86,15 +86,16 @@
     {
       "id": "addjournalentry",
       "args": [
-        "alstory:fallen-magister",
-        "alstory:fallen-magister-journal-title",
-        "alstory:fallen-magister-journal-step3"
+        "alstory:necropolis_judgment",
+        "alstory:necropolis_judgment-journal-title",
+        "alstory:necropolis_judgment-journal-step3"
       ]
     },
     {
-      "id": "questitem",
+      "id": "playsound",
       "args": [
-        "alstory-book-crackedbell"
+        "alegacyvsquest:sounds/quecomp",
+        "0.175"
       ]
     },
     {

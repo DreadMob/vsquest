@@ -44,7 +44,7 @@
       "itemCode": "game:armor-head-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Шлем Ордена Обречённых</font>",
       "description": "<font color=\"#60A5FA\">Ржавый металл и чёрные прожилки. Кажется, он дышит.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:echo-proklyatiya",
+      "sourceQuestId": "alstory:last_breath_main",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
       "blockDrop": true,
@@ -62,7 +62,7 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:echo-proklyatiya",
+            "alstory:last_breath_main",
             "alstory:armor-found",
             "Доспехи Обречённых",
             "Найдена часть доспехов: Шлем.\n\nЧёрные прожилки пульсируют, будто в металле ещё живёт эхо клятвы."
@@ -75,7 +75,7 @@
       "itemCode": "game:armor-body-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Нагрудник Ордена Обречённых</font>",
       "description": "<font color=\"#60A5FA\">Тяжёлый нагрудник, испещрённый тёмными каналами.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:echo-proklyatiya",
+      "sourceQuestId": "alstory:last_breath_main",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
       "blockDrop": true,
@@ -93,7 +93,7 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:echo-proklyatiya",
+            "alstory:last_breath_main",
             "alstory:armor-found",
             "Доспехи Обречённых",
             "Найдена часть доспехов: Нагрудник.\n\nОн тёплый, будто только что снят с живого тела."
@@ -106,7 +106,7 @@
       "itemCode": "game:armor-legs-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Поножи Ордена Обречённых</font>",
       "description": "<font color=\"#60A5FA\">Поножи, будто связаны с землёй невидимыми корнями.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:echo-proklyatiya",
+      "sourceQuestId": "alstory:last_breath_main",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
       "blockDrop": true,
@@ -124,7 +124,7 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:echo-proklyatiya",
+            "alstory:last_breath_main",
             "alstory:armor-found",
             "Доспехи Обречённых",
             "Найдена часть доспехов: Поножи.\n\nВнутри слышится тихий звон — как треснувший колокол."
@@ -138,7 +138,7 @@
       "itemCode": "game:clothes-foot-forlorn-shoes",
       "name": "<font color=\"#8B5CF6\">Сабатоны Ордена Обречённых</font>",
       "description": "<font color=\"#60A5FA\">Тяжёлая обувь, будто приросшая к земле.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:echo-proklyatiya",
+      "sourceQuestId": "alstory:last_breath_main",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
       "blockDrop": true,
@@ -156,7 +156,7 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:echo-proklyatiya",
+            "alstory:last_breath_main",
             "alstory:armor-found",
             "Доспехи Обречённых",
             "Найдена часть доспехов: Сабатоны.\n\nКамень под ногами на миг будто отвечает на их шаг."
@@ -170,10 +170,20 @@
       "itemCode": "game:amethyst",
       "name": "<font color=\"#EF4444\">Ритуальный осколок</font>",
       "description": "<font color=\"#60A5FA\">Осколок, резонирующий со Скверной.\nНельзя выбросить.\nРасходуется после разрушения всех 3 кристаллов.</font>",
-      "sourceQuestId": "alstory:ritual-crystals",
+      "sourceQuestId": "alstory:village_heart",
       "blockDrop": true,
       "blockDeath": true,
       "blockGroundStorage": true,
+      "actions": []
+    },
+    {
+      "id": "alstory-keepers-key",
+      "itemCode": "game:golden-key",
+      "name": "<font color=\"#F59E0B\">Ключ хранителя</font>",
+      "description": "<font color=\"#60A5FA\">Старый ключ от всех дверей в деревне.\nОткрывает доступ к подвалам мельницы, кузницы и школы.</font>",
+      "sourceQuestId": "alstory:village_heart",
+      "blockDrop": true,
+      "blockDeath": true,
       "actions": []
     },
 
@@ -220,7 +230,7 @@
       "itemCode": "game:lore-scroll",
       "name": "<font color=\"#F59E0B\">Фрагмент дневника, вмурованный в камень</font>",
       "description": "<font color=\"#60A5FA\">Клочок пергамента, будто вросший в стену. Чернила выцвели, слова трудноразличимы.</font>",
-      "sourceQuestId": "alstory:fallen-magister",
+      "sourceQuestId": "alstory:necropolis_judgment",
       "actions": [
         {
           "id": "addjournalentry",

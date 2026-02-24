@@ -2,6 +2,10 @@
   "inheritFrom": "game:entities/lore/boss/eidolon-immobilized",
   "code": "alstory-eidolon-guardian",
   "class": "EntityEidolon",
+  "weight": 2500,
+  "hitboxSize": { "x": 1.7, "y": 2 },
+  "deadHitboxSize": { "x": 1.7, "y": 1.5 },
+  "eyeHeight": 3.8,
   "tags": ["mechanical", "boss", "habitat-land"],
   "attributes": {
     "isMechanical": true,
@@ -60,9 +64,13 @@
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "reviveondeath", "minHours": 168, "maxHours": 192 },
       { "code": "health", "currenthealth": 650, "maxhealth": 650 },
+      {
+        "code": "emotionstates",
+        "states": [ { "code": "aggressiveondamage", "duration": 200, "chance": 1, "slot": 0, "priority": 0.5, "accumType": "noaccum" } ]
+      },
       { "code": "alegacyvsquestbosshealthbar", "show": true },
       { "code": "bosscombatmarker" },
-      { "code": "questtarget", "targetId": "alstory:echo-proklyatiya:eidolon", "leashRange": 70, "returnMoveSpeed": 0.04, "leashCheckMs": 1000 },
+      { "code": "questtarget", "targetId": "alstory:last_breath_main:eidolon", "leashRange": 70, "returnMoveSpeed": 0.04, "leashCheckMs": 1000 },
       {
         "code": "bossdamageshield",
         "stages": [
@@ -119,7 +127,7 @@
             "durationMs": 2100,
             "releaseAtMs": 1300,
             "seekingRange": 16,
-            "sound": "creature/eidolon/throw",
+            "sound": "game:creature/eidolon/throw",
             "soundStartMs": 200,
             "soundRange": 32,
             "animationSpeed": 1.25,
@@ -144,7 +152,7 @@
             "seekingRange": 15,
             "animationSpeed": 1,
             "animation": "slam",
-            "sound": "creature/eidolon/rockfallslam",
+            "sound": "game:creature/eidolon/rockfallslam",
             "soundStartMs": 1000
           },
           {
@@ -167,7 +175,7 @@
             "priority": 0.1,
             "priorityForCancel": 0.1,
             "maxduration": 2000,
-            "finishSound": "creature/eidolon/awaken",
+            "finishSound": "game:creature/eidolon/awaken",
             "soundRange": 32
           }
         ]
@@ -178,7 +186,7 @@
   },
   "idleSoundRange": 14,
   "sounds": {
-    "hurt": "creature/eidolon/hit",
-    "death": "creature/eidolon/death"
+    "hurt": "game:creature/eidolon/hit",
+    "death": "game:creature/eidolon/death"
   }
 }
