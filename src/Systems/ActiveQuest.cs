@@ -602,6 +602,10 @@ namespace VsQuest
             {
                 if (activeActionObjectives[i] != null)
                 {
+                    // Skip gate objectives - they restrict progress timing, not quest completion
+                    string aoId = stage.actionObjectives[i]?.id;
+                    if (aoId == "timeofday" || aoId == "landgate") continue;
+
                     completable &= activeActionObjectives[i].IsCompletable(byPlayer, stage.actionObjectives[i].args);
                 }
             }
@@ -687,6 +691,10 @@ namespace VsQuest
             }
             for (int i = 0; i < activeActionObjectives.Count; i++)
             {
+                // Skip gate objectives - they restrict progress timing, not quest completion
+                string aoId = quest.actionObjectives[i]?.id;
+                if (aoId == "timeofday" || aoId == "landgate") continue;
+
                 completable &= activeActionObjectives[i].IsCompletable(byPlayer, quest.actionObjectives[i].args);
             }
             return completable;
