@@ -16,6 +16,8 @@
       "text": [
         { "value": "alstory:dialogue-heinrich-askilla", "jumpTo": "askilla", "conditions": [ { "variable": "player.alstory_vh_stage", "isValue": "start" } ] },
         { "value": "alstory:dialogue-heinrich-whathappened", "jumpTo": "whathappened", "conditions": [ { "variable": "player.alstory_vh_stage", "isValue": "start" } ] },
+        { "value": "alstory:dialogue-heinrich-howstop", "jumpTo": "howstop", "conditions": [ { "variable": "player.alstory_vh_stage", "isValue": "start" } ] },
+        { "value": "alstory:dialogue-heinrich-crystals", "jumpTo": "crystals", "conditions": [ { "variable": "player.alstory_vh_stage", "isValue": "start" } ] },
         { "value": "alstory:dialogue-heinrich-closechoice", "jumpTo": "close" }
       ]
     },
@@ -36,6 +38,26 @@
       "trigger": "markentityinteraction alstory:village_heart alstory:heinrich heinrich",
       "text": [
         { "value": "alstory:dialogue-heinrich-whathappened-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "howstop",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "markentityinteraction alstory:village_heart alstory:heinrich heinrich",
+      "text": [
+        { "value": "alstory:dialogue-heinrich-howstop-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "crystals",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "markentityinteraction alstory:village_heart alstory:heinrich heinrich",
+      "text": [
+        { "value": "alstory:dialogue-heinrich-crystals-answer" }
       ],
       "jumpTo": "main"
     },

@@ -53,6 +53,7 @@ namespace VsQuest
             var reloadHandler = new QuestReloadCommandHandler(sapi, questSystem);
             var profilerHandler = new QuestProfilerCommandHandler(sapi);
             var fullDietHandler = new FullDietCommandHandler(sapi);
+            var healHandler = new HealCommandHandler(sapi);
             var debugDamageHandler = new DebugDamageCommandHandler(sapi);
 
             sapi.ChatCommands.GetOrCreate("avq")
@@ -207,6 +208,14 @@ namespace VsQuest
                         sapi.ChatCommands.Parsers.OptionalWord("playerName")
                     )
                     .HandleWith(fullDietHandler.Handle)
+                .EndSubCommand()
+                .BeginSubCommand("heal")
+                    .WithDescription("Heals a player to full health.")
+                    .RequiresPrivilege(Privilege.give)
+                    .WithArgs(
+                        sapi.ChatCommands.Parsers.OptionalWord("playerName")
+                    )
+                    .HandleWith(healHandler.Handle)
                 .EndSubCommand()
                 .BeginSubCommand("qlist")
                     .WithDescription("Lists all registered quest IDs and their titles.")

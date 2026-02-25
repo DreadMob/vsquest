@@ -4,6 +4,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 
 namespace VsQuest
@@ -36,6 +37,13 @@ namespace VsQuest
             public string loopSound;
             public float loopSoundRange;
             public int loopSoundIntervalMs;
+
+            // Particle settings
+            public int particleColorRgba;
+            public int particleCountMin;
+            public int particleCountMax;
+            public float particleSize;
+            public int particleLifeMs;
         }
 
         private ICoreServerAPI sapi;
@@ -48,6 +56,7 @@ namespace VsQuest
 
         private long startShieldCallbackId;
         private readonly BossBehaviorUtils.LoopSound loopSoundPlayer = new BossBehaviorUtils.LoopSound();
+        private long particleCallbackId;
 
         private bool immobileDuringShield;
         private bool lockYawDuringShield;
@@ -95,6 +104,13 @@ namespace VsQuest
                         loopSound = stageObj["loopSound"].AsString(null),
                         loopSoundRange = stageObj["loopSoundRange"].AsFloat(24f),
                         loopSoundIntervalMs = stageObj["loopSoundIntervalMs"].AsInt(900),
+
+                        // Particle settings
+                        particleColorRgba = stageObj["particleColorRgba"].AsInt(0x6496DCFF), // Light blue default
+                        particleCountMin = stageObj["particleCountMin"].AsInt(3),
+                        particleCountMax = stageObj["particleCountMax"].AsInt(6),
+                        particleSize = stageObj["particleSize"].AsFloat(0.5f),
+                        particleLifeMs = stageObj["particleLifeMs"].AsInt(800),
                     };
 
                     if (stage.shieldMs <= 0) stage.shieldMs = 500;
@@ -212,6 +228,7 @@ namespace VsQuest
 
             TryPlaySound(stage);
             TryStartLoopSound(stage);
+            StartParticles(stage);
 
             if (immobileDuringShield)
             {
@@ -239,6 +256,7 @@ namespace VsQuest
         private void StopShield()
         {
             BossBehaviorUtils.UnregisterCallbackSafe(sapi, ref startShieldCallbackId);
+            BossBehaviorUtils.UnregisterCallbackSafe(sapi, ref particleCallbackId);
 
             shieldActive = false;
             immobileDuringShield = false;
@@ -350,6 +368,55 @@ namespace VsQuest
             if (string.IsNullOrWhiteSpace(stage.loopSound)) return;
 
             loopSoundPlayer.Start(sapi, entity, stage.loopSound, stage.loopSoundRange, stage.loopSoundIntervalMs);
+        }
+
+        private void StartParticles(ShieldStage stage)
+        {
+            if (sapi == null || entity == null || stage == null) return;
+            if (stage.particleCountMax <= 0) return;
+
+            SpawnShieldParticles(stage);
+
+            // Schedule recurring particles while shield is active
+            particleCallbackId = sapi.Event.RegisterCallback(_ =>
+            {
+                if (shieldActive && entity != null && entity.Alive)
+                {
+                    SpawnShieldParticles(stage);
+                    StartParticles(stage); // Re-register for next tick
+                }
+            }, 200); // Every 200ms
+        }
+
+        private void SpawnShieldParticles(ShieldStage stage)
+        {
+            if (sapi == null || entity == null || stage == null) return;
+
+            try
+            {
+                var pos = entity.ServerPos.XYZ.Add(0, 1.5, 0); // Center of boss
+
+                sapi.World.SpawnParticles(
+                    new SimpleParticleProperties(
+                        stage.particleCountMin,
+                        stage.particleCountMax,
+                        stage.particleColorRgba,
+                        pos.AddCopy(-0.5, -0.5, -0.5),
+                        pos.AddCopy(0.5, 0.5, 0.5),
+                        new Vec3f(-0.5f, 0.5f, -0.5f),
+                        new Vec3f(0.5f, 1.5f, 0.5f),
+                        stage.particleLifeMs / 1000f,
+                        0f,
+                        stage.particleSize,
+                        stage.particleSize,
+                        EnumParticleModel.Quad
+                    )
+                );
+            }
+            catch (Exception ex)
+            {
+                entity?.Api?.Logger?.Error($"[vsquest] Exception in SpawnShieldParticles: {ex}");
+            }
         }
     }
 }

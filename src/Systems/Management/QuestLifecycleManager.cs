@@ -123,10 +123,12 @@ namespace VsQuest
 
             QuestActionObjectiveCompletionUtil.ResetCompletionFlags(quest, fromPlayer);
 
-            var killTrackers = CreateTrackers(quest.killObjectives);
-            var blockPlaceTrackers = CreateTrackers(quest.blockPlaceObjectives);
-            var blockBreakTrackers = CreateTrackers(quest.blockBreakObjectives);
-            var interactTrackers = CreateTrackers(quest.interactObjectives);
+            // Use first stage objectives for multi-stage quests
+            var firstStage = quest.GetStage(0);
+            var killTrackers = CreateTrackers(firstStage?.killObjectives ?? quest.killObjectives);
+            var blockPlaceTrackers = CreateTrackers(firstStage?.blockPlaceObjectives ?? quest.blockPlaceObjectives);
+            var blockBreakTrackers = CreateTrackers(firstStage?.blockBreakObjectives ?? quest.blockBreakObjectives);
+            var interactTrackers = CreateTrackers(firstStage?.interactObjectives ?? quest.interactObjectives);
 
             var activeQuest = new ActiveQuest()
             {
@@ -174,13 +176,75 @@ namespace VsQuest
         {
             var playerQuests = getPlayerQuests(fromPlayer.PlayerUID);
             var activeQuest = playerQuests.Find(item => item.questId == message.questId);
-            
+
             if (activeQuest == null)
             {
                 sapi.Logger.Warning($"[alegacyvsquest] Player {fromPlayer.PlayerName} attempted to complete quest '{message.questId}' which is not active.");
                 return;
             }
-            
+
+            if (!questRegistry.TryGetValue(message.questId, out var quest))
+            {
+                sapi.Logger.Error($"[alegacyvsquest] Could not complete quest with id '{message.questId}' because it was not found in the QuestRegistry.");
+                return;
+            }
+
+            // Check if this is a multi-stage quest and we're not on the final stage
+            if (quest.HasStages && activeQuest.currentStageIndex < quest.StageCount - 1)
+            {
+                // Check if current stage is complete
+                if (activeQuest.IsCurrentStageCompletable(fromPlayer, quest))
+                {
+                    // Execute stage completion actions
+                    var currentStage = quest.GetStage(activeQuest.currentStageIndex);
+                    if (currentStage?.onStageCompleteActions != null)
+                    {
+                        foreach (var action in currentStage.onStageCompleteActions)
+                        {
+                            try
+                            {
+                                if (actionRegistry.TryGetValue(action.id, out var actionImpl))
+                                {
+                                    actionImpl.Execute(sapi, message, fromPlayer, action.args);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                sapi.Logger.Error($"[alegacyvsquest] Stage completion action {action.id} caused an error: {ex.Message}");
+                            }
+                        }
+                    }
+
+                    // Play stage complete sound if configured
+                    if (!string.IsNullOrEmpty(currentStage?.stageCompleteSound))
+                    {
+                        sapi.World.PlaySoundFor(new AssetLocation(currentStage.stageCompleteSound), fromPlayer, 1f, 32f, 1f);
+                    }
+
+                    // Advance to next stage
+                    activeQuest.AdvanceStage(quest);
+
+                    // Clear quest info cache and send updated info
+                    var questgiver = sapi.World.GetEntityById(message.questGiverId);
+                    if (questgiver != null)
+                    {
+                        var questGiverBehavior = questgiver.GetBehavior<EntityBehaviorQuestGiver>();
+                        questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
+                        questGiverBehavior?.SendQuestInfoMessageToClient(sapi, fromPlayer.Entity);
+                    }
+
+                    // Notify player
+                    sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup,
+                        LocalizationUtils.GetSafe("alegacyvsquest:stage-advanced"), EnumChatType.Notification);
+                }
+                else
+                {
+                    sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup,
+                        LocalizationUtils.GetSafe("alegacyvsquest:quest-could-not-complete"), EnumChatType.Notification);
+                }
+                return;
+            }
+
             if (activeQuest.IsCompletable(fromPlayer))
             {
                 activeQuest.completeQuest(fromPlayer);
@@ -224,18 +288,16 @@ namespace VsQuest
                     fromPlayer.Entity.WatchedAttributes.MarkPathDirty(chainKey);
                 }
 
-                if (questRegistry.TryGetValue(message.questId, out var quest))
-                {
-                    var key = String.Format("alegacyvsquest:lastaccepted-{0}", quest.id);
-                    fromPlayer.Entity.WatchedAttributes.SetDouble(key, sapi.World.Calendar.TotalDays);
-                    fromPlayer.Entity.WatchedAttributes.MarkPathDirty(key);
+                // Update last accepted timestamp using the already-resolved quest
+                var key = String.Format("alegacyvsquest:lastaccepted-{0}", quest.id);
+                fromPlayer.Entity.WatchedAttributes.SetDouble(key, sapi.World.Calendar.TotalDays);
+                fromPlayer.Entity.WatchedAttributes.MarkPathDirty(key);
 
-                    if (questgiver != null)
-                    {
-                        var legacyKey = quest.perPlayer ? String.Format("lastaccepted-{0}-{1}", quest.id, fromPlayer.PlayerUID) : String.Format("lastaccepted-{0}", quest.id);
-                        questgiver.WatchedAttributes.SetDouble(legacyKey, sapi.World.Calendar.TotalDays);
-                        questgiver.WatchedAttributes.MarkPathDirty(legacyKey);
-                    }
+                if (questgiver != null)
+                {
+                    var legacyKey = quest.perPlayer ? String.Format("lastaccepted-{0}-{1}", quest.id, fromPlayer.PlayerUID) : String.Format("lastaccepted-{0}", quest.id);
+                    questgiver.WatchedAttributes.SetDouble(legacyKey, sapi.World.Calendar.TotalDays);
+                    questgiver.WatchedAttributes.MarkPathDirty(legacyKey);
                 }
             }
             else

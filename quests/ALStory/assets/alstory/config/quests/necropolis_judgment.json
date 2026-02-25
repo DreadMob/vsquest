@@ -2,7 +2,7 @@
   "id": "alstory:necropolis_judgment",
   "cooldown": -1,
   "perPlayer": true,
-  "predecessor": "alstory:village_heart",
+  "predecessor": "alstory:last_breath_return",
   "onAcceptedActions": [
     {
       "id": "addjournalentry",
@@ -36,8 +36,7 @@
         "main",
         "final",
         "loran",
-        "loranboss",
-        "elrikreturn"
+        "loranboss"
       ]
     },
     {
@@ -62,35 +61,16 @@
     {
       "id": "killactiontarget",
       "objectiveId": "loranboss",
-      "onCompleteActions": "addplayerattribute alstory_nj_stage loranboss; addplayerint alstory:loranbosskilled 1 1 alstory:loranbosskilledonce; setglobalvariable alstory:necropolis_judgment_complete 1",
+      "onCompleteActions": "addjournalentry alstory:necropolis_judgment alstory:necropolis_judgment-journal-title alstory:necropolis_judgment-journal-step3; addplayerattribute alstory_nj_stage loranboss; addplayerint alstory:loranbosskilled 1 1 alstory:loranbosskilledonce; setglobalvariable alstory:necropolis_judgment_complete 1",
       "args": [
         "alstory:necropolis_judgment",
         "loranboss",
         "alstory:necropolis_judgment:loran",
         "1"
       ]
-    },
-    {
-      "id": "interactwithentity",
-      "objectiveId": "elrikreturn",
-      "onCompleteActions": "addplayerattribute alstory_nj_stage elrikreturn",
-      "args": [
-        "alstory:necropolis_judgment",
-        "alstory:elrik",
-        "1",
-        "dialog"
-      ]
     }
   ],
   "actionRewards": [
-    {
-      "id": "addjournalentry",
-      "args": [
-        "alstory:necropolis_judgment",
-        "alstory:necropolis_judgment-journal-title",
-        "alstory:necropolis_judgment-journal-step3"
-      ]
-    },
     {
       "id": "playsound",
       "args": [

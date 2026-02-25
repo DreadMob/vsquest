@@ -29,9 +29,7 @@
       {
         "code": "questgiver",
         "quests": [
-          "alstory:echo-proklyatiya",
-          "alstory:ritual-crystals",
-          "alstory:fallen-magister"
+          "alstory:last_breath_collect"
         ],
         "noAvailableQuestDescLangKey": "alstory:no-quest-available-elrik",
         "noAvailableQuestCooldownDescLangKey": "alstory:no-quest-available-elrik-cooldown",

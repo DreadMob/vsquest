@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -9,6 +10,65 @@ namespace VsQuest
 {
     public static class QuestProgressTextUtil
     {
+        /// <summary>
+        /// Strips HTML tags from a string.
+        /// </summary>
+        private static string StripHtmlTags(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return input;
+            return Regex.Replace(input, "<[^>]+>", string.Empty);
+        }
+        /// <summary>
+        /// Gets the display name for an item code, trying multiple localization patterns.
+        /// Also checks action items from the action item registry.
+        /// </summary>
+        private static string GetItemDisplayName(ICoreAPI api, string itemCode)
+        {
+            if (string.IsNullOrWhiteSpace(itemCode)) return itemCode;
+
+            // Try to get the item from the item registry
+            var item = api.World.GetItem(new AssetLocation(itemCode));
+            if (item != null)
+            {
+                return item.GetHeldItemName(new ItemStack(item));
+            }
+
+            // Try block if not an item
+            var block = api.World.GetBlock(new AssetLocation(itemCode));
+            if (block != null)
+            {
+                return block.GetHeldItemName(new ItemStack(block));
+            }
+
+            // Try action items from the action item registry
+            var itemSystem = api.ModLoader.GetModSystem<ItemSystem>();
+            if (itemSystem?.ActionItemRegistry != null && itemSystem.ActionItemRegistry.TryGetValue(itemCode, out var actionItem) && actionItem != null)
+            {
+                // Strip HTML tags from action item name to avoid color tag conflicts
+                string name = actionItem.name ?? itemCode;
+                return StripHtmlTags(name);
+            }
+
+            // Fallback: try localization keys directly
+            string normalized = itemCode.Replace(":", "-");
+            string langKey = $"item-{normalized}";
+            string result = LocalizationUtils.GetSafe(langKey);
+            if (!string.IsNullOrWhiteSpace(result) && !string.Equals(result, langKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return result;
+            }
+
+            // Try with game: prefix
+            langKey = $"game:item-{normalized}";
+            result = LocalizationUtils.GetSafe(langKey);
+            if (!string.IsNullOrWhiteSpace(result) && !string.Equals(result, langKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return result;
+            }
+
+            // Final fallback: return the code itself
+            return itemCode;
+        }
         public static string GetActiveQuestText(ICoreAPI api, IPlayer player, ActiveQuest quest)
         {
             var questSystem = api.ModLoader.GetModSystem<QuestSystem>();
@@ -20,6 +80,14 @@ namespace VsQuest
             string progressText = BuildProgressText(api, player, quest, questDef);
 
             string desc = LocalizationUtils.GetSafe(quest.questId + "-desc");
+
+            // Add stage information for multi-stage quests
+            string stageInfo = BuildStageInfo(quest, questDef);
+            if (!string.IsNullOrEmpty(stageInfo))
+            {
+                desc = $"{desc}<br><br><strong>{stageInfo}</strong>";
+            }
+
             if (string.IsNullOrEmpty(progressText))
             {
                 return desc;
@@ -28,6 +96,23 @@ namespace VsQuest
             {
                 return $"{desc}<br><br><strong>{LocalizationUtils.GetSafe("alegacyvsquest:progress-title")}</strong><br>{progressText}";
             }
+        }
+
+        /// <summary>
+        /// Builds stage header information for multi-stage quests
+        /// </summary>
+        private static string BuildStageInfo(ActiveQuest activeQuest, Quest questDef)
+        {
+            if (!questDef.HasStages) return null;
+
+            var stage = questDef.GetStage(activeQuest.currentStageIndex);
+            if (stage == null) return null;
+
+            string stageTitle = !string.IsNullOrEmpty(stage.stageTitleLangKey)
+                ? LocalizationUtils.GetSafe(stage.stageTitleLangKey)
+                : $"Stage {activeQuest.currentStageIndex + 1}/{questDef.StageCount}";
+
+            return $"► {stageTitle}";
         }
 
         private static string BuildProgressText(ICoreAPI api, IPlayer player, ActiveQuest activeQuest, Quest questDef)
@@ -194,7 +279,7 @@ namespace VsQuest
                     }
                 }
 
-                void AddProgressLines(List<Objective> objectives)
+                void AddProgressLines(List<Objective> objectives, bool isGather = false)
                 {
                     foreach (var objective in objectives)
                     {
@@ -203,23 +288,35 @@ namespace VsQuest
                             int have = progress[progressIndex++];
                             int need = objective.demand;
                             string code = objective.validCodes.FirstOrDefault() ?? "?";
-                            lines.Add($"- {ApplyPrefixes($"{MobLocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", null)}");
+                            string displayName = isGather
+                                ? GetItemDisplayName(api, code)
+                                : MobLocalizationUtils.GetMobDisplayName(code);
+                            lines.Add($"- {ApplyPrefixes($"{displayName}: {have}/{need}", null)}");
                         }
                     }
                 }
 
-                AddProgressLines(questDef.gatherObjectives);
-                AddProgressLines(questDef.killObjectives);
-                AddProgressLines(questDef.blockPlaceObjectives);
-                AddProgressLines(questDef.blockBreakObjectives);
-                AddProgressLines(questDef.interactObjectives);
+                // Use current stage objectives for multi-stage quests
+                var currentStage = questDef.GetStage(activeQuest.currentStageIndex);
+                if (currentStage != null)
+                {
+                    AddProgressLines(currentStage.gatherObjectives, isGather: true);
+                    AddProgressLines(currentStage.killObjectives, isGather: false);
+                    AddProgressLines(currentStage.blockPlaceObjectives, isGather: true);
+                    AddProgressLines(currentStage.blockBreakObjectives, isGather: true);
+                    AddProgressLines(currentStage.interactObjectives, isGather: false);
+                }
 
-                // Action objectives
-                if (questDef.actionObjectives != null)
+                // Action objectives - use current stage's action objectives for multi-stage quests
+                var actionObjectivesToProcess = questDef.HasStages
+                    ? (currentStage?.actionObjectives ?? new List<ActionWithArgs>())
+                    : questDef.actionObjectives;
+
+                if (actionObjectivesToProcess != null)
                 {
                     var questSystem = api.ModLoader.GetModSystem<QuestSystem>();
 
-                    foreach (var actionObjective in questDef.actionObjectives)
+                    foreach (var actionObjective in actionObjectivesToProcess)
                     {
                         if (actionObjective == null) continue;
                         if (string.IsNullOrWhiteSpace(actionObjective.id)) continue;

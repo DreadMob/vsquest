@@ -1,16 +1,35 @@
 {
   "actionItems": [
     {
-      "id": "alstory-note-rustprophet",
+      "id": "alstory-note-bellchest",
       "itemCode": "game:lore-scroll",
-      "name": "<font color=\"#F59E0B\">Записка: Проповедь Ржавого Пророка</font>",
-      "description": "<font color=\"#60A5FA\">Грубо написанные строки, пахнет медью и гнилью.\nИспользуй, чтобы прочитать.</font>",
-      "sourceQuestId": "alstory:forlornstories",
+      "name": "<font color=\"#F59E0B\">Записка: Треснувший колокол в моей груди</font>",
+      "description": "<font color=\"#60A5FA\">Дневник рыцаря Ордена. Почерк дрожащий, слова полны страха.\nИспользуй, чтобы прочитать.</font>",
+      "sourceQuestId": "alstory:last_breath_collect",
       "actions": [
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:forlornstories",
+            "alstory:last_breath_collect",
+            "alstory:lore-bellchest",
+            "note",
+            "Треснувший колокол в моей груди",
+            "Третий день наблюдений за «Живым шлемом». Лорэн называет это прорывом. Харган ликует, будто выковал новый мир. А я не могу отделаться от чувства… неправильности.\n\nОна стоит в святилище, эта броня. И не просто стоит. Она ждет. Ты чувствуешь ее взгляд, хотя у нее и нет глазниц, только щель. Когда к ней подносишь свечу, тень от нее шевелится не так, как должна. Самостоятельно.\n\nМы давали клятву Колоколу — звонить в час опасности, защищать безмолвных. Но разве наша сила должна быть… живой? Разве мы должны воевать чужим оружием?\n\nСегодня видел, как молодой оруженосец, чистый душой парень, убирался рядом с ней. Он побледнел и упал в обморок. Очнувшись, твердил, что слышал шепот. Шепот о «голоде» и «тишине».\n\nЯ боюсь, мы открыли дверь, за которой не свет. Мы хотели усилить Колокол, но что, если мы только треснули его? Что, если этот тихий звон, который я теперь слышу по ночам — не звон надежды, а предсмертный хрип?\n\n— Бренд."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alstory-note-rustprophet",
+      "itemCode": "game:lore-scroll",
+      "name": "<font color=\"#F59E0B\">Записка: Проповедь Ржавого Пророка</font>",
+      "description": "<font color=\"#60A5FA\">Грубо написанные строки, пахнет медью и гнилью.\nИспользуй, чтобы прочитать.</font>",
+      "sourceQuestId": "alstory:last_breath_collect",
+      "actions": [
+        {
+          "id": "addjournalentry",
+          "args": [
+            "alstory:last_breath_collect",
             "alstory:lore-rustprophet",
             "note",
             "Проповедь Ржавого Пророка",
@@ -44,7 +63,7 @@
       "itemCode": "game:armor-head-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Шлем Ордена Обречённых</font>",
       "description": "<font color=\"#60A5FA\">Ржавый металл и чёрные прожилки. Кажется, он дышит.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:last_breath_main",
+      "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
       "blockDrop": true,
@@ -62,7 +81,7 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:last_breath_main",
+            "alstory:last_breath_collect",
             "alstory:armor-found",
             "Доспехи Обречённых",
             "Найдена часть доспехов: Шлем.\n\nЧёрные прожилки пульсируют, будто в металле ещё живёт эхо клятвы."
@@ -75,7 +94,7 @@
       "itemCode": "game:armor-body-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Нагрудник Ордена Обречённых</font>",
       "description": "<font color=\"#60A5FA\">Тяжёлый нагрудник, испещрённый тёмными каналами.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:last_breath_main",
+      "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
       "blockDrop": true,
@@ -93,7 +112,7 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:last_breath_main",
+            "alstory:last_breath_collect",
             "alstory:armor-found",
             "Доспехи Обречённых",
             "Найдена часть доспехов: Нагрудник.\n\nОн тёплый, будто только что снят с живого тела."
@@ -106,7 +125,7 @@
       "itemCode": "game:armor-legs-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Поножи Ордена Обречённых</font>",
       "description": "<font color=\"#60A5FA\">Поножи, будто связаны с землёй невидимыми корнями.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:last_breath_main",
+      "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
       "blockDrop": true,
@@ -124,7 +143,7 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:last_breath_main",
+            "alstory:last_breath_collect",
             "alstory:armor-found",
             "Доспехи Обречённых",
             "Найдена часть доспехов: Поножи.\n\nВнутри слышится тихий звон — как треснувший колокол."
@@ -138,7 +157,7 @@
       "itemCode": "game:clothes-foot-forlorn-shoes",
       "name": "<font color=\"#8B5CF6\">Сабатоны Ордена Обречённых</font>",
       "description": "<font color=\"#60A5FA\">Тяжёлая обувь, будто приросшая к земле.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:last_breath_main",
+      "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
       "blockDrop": true,
@@ -156,7 +175,7 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:last_breath_main",
+            "alstory:last_breath_collect",
             "alstory:armor-found",
             "Доспехи Обречённых",
             "Найдена часть доспехов: Сабатоны.\n\nКамень под ногами на миг будто отвечает на их шаг."
@@ -235,11 +254,30 @@
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:forlornstories",
+            "alstory:necropolis_judgment",
             "alstory:lore-necropolisfragment",
             "note",
             "Фрагмент дневника",
             "...не могу вернуться. Видеть их глаза. Я слышу, как деревенский Камень стонет. Он слабеет. Значит, Илла...\n\n...я был слеп. Думал, что контролирую Гниль, но это она контролировала меня. Она предложила мне простое решение, а я, в отчаянии, схватился за него.\n\n...теперь я становлюсь частью этого некрополя. Камень и ржавчина. Это подходящая могила для того, кто похоронил своё человечество ради... ради чего?\n\n...прости. Всех. Прости..."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alstory-note-loranfinal",
+      "itemCode": "game:lore-scroll",
+      "name": "<font color=\"#F59E0B\">Последние мысли Лорэна</font>",
+      "description": "<font color=\"#60A5FA\">Записка, выпавшая из рук Падшего Магистра. Чернила ещё влажны.</font>",
+      "sourceQuestId": "alstory:necropolis_judgment",
+      "actions": [
+        {
+          "id": "addjournalentry",
+          "args": [
+            "alstory:necropolis_judgment",
+            "alstory:lore-loranfinal",
+            "note",
+            "Последние мысли Лорэна",
+            "Если ты читаешь это — я мёртв. Или, наконец, свободен.\n\nЯ обещал защитить её. Любой ценой. Но цена оказалась слишком высока — не для меня, а для тех, кого я обрек.\n\nИлла... прости. Я хотел спасти тебя, но спас лишь свою боль от потери. Ты заслуживала лучшего — не этого вечного полужизни, не этой музыки Гнили.\n\nТот, кто победил меня — он не герой. Он просто человек, который понял, что любая битва должна закончиться.\n\nДа падет занавес.\n\n— Л."
           ]
         }
       ]

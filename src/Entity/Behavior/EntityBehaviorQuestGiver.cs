@@ -300,7 +300,9 @@ namespace VsQuest
                 .Where(activeQuest => allQuestIds.Contains(activeQuest.questId))
                 .Select(aq =>
                 {
+                    var quest = questSystem.QuestRegistry.TryGetValue(aq.questId, out var q) ? q : null;
                     aq.IsCompletableOnClient = aq.IsCompletable(player.Player);
+                    aq.IsCurrentStageCompleteOnClient = quest?.HasStages == true && aq.IsCurrentStageCompletable(player.Player, quest);
                     aq.ProgressText = QuestProgressTextUtil.GetActiveQuestText(sapi, player.Player, aq);
                     return aq;
                 })
@@ -453,7 +455,11 @@ namespace VsQuest
             bool priorityLocked = false;
             foreach (var questId in selection)
             {
-                var quest = questSystem.QuestRegistry[questId];
+                if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null)
+                {
+                    sapi.Logger.Warning($"[alegacyvsquest] Quest '{questId}' referenced by questgiver {entity.EntityId} not found in QuestRegistry. Skipping.");
+                    continue;
+                }
 
                 var key = String.Format("alegacyvsquest:lastaccepted-{0}", questId);
                 double lastAccepted = player.WatchedAttributes.GetDouble(key, double.NaN);

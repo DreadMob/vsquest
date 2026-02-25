@@ -15,6 +15,9 @@
       "type": "talk",
       "text": [
         { "value": "alstory:dialogue-illa-stopmusic", "jumpTo": "stopmusic", "conditions": [ { "variable": "player.alstory_vh_stage", "isValue": "crystals" } ] },
+        { "value": "alstory:dialogue-illa-loransaved", "jumpTo": "loransaved", "conditions": [ { "variable": "player.alstory_vh_stage", "isValue": "crystals" } ] },
+        { "value": "alstory:dialogue-illa-feel", "jumpTo": "feel", "conditions": [ { "variable": "player.alstory_vh_stage", "isValue": "crystals" } ] },
+        { "value": "alstory:dialogue-illa-whatnow", "jumpTo": "whatnow", "conditions": [ { "variable": "player.alstory_vh_stage", "isValue": "crystals" } ] },
         { "value": "alstory:dialogue-illa-whereloran", "jumpTo": "whereloran" },
         { "value": "alstory:dialogue-illa-closechoice", "jumpTo": "close" }
       ]
@@ -26,6 +29,33 @@
       "trigger": "markentityinteraction alstory:village_heart alstory:illa illa; addplayerint alstory:illareward 1 1 alstory:illarewardonce; questitem alstory-armor-legs",
       "text": [
         { "value": "alstory:dialogue-illa-stopmusic-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "loransaved",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-illa-loransaved-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "feel",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-illa-feel-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "whatnow",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-illa-whatnow-answer" }
       ],
       "jumpTo": "main"
     },

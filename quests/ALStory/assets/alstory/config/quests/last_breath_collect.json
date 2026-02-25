@@ -1,0 +1,170 @@
+{
+  "id": "alstory:last_breath_collect",
+  "cooldown": -1,
+  "perPlayer": true,
+  "stages": [
+    {
+      "stageTitleLangKey": "alstory:last_breath_collect-stage1-title",
+      "gatherObjectives": [
+        {
+          "validCodes": ["alstory-armor-helm"],
+          "demand": 1
+        },
+        {
+          "validCodes": ["alstory-armor-chest"],
+          "demand": 1
+        }
+      ],
+      "killObjectives": [
+        {
+          "validCodes": ["alstory:alstory-eidolon-guardian"],
+          "demand": 1
+        },
+        {
+          "validCodes": ["alstory:bloodhand-clawchief"],
+          "demand": 1
+        }
+      ],
+      "onStageCompleteActions": [
+        {
+          "id": "playsound",
+          "args": ["sounds/tutorialstepsuccess"]
+        },
+        {
+          "id": "addjournalentry",
+          "args": ["alstory:last_breath_collect", "alstory:stage1-complete", "alstory:last_breath_collect-stage1-journal", "Две части доспехов собраны"]
+        },
+        {
+          "id": "setplayervariable",
+          "args": ["alstory:armorparts", "2"]
+        }
+      ]
+    },
+    {
+      "stageTitleLangKey": "alstory:last_breath_collect-stage2-title",
+      "actionObjectives": [
+        {
+          "id": "sequence",
+          "objectiveId": "village_heart_main",
+          "args": [
+            "alstory:last_breath_collect",
+            "village_heart",
+            "heinrich",
+            "village",
+            "crystal1",
+            "crystal2",
+            "crystal3",
+            "illa"
+          ]
+        },
+        {
+          "id": "interactwithentity",
+          "objectiveId": "heinrich",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-heinrich; questitem alstory-keepers-key; questitem alstory-ritual-crystalbreaker",
+          "args": [
+            "alstory:last_breath_collect",
+            "alstory:heinrich",
+            "1"
+          ]
+        },
+        {
+          "id": "interactwithentity",
+          "objectiveId": "village",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-village",
+          "args": [
+            "alstory:last_breath_collect",
+            "alstory:village_trigger",
+            "1"
+          ]
+        },
+        {
+          "id": "interactat",
+          "objectiveId": "crystal1",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-crystal1",
+          "args": [
+            "-1240,60,-12730"
+          ]
+        },
+        {
+          "id": "interactat",
+          "objectiveId": "crystal2",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-crystal2",
+          "args": [
+            "-1245,60,-12735"
+          ]
+        },
+        {
+          "id": "interactat",
+          "objectiveId": "crystal3",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-crystals; consumeactionitem alstory-ritual-crystalbreaker 1",
+          "args": [
+            "-1250,60,-12740"
+          ]
+        },
+        {
+          "id": "interactwithentity",
+          "objectiveId": "illa",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-illa; questitem alstory-armor-legs",
+          "args": [
+            "alstory:last_breath_collect",
+            "alstory:illa",
+            "1",
+            "dialog"
+          ]
+        }
+      ],
+      "onStageCompleteActions": [
+        {
+          "id": "playsound",
+          "args": ["sounds/tutorialstepsuccess"]
+        },
+        {
+          "id": "addjournalentry",
+          "args": ["alstory:last_breath_collect", "alstory:stage2-complete", "alstory:last_breath_collect-stage2-journal", "Все доспехи собраны"]
+        },
+        {
+          "id": "setplayervariable",
+          "args": ["alstory:armorparts", "3"]
+        }
+      ]
+    },
+    {
+      "stageTitleLangKey": "alstory:last_breath_collect-stage3-title",
+      "actionObjectives": [
+        {
+          "id": "interactwithentity",
+          "demand": 1,
+          "args": ["alstory:last_breath_collect", "alstory:elrik", "1"]
+        }
+      ],
+      "onStageCompleteActions": [
+        {
+          "id": "addjournalentry",
+          "args": ["alstory:last_breath_collect", "alstory:quest-complete", "alstory:last_breath_collect-complete-journal", "Квест завершен"]
+        }
+      ]
+    }
+  ],
+  "actionRewards": [
+    {
+      "id": "consumeactionitem",
+      "args": ["alstory-armor-helm", "1"]
+    },
+    {
+      "id": "consumeactionitem",
+      "args": ["alstory-armor-chest", "1"]
+    },
+    {
+      "id": "consumeactionitem",
+      "args": ["alstory-armor-legs", "1"]
+    },
+    {
+      "id": "giveactionitem",
+      "args": ["alstory-book-crackedbell", "1"]
+    },
+    {
+      "id": "playsound",
+      "args": ["sounds/tutorialstepsuccess"]
+    }
+  ]
+}

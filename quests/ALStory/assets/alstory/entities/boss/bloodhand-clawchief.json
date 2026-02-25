@@ -108,7 +108,28 @@
       },
       { "code": "bossrespawn", "respawnInGameHours": 24, "spawnNewBoss": false },
       { "code": "questtarget", "targetId": "alstory:echo-proklyatiya:clawchief", "leashRange": 80, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },
-      { "code": "floatupwhenstuck", "onlyWhenDead": true }
+      { "code": "floatupwhenstuck", "onlyWhenDead": true },
+      {
+        "code": "alegacyvsquest:questdropondeath",
+        "drops": [
+          {
+            "type": "actionitem",
+            "code": "alstory-armor-chest",
+            "quantity": { "avg": 1 },
+            "onlyIfQuestActive": "alstory:last_breath_collect",
+            "onlyOncePerQuest": true,
+            "variableKey": "chestplate_dropped"
+          },
+          {
+            "type": "actionitem",
+            "code": "alstory-note-rustprophet",
+            "quantity": { "avg": 1 },
+            "onlyIfQuestActive": "alstory:last_breath_collect",
+            "onlyOncePerQuest": true,
+            "variableKey": "rustprophet_dropped"
+          }
+        ]
+      }
     ]
   },
   "idleSoundRange": 32,

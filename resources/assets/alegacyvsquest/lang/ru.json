@@ -6,7 +6,9 @@
     "button-cancel": "Закрыть",
     "button-accept": "Принять",
     "button-complete": "Готово",
+    "button-continue": "Продолжить",
     "button-open-quiz": "Экзамен",
+    "stage-advanced": "Этап завершен! Новые цели доступны.",
     "no-quest-available-desc": "Мне сейчас не нужна твоя помощь.",
     "no-quest-active-desc": "Не припоминаю, чтобы мы о чем-то договаривались...",
     "journal-title": "Журнал квестов",
@@ -145,5 +147,9 @@
     "alegacyvsquest:block-ashfloor": "Пепельный пол",
     "block-alegacyvsquest:bosshuntarena": "Арена охоты на боссов",
     "block-alegacyvsquest:ashfloor": "Пепельный пол",
-    "block-alegacyvsquest:temporalriftprojector": "Проектор темпорального разлома"
+    "block-alegacyvsquest:temporalriftprojector": "Проектор темпорального разлома",
+    "alegacyvsquest:stage-complete": "Этап завершён",
+    "alegacyvsquest:stage-complete-message": "Этап {0} завершён! Открылся следующий этап.",
+    "alegacyvsquest:quest-complete": "Квест завершён",
+    "alegacyvsquest:quest-complete-message": "Квест '{0}' успешно завершён!"
 }

@@ -109,7 +109,12 @@ namespace VsQuest
         public List<EventTracker> blockBreakTrackers { get; set; } = new List<EventTracker>();
         public List<EventTracker> interactTrackers { get; set; } = new List<EventTracker>();
         public bool IsCompletableOnClient { get; set; }
+        public bool IsCurrentStageCompleteOnClient { get; set; }
         public string ProgressText { get; set; }
+
+        // Stage system properties
+        public int currentStageIndex { get; set; } = 0;
+        public List<int> completedStageIndices { get; set; } = new List<int>();
 
         private const int LastInteractDebounceMs = 100;
 
@@ -146,7 +151,11 @@ namespace VsQuest
 
             if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "kill")) return;
 
-            if (killTrackers == null || killTrackers.Count == 0 || quest.killObjectives == null || quest.killObjectives.Count == 0)
+            // Use current stage objectives for multi-stage quests
+            var currentStage = quest.GetStage(currentStageIndex);
+            var killObjectives = currentStage?.killObjectives ?? quest.killObjectives;
+
+            if (killTrackers == null || killTrackers.Count == 0 || killObjectives == null || killObjectives.Count == 0)
             {
                 return;
             }
@@ -166,12 +175,12 @@ namespace VsQuest
             float completeVolume = quest.killObjectiveCompleteSoundVolume
                 ?? (questSystem?.Config?.killObjectiveCompleteSoundVolume ?? 0.7f);
 
-            int count = Math.Min(killTrackers.Count, quest.killObjectives.Count);
+            int count = Math.Min(killTrackers.Count, killObjectives.Count);
             for (int i = 0; i < count; i++)
             {
                 var tracker = killTrackers[i];
 
-                var objective = quest.killObjectives[i];
+                var objective = killObjectives[i];
                 if (tracker == null || objective == null) continue;
 
                 if (!trackerMatches(tracker, entityCode)) continue;
@@ -213,7 +222,11 @@ namespace VsQuest
 
             if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "blockplace")) return;
 
-            checkEventTrackers(blockPlaceTrackers, blockCode, position, quest.blockPlaceObjectives);
+            // Use current stage objectives for multi-stage quests
+            var currentStage = quest.GetStage(currentStageIndex);
+            var blockPlaceObjectives = currentStage?.blockPlaceObjectives ?? quest.blockPlaceObjectives;
+
+            checkEventTrackers(blockPlaceTrackers, blockCode, position, blockPlaceObjectives);
         }
 
         public void OnBlockBroken(string blockCode, int[] position, IPlayer byPlayer)
@@ -226,7 +239,11 @@ namespace VsQuest
 
             if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "blockbreak")) return;
 
-            checkEventTrackers(blockBreakTrackers, blockCode, position, quest.blockBreakObjectives);
+            // Use current stage objectives for multi-stage quests
+            var currentStage = quest.GetStage(currentStageIndex);
+            var blockBreakObjectives = currentStage?.blockBreakObjectives ?? quest.blockBreakObjectives;
+
+            checkEventTrackers(blockBreakTrackers, blockCode, position, blockBreakObjectives);
         }
 
         public void OnBlockUsed(string blockCode, int[] position, IPlayer byPlayer, ICoreServerAPI sapi)
@@ -329,16 +346,20 @@ namespace VsQuest
 
             if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "interact")) return;
 
+            // Use current stage objectives for multi-stage quests
+            var currentStage = quest.GetStage(currentStageIndex);
+            var interactObjectives = currentStage?.interactObjectives ?? quest.interactObjectives;
+
             var serverPlayer = byPlayer as IServerPlayer;
             if (serverPlayer != null)
             {
                 QuestInteractAtUtil.TryHandleInteractAtObjectives(quest, this, serverPlayer, position, sapi);
             }
 
-            checkEventTrackers(interactTrackers, blockCode, position, quest.interactObjectives);
-            for (int i = 0; i < quest.interactObjectives.Count; i++)
+            checkEventTrackers(interactTrackers, blockCode, position, interactObjectives);
+            for (int i = 0; i < interactObjectives.Count; i++)
             {
-                var objective = quest.interactObjectives[i];
+                var objective = interactObjectives[i];
 
                 bool matches = QuestObjectiveMatchUtil.InteractObjectiveMatches(objective, blockCode, position);
                 if (!matches) continue;
@@ -497,11 +518,117 @@ namespace VsQuest
             }
         }
 
+        /// <summary>
+        /// Gets the current stage for this quest. Returns null if quest not found.
+        /// </summary>
+        public QuestStage GetCurrentStage(Quest quest)
+        {
+            if (quest == null) return null;
+            return quest.GetStage(currentStageIndex);
+        }
+
+        /// <summary>
+        /// Checks if the current stage is completable (not the entire quest)
+        /// </summary>
+        public bool IsCurrentStageCompletable(IPlayer byPlayer, Quest quest)
+        {
+            var stage = GetCurrentStage(quest);
+            if (stage == null) return false;
+
+            var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
+            if (questSystem?.ActionObjectiveRegistry == null) return false;
+
+            var activeActionObjectives = stage.actionObjectives?.ConvertAll<ActionObjectiveBase>(
+                objective => questSystem.ActionObjectiveRegistry.TryGetValue(objective.id, out var impl) ? impl : null
+            ) ?? new List<ActionObjectiveBase>();
+
+            bool completable = true;
+
+            // Ensure trackers exist for current stage objectives
+            while (blockPlaceTrackers.Count < stage.blockPlaceObjectives.Count)
+            {
+                blockPlaceTrackers.Add(new EventTracker());
+            }
+            while (blockBreakTrackers.Count < stage.blockBreakObjectives.Count)
+            {
+                blockBreakTrackers.Add(new EventTracker());
+            }
+            while (killTrackers.Count < stage.killObjectives.Count)
+            {
+                killTrackers.Add(new EventTracker());
+            }
+            while (interactTrackers.Count < stage.interactObjectives.Count)
+            {
+                interactTrackers.Add(new EventTracker());
+            }
+
+            for (int i = 0; i < stage.blockPlaceObjectives.Count; i++)
+            {
+                if (stage.blockPlaceObjectives[i].positions != null && stage.blockPlaceObjectives[i].positions.Count > 0)
+                {
+                    completable &= stage.blockPlaceObjectives[i].positions.Count <= blockPlaceTrackers[i].placedPositions.Count;
+                }
+                else
+                {
+                    completable &= stage.blockPlaceObjectives[i].demand <= blockPlaceTrackers[i].count;
+                }
+            }
+            for (int i = 0; i < stage.blockBreakObjectives.Count; i++)
+            {
+                completable &= stage.blockBreakObjectives[i].demand <= blockBreakTrackers[i].count;
+            }
+            for (int i = 0; i < stage.interactObjectives.Count; i++)
+            {
+                if (stage.interactObjectives[i].positions != null && stage.interactObjectives[i].positions.Count > 0)
+                {
+                    int demand = stage.interactObjectives[i].demand > 0 ? stage.interactObjectives[i].demand : stage.interactObjectives[i].positions.Count;
+                    completable &= demand <= interactTrackers[i].count;
+                }
+                else
+                {
+                    completable &= stage.interactObjectives[i].demand <= interactTrackers[i].count;
+                }
+            }
+            for (int i = 0; i < stage.killObjectives.Count; i++)
+            {
+                completable &= stage.killObjectives[i].demand <= killTrackers[i].count;
+            }
+            foreach (var gatherObjective in stage.gatherObjectives)
+            {
+                int itemsFound = itemsGathered(byPlayer, gatherObjective, stage.gatherObjectives.IndexOf(gatherObjective));
+                completable &= itemsFound >= gatherObjective.demand;
+            }
+            for (int i = 0; i < activeActionObjectives.Count; i++)
+            {
+                if (activeActionObjectives[i] != null)
+                {
+                    completable &= activeActionObjectives[i].IsCompletable(byPlayer, stage.actionObjectives[i].args);
+                }
+            }
+            return completable;
+        }
+
+        /// <summary>
+        /// Checks if the entire quest is completable (all stages complete)
+        /// </summary>
         public bool IsCompletable(IPlayer byPlayer)
         {
             var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return false;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return false;
+
+            // If quest has stages, check if we're on the final stage and it's complete
+            if (quest.HasStages)
+            {
+                // Quest is completable only when on the last stage and that stage is complete
+                if (currentStageIndex < quest.stages.Count - 1)
+                {
+                    return false;
+                }
+                return IsCurrentStageCompletable(byPlayer, quest);
+            }
+
+            // Legacy quest (no stages) - use original logic
             var activeActionObjectives = quest.actionObjectives.ConvertAll<ActionObjectiveBase>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
             bool completable = true;
 
@@ -565,18 +692,68 @@ namespace VsQuest
             return completable;
         }
 
+        /// <summary>
+        /// Advances to the next stage. Returns true if advanced, false if already on final stage.
+        /// </summary>
+        public bool AdvanceStage(Quest quest)
+        {
+            if (quest == null) return false;
+
+            // Mark current stage as completed
+            if (!completedStageIndices.Contains(currentStageIndex))
+            {
+                completedStageIndices.Add(currentStageIndex);
+            }
+
+            // Check if there's a next stage
+            if (currentStageIndex >= quest.StageCount - 1)
+            {
+                return false; // Already on final stage
+            }
+
+            // Advance to next stage
+            currentStageIndex++;
+
+            // Reset trackers for new stage
+            killTrackers.Clear();
+            blockPlaceTrackers.Clear();
+            blockBreakTrackers.Clear();
+            interactTrackers.Clear();
+            gatherCache.Clear();
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if all stages are complete (quest can be turned in)
+        /// </summary>
+        public bool AreAllStagesComplete(IPlayer byPlayer, Quest quest)
+        {
+            if (quest == null) return false;
+            if (!quest.HasStages) return IsCompletable(byPlayer);
+
+            // On final stage and it's complete
+            return currentStageIndex >= quest.stages.Count - 1 && IsCurrentStageCompletable(byPlayer, quest);
+        }
+
         public void completeQuest(IPlayer byPlayer)
         {
             var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
-            foreach (var gatherObjective in quest.gatherObjectives)
+
+            // Use current stage objectives for multi-stage quests
+            var currentStage = quest.GetStage(currentStageIndex);
+            var gatherObjectives = currentStage?.gatherObjectives ?? quest.gatherObjectives;
+            var blockPlaceObjectives = currentStage?.blockPlaceObjectives ?? quest.blockPlaceObjectives;
+
+            foreach (var gatherObjective in gatherObjectives)
             {
                 handOverItems(byPlayer, gatherObjective);
             }
-            for (int i = 0; i < quest.blockPlaceObjectives.Count; i++)
+            for (int i = 0; i < blockPlaceObjectives.Count; i++)
             {
-                if (quest.blockPlaceObjectives[i].removeAfterFinished && i < blockPlaceTrackers.Count)
+                if (blockPlaceObjectives[i].removeAfterFinished && i < blockPlaceTrackers.Count)
                 {
                     int maxRemovals = 100;
                     int removed = 0;
@@ -608,10 +785,15 @@ namespace VsQuest
             var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return new List<int>();
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return new List<int>();
+
+            // Use current stage objectives for multi-stage quests
+            var currentStage = quest.GetStage(currentStageIndex);
+            var gatherObjectives = currentStage?.gatherObjectives ?? quest.gatherObjectives;
+
             var result = new List<int>();
-            for (int i = 0; i < quest.gatherObjectives.Count; i++)
+            for (int i = 0; i < gatherObjectives.Count; i++)
             {
-                result.Add(itemsGathered(byPlayer, quest.gatherObjectives[i], i));
+                result.Add(itemsGathered(byPlayer, gatherObjectives[i], i));
             }
             return result;
         }
@@ -621,14 +803,19 @@ namespace VsQuest
             var questSystem = QuestSystemCache.GetFromEntity(byPlayer.Entity);
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return new List<int>();
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return new List<int>();
-            var activeActionObjectives = quest.actionObjectives.ConvertAll<ActionObjectiveBase>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
+
+            // Use current stage objectives for multi-stage quests
+            var currentStage = quest.GetStage(currentStageIndex);
+            var actionObjectives = currentStage?.actionObjectives ?? quest.actionObjectives;
+
+            var activeActionObjectives = actionObjectives.ConvertAll<ActionObjectiveBase>(objective => questSystem.ActionObjectiveRegistry[objective.id]);
 
             var result = gatherProgress(byPlayer);
             result.AddRange(trackerProgress());
 
             for (int i = 0; i < activeActionObjectives.Count; i++)
             {
-                result.AddRange(activeActionObjectives[i].GetProgress(byPlayer, quest.actionObjectives[i].args));
+                result.AddRange(activeActionObjectives[i].GetProgress(byPlayer, actionObjectives[i].args));
             }
 
             return result;
@@ -668,12 +855,25 @@ namespace VsQuest
         {
             if (slot.Empty) return false;
 
-            var code = slot.Itemstack.Collectible.Code.Path;
+            var stack = slot.Itemstack;
+            var code = stack.Collectible.Code.Path;
+
             foreach (var candidate in gatherObjective.validCodes)
             {
+                // Check base item code
                 if (candidate == code || candidate.EndsWith("*") && code.StartsWith(candidate.Remove(candidate.Length - 1)))
                 {
                     return true;
+                }
+
+                // Check action item ID from attributes
+                if (stack.Attributes != null)
+                {
+                    string actionItemId = stack.Attributes.GetString(ItemAttributeUtils.ActionItemIdKey);
+                    if (!string.IsNullOrWhiteSpace(actionItemId) && actionItemId.Equals(candidate, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
                 }
             }
             return false;

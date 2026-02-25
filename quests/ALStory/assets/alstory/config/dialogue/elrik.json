@@ -16,20 +16,12 @@
       "text": [
         { "value": "alstory:dialogue-elrik-who", "jumpTo": "who" },
         { "value": "alstory:dialogue-elrik-what", "jumpTo": "what" },
-        { "value": "alstory:dialogue-elrik-return", "jumpTo": "return", "conditions": [ { "variable": "player.alstory_nj_stage", "isValue": "loranboss" } ] },
+        { "value": "alstory:dialogue-elrik-order", "jumpTo": "order" },
+        { "value": "alstory:dialogue-elrik-return-armor", "jumpTo": "return_armor", "conditions": [ { "variable": "player.alstory:armorparts", "isValue": "3" }, { "variable": "questcompleted.alstory:last_breath_collect", "isValue": "1" }, { "variable": "questactive.alstory:last_breath_return", "isValue": "1" } ] },
+        { "value": "alstory:dialogue-elrik-return-finale", "jumpTo": "return_finale", "conditions": [ { "variable": "global.alstory:necropolis_judgment_complete", "isValue": "1" }, { "variable": "questactive.alstory:last_breath_finale", "isValue": "1" } ] },
         { "value": "alstory:dialogue-elrik-quests", "jumpTo": "openquests" },
         { "value": "alstory:dialogue-elrik-closechoice", "jumpTo": "close" }
       ]
-    },
-    {
-      "code": "return",
-      "owner": "npc",
-      "type": "talk",
-      "trigger": "markentityinteraction alstory:necropolis_judgment alstory:elrik elrikreturn alstory:loranbosskilled 1",
-      "text": [
-        { "value": "alstory:dialogue-elrik-return-answer" }
-      ],
-      "jumpTo": "main"
     },
     {
       "code": "who",
@@ -46,6 +38,35 @@
       "type": "talk",
       "text": [
         { "value": "alstory:dialogue-elrik-what-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "order",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-elrik-order-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "return_armor",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "markentityinteraction alstory:last_breath_return alstory:elrik elrik_return",
+      "text": [
+        { "value": "alstory:dialogue-elrik-return-armor-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "return_finale",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "markentityinteraction alstory:last_breath_finale alstory:elrik elrik_finale",
+      "text": [
+        { "value": "alstory:dialogue-elrik-return-finale-answer" }
       ],
       "jumpTo": "main"
     },

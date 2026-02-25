@@ -506,10 +506,127 @@ namespace VsQuest
             ClearPerQuestPlayerState(player, questId);
             ClearKillActionTargetProgressForQuest(questSystem, player, questId);
             ClearActionObjectiveCompletionFlagsForQuest(questSystem, player, questId);
+            ClearQuestStageData(player, questId);
+            ClearBossDropVariables(player, questId);
             RemoveQuestFromCompletedList(player, questId);
 
             questSystem.SavePlayerQuests(player.PlayerUID, quests);
             return removed;
+        }
+
+        private static void ClearBossDropVariables(IServerPlayer player, string questId)
+        {
+            if (player?.Entity?.WatchedAttributes == null) return;
+            if (string.IsNullOrWhiteSpace(questId)) return;
+
+            var wa = player.Entity.WatchedAttributes;
+
+            // Clear all boss drop variables for this specific quest
+            // New format: alstory:questvars:{questId}:{variableKey}
+            // This automatically clears all drops related to the quest being reset
+            try
+            {
+                string questVarPrefix = $"alstory:questvars:{questId}:";
+
+                // Dynamic approach: check for any variables that start with the quest prefix
+                // Since Vintage Story's WatchedAttributes doesn't expose all keys,
+                // we iterate through possible patterns
+
+                // Pattern 1: drop_{itemCode} - auto-generated from item code
+                // Pattern 2: custom variableKey from JSON config
+
+                // Get all loaded entities to find possible drop configurations
+                var sapi = player.Entity.Api as ICoreServerAPI;
+                if (sapi != null)
+                {
+                    var entities = sapi.World.LoadedEntities?.Values;
+                    if (entities != null)
+                    {
+                        var processedCodes = new HashSet<string>();
+
+                        foreach (var entity in entities)
+                        {
+                            if (entity == null) continue;
+
+                            var dropBehavior = entity.GetBehavior<EntityBehaviorQuestDropOnDeath>();
+                            if (dropBehavior == null) continue;
+
+                            // Get drops from the behavior using reflection since they're private
+                            var dropsField = typeof(EntityBehaviorQuestDropOnDeath).GetField("drops", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                            if (dropsField == null) continue;
+
+                            var drops = dropsField.GetValue(dropBehavior) as Array;
+                            if (drops == null) continue;
+
+                            foreach (var drop in drops)
+                            {
+                                if (drop == null) continue;
+
+                                // Get drop properties using reflection
+                                var codeProp = drop.GetType().GetField("code");
+                                var questProp = drop.GetType().GetField("onlyIfQuestActive");
+                                var varKeyProp = drop.GetType().GetField("variableKey");
+
+                                string dropCode = codeProp?.GetValue(drop) as string;
+                                string dropQuest = questProp?.GetValue(drop) as string;
+                                string varKey = varKeyProp?.GetValue(drop) as string;
+
+                                // Only process drops for this quest
+                                if (dropQuest != questId) continue;
+
+                                // Build the variable key the same way as EntityBehaviorQuestDropOnDeath
+                                string variableKey = !string.IsNullOrWhiteSpace(varKey)
+                                    ? varKey
+                                    : $"drop_{dropCode?.Replace(":", "_")}";
+
+                                if (!string.IsNullOrWhiteSpace(variableKey) && !processedCodes.Contains(variableKey))
+                                {
+                                    processedCodes.Add(variableKey);
+                                    string fullKey = questVarPrefix + variableKey;
+
+                                    if (wa.HasAttribute(fullKey))
+                                    {
+                                        wa.RemoveAttribute(fullKey);
+                                        wa.MarkPathDirty(fullKey);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Fallback: also check for numbered drop variables (drop_0, drop_1, etc.)
+                for (int i = 0; i < 100; i++)
+                {
+                    string dynamicKey = $"{questVarPrefix}drop_{i}";
+                    if (wa.HasAttribute(dynamicKey))
+                    {
+                        wa.RemoveAttribute(dynamicKey);
+                        wa.MarkPathDirty(dynamicKey);
+                    }
+                }
+            }
+            catch
+            {
+                // Best effort - if we can't clear them, the worst case is drops don't repeat
+            }
+        }
+
+        private static void ClearQuestStageData(IServerPlayer player, string questId)
+        {
+            if (player?.Entity?.WatchedAttributes == null) return;
+            if (string.IsNullOrWhiteSpace(questId)) return;
+
+            var wa = player.Entity.WatchedAttributes;
+
+            // Clear stage-related data for multi-stage quests
+            string stageIndexKey = $"alegacyvsquest:quest:{questId}:currentstage";
+            string completedStagesKey = $"alegacyvsquest:quest:{questId}:completedstages";
+
+            wa.RemoveAttribute(stageIndexKey);
+            wa.MarkPathDirty(stageIndexKey);
+            wa.RemoveAttribute(completedStagesKey);
+            wa.MarkPathDirty(completedStagesKey);
         }
 
         public static bool ForgetQuestForPlayer(QuestSystem questSystem, IServerPlayer player, string questId)
@@ -609,6 +726,8 @@ namespace VsQuest
                     ClearPerQuestPlayerState(player, questId);
                     ClearKillActionTargetProgressForQuest(questSystem, player, questId);
                     ClearActionObjectiveCompletionFlagsForQuest(questSystem, player, questId);
+                    ClearQuestStageData(player, questId);
+                    ClearBossDropVariables(player, questId);
                 }
 
                 // Clear reputation values + any related one-time claim flags.

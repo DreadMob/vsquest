@@ -14,6 +14,39 @@ namespace VsQuest
         public float killObjectiveCompleteSoundVolume { get; set; } = 1.2f;
         public bool ShowCustomBossDeathMessage { get; set; } = false;
     }
+
+    /// <summary>
+    /// Represents a single stage within a quest.
+    /// Quests can have multiple stages that unlock sequentially.
+    /// </summary>
+    public class QuestStage
+    {
+        /// <summary>
+        /// Language key for the stage title displayed in progress text
+        /// </summary>
+        public string stageTitleLangKey { get; set; }
+
+        /// <summary>
+        /// Objectives that must be completed to finish this stage
+        /// </summary>
+        public List<Objective> gatherObjectives { get; set; } = new List<Objective>();
+        public List<Objective> killObjectives { get; set; } = new List<Objective>();
+        public List<Objective> blockPlaceObjectives { get; set; } = new List<Objective>();
+        public List<Objective> blockBreakObjectives { get; set; } = new List<Objective>();
+        public List<Objective> interactObjectives { get; set; } = new List<Objective>();
+        public List<ActionWithArgs> actionObjectives { get; set; } = new List<ActionWithArgs>();
+
+        /// <summary>
+        /// Actions executed when this stage is completed (before advancing to next stage)
+        /// </summary>
+        public List<ActionWithArgs> onStageCompleteActions { get; set; } = new List<ActionWithArgs>();
+
+        /// <summary>
+        /// Sound played when stage is completed
+        /// </summary>
+        public string stageCompleteSound { get; set; }
+    }
+
     public class Quest
     {
         public string id { get; set; }
@@ -25,16 +58,59 @@ namespace VsQuest
         public float? killObjectiveCompleteSoundPitch { get; set; }
         public float? killObjectiveCompleteSoundVolume { get; set; }
         public List<ActionWithArgs> onAcceptedActions { get; set; } = new List<ActionWithArgs>();
+
+        // Legacy objectives (for backward compatibility - treated as single stage)
         public List<Objective> gatherObjectives { get; set; } = new List<Objective>();
         public List<Objective> killObjectives { get; set; } = new List<Objective>();
         public List<Objective> blockPlaceObjectives { get; set; } = new List<Objective>();
         public List<Objective> blockBreakObjectives { get; set; } = new List<Objective>();
         public List<Objective> interactObjectives { get; set; } = new List<Objective>();
         public List<ActionWithArgs> actionObjectives { get; set; } = new List<ActionWithArgs>();
+
+        /// <summary>
+        /// Quest stages for multi-stage quests. When populated, legacy objective lists are ignored.
+        /// </summary>
+        public List<QuestStage> stages { get; set; } = new List<QuestStage>();
+
         public List<ItemReward> itemRewards { get; set; } = new List<ItemReward>();
         public RandomItemReward randomItemRewards { get; set; } = new RandomItemReward();
         public List<ActionWithArgs> actionRewards { get; set; } = new List<ActionWithArgs>();
         public List<QuestReputationRequirement> reputationRequirements { get; set; } = new List<QuestReputationRequirement>();
+
+        /// <summary>
+        /// Returns true if this quest uses the new stage system
+        /// </summary>
+        public bool HasStages => stages != null && stages.Count > 0;
+
+        /// <summary>
+        /// Gets the objectives for a specific stage, or legacy objectives if no stages defined
+        /// </summary>
+        public QuestStage GetStage(int stageIndex)
+        {
+            if (HasStages && stageIndex >= 0 && stageIndex < stages.Count)
+            {
+                return stages[stageIndex];
+            }
+            if (stageIndex == 0)
+            {
+                // Return legacy objectives as a synthetic stage
+                return new QuestStage
+                {
+                    gatherObjectives = gatherObjectives ?? new List<Objective>(),
+                    killObjectives = killObjectives ?? new List<Objective>(),
+                    blockPlaceObjectives = blockPlaceObjectives ?? new List<Objective>(),
+                    blockBreakObjectives = blockBreakObjectives ?? new List<Objective>(),
+                    interactObjectives = interactObjectives ?? new List<Objective>(),
+                    actionObjectives = actionObjectives ?? new List<ActionWithArgs>()
+                };
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the total number of stages (1 for legacy quests)
+        /// </summary>
+        public int StageCount => HasStages ? stages.Count : 1;
     }
 
     public class Objective
