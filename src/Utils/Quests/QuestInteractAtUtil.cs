@@ -13,15 +13,30 @@ namespace VsQuest
         /// <summary>
         /// Checks if player is holding the required item in active hotbar slot
         /// </summary>
-        private static bool IsHoldingItem(IServerPlayer player, string itemCode)
+        private static bool IsHoldingItem(IServerPlayer player, string requiredCodeOrActionItemId)
         {
             if (player?.InventoryManager == null) return false;
-            if (string.IsNullOrWhiteSpace(itemCode)) return true;
+            if (string.IsNullOrWhiteSpace(requiredCodeOrActionItemId)) return true;
 
             var slot = player.InventoryManager.ActiveHotbarSlot;
-            if (slot?.Itemstack?.Item?.Code == null) return false;
+            if (slot?.Itemstack == null) return false;
 
-            return slot.Itemstack.Item.Code.ToString().Equals(itemCode, StringComparison.OrdinalIgnoreCase);
+            // 1) Vanilla item code check (e.g. game:amethyst)
+            if (slot.Itemstack.Item?.Code != null
+                && slot.Itemstack.Item.Code.ToString().Equals(requiredCodeOrActionItemId, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            // 2) Action item id check (e.g. alstory-keepers-key)
+            string actionItemId = slot.Itemstack.Attributes?.GetString(ItemAttributeUtils.ActionItemIdKey);
+            if (!string.IsNullOrWhiteSpace(actionItemId)
+                && actionItemId.Equals(requiredCodeOrActionItemId, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public static bool TryParsePos(string coordString, out int x, out int y, out int z)

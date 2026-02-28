@@ -75,7 +75,7 @@
       "objectiveId": "crystal1",
       "onCompleteActions": "addplayerint alstory:ritualcrystals 1 3; cooldownblock 240 '-1240,60,-12730'; addjournalentry alstory:village_heart alstory:village_heart-journal-title alstory:village_heart-journal-crystal1",
       "args": [
-        "-1240,60,-12730",
+        "512000,4,512000",
         "alstory-keepers-key"
       ],
       "description": "Уничтожить кристалл на краю деревни (нужно держать Ключ Хранителя)"
@@ -85,7 +85,7 @@
       "objectiveId": "crystal2",
       "onCompleteActions": "addplayerint alstory:ritualcrystals 1 3; cooldownblock 240 '-1245,60,-12735'; addjournalentry alstory:village_heart alstory:village_heart-journal-title alstory:village_heart-journal-crystal2",
       "args": [
-        "-1245,60,-12735",
+        "512000,5,512000",
         "alstory-keepers-key"
       ],
       "description": "Уничтожить кристалл в расщелине у жертвенного камня (нужно держать Ключ Хранителя)"
@@ -95,7 +95,7 @@
       "objectiveId": "crystal3",
       "onCompleteActions": "addplayerint alstory:ritualcrystals 1 3; cooldownblock 240 '-1250,60,-12740'; addjournalentry alstory:village_heart alstory:village_heart-journal-title alstory:village_heart-journal-crystal3",
       "args": [
-        "-1250,60,-12740",
+        "512000,6,512000",
         "alstory-keepers-key"
       ],
       "description": "Уничтожить кристалл в одном из домов деревни (нужно держать Ключ Хранителя)"
@@ -105,9 +105,10 @@
       "objectiveId": "crystals",
       "onCompleteActions": "addjournalentry alstory:village_heart alstory:village_heart-journal-title alstory:village_heart-journal-step2; addplayerattribute alstory_vh_stage crystals; consumeactionitem alstory-ritual-crystalbreaker 1",
       "args": [
-        "-1240,60,-12730",
-        "-1245,60,-12735",
-        "-1250,60,-12740"
+        "512000,4,512000",
+        "512000,5,512000",
+        "512000,6,512000",
+        ""
       ]
     },
     {

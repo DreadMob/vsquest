@@ -197,7 +197,7 @@
     },
     {
       "id": "alstory-keepers-key",
-      "itemCode": "game:golden-key",
+      "itemCode": "game:stick",
       "name": "<font color=\"#F59E0B\">Ключ хранителя</font>",
       "description": "<font color=\"#60A5FA\">Старый ключ от всех дверей в деревне.\nОткрывает доступ к подвалам мельницы, кузницы и школы.</font>",
       "sourceQuestId": "alstory:village_heart",
