@@ -15,16 +15,29 @@ namespace VsQuest
         private readonly Dictionary<string, IQuestAction> actionRegistry;
         private readonly ICoreAPI api;
 
-        private static string BuildQuestHoverText(string questId)
+        private string BuildQuestHoverText(string questId)
         {
             if (string.IsNullOrWhiteSpace(questId)) return null;
 
+            // Check for custom hover text first
             string hoverKey = questId + "-hover";
             string hoverText = LocalizationUtils.GetSafe(hoverKey);
             if (!string.IsNullOrWhiteSpace(hoverText)
                 && !string.Equals(hoverText, hoverKey, StringComparison.OrdinalIgnoreCase))
             {
                 return hoverText.Replace("\r", "").Replace("\"", "&quot;");
+            }
+
+            // If only custom hover is allowed, don't use description
+            if (OnlyCustomHoverTextEnabled())
+            {
+                return null;
+            }
+
+            // Only use description as hover if global config allows it
+            if (!ShouldShowDescriptionInHover())
+            {
+                return null;
             }
 
             string langKey = questId + "-desc";
@@ -44,11 +57,51 @@ namespace VsQuest
             return null;
         }
 
+        private bool ShouldShowDescriptionInHover()
+        {
+            if (api is ICoreServerAPI sapi)
+            {
+                var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+                return questSystem?.CoreConfig?.ShowQuestDescriptionInHover ?? false;
+            }
+
+            return false;
+        }
+
+        private bool OnlyCustomHoverTextEnabled()
+        {
+            if (api is ICoreServerAPI sapi)
+            {
+                var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+                return questSystem?.CoreConfig?.OnlyCustomHoverText ?? false;
+            }
+
+            return false;
+        }
+
         public QuestLifecycleManager(Dictionary<string, Quest> questRegistry, Dictionary<string, IQuestAction> actionRegistry, ICoreAPI api)
         {
             this.questRegistry = questRegistry;
             this.actionRegistry = actionRegistry;
             this.api = api;
+        }
+
+        private bool ShouldNotifyOnComplete(Quest quest)
+        {
+            // If quest has explicit setting, use it
+            if (quest?.notifyOnComplete.HasValue == true)
+            {
+                return quest.notifyOnComplete.Value;
+            }
+
+            // Otherwise use global config default
+            if (api is ICoreServerAPI sapi)
+            {
+                var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
+                return questSystem?.CoreConfig?.DefaultNotifyOnComplete ?? true;
+            }
+
+            return true;
         }
 
         private static void ClearKillActionTargetProgressOnAccept(IServerPlayer player, Quest quest)
@@ -260,24 +313,34 @@ namespace VsQuest
                     questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
                 }
 
-                try
+                // Broadcast completion message if enabled
+                if (ShouldNotifyOnComplete(quest))
                 {
-                    string title = LocalizationUtils.GetSafe(message.questId + "-title");
-                    if (string.IsNullOrWhiteSpace(title) || string.Equals(title, message.questId + "-title", StringComparison.OrdinalIgnoreCase))
+                    try
                     {
-                        title = message.questId;
-                    }
+                        string title = LocalizationUtils.GetSafe(message.questId + "-title");
+                        if (string.IsNullOrWhiteSpace(title) || string.Equals(title, message.questId + "-title", StringComparison.OrdinalIgnoreCase))
+                        {
+                            title = message.questId;
+                        }
 
-                    string playerName = ChatFormatUtil.Font(fromPlayer.PlayerName, "#ffd75e");
-                    string hoverText = BuildQuestHoverText(message.questId);
-                    string questName = string.IsNullOrWhiteSpace(hoverText)
-                        ? ChatFormatUtil.Font(title, "#77ddff")
-                        : $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
-                    string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
-                    GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
-                }
-                catch
-                {
+                        string playerName = ChatFormatUtil.Font(fromPlayer.PlayerName, "#ffd75e");
+                        string hoverText = BuildQuestHoverText(message.questId);
+                        string questName;
+                        if (string.IsNullOrWhiteSpace(hoverText))
+                        {
+                            questName = ChatFormatUtil.Font(title, "#77ddff");
+                        }
+                        else
+                        {
+                            questName = $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
+                        }
+                        string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
+                        GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
+                    }
+                    catch
+                    {
+                    }
                 }
 
                 // Questgiver chain cooldown timestamp (enforced by EntityBehaviorQuestGiver when configured)
@@ -329,24 +392,37 @@ namespace VsQuest
                 questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
             }
 
-            try
-            {
-                string title = LocalizationUtils.GetSafe(message.questId + "-title");
-                if (string.IsNullOrWhiteSpace(title) || string.Equals(title, message.questId + "-title", StringComparison.OrdinalIgnoreCase))
-                {
-                    title = message.questId;
-                }
+            // Get quest for notification check and timestamp update
+            questRegistry.TryGetValue(message.questId, out var quest);
 
-                string playerName = ChatFormatUtil.Font(fromPlayer.PlayerName, "#ffd75e");
-                string hoverText = BuildQuestHoverText(message.questId);
-                string questName = string.IsNullOrWhiteSpace(hoverText)
-                    ? ChatFormatUtil.Font(title, "#77ddff")
-                    : $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
-                string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
-                GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
-            }
-            catch
+            // Broadcast completion message if enabled
+            if (ShouldNotifyOnComplete(quest))
             {
+                try
+                {
+                    string title = LocalizationUtils.GetSafe(message.questId + "-title");
+                    if (string.IsNullOrWhiteSpace(title) || string.Equals(title, message.questId + "-title", StringComparison.OrdinalIgnoreCase))
+                    {
+                        title = message.questId;
+                    }
+
+                    string playerName = ChatFormatUtil.Font(fromPlayer.PlayerName, "#ffd75e");
+                    string hoverText = BuildQuestHoverText(message.questId);
+                    string questName;
+                    if (string.IsNullOrWhiteSpace(hoverText))
+                    {
+                        questName = ChatFormatUtil.Font(title, "#77ddff");
+                    }
+                    else
+                    {
+                        questName = $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
+                    }
+                    string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
+                    GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
+                }
+                catch
+                {
+                }
             }
 
             // Questgiver chain cooldown timestamp (enforced by EntityBehaviorQuestGiver when configured)
@@ -357,7 +433,7 @@ namespace VsQuest
                 fromPlayer.Entity.WatchedAttributes.MarkPathDirty(chainKey);
             }
 
-            if (questRegistry.TryGetValue(message.questId, out var quest))
+            if (quest != null)
             {
                 var key = String.Format("alegacyvsquest:lastaccepted-{0}", quest.id);
                 fromPlayer.Entity.WatchedAttributes.SetDouble(key, sapi.World.Calendar.TotalDays);

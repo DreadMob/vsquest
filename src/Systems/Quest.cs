@@ -59,6 +59,13 @@ namespace VsQuest
         public float? killObjectiveCompleteSoundVolume { get; set; }
         public List<ActionWithArgs> onAcceptedActions { get; set; } = new List<ActionWithArgs>();
 
+        /// <summary>
+        /// If true (or null), broadcasts a chat message when the quest is completed.
+        /// If false, no completion message is sent.
+        /// Defaults to the global config value if not specified.
+        /// </summary>
+        public bool? notifyOnComplete { get; set; }
+
         // Legacy objectives (for backward compatibility - treated as single stage)
         public List<Objective> gatherObjectives { get; set; } = new List<Objective>();
         public List<Objective> killObjectives { get; set; } = new List<Objective>();

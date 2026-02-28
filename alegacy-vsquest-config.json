@@ -1,1 +1,16 @@
-{"Debug": false, "BossHunt": {"Debug": false, "SoftResetIdleHours": 1.0, "SoftResetAntiSpamHours": 0.25, "RelocatePostponeHours": 0.25, "BossEntityScanIntervalHours": 0.016666666666666666, "DebugLogThrottleHours": 0.02, "DefaultActivationRange": 200.0, "SkipBossKeys": ["vsquestdebugging:bosshunt:breathbreaker"]}}
+{
+  "Debug": false,
+  "DefaultNotifyOnComplete": true,
+  "ShowQuestDescriptionInHover": true,
+  "OnlyCustomHoverText": false,
+  "BossHunt": {
+    "Debug": false,
+    "SoftResetIdleHours": 1.0,
+    "SoftResetAntiSpamHours": 0.25,
+    "RelocatePostponeHours": 0.25,
+    "BossEntityScanIntervalHours": 0.016666666666666666,
+    "DebugLogThrottleHours": 0.02,
+    "DefaultActivationRange": 200.0,
+    "SkipBossKeys": ["vsquestdebugging:bosshunt:breathbreaker"]
+  }
+}

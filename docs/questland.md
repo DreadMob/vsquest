@@ -47,3 +47,21 @@ Placeholders are supported inside `enterAction` / `exitAction` templates:
 - **`{message}`**: resolved message (from `enterMessages` for enter, or `defaultExitMessage` for exit)
 - **`{claim}`**: current claim name (enter/change)
 - **`{lastclaim}`**: previous claim name (exit/change)
+
+---
+
+## Related: `inland` Objective
+
+The `inland` objective (documented in [objectives.md](objectives.md)) uses land claims as quest objectives:
+
+```json
+{
+  "id": "inland",
+  "objectiveId": "reach_village",
+  "args": ["derevnia"]
+}
+```
+
+This completes when the player enters a land claim named "derevnia".
+
+**Note:** `questland.json` is for notifications/actions when entering claims, while `inland` objective is for quest progress tracking.

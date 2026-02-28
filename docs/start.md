@@ -1,6 +1,6 @@
 # Alegacy VS Quest Mod Structure Documentation
 
-> **Documentation Version:** v2.5.0
+> **Documentation Version:** v2.6.0
 
 ---
 
@@ -10,6 +10,7 @@
 |----------|-------------|
 | [start.md](start.md) | Mod structure overview (this file) |
 | [example.md](example.md) | Step-by-step quest creation guide |
+| [queststages.md](queststages.md) | **Quest Stages system** (multi-phase quests) |
 | [actions.md](actions.md) | All available quest actions |
 | [objectives.md](objectives.md) | All available quest objectives |
 | [actionitems.md](actionitems.md) | Action Items system |
