@@ -1,0 +1,49 @@
+{
+  "components": [
+    {
+      "code": "intro",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-martin-intro" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "main",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-martin-whatshappening", "jumpTo": "whatshappening" },
+        { "value": "alstory:dialogue-martin-knocking", "jumpTo": "knocking" },
+        { "value": "alstory:dialogue-martin-closechoice", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "whatshappening",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-martin-whatshappening-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "knocking",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-martin-knocking-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "close",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-martin-close-answer" }
+      ]
+    }
+  ]
+}

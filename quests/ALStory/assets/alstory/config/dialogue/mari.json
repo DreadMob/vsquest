@@ -1,0 +1,69 @@
+{
+  "components": [
+    {
+      "code": "intro",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-mari-intro" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "main",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-mari-illa", "jumpTo": "illa" },
+        { "value": "alstory:dialogue-mari-whatshappening", "jumpTo": "whatshappening" },
+        { "value": "alstory:dialogue-mari-crystals", "jumpTo": "crystals" },
+        { "value": "alstory:dialogue-mari-drink", "jumpTo": "drink" },
+        { "value": "alstory:dialogue-mari-closechoice", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "illa",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-mari-illa-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "whatshappening",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-mari-whatshappening-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "crystals",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-mari-crystals-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "drink",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-mari-drink-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "close",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-mari-close-answer" }
+      ]
+    }
+  ]
+}

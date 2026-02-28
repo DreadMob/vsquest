@@ -151,5 +151,6 @@
     "alegacyvsquest:stage-complete": "Этап завершён",
     "alegacyvsquest:stage-complete-message": "Этап {0} завершён! Открылся следующий этап.",
     "alegacyvsquest:quest-complete": "Квест завершён",
-    "alegacyvsquest:quest-complete-message": "Квест '{0}' успешно завершён!"
+    "alegacyvsquest:quest-complete-message": "Квест '{0}' успешно завершён!",
+    "alegacyvsquest:interactat-hold-item": "Использовать: {0}"
 }

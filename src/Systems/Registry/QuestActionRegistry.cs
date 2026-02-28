@@ -77,6 +77,7 @@ namespace VsQuest
 
             actionRegistry.Add("cycleentityanimation", new CycleEntityAnimationAction());
             actionRegistry.Add("damageentity", new DamageSelectedEntityAction());
+            actionRegistry.Add("damagequestgiver", new DamageQuestGiverAction());
 
             actionRegistry.Add("cooldownblock", new CooldownBlockAction());
 

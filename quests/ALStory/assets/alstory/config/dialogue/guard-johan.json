@@ -1,0 +1,59 @@
+{
+  "components": [
+    {
+      "code": "intro",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-johan-intro" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "main",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-johan-knocking", "jumpTo": "knocking" },
+        { "value": "alstory:dialogue-johan-illa", "jumpTo": "illa" },
+        { "value": "alstory:dialogue-johan-whatshappening", "jumpTo": "whatshappening" },
+        { "value": "alstory:dialogue-johan-closechoice", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "knocking",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-johan-knocking-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "illa",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-johan-illa-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "whatshappening",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-johan-whatshappening-answer" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "close",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "alstory:dialogue-johan-close-answer" }
+      ]
+    }
+  ]
+}

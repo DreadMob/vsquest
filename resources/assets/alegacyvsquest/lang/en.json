@@ -141,5 +141,6 @@
     "block-alegacyvsquest:bosshuntarena": "Boss hunt arena",
     "block-alegacyvsquest:ashfloor": "Ashen Floor",
     "alegacyvsquest:block-ashfloor": "Ashen Floor",
-    "block-alegacyvsquest:temporalriftprojector": "Temporal Rift Projector"
+    "block-alegacyvsquest:temporalriftprojector": "Temporal Rift Projector",
+    "alegacyvsquest:interactat-hold-item": "Must hold in hand: {0}"
 }

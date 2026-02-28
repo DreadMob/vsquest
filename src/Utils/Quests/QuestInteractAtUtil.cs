@@ -2,12 +2,27 @@ using System;
 using System.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
+using Vintagestory.API.Config;
 
 namespace VsQuest
 {
     public static class QuestInteractAtUtil
     {
         public static string InteractionKey(int x, int y, int z) => $"interactat_{x}_{y}_{z}";
+
+        /// <summary>
+        /// Checks if player is holding the required item in active hotbar slot
+        /// </summary>
+        private static bool IsHoldingItem(IServerPlayer player, string itemCode)
+        {
+            if (player?.InventoryManager == null) return false;
+            if (string.IsNullOrWhiteSpace(itemCode)) return true;
+
+            var slot = player.InventoryManager.ActiveHotbarSlot;
+            if (slot?.Itemstack?.Item?.Code == null) return false;
+
+            return slot.Itemstack.Item.Code.ToString().Equals(itemCode, StringComparison.OrdinalIgnoreCase);
+        }
 
         public static bool TryParsePos(string coordString, out int x, out int y, out int z)
         {
@@ -161,6 +176,21 @@ namespace VsQuest
                 if (!TryParsePos(coordString, out int targetX, out int targetY, out int targetZ)) continue;
 
                 if (position[0] != targetX || position[1] != targetY || position[2] != targetZ) continue;
+
+                // Check required item if specified (args[1] = item code)
+                if (ao.args.Length >= 2 && !string.IsNullOrWhiteSpace(ao.args[1]))
+                {
+                    string requiredItem = ao.args[1];
+
+                    if (!IsHoldingItem(serverPlayer, requiredItem))
+                    {
+                        // Notify player they need to hold the item
+                        sapi.SendMessage(serverPlayer, GlobalConstants.InfoLogChatGroup, 
+                            Lang.Get("alegacyvsquest:interactat-hold-item", requiredItem), 
+                            EnumChatType.Notification);
+                        continue;
+                    }
+                }
 
                 bool changed = TryMarkInteraction(serverPlayer, targetX, targetY, targetZ);
                 if (!changed) continue;
