@@ -70,7 +70,7 @@
           "objectiveId": "crystal1",
           "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystal1; playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
-            "512000,3,512000|511999,3,512000|512001,3,512000|512000,3,511999|512000,3,512001",
+            "512059,129,512099|512059,130,512099",
             "alstory-keepers-key",
             "5"
           ]
@@ -80,7 +80,7 @@
           "objectiveId": "crystal2",
           "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystal2; playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
-            "512000,4,512000|511999,4,512000|512001,4,512000|512000,4,511999|512000,4,512001",
+            "512062,129,512099|512062,130,512099",
             "alstory-keepers-key",
             "5"
           ]
@@ -90,7 +90,7 @@
           "objectiveId": "crystal3",
           "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystals; playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
-            "512000,5,512000|511999,5,512000|512001,5,512000|512000,5,511999|512000,5,512001",
+            "512064,129,512099|512064,130,512099",
             "alstory-keepers-key",
             "5"
           ]
