@@ -123,18 +123,18 @@ namespace VsQuest
 
             try
             {
-                string ApplyPrefixes(string text, string objectiveId)
+                string ApplyPrefixes(string text, string objectiveId, List<ActionWithArgs> actionObjectivesToCheck)
                 {
                     if (string.IsNullOrWhiteSpace(text)) return text;
 
                     string timeOfDayPrefix = null;
                     string landPrefix = null;
 
-                    if (questDef.actionObjectives != null)
+                    if (actionObjectivesToCheck != null)
                     {
                         // timeofday prefix: only apply if there is a gate targeting this objectiveId,
                         // or if the gate has no objectiveId (legacy behavior).
-                        foreach (var ao in questDef.actionObjectives)
+                        foreach (var ao in actionObjectivesToCheck)
                         {
                             if (ao?.id != "timeofday") continue;
                             if (ao.args == null || ao.args.Length == 0) continue;
@@ -161,7 +161,7 @@ namespace VsQuest
                         }
 
                         // landgate prefix
-                        foreach (var ao in questDef.actionObjectives)
+                        foreach (var ao in actionObjectivesToCheck)
                         {
                             if (ao?.id != "landgate") continue;
 
@@ -198,9 +198,13 @@ namespace VsQuest
                 int slots = wa.GetInt(RandomKillQuestUtils.SlotsKey(activeQuest.questId), 0);
                 // Find randomkill objectiveId from quest definition (for timeofday prefix application)
                 string randomKillObjectiveId = null;
-                if (questDef.actionObjectives != null)
+                
+                // Use stage-aware action objectives
+                var stageActionObjectives = questDef.GetActionObjectives(activeQuest.currentStageIndex);
+                
+                if (stageActionObjectives != null)
                 {
-                    foreach (var ao in questDef.actionObjectives)
+                    foreach (var ao in stageActionObjectives)
                     {
                         if (ao?.id == "randomkill")
                         {
@@ -216,7 +220,7 @@ namespace VsQuest
                         string code = wa.GetString(RandomKillQuestUtils.SlotCodeKey(activeQuest.questId, slot), "?");
                         int have = wa.GetInt(RandomKillQuestUtils.SlotHaveKey(activeQuest.questId, slot), 0);
                         int need = wa.GetInt(RandomKillQuestUtils.SlotNeedKey(activeQuest.questId, slot), 0);
-                        lines.Add($"- {ApplyPrefixes($"{LocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", randomKillObjectiveId)}");
+                        lines.Add($"- {ApplyPrefixes($"{LocalizationUtils.GetMobDisplayName(code)}: {have}/{need}", randomKillObjectiveId, stageActionObjectives)}");
                     }
                 }
 
@@ -232,7 +236,7 @@ namespace VsQuest
                     var custom = LocalizationUtils.GetSafe(customKey, progress.Cast<object>().ToArray());
                     if (!string.IsNullOrWhiteSpace(custom) && !string.Equals(custom, customKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        lines.Add($"- {ApplyPrefixes(custom, null)}");
+                        lines.Add($"- {ApplyPrefixes(custom, null, stageActionObjectives)}");
                         AppendLandClaimInfo(lines, questDef, wa);
                         return string.Join("\n", lines);
                     }
@@ -242,9 +246,9 @@ namespace VsQuest
                     try
                     {
                         // Fallback for quests that use interactcount: compute have/need directly instead of relying on hardcoded indices.
-                        if (questDef.actionObjectives != null)
+                        if (stageActionObjectives != null)
                         {
-                            foreach (var ao in questDef.actionObjectives)
+                            foreach (var ao in stageActionObjectives)
                             {
                                 if (ao?.id != "interactcount") continue;
 
@@ -264,7 +268,7 @@ namespace VsQuest
                                             template = $"{have}/{need}";
                                         }
 
-                                        lines.Add($"- {ApplyPrefixes(template, null)}");
+                                        lines.Add($"- {ApplyPrefixes(template, null, stageActionObjectives)}");
                                         AppendLandClaimInfo(lines, questDef, wa);
                                         return string.Join("\n", lines);
                                     }
@@ -291,7 +295,7 @@ namespace VsQuest
                             string displayName = isGather
                                 ? GetItemDisplayName(api, code)
                                 : MobLocalizationUtils.GetMobDisplayName(code);
-                            lines.Add($"- {ApplyPrefixes($"{displayName}: {have}/{need}", null)}");
+                            lines.Add($"- {ApplyPrefixes($"{displayName}: {have}/{need}", null, stageActionObjectives)}");
                         }
                     }
                 }
@@ -321,6 +325,9 @@ namespace VsQuest
                         if (actionObjective == null) continue;
                         if (string.IsNullOrWhiteSpace(actionObjective.id)) continue;
 
+                        // Only show objectives that have an objectiveId (named objectives)
+                        if (string.IsNullOrWhiteSpace(actionObjective.objectiveId)) continue;
+
                         // Do not show gates as progress lines
                         if (actionObjective.id == "timeofday") continue;
                         if (actionObjective.id == "landgate") continue;
@@ -328,8 +335,8 @@ namespace VsQuest
                         // Do not show technical wrapper objectives
                         if (actionObjective.id == "sequence") continue;
 
-                        // Do not show interact-with-entity objectives in progress text
-                        if (actionObjective.id == "interactwithentity") continue;
+                        // Show interact-with-entity objectives for debugging
+                        // if (actionObjective.id == "interactwithentity") continue;
 
                         // randomkill already has its own slot lines
                         if (actionObjective.id == "randomkill") continue;
@@ -346,7 +353,7 @@ namespace VsQuest
                         string customProgress = LocalizationUtils.GetSafe(customKeyBase, prog.Cast<object>().ToArray());
                         if (!string.IsNullOrWhiteSpace(customProgress) && !string.Equals(customProgress, customKeyBase, StringComparison.OrdinalIgnoreCase))
                         {
-                            lines.Add($"- {ApplyPrefixes(customProgress, actionObjective.objectiveId)}");
+                            lines.Add($"- {ApplyPrefixes(customProgress, actionObjective.objectiveId, actionObjectivesToProcess)}");
                             continue;
                         }
 
@@ -383,7 +390,7 @@ namespace VsQuest
                                 }
 
                                 string killLine = Lang.Get("alegacyvsquest:progress-pair", targetName, prog[0], prog[1]);
-                                lines.Add($"- {ApplyPrefixes(killLine, actionObjective.objectiveId)}");
+                                lines.Add($"- {ApplyPrefixes(killLine, actionObjective.objectiveId, actionObjectivesToProcess)}");
                                 continue;
                             }
                         }
@@ -403,7 +410,7 @@ namespace VsQuest
                             line = Lang.Get("alegacyvsquest:progress-single", objectiveLabel, prog[0]);
                         }
 
-                        lines.Add($"- {ApplyPrefixes(line, actionObjective.objectiveId)}");
+                        lines.Add($"- {ApplyPrefixes(line, actionObjective.objectiveId, actionObjectivesToProcess)}");
                     }
                 }
 

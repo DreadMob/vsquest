@@ -62,7 +62,7 @@
       "id": "alstory-armor-helm",
       "itemCode": "game:armor-head-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Шлем Ордена Обречённых</font>",
-      "description": "<font color=\"#60A5FA\">Ржавый металл и чёрные прожилки. Кажется, он дышит.\nПКМ: отметить находку.</font>",
+      "description": "<font color=\"#60A5FA\">Ржавый металл и чёрные прожилки. Кажется, он дышит.</font>",
       "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
@@ -93,7 +93,7 @@
       "id": "alstory-armor-chest",
       "itemCode": "game:armor-body-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Нагрудник Ордена Обречённых</font>",
-      "description": "<font color=\"#60A5FA\">Тяжёлый нагрудник, испещрённый тёмными каналами.\nПКМ: отметить находку.</font>",
+      "description": "<font color=\"#60A5FA\">Тяжёлый нагрудник, испещрённый тёмными каналами.</font>",
       "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
@@ -124,7 +124,7 @@
       "id": "alstory-armor-legs",
       "itemCode": "game:armor-legs-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Поножи Ордена Обречённых</font>",
-      "description": "<font color=\"#60A5FA\">Поножи, будто связаны с землёй невидимыми корнями.\nПКМ: отметить находку.</font>",
+      "description": "<font color=\"#60A5FA\">Поножи, будто связаны с землёй невидимыми корнями.</font>",
       "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
@@ -153,53 +153,10 @@
     },
 
     {
-      "id": "alstory-armor-boots",
-      "itemCode": "game:clothes-foot-forlorn-shoes",
-      "name": "<font color=\"#8B5CF6\">Сабатоны Ордена Обречённых</font>",
-      "description": "<font color=\"#60A5FA\">Тяжёлая обувь, будто приросшая к земле.\nПКМ: отметить находку.</font>",
-      "sourceQuestId": "alstory:last_breath_collect",
-      "triggerOnInventoryAdd": true,
-      "blockEquip": true,
-      "blockDrop": true,
-      "blockDeath": true,
-      "actions": [
-        {
-          "id": "addplayerint",
-          "args": [
-            "alstory:armorparts",
-            "1",
-            "4",
-            "alstory:found-boots"
-          ]
-        },
-        {
-          "id": "addjournalentry",
-          "args": [
-            "alstory:last_breath_collect",
-            "alstory:armor-found",
-            "Доспехи Обречённых",
-            "Найдена часть доспехов: Сабатоны.\n\nКамень под ногами на миг будто отвечает на их шаг."
-          ]
-        }
-      ]
-    },
-
-    {
-      "id": "alstory-ritual-crystalbreaker",
-      "itemCode": "game:amethyst",
-      "name": "<font color=\"#EF4444\">Ритуальный осколок</font>",
-      "description": "<font color=\"#60A5FA\">Осколок, резонирующий со Скверной.\nНельзя выбросить.\nРасходуется после разрушения всех 3 кристаллов.</font>",
-      "sourceQuestId": "alstory:village_heart",
-      "blockDrop": true,
-      "blockDeath": true,
-      "blockGroundStorage": true,
-      "actions": []
-    },
-    {
       "id": "alstory-keepers-key",
-      "itemCode": "game:stick",
-      "name": "<font color=\"#F59E0B\">Ключ хранителя</font>",
-      "description": "<font color=\"#60A5FA\">Старый ключ от всех дверей в деревне.\nОткрывает доступ к подвалам мельницы, кузницы и школы.</font>",
+      "itemCode": "alstory:keepers-key",
+      "name": "<font color=\"#C0C0C0\">Ключ хранителя</font>",
+      "description": "<font color=\"#60A5FA\">Старый серебряный ключ от всех дверей в деревне.\nОткрывает доступ к подвалам мельницы, кузницы и школы.\nРасходуется после разрушения всех 3 кристаллов.</font>",
       "sourceQuestId": "alstory:village_heart",
       "blockDrop": true,
       "blockDeath": true,
@@ -299,6 +256,33 @@
             "Да не будут произнесены вслух имена тех, кто пал от собственного благородства.\n\nБыло время, звонкое, как удар стали. Орден Обреченных нес свой дозор. Не для славы, но для тишины меж строк в великой книге бытия. Символ наш — Колокол, что зовет на защиту слабых.\n\nНо пришла тихая Гниль, что точит не стены, а душу. И мы, в гордыне своей, решили, что сможем выковать из нее оружие. Мы ошиблись.\n\nНаш Магистр, чье сердце было крепчайшей броней, нашел свою слабость — любовь. И дабы спасти один цветок от увядания, он выжег ядом весь сад. Он сковал цепь из чужих жизней, дабы продлить одну.\n\nТеперь Колокол наш треснул. Его звон стал похож на предсмертный хрип. Мы, давшие обет защищать, стали источником чумы. Мы, Обреченные, сбыли свое пророчество.\n\nИ если ты найдешь эту записку, знай: любая битва, даже с самой тьмой, должна завершиться. Иначе ты станешь частью ее, и тень твоя будет нести лишь смерть, куда бы ни пала.\n\nДа падет занавес. Представление окончено."
           ]
         }
+      ]
+    },
+    {
+      "id": "alstory-doomed-amulet",
+      "itemCode": "alstory:doomed-amulet",
+      "name": "<font color=\"#8B5CF6\">Амулет Обречённого</font>",
+      "description": "<font color=\"#A78BFA\">Тёмный талисман, пропитанный эхом павшего Ордена. Металл холодный, но внутри пульсирует слабая жизнь.</font>",
+      "sourceQuestId": "alstory:last_breath_collect",
+      "blockDrop": false,
+      "blockDeath": false,
+      "actions": [],
+      "attributes": {
+        "hungerrate": -0.3,
+        "maxhealthflat": -2.0,
+        "healonkill": 0.03
+      },
+      "showAttributes": [
+        "hungerrate",
+        "maxhealthflat",
+        "healonkill"
+      ],
+      "hideVanillaTooltips": [
+        "armor",
+        "protection",
+        "warmth",
+        "walkspeed",
+        "modsource"
       ]
     }
   ]

@@ -43,9 +43,36 @@ namespace VsQuest
 
         private static string[] GetCoordArgs(string[] args)
         {
-            if (args == null) return Array.Empty<string>();
+            if (args == null || args.Length == 0) return Array.Empty<string>();
 
-            return args.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
+            // First arg is the count (optional), remaining args are coordinate strings
+            // If first arg is a number, skip it and parse the rest
+            // Otherwise, treat all args as coordinate strings
+            
+            int startIndex = 0;
+            if (args.Length > 0 && int.TryParse(args[0], out _))
+            {
+                // First arg is a count, skip it
+                startIndex = 1;
+            }
+
+            var coordList = new List<string>();
+            for (int i = startIndex; i < args.Length; i++)
+            {
+                if (string.IsNullOrWhiteSpace(args[i])) continue;
+                
+                // Split by | to support multiple coordinates in one arg
+                var coords = args[i].Split('|');
+                foreach (var coord in coords)
+                {
+                    if (!string.IsNullOrWhiteSpace(coord))
+                    {
+                        coordList.Add(coord.Trim());
+                    }
+                }
+            }
+
+            return coordList.ToArray();
         }
 
         

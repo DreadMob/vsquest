@@ -1,5 +1,6 @@
 {
   "alstory:forlornstories-title": "Истории Обречённых",
+  "alstory:last_breath_main-title": "Последний вздох Ордена Обречённых",
   "alstory:last_breath_collect-title": "Последний вздох Ордена Обречённых",
   "alstory:last_breath_collect-desc": "Старик Элрик, последний свидетель падения Ордена, просит отыскать три части древних доспехов, пропитанных Гнилью. Они хранятся в разных уголках мира. Когда все части будут собраны, отправляйся в Некрополь Королей (-2727 250 -10000) и встреться с падшим Магистром Лорэном. Только после этого возвращайся к Элрику.",
   "alstory:last_breath_collect-journal-title": "Последний вздох Ордена Обречённых",
@@ -11,8 +12,14 @@
   "alstory:last_breath_collect-obj-leggings": "Найти Поножи Ордена Обречённых: {0}/{1}",
   "alstory:last_breath_collect-obj-allarmor": "Собрать все части доспехов: {0}/{1}",
   "alstory:last_breath_collect-obj-crystal1": "Уничтожить кристалл в подвале мельницы: {0}/{1}",
+  "alstory:last_breath_collect-obj-crystal1-hold": "Кристалл пульсирует... Связь ослабевает...",
   "alstory:last_breath_collect-obj-crystal2": "Уничтожить кристалл в подвале кузницы: {0}/{1}",
+  "alstory:last_breath_collect-obj-crystal2-hold": "Жилы Гнили трещат под натиском...",
   "alstory:last_breath_collect-obj-crystal3": "Уничтожить кристалл в подвале школы: {0}/{1}",
+  "alstory:last_breath_collect-obj-crystal3-hold": "Последний якорь рвётся...",
+  "alstory:last_breath_collect-obj-heinrich": "Поговорить со Старостой Генрихом: {0}/{1}",
+  "alstory:last_breath_collect-obj-village": "Добраться до Жертвенного Камня: {0}/{1}",
+  "alstory:last_breath_collect-obj-illa": "Поговорить с Иллой: {0}/{1}",
   "alstory:last_breath_collect-obj-eidolon": "Победить Эйдолона в Башне Ордена: {0}/{1}",
   "alstory:last_breath_collect-obj-clawchief": "Победить Вождя Кровавой Длани: {0}/{1}",
   "alstory:last_breath_collect-stage1-title": "Сбор доспехов",
@@ -26,6 +33,11 @@
   "alstory:last_breath_collect-vh-crystals": "Все кристаллы Скверны уничтожены — связь разорвана. Теперь можно поговорить с Иллой в доме с засохшей розой на ставне.",
   "alstory:last_breath_collect-vh-illa": "Илла обрела покой и отдала поножи Лорэна. Теперь у меня все три части доспехов.",
   "alstory:last_breath_collect-stage3-title": "Возвращение к Элрику",
+  "alstory:last_breath_collect-stage3-journal": "Все доспехи собраны. Нужно вернуться к Элрику и отдать их ему.",
+  "alstory:necropolis_judgment-stage-title": "Суд Некрополя",
+  "alstory:last_breath_collect-obj-final": "Войти в Некрополь Королей: {0}/{1}",
+  "alstory:last_breath_collect-obj-loran": "Поговорить с Лорэном: {0}/{1}",
+  "alstory:last_breath_collect-obj-loranboss": "Победить Падшего Магистра Лорэна: {0}/{1}",
   "alstory:last_breath_collect-journal-stage2": "Все доспехи собраны. Нужно вернуться к Элрику и отдать их ему.",
   "alstory:last_breath_collect-journal-step0": "Старик Элрик просит отыскать три части древних доспехов Ордена Обречённых:\n\nЭтап 1: Сбор доспехов\n• Шлем – в Башне Ордена (1435 250 -673)\n• Нагрудник – у культистов в Лагере Кровавой Длани (2090 250 -3753)\n\nЭтап 2: Сердце деревни\n• Поножи – получить в Деревне У Погибшего Камня (-1243 180 -12736) после помощи жителям\n\nЭтап 3: Возвращение\n• Вернуть все три части Элрику",
   "alstory:last_breath_collect-journal-step1": "Найден Шлем Ордена Обречённых. Его чёрные прожилки пульсируют, будто в металле ещё живёт эхо клятвы.",
@@ -276,5 +288,6 @@
   "alstory:fallen-magister-journal-step3": "Круг замкнулся.\n\nЭлрик должен получить то, что осталось от Ордена — и право уснуть в тишине.",
   "alstory:final-necropolis-title": "Падший Магистр",
   "alstory:final-necropolis-text": "Круг замкнулся. Проклятие иссякает, оставляя после себя лишь тишину.\n\nЭлрик отдаёт тебе книгу — «Легенда о Треснувшем Колоколе». Истинная награда — знание и прекращение одного из кошмаров этого мира.",
-  "alstory:final-necropolis-option": "Понял."
+  "alstory:final-necropolis-option": "Понял.",
+  "item-doomed-amulet": "Амулет Обречённого"
 }

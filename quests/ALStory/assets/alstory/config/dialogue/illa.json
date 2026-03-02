@@ -26,7 +26,7 @@
       "code": "stopmusic",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:village_heart alstory:illa illa; addplayerint alstory:illareward 1 1 alstory:illarewardonce; questitem alstory-armor-legs",
+      "trigger": "markentityinteraction alstory:last_breath_collect alstory:illa illa; addplayerint alstory:illareward 1 1 alstory:illarewardonce; questitem alstory-armor-legs",
       "text": [
         { "value": "alstory:dialogue-illa-stopmusic-answer" }
       ],

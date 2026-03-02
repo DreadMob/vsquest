@@ -384,33 +384,46 @@ namespace VsQuest
                 }
             }
 
-            // Also clear interact-at tracking for interactat objectives in this quest
-            if (questSystem.QuestRegistry != null && questSystem.QuestRegistry.TryGetValue(questId, out var quest2) && quest2?.actionObjectives != null)
+            // Clear stage-aware completion flags for multi-stage quests
+            if (questSystem.QuestRegistry != null && questSystem.QuestRegistry.TryGetValue(questId, out var questForStages) && questForStages != null)
             {
-                string completedInteractions = wa.GetString("completedInteractions", "");
-                if (!string.IsNullOrWhiteSpace(completedInteractions))
+                if (questForStages.HasStages)
                 {
-                    var list = completedInteractions.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    bool changed = false;
-
-                    foreach (var ao in quest2.actionObjectives)
+                    for (int stageIndex = 0; stageIndex < questForStages.stages.Count; stageIndex++)
                     {
-                        if (ao?.id != "interactat" || ao.args == null || ao.args.Length < 1) continue;
+                        var stageObjectives = questForStages.GetActionObjectives(stageIndex);
+                        if (stageObjectives == null) continue;
 
-                        var coordString = ao.args[0];
-                        if (string.IsNullOrWhiteSpace(coordString)) continue;
-                        if (!QuestInteractAtUtil.TryParsePos(coordString, out int x, out int y, out int z)) continue;
+                        foreach (var ao in stageObjectives)
+                        {
+                            if (ao == null || string.IsNullOrWhiteSpace(ao.id)) continue;
 
-                        string interactionKey = QuestInteractAtUtil.InteractionKey(x, y, z);
-                        if (list.Remove(interactionKey)) changed = true;
-                    }
+                            string objectiveKey;
 
-                    if (changed)
-                    {
-                        wa.SetString("completedInteractions", string.Join(",", list));
-                        wa.MarkPathDirty("completedInteractions");
+                            if (!string.IsNullOrWhiteSpace(ao.objectiveId))
+                            {
+                                objectiveKey = ao.objectiveId;
+                            }
+                            else if (ao.id == "interactat" && ao.args != null && ao.args.Length >= 1 && QuestInteractAtUtil.TryParsePos(ao.args[0], out int x, out int y, out int z))
+                            {
+                                objectiveKey = QuestInteractAtUtil.InteractionKey(x, y, z);
+                            }
+                            else
+                            {
+                                objectiveKey = ao.id;
+                            }
+
+                            string key = $"alegacyvsquest:ao:completed:{questId}:stage{stageIndex}:{objectiveKey}";
+                            wa.RemoveAttribute(key);
+                        }
                     }
                 }
+            }
+
+            // Also clear interact-at tracking for interactat objectives in this quest
+            if (questSystem.QuestRegistry != null && questSystem.QuestRegistry.TryGetValue(questId, out var quest2))
+            {
+                QuestInteractAtUtil.ResetCompletedInteractAtObjectives(quest2, player);
             }
         }
 

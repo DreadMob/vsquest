@@ -26,7 +26,7 @@
       "code": "whatshappening",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:village_heart alstory:heinrich heinrich",
+      "trigger": "markentityinteraction alstory:last_breath_collect alstory:heinrich heinrich",
       "text": [
         { "value": "alstory:dialogue-heinrich-whatshappening-answer" }
       ],
@@ -36,7 +36,7 @@
       "code": "askilla",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:village_heart alstory:heinrich heinrich",
+      "trigger": "markentityinteraction alstory:last_breath_collect alstory:heinrich heinrich",
       "text": [
         { "value": "alstory:dialogue-heinrich-askilla-answer" }
       ],
@@ -46,7 +46,7 @@
       "code": "whathappened",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:village_heart alstory:heinrich heinrich",
+      "trigger": "markentityinteraction alstory:last_breath_collect alstory:heinrich heinrich",
       "text": [
         { "value": "alstory:dialogue-heinrich-whathappened-answer" }
       ],
@@ -56,7 +56,7 @@
       "code": "howstop",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:village_heart alstory:heinrich heinrich",
+      "trigger": "markentityinteraction alstory:last_breath_collect alstory:heinrich heinrich",
       "text": [
         { "value": "alstory:dialogue-heinrich-howstop-answer" }
       ],
@@ -66,7 +66,7 @@
       "code": "crystals",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:village_heart alstory:heinrich heinrich",
+      "trigger": "markentityinteraction alstory:last_breath_collect alstory:heinrich heinrich",
       "text": [
         { "value": "alstory:dialogue-heinrich-crystals-answer" }
       ],

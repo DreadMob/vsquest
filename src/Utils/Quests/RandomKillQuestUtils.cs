@@ -87,12 +87,16 @@ namespace VsQuest
             var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
             if (questSystem?.QuestRegistry == null || questSystem.ActionObjectiveRegistry == null) return;
 
-            if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef) || questDef?.actionObjectives == null) return;
+            if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef) || questDef == null) return;
             if (!questSystem.ActionObjectiveRegistry.TryGetValue("randomkill", out var impl) || impl == null) return;
 
-            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            // Use stage-aware action objectives
+            var stageActionObjectives = questDef.GetActionObjectives(activeQuest.currentStageIndex);
+            if (stageActionObjectives == null) return;
+
+            for (int i = 0; i < stageActionObjectives.Count; i++)
             {
-                var ao = questDef.actionObjectives[i];
+                var ao = stageActionObjectives[i];
                 if (ao?.id != "randomkill") continue;
 
                 bool ok;

@@ -149,7 +149,7 @@ namespace VsQuest
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
 
-            if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "kill")) return;
+            if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, currentStageIndex, "kill")) return;
 
             // Use current stage objectives for multi-stage quests
             var currentStage = quest.GetStage(currentStageIndex);
@@ -220,7 +220,7 @@ namespace VsQuest
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
 
-            if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "blockplace")) return;
+            if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, currentStageIndex, "blockplace")) return;
 
             // Use current stage objectives for multi-stage quests
             var currentStage = quest.GetStage(currentStageIndex);
@@ -237,7 +237,7 @@ namespace VsQuest
             if (questSystem?.QuestRegistry == null || string.IsNullOrWhiteSpace(questId)) return;
             if (!questSystem.QuestRegistry.TryGetValue(questId, out var quest) || quest == null) return;
 
-            if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "blockbreak")) return;
+            if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, currentStageIndex, "blockbreak")) return;
 
             // Use current stage objectives for multi-stage quests
             var currentStage = quest.GetStage(currentStageIndex);
@@ -344,7 +344,7 @@ namespace VsQuest
                 }
             }
 
-            if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, "interact")) return;
+            if (!QuestTimeGateUtil.AllowsProgress(byPlayer, quest, questSystem?.ActionObjectiveRegistry, currentStageIndex, "interact")) return;
 
             // Use current stage objectives for multi-stage quests
             var currentStage = quest.GetStage(currentStageIndex);

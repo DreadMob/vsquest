@@ -25,61 +25,74 @@ namespace VsQuest
 
             var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
             if (questSystem?.QuestRegistry == null) return;
-            if (!questSystem.QuestRegistry.TryGetValue(questId, out var questDef) || questDef?.actionObjectives == null) return;
 
             var activeQuests = questSystem.GetPlayerQuests(byPlayer.PlayerUID);
-            var activeQuest = activeQuests?.Find(q => string.Equals(q.questId, questId, StringComparison.OrdinalIgnoreCase));
-            if (activeQuest == null) return;
+            if (activeQuests == null || activeQuests.Count == 0) return;
 
-            // Find matching interactwithentity objective
-            ActionWithArgs objective = null;
-            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            // Find any active quest that has matching interactwithentity objective
+            foreach (var activeQuest in activeQuests)
             {
-                var ao = questDef.actionObjectives[i];
-                if (ao == null) continue;
-                if (!string.Equals(ao.id, "interactwithentity", StringComparison.OrdinalIgnoreCase)) continue;
-                if (!string.Equals(ao.objectiveId, objectiveId, StringComparison.OrdinalIgnoreCase)) continue;
-                if (ao.args == null || ao.args.Length < 3) continue;
-                if (!string.Equals(ao.args[0], questId, StringComparison.OrdinalIgnoreCase)) continue;
-                if (!string.Equals(ao.args[1]?.Trim(), target.Trim(), StringComparison.OrdinalIgnoreCase)) continue;
+                if (activeQuest == null || string.IsNullOrWhiteSpace(activeQuest.questId)) continue;
+                if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef)) continue;
 
-                objective = ao;
-                break;
-            }
+                // Get action objectives from current stage using centralized method
+                var actionObjectivesToCheck = questDef?.GetActionObjectives(activeQuest.currentStageIndex);
+                
+                if (actionObjectivesToCheck == null || actionObjectivesToCheck.Count == 0) continue;
 
-            if (objective == null) return;
-
-            var wa = byPlayer.Entity?.WatchedAttributes;
-            if (wa == null) return;
-
-            // Optional gating: only allow counting when player has required int >= min value.
-            if (args.Length >= 5 && !string.IsNullOrWhiteSpace(args[3]))
-            {
-                string requiredKey = args[3];
-                if (!int.TryParse(args[4], out int requiredMin))
+                // Find matching interactwithentity objective
+                ActionWithArgs objective = null;
+                for (int i = 0; i < actionObjectivesToCheck.Count; i++)
                 {
-                    return;
+                    var ao = actionObjectivesToCheck[i];
+                    if (ao == null) continue;
+                    if (!string.Equals(ao.id, "interactwithentity", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (!string.Equals(ao.objectiveId, objectiveId, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (ao.args == null || ao.args.Length < 3) continue;
+                    // Match by target and ensure args[0] matches the active quest
+                    if (!string.Equals(ao.args[0], activeQuest.questId, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (!string.Equals(ao.args[1]?.Trim(), target.Trim(), StringComparison.OrdinalIgnoreCase)) continue;
+
+                    objective = ao;
+                    break;
                 }
 
-                int have = wa.GetInt(requiredKey, 0);
-                if (have < requiredMin)
+                if (objective == null) continue;
+
+                var wa = byPlayer.Entity?.WatchedAttributes;
+                if (wa == null) continue;
+
+                // Optional gating: only allow counting when player has required int >= min value.
+                if (args.Length >= 5 && !string.IsNullOrWhiteSpace(args[3]))
                 {
-                    return;
+                    string requiredKey = args[3];
+                    if (!int.TryParse(args[4], out int requiredMin))
+                    {
+                        continue;
+                    }
+
+                    int have = wa.GetInt(requiredKey, 0);
+                    if (have < requiredMin)
+                    {
+                        continue;
+                    }
                 }
-            }
 
-            string key = InteractWithEntityObjective.CountKey(questId, target);
-            int cur = wa.GetInt(key, 0);
-            wa.SetInt(key, cur + 1);
-            wa.MarkPathDirty(key);
+                string key = InteractWithEntityObjective.CountKey(activeQuest.questId, target);
+                int cur = wa.GetInt(key, 0);
+                wa.SetInt(key, cur + 1);
+                wa.MarkPathDirty(key);
 
-            // If this objective is now complete, fire onCompleteActions
-            if (questSystem.ActionObjectiveRegistry != null
-                && questSystem.ActionObjectiveRegistry.TryGetValue("interactwithentity", out var impl)
-                && impl != null
-                && impl.IsCompletable(byPlayer, objective.args))
-            {
-                QuestActionObjectiveCompletionUtil.TryFireOnComplete(sapi, byPlayer, activeQuest, objective, objective.objectiveId, true);
+                // If this objective is now complete, fire onCompleteActions
+                if (questSystem.ActionObjectiveRegistry != null
+                    && questSystem.ActionObjectiveRegistry.TryGetValue("interactwithentity", out var impl)
+                    && impl != null
+                    && impl.IsCompletable(byPlayer, objective.args))
+                {
+                    QuestActionObjectiveCompletionUtil.TryFireOnComplete(sapi, byPlayer, activeQuest, objective, objective.objectiveId, true);
+                }
+
+                return; // Found and processed
             }
         }
     }

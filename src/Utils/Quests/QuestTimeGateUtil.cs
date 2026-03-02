@@ -28,19 +28,20 @@ namespace VsQuest
             public string GateObjectiveId;
         }
 
-        private static QuestGateCache BuildGateCache(Quest questDef)
+        private static QuestGateCache BuildGateCache(Quest questDef, int stageIndex)
         {
             var cache = new QuestGateCache();
-            if (questDef?.actionObjectives == null) return cache;
+            var stageActionObjectives = questDef.GetActionObjectives(stageIndex);
+            if (stageActionObjectives == null) return cache;
 
-            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            for (int i = 0; i < stageActionObjectives.Count; i++)
             {
-                var ao = questDef.actionObjectives[i];
+                var ao = stageActionObjectives[i];
                 if (ao == null) continue;
 
                 if (ao.id == "timeofday")
                 {
-                    ParseTimeGateArgs(ao.args, questDef, out string gateScope, out string gateObjectiveId);
+                    ParseTimeGateArgs(ao.args, questDef, stageIndex, out string gateScope, out string gateObjectiveId);
                     cache.TimeGates.Add(new TimeGateInfo 
                     { 
                         Args = ao.args, 
@@ -64,26 +65,28 @@ namespace VsQuest
             return cache;
         }
 
-        public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry)
+        public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, int stageIndex)
         {
-            return AllowsProgress(player, questDef, actionObjectiveRegistry, null, null);
+            return AllowsProgress(player, questDef, actionObjectiveRegistry, stageIndex, null, null);
         }
 
-        public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, string scope)
+        public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, int stageIndex, string scope)
         {
-            return AllowsProgress(player, questDef, actionObjectiveRegistry, scope, null);
+            return AllowsProgress(player, questDef, actionObjectiveRegistry, stageIndex, scope, null);
         }
 
-        public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, string scope, string objectiveId)
+        public static bool AllowsProgress(IPlayer player, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, int stageIndex, string scope, string objectiveId)
         {
             if (player == null || questDef == null) return true;
-            if (questDef.actionObjectives == null) return true;
 
-            // Получаем или создаем кэш для этого квеста
-            if (!gateCacheByQuestId.TryGetValue(questDef.id, out var cache))
+            // Build cache key with stage index
+            string cacheKey = $"{questDef.id}:stage{stageIndex}";
+
+            // Получаем или создаем кэш для этого квеста и стадии
+            if (!gateCacheByQuestId.TryGetValue(cacheKey, out var cache))
             {
-                cache = BuildGateCache(questDef);
-                gateCacheByQuestId[questDef.id] = cache;
+                cache = BuildGateCache(questDef, stageIndex);
+                gateCacheByQuestId[cacheKey] = cache;
             }
 
             var timeOfDayImpl = actionObjectiveRegistry != null && actionObjectiveRegistry.TryGetValue("timeofday", out var tod) ? tod : null;
@@ -139,7 +142,7 @@ namespace VsQuest
             return string.Equals(gateObjectiveId.Trim(), requestedObjectiveId.Trim(), System.StringComparison.OrdinalIgnoreCase);
         }
 
-        private static void ParseTimeGateArgs(string[] args, Quest questDef, out string gateScope, out string gateObjectiveId)
+        private static void ParseTimeGateArgs(string[] args, Quest questDef, int stageIndex, out string gateScope, out string gateObjectiveId)
         {
             gateScope = null;
             gateObjectiveId = null;
@@ -148,17 +151,20 @@ namespace VsQuest
             if (args == null || args.Length != 2) return;
 
             gateObjectiveId = args[1];
-            gateScope = InferScopeFromObjectiveId(questDef, gateObjectiveId);
+            gateScope = InferScopeFromObjectiveId(questDef, stageIndex, gateObjectiveId);
         }
 
-        private static string InferScopeFromObjectiveId(Quest questDef, string objectiveId)
+        private static string InferScopeFromObjectiveId(Quest questDef, int stageIndex, string objectiveId)
         {
-            if (questDef?.actionObjectives == null) return null;
+            if (questDef == null) return null;
             if (string.IsNullOrWhiteSpace(objectiveId)) return null;
 
-            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            var stageActionObjectives = questDef.GetActionObjectives(stageIndex);
+            if (stageActionObjectives == null) return null;
+
+            for (int i = 0; i < stageActionObjectives.Count; i++)
             {
-                var ao = questDef.actionObjectives[i];
+                var ao = stageActionObjectives[i];
                 if (ao == null) continue;
                 if (!string.Equals(ao.objectiveId, objectiveId, System.StringComparison.OrdinalIgnoreCase)) continue;
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
@@ -5,17 +6,35 @@ namespace VsQuest
 {
     public static class QuestActionObjectiveCompletionUtil
     {
-        private static string CompletedKey(string questId, string objectiveKey) => $"alegacyvsquest:ao:completed:{questId}:{objectiveKey}";
+        private static string CompletedKey(string questId, int stageIndex, string objectiveKey) => $"alegacyvsquest:ao:completed:{questId}:stage{stageIndex}:{objectiveKey}";
         private static string SequenceStepKey(string questId, string sequenceId) => $"vsquest:sequence:{questId}:{sequenceId}:step";
 
         public static void ResetCompletionFlags(Quest quest, IServerPlayer player)
         {
             if (quest == null || player?.Entity?.WatchedAttributes == null) return;
-            if (quest.actionObjectives == null || quest.actionObjectives.Count == 0) return;
 
             var wa = player.Entity.WatchedAttributes;
 
-            foreach (var ao in quest.actionObjectives)
+            // Reset for all stages if quest has stages, otherwise use legacy objectives
+            if (quest.HasStages)
+            {
+                for (int stageIndex = 0; stageIndex < quest.stages.Count; stageIndex++)
+                {
+                    var actionObjectives = quest.GetActionObjectives(stageIndex);
+                    ResetActionObjectiveFlags(quest, stageIndex, actionObjectives, wa);
+                }
+            }
+            else
+            {
+                ResetActionObjectiveFlags(quest, 0, quest.actionObjectives, wa);
+            }
+        }
+
+        private static void ResetActionObjectiveFlags(Quest quest, int stageIndex, List<ActionWithArgs> actionObjectives, Vintagestory.API.Datastructures.ITreeAttribute wa)
+        {
+            if (actionObjectives == null || actionObjectives.Count == 0) return;
+
+            foreach (var ao in actionObjectives)
             {
                 if (ao == null || string.IsNullOrWhiteSpace(ao.id)) continue;
 
@@ -34,9 +53,32 @@ namespace VsQuest
                     objectiveKey = ao.id;
                 }
 
-                string key = CompletedKey(quest.id, objectiveKey);
+                string key = CompletedKey(quest.id, stageIndex, objectiveKey);
                 wa.RemoveAttribute(key);
-                wa.MarkPathDirty(key);
+
+                // Reset interactwithentity counters
+                if (ao.id == "interactwithentity" && ao.args != null && ao.args.Length >= 2)
+                {
+                    string questId = ao.args[0];
+                    string target = ao.args[1];
+                    if (!string.IsNullOrWhiteSpace(questId) && !string.IsNullOrWhiteSpace(target))
+                    {
+                        string counterKey = InteractWithEntityObjective.CountKey(questId, target);
+                        wa.RemoveAttribute(counterKey);
+                    }
+                }
+
+                // Reset killactiontarget counters
+                if (ao.id == "killactiontarget" && ao.args != null && ao.args.Length >= 2)
+                {
+                    string questId = ao.args[0];
+                    string objectiveId = ao.args[1];
+                    if (!string.IsNullOrWhiteSpace(questId) && !string.IsNullOrWhiteSpace(objectiveId))
+                    {
+                        string counterKey = $"vsquest:killactiontarget:{questId}:{objectiveId}:count";
+                        wa.RemoveAttribute(counterKey);
+                    }
+                }
 
                 if (ao.id == "sequence" && ao.args != null && ao.args.Length >= 2)
                 {
@@ -46,7 +88,6 @@ namespace VsQuest
                     {
                         string stepKey = SequenceStepKey(questId, sequenceId);
                         wa.RemoveAttribute(stepKey);
-                        wa.MarkPathDirty(stepKey);
                     }
                 }
             }
@@ -65,10 +106,17 @@ namespace VsQuest
             var wa = player.Entity?.WatchedAttributes;
             if (wa == null) return;
 
-            string key = CompletedKey(activeQuest.questId, objectiveKey);
-            if (wa.GetBool(key, false)) return;
+            // Use stage-aware completion key
+            string key = CompletedKey(activeQuest.questId, activeQuest.currentStageIndex, objectiveKey);
+            if (wa.GetBool(key, false))
+            {
+                sapi.Logger.Debug($"[QuestActionObjectiveCompletionUtil] Objective {objectiveKey} already completed for quest {activeQuest.questId} stage {activeQuest.currentStageIndex}");
+                return;
+            }
 
             string actionString = objectiveDef.onCompleteActions;
+
+            sapi.Logger.Debug($"[QuestActionObjectiveCompletionUtil] Firing onComplete for {objectiveKey} in quest {activeQuest.questId} stage {activeQuest.currentStageIndex}");
 
             wa.SetBool(key, true);
             wa.MarkPathDirty(key);

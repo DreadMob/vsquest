@@ -32,12 +32,15 @@ namespace VsQuest
                     // killactiontarget objectives
                     KillActionObjectiveUtil.TryHandleKill(sapi, serverPlayer, quest, killedEntity);
 
+                    // Get action objectives from current stage using centralized method
+                    var actionObjectives = questDef?.GetActionObjectives(quest.currentStageIndex);
+
                     // killnear objectives
-                    if (questDef?.actionObjectives != null)
+                    if (actionObjectives != null)
                     {
-                        for (int i = 0; i < questDef.actionObjectives.Count; i++)
+                        for (int i = 0; i < actionObjectives.Count; i++)
                         {
-                            var ao = questDef.actionObjectives[i];
+                            var ao = actionObjectives[i];
                             if (ao == null) continue;
                             if (ao.id != "killnear") continue;
                             if (ao.args == null || ao.args.Length < 6) continue;
@@ -50,7 +53,7 @@ namespace VsQuest
 
                             if (!string.Equals(questIdArg, quest.questId, System.StringComparison.OrdinalIgnoreCase)) continue;
 
-                            if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, questSystem?.ActionObjectiveRegistry, "kill", ao.objectiveId)) continue;
+                            if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, questSystem?.ActionObjectiveRegistry, quest.currentStageIndex, "kill", ao.objectiveId)) continue;
 
                             // Check mob code
                             if (!string.IsNullOrWhiteSpace(mobCode) && mobCode != "*" && !LocalizationUtils.MobCodeMatches(mobCode, killedCode)) continue;
@@ -84,11 +87,11 @@ namespace VsQuest
                     }
 
                     string killObjectiveId = null;
-                    if (questDef?.actionObjectives != null)
+                    if (actionObjectives != null)
                     {
-                        for (int i = 0; i < questDef.actionObjectives.Count; i++)
+                        for (int i = 0; i < actionObjectives.Count; i++)
                         {
-                            var ao = questDef.actionObjectives[i];
+                            var ao = actionObjectives[i];
                             if (ao == null) continue;
                             if (ao.id != "randomkill") continue;
                             if (string.IsNullOrWhiteSpace(ao.objectiveId)) continue;
@@ -98,7 +101,7 @@ namespace VsQuest
                         }
                     }
 
-                    if (QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, questSystem?.ActionObjectiveRegistry, "kill", killObjectiveId))
+                    if (QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, questSystem?.ActionObjectiveRegistry, quest.currentStageIndex, "kill", killObjectiveId))
                     {
                         RandomKillQuestUtils.TryHandleKill(sapi, serverPlayer, quest, killedCode);
                     }

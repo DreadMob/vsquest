@@ -28,6 +28,7 @@ namespace VsQuest
             var forgiveQuestHandler = new QuestForgiveCommandHandler(sapi, questSystem);
             var questCompleteHandler = new QuestCompleteCommandHandler(sapi, questSystem);
             var questCompleteActiveHandler = new QuestCompleteActiveCommandHandler(sapi, questSystem);
+            var questSkipStageHandler = new QuestSkipStageCommandHandler(sapi, questSystem);
             var questActionItemsHandler = new QuestActionItemsCommandHandler(itemSystem);
             var questAttrSetHandler = new QuestAttrSetCommandHandler(sapi);
             var questAttrRemoveHandler = new QuestAttrRemoveCommandHandler(sapi);
@@ -251,6 +252,15 @@ namespace VsQuest
                     .RequiresPrivilege(Privilege.give)
                     .WithArgs(sapi.ChatCommands.Parsers.OptionalWord("playerName"))
                     .HandleWith(questCompleteActiveHandler.Handle)
+                .EndSubCommand()
+                .BeginSubCommand("skipstage")
+                    .WithDescription("Skips the current stage of a quest for a player. If no player is given, uses the caller. If no questId is given, uses the active quest.")
+                    .RequiresPrivilege(Privilege.give)
+                    .WithArgs(
+                        sapi.ChatCommands.Parsers.OptionalWord("playerName"),
+                        sapi.ChatCommands.Parsers.OptionalWord("questId")
+                    )
+                    .HandleWith(questSkipStageHandler.Handle)
                 .EndSubCommand()
                 .BeginSubCommand("qforgive")
                     .WithDescription("Resets a quest for a player: removes it from active quests and clears cooldown/completed flags.")

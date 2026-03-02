@@ -148,28 +148,33 @@ namespace VsQuest
                         questHasTickObjectivesByQuestId[activeQuest.questId] = hasTickObjectives;
                     }
 
-                    if (hasTickObjectives && questDef.actionObjectives != null)
+                    if (hasTickObjectives)
                     {
-                        for (int i = 0; i < questDef.actionObjectives.Count; i++)
+                        // Use stage-aware action objectives
+                        var stageActionObjectives = questDef.GetActionObjectives(activeQuest.currentStageIndex);
+                        if (stageActionObjectives != null)
                         {
-                            var objective = questDef.actionObjectives[i];
-                            if (objective == null) continue;
-
-                            if (objective.id == "walkdistance")
+                            for (int i = 0; i < stageActionObjectives.Count; i++)
                             {
-                                if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
+                                var objective = stageActionObjectives[i];
+                                if (objective == null) continue;
 
-                                if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
-                                var objectiveImplementation = impl as WalkDistanceObjective;
-                                objectiveImplementation?.OnTick(serverPlayer, activeQuest, i, objective.args, sapi, dt);
-                            }
-                            else if (objective.id == "temporalstorm")
-                            {
-                                if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, actionObjectiveRegistry, "tick", objective.objectiveId)) continue;
+                                if (objective.id == "walkdistance")
+                                {
+                                    if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, actionObjectiveRegistry, activeQuest.currentStageIndex, "tick", objective.objectiveId)) continue;
 
-                                if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
-                                var objectiveImplementation = impl as TemporalStormObjective;
-                                objectiveImplementation?.OnTick(serverPlayer, activeQuest, objective, sapi);
+                                    if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
+                                    var objectiveImplementation = impl as WalkDistanceObjective;
+                                    objectiveImplementation?.OnTick(serverPlayer, activeQuest, i, objective.args, sapi, dt);
+                                }
+                                else if (objective.id == "temporalstorm")
+                                {
+                                    if (!QuestTimeGateUtil.AllowsProgress(serverPlayer, questDef, actionObjectiveRegistry, activeQuest.currentStageIndex, "tick", objective.objectiveId)) continue;
+
+                                    if (!actionObjectiveRegistry.TryGetValue(objective.id, out var impl) || impl == null) continue;
+                                    var objectiveImplementation = impl as TemporalStormObjective;
+                                    objectiveImplementation?.OnTick(serverPlayer, activeQuest, objective, sapi);
+                                }
                             }
                         }
                     }
@@ -187,7 +192,7 @@ namespace VsQuest
 
         private static void TryFirePassiveActionObjectiveCompletions(IServerPlayer player, ActiveQuest activeQuest, Quest questDef, Dictionary<string, ActionObjectiveBase> actionObjectiveRegistry, ICoreServerAPI sapi, double passiveCompletionThrottleHours)
         {
-            if (player == null || activeQuest == null || questDef?.actionObjectives == null) return;
+            if (player == null || activeQuest == null || questDef == null) return;
             if (sapi == null || actionObjectiveRegistry == null) return;
 
             var wa = player.Entity?.WatchedAttributes;
@@ -198,6 +203,8 @@ namespace VsQuest
             double last = wa.GetDouble(throttleKey, -999999);
 			double throttle = passiveCompletionThrottleHours;
 			if (throttle <= 0) throttle = 1.0 / 3600.0;
+			// Reduce throttle for inland objectives to check more frequently
+			throttle = 1.0 / 3600.0; // Check every second
 			if (now - last < throttle) return;
             wa.SetDouble(throttleKey, now);
             // Only mark dirty if value actually changed to avoid unnecessary network sync
@@ -206,10 +213,15 @@ namespace VsQuest
                 wa.MarkPathDirty(throttleKey);
             }
 
-            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            // Use stage-aware action objectives
+            var stageActionObjectives = questDef.GetActionObjectives(activeQuest.currentStageIndex);
+            if (stageActionObjectives == null) return;
+
+            for (int i = 0; i < stageActionObjectives.Count; i++)
             {
-                var ao = questDef.actionObjectives[i];
+                var ao = stageActionObjectives[i];
                 if (ao == null) continue;
+                
                 if (string.IsNullOrWhiteSpace(ao.onCompleteActions)) continue;
 
                 // Skip event-driven objectives; they fire completion in their own hooks.

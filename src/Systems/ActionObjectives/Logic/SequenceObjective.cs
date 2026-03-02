@@ -103,12 +103,32 @@ namespace VsQuest
             var questSystem = byPlayer?.Entity?.Api?.ModLoader?.GetModSystem<QuestSystem>();
             if (questSystem == null) return false;
 
-            if (!questSystem.QuestRegistry.TryGetValue(questId, out var questDef) || questDef?.actionObjectives == null) return false;
+            if (!questSystem.QuestRegistry.TryGetValue(questId, out var questDef) || questDef == null) return false;
+
+            // Get the active quest to determine current stage
+            var playerQuests = questSystem.GetPlayerQuests(byPlayer.PlayerUID);
+            if (playerQuests == null) return false;
+
+            ActiveQuest activeQuest = null;
+            foreach (var q in playerQuests)
+            {
+                if (string.Equals(q.questId, questId, StringComparison.OrdinalIgnoreCase))
+                {
+                    activeQuest = q;
+                    break;
+                }
+            }
+
+            if (activeQuest == null) return false;
+
+            // Use stage-aware action objectives
+            var stageActionObjectives = questDef.GetActionObjectives(activeQuest.currentStageIndex);
+            if (stageActionObjectives == null) return false;
 
             ActionWithArgs target = null;
-            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            for (int i = 0; i < stageActionObjectives.Count; i++)
             {
-                var ao = questDef.actionObjectives[i];
+                var ao = stageActionObjectives[i];
                 if (ao == null) continue;
                 if (!string.Equals(ao.objectiveId, stepObjectiveId, StringComparison.OrdinalIgnoreCase)) continue;
                 target = ao;

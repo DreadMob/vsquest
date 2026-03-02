@@ -33,7 +33,7 @@
       "code": "judgement",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:necropolis_judgment alstory:loran loran; addplayerint alstory:loranmet 1 1 alstory:loranmetonce; damagequestgiver 10 5; closedialogue",
+      "trigger": "markentityinteraction alstory:last_breath_collect alstory:loran loran; addplayerint alstory:loranmet 1 1 alstory:loranmetonce; closedialogue",
       "text": [
         { "value": "alstory:dialogue-loran-judgement-answer" }
       ]
@@ -42,7 +42,7 @@
       "code": "promise",
       "owner": "npc",
       "type": "talk",
-      "trigger": "markentityinteraction alstory:necropolis_judgment alstory:loran loran; addplayerint alstory:loranmet 1 1 alstory:loranmetonce; damagequestgiver 10 5; closedialogue",
+      "trigger": "markentityinteraction alstory:last_breath_collect alstory:loran loran; addplayerint alstory:loranmet 1 1 alstory:loranmetonce; closedialogue",
       "text": [
         { "value": "alstory:dialogue-loran-promise-answer" }
       ]

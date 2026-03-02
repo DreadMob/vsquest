@@ -33,12 +33,15 @@ namespace VsQuest.Harmony
                     if (questSystem.QuestRegistry == null) continue;
                     if (!questSystem.QuestRegistry.TryGetValue(quest.questId, out var questDef) || questDef == null) continue;
 
-                    bool needsBlockUse = (questDef.interactObjectives != null && questDef.interactObjectives.Count > 0);
-                    if (!needsBlockUse && questDef.actionObjectives != null)
+                    // Check current stage for interact objectives
+                    var currentStage = questDef.GetStage(quest.currentStageIndex);
+                    bool needsBlockUse = (currentStage?.interactObjectives != null && currentStage.interactObjectives.Count > 0);
+                    
+                    if (!needsBlockUse && currentStage?.actionObjectives != null)
                     {
-                        for (int ao = 0; ao < questDef.actionObjectives.Count; ao++)
+                        for (int ao = 0; ao < currentStage.actionObjectives.Count; ao++)
                         {
-                            var a = questDef.actionObjectives[ao];
+                            var a = currentStage.actionObjectives[ao];
                             if (a == null) continue;
                             if (a.id == "interactat" || a.id == "interactcount")
                             {

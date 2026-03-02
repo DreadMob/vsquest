@@ -118,6 +118,18 @@ namespace VsQuest
         /// Gets the total number of stages (1 for legacy quests)
         /// </summary>
         public int StageCount => HasStages ? stages.Count : 1;
+
+        /// <summary>
+        /// Gets action objectives for the specified stage index.
+        /// Returns stage-specific action objectives if quest has stages, otherwise returns root action objectives.
+        /// </summary>
+        /// <param name="stageIndex">The stage index (0-based)</param>
+        /// <returns>List of action objectives for the stage, or empty list if stage doesn't exist</returns>
+        public List<ActionWithArgs> GetActionObjectives(int stageIndex)
+        {
+            var stage = GetStage(stageIndex);
+            return stage?.actionObjectives ?? new List<ActionWithArgs>();
+        }
     }
 
     public class Objective

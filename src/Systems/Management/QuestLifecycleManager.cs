@@ -285,10 +285,6 @@ namespace VsQuest
                         questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
                         questGiverBehavior?.SendQuestInfoMessageToClient(sapi, fromPlayer.Entity);
                     }
-
-                    // Notify player
-                    sapi.SendMessage(fromPlayer, GlobalConstants.InfoLogChatGroup,
-                        LocalizationUtils.GetSafe("alegacyvsquest:stage-advanced"), EnumChatType.Notification);
                 }
                 else
                 {

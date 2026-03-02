@@ -319,6 +319,9 @@ namespace VsQuest
         {
             string msg = GetEnterMessage(config, claimName);
             FireActionTemplate(sp, questId, config?.enterAction, msg, claimName, null);
+            
+            // Force check inland objectives when entering a land claim
+            TryFireInlandObjectives(sp, questId, claimName);
         }
 
         private void FireExit(IServerPlayer sp, string questId, QuestLandConfig config, string lastClaimName)
@@ -421,6 +424,44 @@ namespace VsQuest
             }
 
             return null;
+        }
+
+        private void TryFireInlandObjectives(IServerPlayer sp, string questId, string claimName)
+        {
+            if (sp == null || string.IsNullOrWhiteSpace(questId) || string.IsNullOrWhiteSpace(claimName)) return;
+            if (questSystem == null) return;
+
+            var activeQuests = questSystem.GetPlayerQuests(sp.PlayerUID);
+            if (activeQuests == null) return;
+
+            foreach (var activeQuest in activeQuests)
+            {
+                if (activeQuest == null || !string.Equals(activeQuest.questId, questId, StringComparison.OrdinalIgnoreCase)) continue;
+
+                if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef) || questDef == null) continue;
+
+                // Get action objectives for current stage
+                var stageActionObjectives = questDef.GetActionObjectives(activeQuest.currentStageIndex);
+                if (stageActionObjectives == null) continue;
+
+                // Check all inland objectives
+                foreach (var ao in stageActionObjectives)
+                {
+                    if (ao == null || ao.id != "inland") continue;
+                    if (string.IsNullOrWhiteSpace(ao.onCompleteActions)) continue;
+
+                    // Check if this inland objective matches the current claim
+                    if (questSystem.ActionObjectiveRegistry.TryGetValue("inland", out var impl) && impl != null)
+                    {
+                        bool ok = impl.IsCompletable(sp, ao.args);
+                        if (ok)
+                        {
+                            sapi.Logger.Debug($"[QuestLandNotificationSystem] Firing inland objective {ao.objectiveId} for quest {questId} in claim {claimName}");
+                            QuestActionObjectiveCompletionUtil.TryFireOnComplete(sapi, sp, activeQuest, ao, ao.objectiveId, true);
+                        }
+                    }
+                }
+            }
         }
 
         private class QuestLandConfig

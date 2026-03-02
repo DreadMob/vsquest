@@ -10,7 +10,19 @@ namespace VsQuest
     {
         public override bool IsCompletable(IPlayer byPlayer, params string[] args)
         {
-            return TryGetClaimName(byPlayer, out string name) && NameMatches(args, name);
+            bool result = TryGetClaimName(byPlayer, out string name) && NameMatches(args, name);
+            
+            // Debug logging
+            if (byPlayer?.Entity?.Api is Vintagestory.API.Server.ICoreServerAPI sapi)
+            {
+                if (args != null && args.Length > 0)
+                {
+                    string expected = args[0];
+                    sapi.Logger.Debug($"[InLandObjective] Player {byPlayer.PlayerName} checking region. Expected: '{expected}', Found: '{name}', Result: {result}");
+                }
+            }
+            
+            return result;
         }
 
         public override List<int> GetProgress(IPlayer byPlayer, params string[] args)

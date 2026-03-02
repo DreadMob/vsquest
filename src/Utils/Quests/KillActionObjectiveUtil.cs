@@ -14,14 +14,18 @@ namespace VsQuest
             var questSystem = sapi.ModLoader.GetModSystem<QuestSystem>();
             if (questSystem?.QuestRegistry == null || questSystem.ActionObjectiveRegistry == null) return;
 
-            if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef) || questDef?.actionObjectives == null) return;
+            if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef)) return;
 
             string killedTargetId = killedEntity.GetBehavior<EntityBehaviorQuestTarget>()?.TargetId;
             if (string.IsNullOrWhiteSpace(killedTargetId)) return;
 
-            for (int i = 0; i < questDef.actionObjectives.Count; i++)
+            // Get action objectives from current stage using centralized method
+            var actionObjectives = questDef?.GetActionObjectives(activeQuest.currentStageIndex);
+            if (actionObjectives == null || actionObjectives.Count == 0) return;
+
+            for (int i = 0; i < actionObjectives.Count; i++)
             {
-                var ao = questDef.actionObjectives[i];
+                var ao = actionObjectives[i];
                 if (ao == null || ao.args == null) continue;
 
                 if (ao.id != "killactiontarget") continue;
@@ -32,7 +36,7 @@ namespace VsQuest
                 if (!string.Equals(objectiveId, ao.objectiveId, StringComparison.OrdinalIgnoreCase)) continue;
                 if (!string.Equals(requiredTargetId, killedTargetId, StringComparison.OrdinalIgnoreCase)) continue;
 
-                if (!QuestTimeGateUtil.AllowsProgress(player, questDef, questSystem.ActionObjectiveRegistry, "kill", ao.objectiveId)) continue;
+                if (!QuestTimeGateUtil.AllowsProgress(player, questDef, questSystem.ActionObjectiveRegistry, activeQuest.currentStageIndex, "kill", ao.objectiveId)) continue;
 
                 if (questSystem.ActionObjectiveRegistry.TryGetValue(ao.id, out var impl) && impl is KillActionTargetObjective ko)
                 {

@@ -75,13 +75,18 @@ namespace VsQuest.Harmony
             {
                 var activeQuest = activeQuests[q];
                 if (activeQuest == null || string.IsNullOrWhiteSpace(activeQuest.questId)) continue;
-                if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef) || questDef?.actionObjectives == null) continue;
+                if (!questSystem.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef)) continue;
+
+                // Get action objectives from current stage using centralized method
+                var actionObjectivesToCheck = questDef?.GetActionObjectives(activeQuest.currentStageIndex);
+                
+                if (actionObjectivesToCheck == null || actionObjectivesToCheck.Count == 0) continue;
 
                 // Fast skip: if the quest has no interactwithentity objectives at all, don't do any work.
                 bool hasInteractWithEntity = false;
-                for (int i = 0; i < questDef.actionObjectives.Count; i++)
+                for (int i = 0; i < actionObjectivesToCheck.Count; i++)
                 {
-                    var ao = questDef.actionObjectives[i];
+                    var ao = actionObjectivesToCheck[i];
                     if (ao == null) continue;
                     if (ao.id == "interactwithentity")
                     {
@@ -91,7 +96,7 @@ namespace VsQuest.Harmony
                 }
                 if (!hasInteractWithEntity) continue;
 
-                foreach (var ao in questDef.actionObjectives)
+                foreach (var ao in actionObjectivesToCheck)
                 {
                     if (ao == null) continue;
                     if (ao.id != "interactwithentity") continue;

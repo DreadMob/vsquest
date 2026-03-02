@@ -55,7 +55,7 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
-      { "code": "health", "currenthealth": 35, "maxhealth": 35 },
+      { "code": "health", "currenthealth": 65, "maxhealth": 65 },
       {
         "code": "emotionstates",
         "states": [
@@ -69,8 +69,8 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damageByType": { "*-corrupt": 12 },
-            "damageTierByType": { "*-corrupt": 3 },
+            "damageByType": { "*-corrupt": 20 },
+            "damageTierByType": { "*-corrupt": 4 },
             "damageTypeByType": { "*-corrupt": "SlashingAttack" },
             "mincooldown": 500,
             "maxcooldown": 1750,
@@ -85,7 +85,7 @@
             "priority": 1.5,
             "mincooldown": 400,
             "maxcooldown": 800,
-            "movespeed": 0.036,
+            "movespeed": 0.048,
             "seekingRange": 20,
             "animationSpeed": 1.3,
             "animation": "standrun"

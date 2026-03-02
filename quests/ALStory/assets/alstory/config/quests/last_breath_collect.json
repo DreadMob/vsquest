@@ -1,6 +1,6 @@
 {
   "id": "alstory:last_breath_collect",
-  "cooldown": -1,
+  "cooldown": 800,
   "perPlayer": true,
   "stages": [
     {
@@ -32,11 +32,23 @@
         },
         {
           "id": "addjournalentry",
-          "args": ["alstory:last_breath_collect", "alstory:stage1-complete", "alstory:last_breath_collect-stage1-journal", "Две части доспехов собраны"]
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:last_breath_collect-stage1-journal", "Две части доспехов собраны"]
         },
         {
           "id": "setplayervariable",
           "args": ["alstory:armorparts", "2"]
+        },
+        {
+          "id": "addplayerattribute",
+          "args": ["alstory_vh_stage", "start"]
+        },
+        {
+          "id": "consumeactionitem",
+          "args": ["alstory-armor-helm", "1"]
+        },
+        {
+          "id": "consumeactionitem",
+          "args": ["alstory-armor-chest", "1"]
         }
       ]
     },
@@ -44,23 +56,9 @@
       "stageTitleLangKey": "alstory:last_breath_collect-stage2-title",
       "actionObjectives": [
         {
-          "id": "sequence",
-          "objectiveId": "village_heart_main",
-          "args": [
-            "alstory:last_breath_collect",
-            "village_heart",
-            "heinrich",
-            "village",
-            "crystal1",
-            "crystal2",
-            "crystal3",
-            "illa"
-          ]
-        },
-        {
           "id": "interactwithentity",
           "objectiveId": "heinrich",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-heinrich; questitem alstory-keepers-key; questitem alstory-ritual-crystalbreaker",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-heinrich; questitem alstory-keepers-key",
           "args": [
             "alstory:last_breath_collect",
             "alstory:heinrich",
@@ -68,48 +66,43 @@
           ]
         },
         {
-          "id": "interactwithentity",
-          "objectiveId": "village",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-village",
-          "args": [
-            "alstory:last_breath_collect",
-            "alstory:village_trigger",
-            "1"
-          ]
-        },
-        {
           "id": "interactat",
           "objectiveId": "crystal1",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-crystal1",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystal1; playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
-            "-1240,60,-12730"
+            "512000,3,512000|511999,3,512000|512001,3,512000|512000,3,511999|512000,3,512001",
+            "alstory-keepers-key",
+            "5"
           ]
         },
         {
           "id": "interactat",
           "objectiveId": "crystal2",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-crystal2",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystal2; playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
-            "-1245,60,-12735"
+            "512000,4,512000|511999,4,512000|512001,4,512000|512000,4,511999|512000,4,512001",
+            "alstory-keepers-key",
+            "5"
           ]
         },
         {
           "id": "interactat",
           "objectiveId": "crystal3",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-crystals; consumeactionitem alstory-ritual-crystalbreaker 1",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystals; playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
-            "-1250,60,-12740"
+            "512000,5,512000|511999,5,512000|512001,5,512000|512000,5,511999|512000,5,512001",
+            "alstory-keepers-key",
+            "5"
           ]
         },
         {
           "id": "interactwithentity",
           "objectiveId": "illa",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-vh-title alstory:last_breath_collect-vh-illa; questitem alstory-armor-legs",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-illa; questitem alstory-armor-legs",
           "args": [
             "alstory:last_breath_collect",
             "alstory:illa",
-            "1",
-            "dialog"
+            "1"
           ]
         }
       ],
@@ -119,44 +112,62 @@
           "args": ["sounds/tutorialstepsuccess"]
         },
         {
+          "id": "consumeactionitem",
+          "args": ["alstory-keepers-key", "1"]
+        },
+        {
           "id": "addjournalentry",
-          "args": ["alstory:last_breath_collect", "alstory:stage2-complete", "alstory:last_breath_collect-stage2-journal", "Все доспехи собраны"]
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:last_breath_collect-stage2-journal", "Все доспехи собраны"]
         },
         {
           "id": "setplayervariable",
           "args": ["alstory:armorparts", "3"]
+        },
+        {
+          "id": "addplayerattribute",
+          "args": ["alstory_vh_stage", "crystals"]
+        },
+        {
+          "id": "consumeactionitem",
+          "args": ["alstory-armor-legs", "1"]
+        },
+        {
+          "id": "addplayerattribute",
+          "args": ["alstory_nj_stage", "start"]
         }
       ]
     },
     {
-      "stageTitleLangKey": "alstory:last_breath_collect-stage3-title",
+      "stageTitleLangKey": "alstory:necropolis_judgment-stage-title",
       "actionObjectives": [
         {
-          "id": "interactwithentity",
-          "demand": 1,
-          "args": ["alstory:last_breath_collect", "alstory:elrik", "1"]
+          "id": "killactiontarget",
+          "objectiveId": "loranboss",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:necropolis_judgment-journal-step3; addplayerattribute alstory_nj_stage loranboss; addplayerint alstory:loranbosskilled 1 1 alstory:loranbosskilledonce; questitem alstory-tablet-epitaph; questitem alstory-note-necropolisfragment",
+          "args": [
+            "alstory:last_breath_collect",
+            "loranboss",
+            "alstory:necropolis_judgment:loran",
+            "1"
+          ]
         }
       ],
       "onStageCompleteActions": [
         {
+          "id": "playsound",
+          "args": ["alegacyvsquest:sounds/quecomp", "0.175"]
+        },
+        {
           "id": "addjournalentry",
-          "args": ["alstory:last_breath_collect", "alstory:quest-complete", "alstory:last_breath_collect-complete-journal", "Квест завершен"]
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:necropolis_judgment-complete-journal", "Некрополь пройден"]
         }
       ]
     }
   ],
   "actionRewards": [
     {
-      "id": "consumeactionitem",
-      "args": ["alstory-armor-helm", "1"]
-    },
-    {
-      "id": "consumeactionitem",
-      "args": ["alstory-armor-chest", "1"]
-    },
-    {
-      "id": "consumeactionitem",
-      "args": ["alstory-armor-legs", "1"]
+      "id": "giveactionitem",
+      "args": ["alstory-doomed-amulet", "1"]
     },
     {
       "id": "giveactionitem",
@@ -165,6 +176,14 @@
     {
       "id": "playsound",
       "args": ["sounds/tutorialstepsuccess"]
+    },
+    {
+      "id": "showquestfinaldialog",
+      "args": [
+        "alstory:final-necropolis-title",
+        "alstory:final-necropolis-text",
+        "alstory:final-necropolis-option"
+      ]
     }
   ]
 }

@@ -89,52 +89,11 @@ namespace VsQuest
                 }
             }
 
-            // Fallback: try to find by itemCode (for items that don't have actionItemId yet)
-            if (TryGetActionItemByStack(slot.Itemstack, out var actionItemByCode))
-            {
-                ItemAttributeUtils.ApplyActionItemAttributes(slot.Itemstack, actionItemByCode);
-                slot.MarkDirty();
-                return true;
-            }
-
+            // Do NOT auto-convert items by itemCode alone.
+            // This prevents regular game items from being converted to action items.
+            // Action items should be spawned with actionItemId already set.
             return false;
         }
 
-        private bool TryGetActionItemByStack(ItemStack stack, out ActionItem actionItem)
-        {
-            actionItem = null;
-            if (stack?.Collectible?.Code == null) return false;
-            if (actionItemRegistry == null || actionItemRegistry.Count == 0) return false;
-
-            string code = stack.Collectible.Code.ToString();
-            ActionItem found = null;
-            bool multipleMatches = false;
-            foreach (var entry in actionItemRegistry.Values)
-            {
-                if (entry?.itemCode == null) continue;
-                if (!string.Equals(entry.itemCode, code, StringComparison.OrdinalIgnoreCase)) continue;
-
-                if (found == null)
-                {
-                    found = entry;
-                }
-                else
-                {
-                    multipleMatches = true;
-                    break;
-                }
-            }
-
-            if (multipleMatches)
-            {
-                // Ambiguous base item mapping: do not auto-apply action item attributes.
-                // This avoids converting items to the wrong action item when multiple configs share the same itemCode.
-                actionItem = null;
-                return false;
-            }
-
-            actionItem = found;
-            return actionItem != null;
-        }
     }
 }

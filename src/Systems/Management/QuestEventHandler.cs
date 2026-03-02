@@ -565,13 +565,20 @@ namespace VsQuest
 
                 if (qs?.QuestRegistry == null || !qs.QuestRegistry.TryGetValue(activeQuest.questId, out var questDef) || questDef == null) continue;
 
+                // Get action objectives from current stage using centralized method
+                var actionObjectivesToCheck = questDef.GetActionObjectives(activeQuest.currentStageIndex);
+                
+                // Get interact objectives from current stage (no centralized method yet, using GetStage)
+                var currentStage = questDef.GetStage(activeQuest.currentStageIndex);
+                var interactObjectivesToCheck = currentStage?.interactObjectives ?? questDef.interactObjectives;
+
                 // Проверка: нужен ли этому квесту ивент взаимодействия
-                bool needsInteract = (questDef.interactObjectives != null && questDef.interactObjectives.Count > 0);
-                if (!needsInteract && questDef.actionObjectives != null)
+                bool needsInteract = (interactObjectivesToCheck != null && interactObjectivesToCheck.Count > 0);
+                if (!needsInteract && actionObjectivesToCheck != null)
                 {
-                    for (int ao = 0; ao < questDef.actionObjectives.Count; ao++)
+                    for (int ao = 0; ao < actionObjectivesToCheck.Count; ao++)
                     {
-                        var a = questDef.actionObjectives[ao];
+                        var a = actionObjectivesToCheck[ao];
                         if (a != null && (a.id == "interactat" || a.id == "interactcount"))
                         {
                             needsInteract = true;

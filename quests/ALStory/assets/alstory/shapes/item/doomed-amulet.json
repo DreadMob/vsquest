@@ -1,0 +1,79 @@
+{
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+		"metal": [16,16],
+		"chain": [8,4]
+	},
+	"textures": {
+		"chain": "alstory:entity/humanoid/seraphclothes/neck/chain/doomed",
+		"metal": "alstory:item/resource/doomed-gear"
+	},
+	"elements": [
+		{
+			"name": "origin",
+			"from": [ 8.0, 8.0, 8.0 ],
+			"to": [ 8.0, 8.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 8.0, 8.0 ],
+			"faces": {},
+			"children": [
+				{
+					"name": "chain1",
+					"from": [ -2.0, 1.0, -0.5 ],
+					"to": [ 2.0, 1.5, 0.5 ],
+					"rotationOrigin": [ 0.0, 1.25, 0.0 ],
+					"faces": {
+						"north": { "texture": "#chain", "uv": [ 0.0, 0.0, 4.0, 0.5 ] },
+						"east": { "texture": "#chain", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+						"south": { "texture": "#chain", "uv": [ 0.0, 0.0, 4.0, 0.5 ] },
+						"west": { "texture": "#chain", "uv": [ 0.0, 0.0, 1.0, 0.5 ] },
+						"up": { "texture": "#chain", "uv": [ 0.0, 0.0, 4.0, 1.0 ] },
+						"down": { "texture": "#chain", "uv": [ 0.0, 0.0, 4.0, 1.0 ] }
+					}
+				},
+				{
+					"name": "chain2",
+					"from": [ -2.0, 0.0, -0.5 ],
+					"to": [ -1.5, 1.0, 0.5 ],
+					"rotationOrigin": [ -1.75, 0.5, 0.0 ],
+					"faces": {
+						"north": { "texture": "#chain", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"east": { "texture": "#chain", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+						"south": { "texture": "#chain", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"west": { "texture": "#chain", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+						"up": { "texture": "#chain", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"down": { "texture": "#chain", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+					}
+				},
+				{
+					"name": "chain3",
+					"from": [ 1.5, 0.0, -0.5 ],
+					"to": [ 2.0, 1.0, 0.5 ],
+					"rotationOrigin": [ 1.75, 0.5, 0.0 ],
+					"faces": {
+						"north": { "texture": "#chain", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"east": { "texture": "#chain", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+						"south": { "texture": "#chain", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"west": { "texture": "#chain", "uv": [ 0.0, 0.0, 1.0, 1.0 ] },
+						"up": { "texture": "#chain", "uv": [ 0.0, 0.0, 0.5, 1.0 ] },
+						"down": { "texture": "#chain", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+					}
+				},
+				{
+					"name": "pendant",
+					"from": [ -1.0, -2.0, -0.5 ],
+					"to": [ 1.0, 0.0, 0.5 ],
+					"rotationOrigin": [ 0.0, -1.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#metal", "uv": [ 6.0, 6.0, 8.0, 8.0 ] },
+						"east": { "texture": "#metal", "uv": [ 6.0, 6.0, 7.0, 8.0 ] },
+						"south": { "texture": "#metal", "uv": [ 6.0, 6.0, 8.0, 8.0 ] },
+						"west": { "texture": "#metal", "uv": [ 6.0, 6.0, 7.0, 8.0 ] },
+						"up": { "texture": "#metal", "uv": [ 6.0, 6.0, 8.0, 7.0 ] },
+						"down": { "texture": "#metal", "uv": [ 6.0, 7.0, 8.0, 8.0 ] }
+					}
+				}
+			]
+		}
+	]
+}
