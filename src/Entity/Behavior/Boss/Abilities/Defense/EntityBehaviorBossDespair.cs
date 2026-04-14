@@ -168,7 +168,7 @@ namespace VsQuest
             float curHealth = healthTree.GetFloat("currenthealth", 0f);
             if (maxHealth <= 0f || curHealth <= 0f) return;
 
-            float newHealth = Math.Min(maxHealth, curHealth + 5.0f);
+            float newHealth = Math.Min(maxHealth, curHealth + 2.0f);
             healthTree.SetFloat("currenthealth", newHealth);
             wa.MarkPathDirty("health");
         }

@@ -239,16 +239,6 @@ namespace VsQuest
             const int reputationWidth = 520;
             int mainWidth = curTab == 2 ? reputationWidth : questsWidth;
 
-            ElementBounds dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
-            ElementBounds bgBounds = ElementBounds.Fill.WithFixedPadding(GuiStyle.ElementToDialogPadding);
-            ElementBounds questTextBounds = ElementBounds.Fixed(0, 60, mainWidth, 500);
-            ElementBounds scrollbarBounds = questTextBounds.CopyOffsetedSibling(questTextBounds.fixedWidth + 10).WithFixedWidth(20).WithFixedHeight(questTextBounds.fixedHeight);
-            ElementBounds clippingBounds = questTextBounds.ForkBoundingParent();
-
-            int halfButtonWidth = Math.Max(100, (mainWidth - 30) / 2);
-            ElementBounds bottomLeftButtonBounds = ElementBounds.Fixed(10, 570, halfButtonWidth, 20);
-            ElementBounds bottomRightButtonBounds = ElementBounds.Fixed(20 + halfButtonWidth, 570, halfButtonWidth, 20);
-
             var tabsList = new List<GuiTab>
             {
                 new GuiTab() { Name = Lang.Get("alegacyvsquest:tab-available-quests"), DataInt = 0 },
@@ -263,6 +253,16 @@ namespace VsQuest
             }
 
             GuiTab[] tabs = tabsList.ToArray();
+
+            ElementBounds dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.CenterMiddle);
+            ElementBounds bgBounds = ElementBounds.Fill.WithFixedPadding(GuiStyle.ElementToDialogPadding);
+            ElementBounds questTextBounds = ElementBounds.Fixed(0, 60, mainWidth, 500);
+            ElementBounds scrollbarBounds = questTextBounds.CopyOffsetedSibling(questTextBounds.fixedWidth + 10).WithFixedWidth(20).WithFixedHeight(questTextBounds.fixedHeight);
+            ElementBounds clippingBounds = questTextBounds.ForkBoundingParent();
+
+            int halfButtonWidth = Math.Max(100, (mainWidth - 30) / 2);
+            ElementBounds bottomLeftButtonBounds = ElementBounds.Fixed(10, 570, halfButtonWidth, 20);
+            ElementBounds bottomRightButtonBounds = ElementBounds.Fixed(20 + halfButtonWidth, 570, halfButtonWidth, 20);
 
             bgBounds.BothSizing = ElementSizing.FitToChildren;
             SingleComposer = capi.Gui.CreateCompo("QuestSelectDialog-", dialogBounds)

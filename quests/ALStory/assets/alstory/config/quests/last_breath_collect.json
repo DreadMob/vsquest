@@ -1,5 +1,6 @@
 {
   "id": "alstory:last_breath_collect",
+  "descriptionLangKey": "alstory:last_breath_collect-desc",
   "cooldown": 800,
   "perPlayer": true,
   "stages": [
@@ -32,7 +33,11 @@
         },
         {
           "id": "addjournalentry",
-          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:last_breath_collect-stage1-journal", "Две части доспехов собраны"]
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:last_breath_collect-stage1-journal", "alstory:last_breath_collect-stage1-journal-desc"]
+        },
+        {
+          "id": "setquestdescription",
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-desc-step2"]
         },
         {
           "id": "setplayervariable",
@@ -58,7 +63,7 @@
         {
           "id": "interactwithentity",
           "objectiveId": "heinrich",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-heinrich; questitem alstory-keepers-key",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-journal-vh-heinrich alstory:last_breath_collect-vh-heinrich-desc; questitem alstory-keepers-key",
           "args": [
             "alstory:last_breath_collect",
             "alstory:heinrich",
@@ -68,7 +73,7 @@
         {
           "id": "interactat",
           "objectiveId": "crystal1",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystal1; playsound game:sounds/effect/translocate-breakdimension 0.8",
+          "onCompleteActions": "playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
             "512059,129,512099|512059,130,512099",
             "alstory-keepers-key",
@@ -78,7 +83,7 @@
         {
           "id": "interactat",
           "objectiveId": "crystal2",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystal2; playsound game:sounds/effect/translocate-breakdimension 0.8",
+          "onCompleteActions": "playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
             "512062,129,512099|512062,130,512099",
             "alstory-keepers-key",
@@ -88,7 +93,7 @@
         {
           "id": "interactat",
           "objectiveId": "crystal3",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-crystals; playsound game:sounds/effect/translocate-breakdimension 0.8",
+          "onCompleteActions": "playsound game:sounds/effect/translocate-breakdimension 0.8",
           "args": [
             "512064,129,512099|512064,130,512099",
             "alstory-keepers-key",
@@ -98,7 +103,7 @@
         {
           "id": "interactwithentity",
           "objectiveId": "illa",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-vh-illa; questitem alstory-armor-legs",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-journal-vh-illa alstory:last_breath_collect-vh-illa-desc; questitem alstory-armor-legs; setquestdescription alstory:last_breath_collect alstory:last_breath_collect-desc-step4",
           "args": [
             "alstory:last_breath_collect",
             "alstory:illa",
@@ -112,12 +117,20 @@
           "args": ["sounds/tutorialstepsuccess"]
         },
         {
+          "id": "addjournalentry",
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:last_breath_collect-journal-crystals", "alstory:last_breath_collect-journal-crystals-desc"]
+        },
+        {
           "id": "consumeactionitem",
           "args": ["alstory-keepers-key", "1"]
         },
         {
           "id": "addjournalentry",
-          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:last_breath_collect-stage2-journal", "Все доспехи собраны"]
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:last_breath_collect-stage2-journal", "alstory:last_breath_collect-stage2-journal-desc"]
+        },
+        {
+          "id": "setquestdescription",
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-desc-step3"]
         },
         {
           "id": "setplayervariable",
@@ -143,7 +156,7 @@
         {
           "id": "killactiontarget",
           "objectiveId": "loranboss",
-          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:necropolis_judgment-journal-step3; addplayerattribute alstory_nj_stage loranboss; addplayerint alstory:loranbosskilled 1 1 alstory:loranbosskilledonce; questitem alstory-tablet-epitaph; questitem alstory-note-necropolisfragment",
+          "onCompleteActions": "addjournalentry alstory:last_breath_collect alstory:last_breath_collect-journal alstory:last_breath_collect-journal-nj-step3 alstory:necropolis_judgment-journal-step3-desc; addplayerattribute alstory_nj_stage loranboss; addplayerint alstory:loranbosskilled 1 1 alstory:loranbosskilledonce; questitem alstory-tablet-epitaph; questitem alstory-note-necropolisfragment",
           "args": [
             "alstory:last_breath_collect",
             "loranboss",
@@ -159,7 +172,11 @@
         },
         {
           "id": "addjournalentry",
-          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:necropolis_judgment-complete-journal", "Некрополь пройден"]
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-journal", "alstory:necropolis_judgment-complete-journal", "alstory:necropolis_judgment-complete-journal-desc"]
+        },
+        {
+          "id": "setquestdescription",
+          "args": ["alstory:last_breath_collect", "alstory:last_breath_collect-desc-complete"]
         }
       ]
     }
