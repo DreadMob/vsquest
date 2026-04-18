@@ -54,7 +54,7 @@
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 2.1251 },
       { "code": "health", "currenthealth": 320, "maxhealth": 320 },
-      { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
+      { "code": "bosscombatmarker", "trackCombatTime": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "vsquestdebugging:bosshunt:breathbreaker", "leashRange": 120, "returnMoveSpeed": 0.07, "leashCheckMs": 1000 },
       {

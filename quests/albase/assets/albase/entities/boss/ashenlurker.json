@@ -51,7 +51,8 @@
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 2.1251 },
       { "code": "health", "currenthealth": 1408, "maxhealth": 1408 },
-      { "code": "bosscombatmarker", "trackBossHuntDamageLock": true },
+      { "code": "bosspassiveregen", "regenPerSecond": 1.5 },
+      { "code": "bosscombatmarker", "trackCombatTime": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:ashenlurker", "leashRange": 120, "returnMoveSpeed": 0.05, "leashCheckMs": 1000 },
       {
@@ -124,14 +125,14 @@
         "stages": [
           {
             "whenHealthRelBelow": 0.7,
-            "cooldownSeconds": 10,
+            "cooldownSeconds": 16,
             "spawns": [
               { "entityCode": "albase:distorted-locust", "minCount": 5, "maxCount": 6 }
             ],
             "maxNearby": 10,
             "nearbyRange": 20,
             "ritualMs": 4800,
-            "healPerSecond": 2,
+            "healPerSecond": 1,
             "spawnRange": 10,
             "circleRadius": 3.5,
             "circleMoveSpeed": 1.1,
@@ -145,14 +146,14 @@
           },
           {
             "whenHealthRelBelow": 0.35,
-            "cooldownSeconds": 8,
+            "cooldownSeconds": 12,
             "spawns": [
               { "entityCode": "albase:distorted-locust", "minCount": 5, "maxCount": 6 }
             ],
             "maxNearby": 10,
             "nearbyRange": 20,
             "ritualMs": 4800,
-            "healPerSecond": 2.5,
+            "healPerSecond": 2,
             "spawnRange": 12,
             "circleRadius": 4.0,
             "circleMoveSpeed": 1.25,

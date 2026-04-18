@@ -9,7 +9,7 @@ namespace VsQuest
         public const string BossCombatDamageByPlayerKey = "alegacyvsquest:bosscombat:damageByPlayer";
         public const string BossCombatLastDamageMsKey = "alegacyvsquest:bosscombat:lastDamageMs";
 
-        private bool trackBossHuntDamageLock;
+        private bool trackCombatTime;
 
         public EntityBehaviorBossCombatMarker(Entity entity) : base(entity)
         {
@@ -19,7 +19,7 @@ namespace VsQuest
         {
             base.Initialize(properties, attributes);
 
-            trackBossHuntDamageLock = attributes["trackBossHuntDamageLock"].AsBool(false);
+            trackCombatTime = attributes["trackCombatTime"].AsBool(true);
         }
 
         public override void OnEntityReceiveDamage(DamageSource damageSource, ref float damage)
@@ -94,7 +94,7 @@ namespace VsQuest
                 }
             }
 
-            if (trackBossHuntDamageLock && byPlayerDamage)
+            if (trackCombatTime && byPlayerDamage)
             {
                 try
                 {

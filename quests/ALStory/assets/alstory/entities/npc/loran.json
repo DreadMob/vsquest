@@ -23,7 +23,9 @@
       { "type": "item", "code": "game:armor-head-antique-forlorn-damaged" },
       { "type": "item", "code": "game:armor-body-antique-forlorn-damaged" },
       { "type": "item", "code": "game:armor-legs-antique-forlorn-damaged" },
-      { "type": "item", "code": "game:shield-woodmetal", "attributes": { "wood": "oak", "metal": "iron", "deco": "none" } }
+      { "type": "item", "code": "game:shield-woodmetal", "attributes": { "wood": "oak", "metal": "iron", "deco": "none" } },
+      { "type": "item", "code": "ancientarmory:aa-blade-claymore-steel" },
+      { "type": "item", "code": "ancientarmory:aa-blade-claymore-steel" }
     ]
   },
   "code": "loran",

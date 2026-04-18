@@ -13,7 +13,7 @@
       "rotation": { "x": 0, "y": 0, "z": -41 }
     },
     "statModifiers": {
-      "hungerrate": -0.3,
+      "hungerrate": -0.2,
       "maxhealthExtraPoints": -2,
       "onHitSelfLifeSteal": 0.03
     }

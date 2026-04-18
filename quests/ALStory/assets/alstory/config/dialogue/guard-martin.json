@@ -41,6 +41,7 @@
       "code": "close",
       "owner": "npc",
       "type": "talk",
+      "trigger": "closedialogue",
       "text": [
         { "value": "alstory:dialogue-martin-close-answer" }
       ]

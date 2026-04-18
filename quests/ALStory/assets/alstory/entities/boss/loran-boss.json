@@ -5,12 +5,14 @@
     "skinnableParts": [],
     "alegacyvsquestNoUndress": true,
     "vsquestSoundPitchMul": 0.4,
+    "trackCombatTime": true,
     "inventory": [
       { "type": "item", "code": "game:armor-head-antique-forlorn-damaged" },
       { "type": "item", "code": "game:armor-body-antique-forlorn-damaged" },
       { "type": "item", "code": "game:armor-legs-antique-forlorn-damaged" },
-      { "type": "item", "code": "game:sword-iron", "attributes": { "metal": "iron" } },
-      { "type": "item", "code": "game:shield-woodmetal", "attributes": { "wood": "oak", "metal": "iron", "deco": "none" } }
+      { "type": "item", "code": "game:shield-woodmetal", "attributes": { "wood": "oak", "metal": "iron", "deco": "none" } },
+      { "type": "item", "code": "ancientarmory:aa-blade-claymore-steel" },
+      { "type": "item", "code": "ancientarmory:aa-blade-claymore-steel" }
     ]
   },
   "client": {
@@ -25,7 +27,8 @@
       { "code": "interpolateposition" },
       { "code": "extraskinnable" },
       { "code": "seraphinventory" },
-      { "code": "boss", "bossHpBarRange": 70, "musicTrack": "survival:music/theresonancearchives-eidolon" },
+      { "code": "boss", "bossHpBarRange": 70 },
+      { "code": "bossmusicurl", "musicKey": "theme_alstory_loran", "range": 70 },
       { "code": "bossnametag", "nameLangKey": "alstory:item-creature-loran-boss", "color": "#8B0000", "backgroundColor": "#000000", "backgroundOpacity": 0.5, "renderRange": 90 }
     ],
     "animations": [
@@ -45,9 +48,9 @@
     "behaviors": [
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 1.01 },
-      { "code": "health", "currenthealth": 550, "maxhealth": 550 },
+      { "code": "health", "currenthealth": 350, "maxhealth": 350 },
       { "code": "bossrebirth2", "isFinalStage": true },
-      { "code": "bosscombatmarker" },
+      { "code": "bosscombatmarker", "trackCombatTime": true },
       { "code": "bosshastargetsync" },
       {
         "code": "bossstillnessmark",
@@ -88,7 +91,7 @@
             "shieldMs": 3500,
             "windupMs": 200,
             "cooldownSeconds": 12,
-            "incomingDamageMultiplier": 0.15,
+            "incomingDamageMultiplier": 0.30,
             "animation": "sneakidle",
             "animationStopMs": 2800,
             "repeatable": true,
@@ -97,7 +100,7 @@
             "sound": "game:block/heavymetal-hit",
             "soundRange": 28,
             "soundStartMs": 0,
-            "loopSound": "game:effect/echo",
+            "loopSound": "survival:effect/echochamber",
             "loopSoundRange": 22,
             "loopSoundIntervalMs": 200
           },
@@ -106,7 +109,7 @@
             "shieldMs": 4500,
             "windupMs": 300,
             "cooldownSeconds": 15,
-            "incomingDamageMultiplier": 0.1,
+            "incomingDamageMultiplier": 0.20,
             "animation": "sneakidle",
             "animationStopMs": 3500,
             "repeatable": true,
@@ -115,7 +118,7 @@
             "sound": "game:block/heavymetal-hit2",
             "soundRange": 32,
             "soundStartMs": 0,
-            "loopSound": "game:effect/echo",
+            "loopSound": "survival:effect/echochamber",
             "loopSoundRange": 26,
             "loopSoundIntervalMs": 150
           },
@@ -124,7 +127,7 @@
             "shieldMs": 5500,
             "windupMs": 400,
             "cooldownSeconds": 18,
-            "incomingDamageMultiplier": 0.05,
+            "incomingDamageMultiplier": 0.10,
             "animation": "sneakidle",
             "animationStopMs": 4200,
             "repeatable": true,
@@ -133,7 +136,7 @@
             "sound": "game:creature/eidolon/rockfallslam",
             "soundRange": 36,
             "soundStartMs": 0,
-            "loopSound": "game:effect/echo",
+            "loopSound": "survival:effect/echochamber",
             "loopSoundRange": 30,
             "loopSoundIntervalMs": 100
           }

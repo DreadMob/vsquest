@@ -1,109 +1,206 @@
 using System;
+
 using Vintagestory.API.Common;
+
 using Vintagestory.API.Common.Entities;
+
 using Vintagestory.API.Datastructures;
+
 using Vintagestory.API.MathTools;
+
 using Vintagestory.API.Server;
+
 using Vintagestory.GameContent;
 
+
+
 namespace VsQuest
+
 {
+
     public class EntityBehaviorQuestTarget : EntityBehavior
+
     {
+
         protected const string AnchorKeyPrefix = "alegacyvsquest:spawner:";
+
         protected const string ReturningToAnchorKey = "alegacyvsquest:spawner:returningToAnchor";
+
         protected const string ReturnNoProgressMsKey = "alegacyvsquest:spawner:returnNoProgressMs";
+
         protected const string ReturnLastDistKey = "alegacyvsquest:spawner:returnLastDist";
 
-        protected const double LeashNoDamageGraceHours = 2.0 / 60.0;
-        protected const float BossRegenHpPerSecond = 3f;
+
+
+        protected const long LeashNoDamageGraceMs = 8000L; // 8 seconds
+
+        protected const float BossRegenHpPerSecond = 10.6f;
+
         protected const float DefaultBossOutOfCombatLeashRange = 10f;
+
         protected const float LeashReturnStopDistance = 5f;
+
         protected const int ReturnStuckTeleportMs = 5000;
+
         protected const float ReturnProgressEpsilon = 0.5f;
+
         public const string LeashRangeKey = "alegacyvsquest:spawner:leashRange";
+
         public const string OutOfCombatLeashRangeKey = "alegacyvsquest:spawner:outOfCombatLeashRange";
+
         protected string id;
+
         protected float? maxHealthOverride;
+
         protected float leashRange;
+
         protected float bossOutOfCombatLeashRange;
+
         protected float returnMoveSpeed;
+
         protected int leashCheckMs;
+
         protected long lastLeashCheckMs;
+
         protected ICoreServerAPI sapi;
+
+
 
         public string TargetId => id;
 
+
+
         public EntityBehaviorQuestTarget(Entity entity) : base(entity)
+
         {
+
         }
+
+
 
         protected virtual string JsonIdKey => "targetId";
+
         protected virtual string WatchedIdKey => "alegacyvsquest:killaction:targetid";
 
+
+
         public override void Initialize(EntityProperties properties, JsonObject attributes)
+
         {
+
             base.Initialize(properties, attributes);
 
+
+
             sapi = entity?.Api as ICoreServerAPI;
+
             id = attributes[JsonIdKey].AsString(null);
+
             maxHealthOverride = attributes.KeyExists("maxHealth") ? attributes["maxHealth"].AsFloat() : (float?)null;
 
+
+
             leashRange = attributes["leashRange"].AsFloat(0);
+
             returnMoveSpeed = attributes["returnMoveSpeed"].AsFloat(0.04f);
+
             leashCheckMs = attributes["leashCheckMs"].AsInt(1000);
+
             bossOutOfCombatLeashRange = DefaultBossOutOfCombatLeashRange;
 
+
+
             if (entity?.WatchedAttributes != null)
+
             {
+
                 var wa = entity.WatchedAttributes;
+
                 string waId = wa.GetString(WatchedIdKey, null);
+
                 if (!string.IsNullOrWhiteSpace(waId)) id = waId;
 
+
+
                 float waLeashRange = wa.GetFloat(LeashRangeKey, float.NaN);
+
                 if (!float.IsNaN(waLeashRange) && waLeashRange > 0f)
+
                 {
+
                     leashRange = waLeashRange;
+
                 }
+
+
 
                 float waOutOfCombatLeashRange = wa.GetFloat(OutOfCombatLeashRangeKey, float.NaN);
+
                 if (!float.IsNaN(waOutOfCombatLeashRange))
+
                 {
+
                     bossOutOfCombatLeashRange = waOutOfCombatLeashRange;
+
                 }
+
             }
+
+
 
             if (entity?.Api?.Side == EnumAppSide.Server)
+
             {
+
                 TryApplyHealthOverride();
+
             }
+
         }
 
+
+
         public override void OnGameTick(float deltaTime)
+
         {
+
             base.OnGameTick(deltaTime);
 
+
+
             if (entity?.Api?.Side != EnumAppSide.Server) return;
+
             if (entity is not EntityAgent agent) return;
+
             if (!agent.Alive) return;
+
             if (leashRange <= 0) return;
 
-            double nowHours = agent.World.Calendar?.TotalHours ?? 0;
-            bool noDamageGraceActive = false;
-            if (nowHours > 0)
+
+
+            long nowMs = agent.World.ElapsedMilliseconds;
+
+            bool noDamageGraceActive = true; // Default: no regen (not in combat yet or just spawned)
+            try
             {
-                try
+                long lastDamageMs = agent.WatchedAttributes.GetLong(EntityBehaviorBossCombatMarker.BossCombatLastDamageMsKey, 0);
+                // If boss never took damage (lastDamageMs == 0) -> no regen
+                // If boss took damage recently -> no regen
+                // Only regen if boss took damage and grace period has passed
+                if (lastDamageMs == 0 || nowMs - lastDamageMs < LeashNoDamageGraceMs)
                 {
-                    double lastDamageHours = agent.WatchedAttributes.GetDouble(BossHuntSystem.LastBossDamageTotalHoursKey, double.NaN);
-                    if (!double.IsNaN(lastDamageHours) && nowHours - lastDamageHours < LeashNoDamageGraceHours)
-                    {
-                        noDamageGraceActive = true;
-                    }
+                    noDamageGraceActive = true;
                 }
-                catch
+                else
                 {
+                    noDamageGraceActive = false; // Grace passed, allow regen
                 }
             }
+            catch
+            {
+            }
+
+
 
             // Slow out-of-combat regen for bosses.
             // Only when no damage was received recently (same window as leash grace), and only if bosscombatmarker exists.
@@ -137,283 +234,563 @@ namespace VsQuest
                 }
             }
 
-            long nowMs = agent.World.ElapsedMilliseconds;
+            nowMs = agent.World.ElapsedMilliseconds;
+
             if (nowMs - lastLeashCheckMs < leashCheckMs) return;
+
             lastLeashCheckMs = nowMs;
+
+
 
             if (!TryGetAnchor(out var anchor)) return;
 
+
+
             try
+
             {
+
                 var wa = agent.WatchedAttributes;
+
                 if (wa != null && wa.GetBool(ReturningToAnchorKey, false))
+
                 {
+
                     double ddx = agent.ServerPos.X - anchor.X;
+
                     double ddz = agent.ServerPos.Z - anchor.Z;
+
                     float dist = (float)Math.Sqrt(ddx * ddx + ddz * ddz);
 
+
+
                     float lastDist = wa.GetFloat(ReturnLastDistKey, float.NaN);
+
                     long noProgressMs = wa.GetLong(ReturnNoProgressMsKey, 0);
 
+
+
                     if (float.IsNaN(lastDist) || lastDist <= 0f)
+
                     {
+
                         lastDist = dist;
+
                         noProgressMs = 0;
+
                     }
+
                     else
+
                     {
+
                         float progress = lastDist - dist;
+
                         if (progress >= ReturnProgressEpsilon)
+
                         {
+
                             lastDist = dist;
+
                             noProgressMs = 0;
+
                         }
+
                         else
+
                         {
+
                             noProgressMs += leashCheckMs;
+
                         }
+
                     }
+
+
 
                     wa.SetFloat(ReturnLastDistKey, lastDist);
+
                     wa.SetLong(ReturnNoProgressMsKey, noProgressMs);
+
                     wa.MarkPathDirty(ReturnLastDistKey);
+
                     wa.MarkPathDirty(ReturnNoProgressMsKey);
 
+
+
                     if (noProgressMs >= ReturnStuckTeleportMs)
+
                     {
+
                         TeleportToAnchor(agent, anchor);
+
                         wa.SetBool(ReturningToAnchorKey, false);
+
                         wa.SetLong(ReturnNoProgressMsKey, 0);
+
                         wa.SetFloat(ReturnLastDistKey, float.NaN);
+
                         wa.MarkPathDirty(ReturningToAnchorKey);
+
                         wa.MarkPathDirty(ReturnNoProgressMsKey);
+
                         wa.MarkPathDirty(ReturnLastDistKey);
+
                         return;
+
                     }
+
                 }
+
             }
+
             catch
+
             {
+
             }
+
+
 
             float effectiveLeashRange = leashRange;
+
             if (!noDamageGraceActive && agent.HasBehavior<EntityBehaviorBossCombatMarker>() && bossOutOfCombatLeashRange > 0f)
+
             {
+
                 effectiveLeashRange = Math.Min(effectiveLeashRange, bossOutOfCombatLeashRange);
+
             }
+
+
 
             double dx = agent.ServerPos.X - anchor.X;
+
             double dz = agent.ServerPos.Z - anchor.Z;
+
             bool inRange = (dx * dx + dz * dz) <= effectiveLeashRange * effectiveLeashRange;
+
             if (inRange)
+
             {
+
                 try
+
                 {
+
                     var wa = agent.WatchedAttributes;
+
                     if (wa != null && wa.GetBool(ReturningToAnchorKey, false))
+
                     {
+
                         var taskAiLocal = agent.GetBehavior<EntityBehaviorTaskAI>();
-                        try
-                        {
-                            taskAiLocal?.PathTraverser?.Stop();
-                        }
-                        catch
-                        {
-                        }
 
                         try
+
                         {
-                            taskAiLocal?.TaskManager?.StopTasks();
+
+                            taskAiLocal?.PathTraverser?.Stop();
+
                         }
+
                         catch
+
                         {
+
                         }
+
+
+
+                        try
+
+                        {
+
+                            taskAiLocal?.TaskManager?.StopTasks();
+
+                        }
+
+                        catch
+
+                        {
+
+                        }
+
+
 
                         agent.ServerPos?.Motion?.Set(0, 0, 0);
+
                         agent.Controls.StopAllMovement();
 
+
+
                         wa.SetBool(ReturningToAnchorKey, false);
+
                         wa.SetLong(ReturnNoProgressMsKey, 0);
+
                         wa.SetFloat(ReturnLastDistKey, float.NaN);
+
                         wa.MarkPathDirty(ReturningToAnchorKey);
+
                         wa.MarkPathDirty(ReturnNoProgressMsKey);
+
                         wa.MarkPathDirty(ReturnLastDistKey);
+
                     }
+
                 }
+
                 catch
+
                 {
+
                 }
+
+
 
                 return;
+
             }
+
+
 
             // If boss took damage recently, do not start/refresh a leash return yet.
+
             // Note: we still allow the inRange/stop logic above to run so a previously started return can be cleared.
+
             if (noDamageGraceActive) return;
 
+
+
             var taskAi = agent.GetBehavior<EntityBehaviorTaskAI>();
+
             if (taskAi?.PathTraverser != null && taskAi.PathTraverser.Ready)
+
             {
+
                 try
+
                 {
+
                     var wa = agent.WatchedAttributes;
+
                     if (wa != null)
+
                     {
+
                         wa.SetBool(ReturningToAnchorKey, true);
+
                         wa.SetLong(ReturnNoProgressMsKey, 0);
+
                         double tdx = agent.ServerPos.X - anchor.X;
+
                         double tdz = agent.ServerPos.Z - anchor.Z;
+
                         wa.SetFloat(ReturnLastDistKey, (float)Math.Sqrt(tdx * tdx + tdz * tdz));
+
                         wa.MarkPathDirty(ReturningToAnchorKey);
+
                         wa.MarkPathDirty(ReturnNoProgressMsKey);
+
                         wa.MarkPathDirty(ReturnLastDistKey);
+
                     }
+
                 }
+
                 catch
+
                 {
+
                 }
+
+
 
                 float stopDistance = Math.Min(LeashReturnStopDistance, effectiveLeashRange);
+
                 taskAi.PathTraverser.NavigateTo_Async(anchor, returnMoveSpeed, stopDistance, null, null, null, 1000, 1, null);
+
             }
+
         }
 
+
+
         protected void TeleportToAnchor(EntityAgent agent, Vec3d anchor)
+
         {
+
             if (agent == null || anchor == null) return;
 
+
+
             try
+
             {
+
                 var taskAi = agent.GetBehavior<EntityBehaviorTaskAI>();
+
                 taskAi?.PathTraverser?.Stop();
-            }
-            catch
-            {
+
             }
 
-            try
+            catch
+
             {
+
+            }
+
+
+
+            try
+
+            {
+
                 var taskAi = agent.GetBehavior<EntityBehaviorTaskAI>();
+
                 taskAi?.TaskManager?.StopTasks();
-            }
-            catch
-            {
+
             }
 
-            try
-            {
-                agent.ServerPos?.Motion?.Set(0, 0, 0);
-                agent.Controls.StopAllMovement();
-            }
             catch
+
             {
+
             }
+
+
+
+            try
+
+            {
+
+                agent.ServerPos?.Motion?.Set(0, 0, 0);
+
+                agent.Controls.StopAllMovement();
+
+            }
+
+            catch
+
+            {
+
+            }
+
+
 
             int dim = agent.ServerPos.Dimension;
 
+
+
             try
+
             {
+
                 agent.IsTeleport = true;
+
             }
+
             catch
+
             {
+
             }
+
+
 
             agent.ServerPos.SetPosWithDimension(new Vec3d(anchor.X, anchor.Y + dim * 32768.0, anchor.Z));
+
             agent.Pos.SetFrom(agent.ServerPos);
+
         }
+
+
 
         protected bool TryGetAnchor(out Vec3d anchor)
+
         {
+
             anchor = null;
+
             var wa = entity?.WatchedAttributes;
+
             if (wa == null) return false;
 
+
+
             int dim = wa.GetInt(AnchorKeyPrefix + "dim", int.MinValue);
+
             if (dim == int.MinValue) return false;
+
             if (entity.Pos.Dimension != dim) return false;
 
+
+
             int x = wa.GetInt(AnchorKeyPrefix + "x", int.MinValue);
+
             int y = wa.GetInt(AnchorKeyPrefix + "y", int.MinValue);
+
             int z = wa.GetInt(AnchorKeyPrefix + "z", int.MinValue);
+
             if (x == int.MinValue || y == int.MinValue || z == int.MinValue) return false;
 
+
+
             anchor = new Vec3d(x + 0.5, y + 1, z + 0.5);
+
             return true;
+
         }
+
+
 
         protected void TryApplyHealthOverride()
+
         {
+
             if (!maxHealthOverride.HasValue) return;
+
             var healthBh = entity.GetBehavior<EntityBehaviorHealth>();
+
             if (healthBh == null) return;
 
+
+
             healthBh.BaseMaxHealth = maxHealthOverride.Value;
+
             healthBh.UpdateMaxHealth();
+
             healthBh.Health = healthBh.MaxHealth;
+
         }
+
+
 
         protected static void SetSpawnerAnchorStatic(Entity entity, BlockPos pos)
+
         {
+
             if (entity?.WatchedAttributes == null || pos == null) return;
 
+
+
             entity.WatchedAttributes.SetInt(AnchorKeyPrefix + "x", pos.X);
+
             entity.WatchedAttributes.SetInt(AnchorKeyPrefix + "y", pos.Y);
+
             entity.WatchedAttributes.SetInt(AnchorKeyPrefix + "z", pos.Z);
+
             entity.WatchedAttributes.SetInt(AnchorKeyPrefix + "dim", pos.dimension);
 
+
+
             entity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "x");
+
             entity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "y");
+
             entity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "z");
+
             entity.WatchedAttributes.MarkPathDirty(AnchorKeyPrefix + "dim");
+
         }
+
+
 
         public override string PropertyName() => "questtarget";
 
+
+
         public static void SetSpawnerAnchor(Entity entity, BlockPos pos)
+
         {
+
             SetSpawnerAnchorStatic(entity, pos);
+
         }
+
+
 
         protected static void ResetBossCombatProgress(ITreeAttribute wa)
+
         {
+
             if (wa == null) return;
 
+
+
             try
+
             {
+
                 wa[EntityBehaviorBossCombatMarker.BossCombatAttackersKey] = new StringArrayAttribute(Array.Empty<string>());
+
                 if (wa is SyncedTreeAttribute synced)
+
                 {
+
                     synced.MarkPathDirty(EntityBehaviorBossCombatMarker.BossCombatAttackersKey);
+
                 }
+
+
 
                 wa[EntityBehaviorBossCombatMarker.BossCombatDamageByPlayerKey] = new TreeAttribute();
+
                 if (wa is SyncedTreeAttribute synced2)
+
                 {
+
                     synced2.MarkPathDirty(EntityBehaviorBossCombatMarker.BossCombatDamageByPlayerKey);
+
                 }
+
             }
+
             catch
+
             {
+
             }
+
+
 
             try
+
             {
+
                 wa[EntityBehaviorBossHuntCombatMarker.BossHuntAttackersKey] = new StringArrayAttribute(Array.Empty<string>());
+
                 if (wa is SyncedTreeAttribute synced)
+
                 {
+
                     synced.MarkPathDirty(EntityBehaviorBossHuntCombatMarker.BossHuntAttackersKey);
+
                 }
 
+
+
                 wa[EntityBehaviorBossHuntCombatMarker.BossHuntDamageByPlayerKey] = new TreeAttribute();
+
                 if (wa is SyncedTreeAttribute synced2)
+
                 {
+
                     synced2.MarkPathDirty(EntityBehaviorBossHuntCombatMarker.BossHuntDamageByPlayerKey);
+
                 }
+
             }
+
             catch
+
             {
+
             }
+
         }
+
     }
+
 }
+

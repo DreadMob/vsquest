@@ -17,7 +17,6 @@
         { "value": "alstory:dialogue-mari-illa", "jumpTo": "illa" },
         { "value": "alstory:dialogue-mari-whatshappening", "jumpTo": "whatshappening" },
         { "value": "alstory:dialogue-mari-crystals", "jumpTo": "crystals" },
-        { "value": "alstory:dialogue-mari-drink", "jumpTo": "drink" },
         { "value": "alstory:dialogue-mari-closechoice", "jumpTo": "close" }
       ]
     },
@@ -49,18 +48,10 @@
       "jumpTo": "main"
     },
     {
-      "code": "drink",
-      "owner": "npc",
-      "type": "talk",
-      "text": [
-        { "value": "alstory:dialogue-mari-drink-answer" }
-      ],
-      "jumpTo": "main"
-    },
-    {
       "code": "close",
       "owner": "npc",
       "type": "talk",
+      "trigger": "closedialogue",
       "text": [
         { "value": "alstory:dialogue-mari-close-answer" }
       ]

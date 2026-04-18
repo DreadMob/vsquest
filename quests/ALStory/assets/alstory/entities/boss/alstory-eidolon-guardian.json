@@ -11,23 +11,28 @@
     "isMechanical": true,
     "spawnDamageParticles": true,
     "vsquestSoundPitchMul": 0.55,
-    "alegacyvsquestHideInfoText": true
+    "alegacyvsquestHideInfoText": true,
+    "trackCombatTime": true
   },
-  "drops": [],
+  "drops": [
+    { "type": "item", "code": "game:stone-granite", "quantity": { "avg": 0, "var": 0 }, "chance": 0 }
+  ],
   "client": {
     "renderer": "Shape",
-    "shape": { "base": "game:entity/lore/eidolon/immobilized" },
+    "pitchStep": false,
+    "shape": { "base": "alstory:entity/lore/eidolon/guardian" },
     "behaviors": [
       { "code": "repulseagents", "movable": false },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "interpolateposition" },
-      { "code": "boss", "bossHpBarRange": 45, "musicTrack": "survival:music/theresonancearchives-eidolon" },
+      { "code": "boss", "bossHpBarRange": 45 },
+      { "code": "bossmusicurl", "musicKey": "theme_alstory_eidolon", "range": 45 },
       { "code": "bossnametag", "nameLangKey": "alstory:item-creature-eidolon-guardian", "color": "#ff4d4d", "backgroundColor": "#120b0b", "backgroundOpacity": 0.45, "renderRange": 90 }
     ],
     "animations": [
-      { "code": "inactive", "animation": "inactive", "blendMode": "Average" },
-      { "code": "idle", "animation": "idle", "blendMode": "Average", "triggeredBy": { "defaultAnim": true } },
-      { "code": "die", "animation": "die", "animationSpeed": 0.5, "weight": 10, "blendMode": "Average", "triggeredBy": { "onControls": ["dead"] } }
+      { "code": "inactive", "animation": "Inactive", "blendMode": "Average" },
+      { "code": "idle", "animation": "Idle", "blendMode": "Average", "triggeredBy": { "defaultAnim": true } },
+      { "code": "die", "animation": "Die", "animationSpeed": 0.5, "weight": 10, "blendMode": "Average", "triggeredBy": { "onControls": ["dead"] } }
     ]
   },
   "server": {
@@ -35,13 +40,13 @@
       { "code": "repulseagents", "movable": false },
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "reviveondeath", "minHours": 168, "maxHours": 192 },
-      { "code": "health", "currenthealth": 650, "maxhealth": 650 },
+      { "code": "health", "currenthealth": 550, "maxhealth": 550 },
       {
         "code": "emotionstates",
         "states": [ { "code": "aggressiveondamage", "duration": 200, "chance": 1, "slot": 0, "priority": 0.5, "accumType": "noaccum" } ]
       },
       { "code": "alegacyvsquestbosshealthbar", "show": true },
-      { "code": "bosscombatmarker" },
+      { "code": "bosscombatmarker", "trackCombatTime": true },
       { "code": "questtarget", "targetId": "alstory:last_breath_main:eidolon", "leashRange": 70, "returnMoveSpeed": 0.04, "leashCheckMs": 1000 },
       {
         "code": "bossdamageshield",
@@ -50,8 +55,8 @@
             "whenHealthRelBelow": 0.7,
             "shieldMs": 3000,
             "windupMs": 0,
-            "cooldownSeconds": 18,
-            "incomingDamageMultiplier": 0.15,
+            "cooldownSeconds": 10,
+            "incomingDamageMultiplier": 0.30,
             "animation": "idle",
             "animationStopMs": 1200,
             "sound": "game:creature/eidolon/rockfallslam",
@@ -70,7 +75,7 @@
             "code": "eidolonmeleeattack",
             "entityCodes": ["player"],
             "priority": 2,
-            "damage": 14,
+            "damage": 21,
             "damageTier": 3,
             "damageType": "SlashingAttack",
             "knockbackStrength": 3,
@@ -90,7 +95,7 @@
             "code": "throwatentity",
             "entityCodes": ["player"],
             "projectileCode": "game:thrownboulder-granite",
-            "projectileDamage": 9,
+            "projectileDamage": 14,
             "projectileDamageTier": 2,
             "priority": 1.6,
             "priorityForCancel": 9,
@@ -112,8 +117,7 @@
             "code": "eidolonslam",
             "entityCodes": ["player"],
             "projectileCode": "game:thrownboulder-granite",
-            "creatureCode": "locust-bronze",
-            "projectileDamage": 8,
+            "projectileDamage": 12,
             "projectileDamageTier": 1,
             "priority": 1.4,
             "priorityForCancel": 9,

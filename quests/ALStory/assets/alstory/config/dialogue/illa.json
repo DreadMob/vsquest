@@ -72,6 +72,7 @@
       "code": "close",
       "owner": "npc",
       "type": "talk",
+      "trigger": "closedialogue",
       "text": [
         { "value": "alstory:dialogue-illa-close-answer" }
       ]

@@ -43,16 +43,15 @@
       "itemCode": "game:lore-book-aged-orange",
       "name": "<font color=\"#F59E0B\">Книга: Хроники Увядающего Сердца</font>",
       "description": "<font color=\"#60A5FA\">Тонкая книга в кожаном переплёте. Почерк торопливый, нервный.</font>",
-      "sourceQuestId": "alstory:forlornstories",
+      "sourceQuestId": "alstory:last_breath_collect",
       "actions": [
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:forlornstories",
-            "alstory:lore-witheringheart",
+            "alstory:last_breath_collect",
             "note",
             "Хроники Увядающего Сердца",
-            "...и так Лорэн, Магистр наш, принес ее к Камню. Не к целителю, нет. К старому камню, что стоял здесь испокон веков, до всех королей и орденов. Мы думали, он будет молиться.\n\nНо он принес нож. Не железный, а из осколка черного базальта. Он не стал резать ее плоть. Он стал резать саму реальность вокруг нее. Воздух завыл, и из разрезов поползла та самая Черная Жила, что мы зовем Гнилью.\n\nОн не изгнал ее. Он... переплел. Вытянул яд из Иллы и вплел его в землю, в деревню, в нас. Я чувствую это каждый миг. Камень бьется, как сердце. Мое собственное сердце стучит в унисон, и с каждым ударом я чувствую, как моя жизнь утекает по этим черным корням обратно к ней, к Илле. Она жива. Она цветет, пока мы вянем.\n\nОн спас свою любовь. Он сломал мир, чтобы починить одну его часть. Разве это не величайшее зло? Разве это не та тьма, с которой он клялся бороться?\n\nМы не можем уйти. Камень держит нас. Он тянется к нам своими невидимыми щупальцами. Мы — его сад, его урожай. А Илла — его бессмертный цветок.\n\n— Генрих, последний староста обреченной деревни."
+            "...Лорэн принес ее не к лекарям. Он притащил ее к древнему Камню, что стоит здесь дольше, чем человеческая память. Мы думали, он будет молить небеса.\n\nНо вместо молитв он взял нож из черного стекла. Он резал не плоть — он взрезал саму реальность. Воздух вокруг стал вязким и холодным, и из пустоты полезли Жилы.\n\nОн не излечил её. Он просто перенаправил смерть. Выкачал Гниль из Иллы и вплел её в наши дома, в наши колодцы, в наши легкие. Теперь Камень бьется вместо наших сердец. Мы вянем, чтобы его «цветок» мог вечно цвести в этой агонии.\n\nМы прикованы к этому месту. Мы — его сад, его топливо. А Илла... Илла даже не понимает, что она — живой памятник нашему общему проклятию.\n\n— Генрих, невольный хранитель кошмара."
           ]
         }
       ]
@@ -62,7 +61,7 @@
       "id": "alstory-armor-helm",
       "itemCode": "game:armor-head-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Шлем Ордена Обречённых</font>",
-      "description": "<font color=\"#60A5FA\">Ржавый металл и чёрные прожилки. Кажется, он дышит.</font>",
+      "description": "<font color=\"#60A5FA\">Ржавый металл с темными прожилками. Тяжелый и холодный на ощупь.</font>",
       "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
@@ -124,7 +123,7 @@
       "id": "alstory-armor-legs",
       "itemCode": "game:armor-legs-antique-forlorn-pristine",
       "name": "<font color=\"#8B5CF6\">Поножи Ордена Обречённых</font>",
-      "description": "<font color=\"#60A5FA\">Поножи, будто связаны с землёй невидимыми корнями.</font>",
+      "description": "<font color=\"#60A5FA\">Тяжелый металл с въевшейся в структуру Гнилью.</font>",
       "sourceQuestId": "alstory:last_breath_collect",
       "triggerOnInventoryAdd": true,
       "blockEquip": true,
@@ -155,8 +154,8 @@
     {
       "id": "alstory-keepers-key",
       "itemCode": "alstory:keepers-key",
-      "name": "<font color=\"#C0C0C0\">Ключ хранителя</font>",
-      "description": "<font color=\"#60A5FA\">Старый серебряный ключ от всех дверей в деревне.\nОткрывает доступ к подвалам мельницы, кузницы и школы.\nРасходуется после разрушения всех 3 кристаллов.</font>",
+      "name": "<font color=\"#8B5CF6\">Серебряная отмычка Хранителя</font>",
+      "description": "<font color=\"#60A5FA\">Тонкий серебряный инструмент. С его помощью можно воздействовать на кристаллы Скверны, вызывая их разрушение.\nИспользуй рядом с кристаллами в подвалах деревни.\nСломается после уничтожения всех трех источников.</font>",
       "sourceQuestId": "alstory:last_breath_collect",
       "blockDrop": true,
       "blockDeath": true,
@@ -168,12 +167,12 @@
       "itemCode": "game:lore-scroll",
       "name": "<font color=\"#F59E0B\">Записка: Инструкция по поддержанию Ритуала</font>",
       "description": "<font color=\"#60A5FA\">Аккуратный, безэмоциональный почерк. От него становится холодно.</font>",
-      "sourceQuestId": "alstory:forlornstories",
+      "sourceQuestId": "alstory:last_breath_collect",
       "actions": [
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:forlornstories",
+            "alstory:last_breath_collect",
             "alstory:lore-ritualinstructions",
             "note",
             "Инструкция по поддержанию Ритуала",
@@ -187,12 +186,12 @@
       "itemCode": "game:lore-scroll",
       "name": "<font color=\"#F59E0B\">Скрижаль: Эпитафия Падшему Защитнику</font>",
       "description": "<font color=\"#60A5FA\">Тусклые руны светятся багровым. Кажется, камень помнит боль.</font>",
-      "sourceQuestId": "alstory:forlornstories",
+      "sourceQuestId": "alstory:last_breath_collect",
       "actions": [
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:forlornstories",
+            "alstory:last_breath_collect",
             "alstory:lore-epitaph",
             "note",
             "Эпитафия Падшему Защитнику",
@@ -206,12 +205,12 @@
       "itemCode": "game:lore-scroll",
       "name": "<font color=\"#F59E0B\">Фрагмент дневника, вмурованный в камень</font>",
       "description": "<font color=\"#60A5FA\">Клочок пергамента, будто вросший в стену. Чернила выцвели, слова трудноразличимы.</font>",
-      "sourceQuestId": "alstory:necropolis_judgment",
+      "sourceQuestId": "alstory:last_breath_collect",
       "actions": [
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:necropolis_judgment",
+            "alstory:last_breath_collect",
             "alstory:lore-necropolisfragment",
             "note",
             "Фрагмент дневника",
@@ -225,12 +224,12 @@
       "itemCode": "game:lore-scroll",
       "name": "<font color=\"#F59E0B\">Последние мысли Лорэна</font>",
       "description": "<font color=\"#60A5FA\">Записка, выпавшая из рук Падшего Магистра. Чернила ещё влажны.</font>",
-      "sourceQuestId": "alstory:necropolis_judgment",
+      "sourceQuestId": "alstory:last_breath_collect",
       "actions": [
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:necropolis_judgment",
+            "alstory:last_breath_collect",
             "alstory:lore-loranfinal",
             "note",
             "Последние мысли Лорэна",
@@ -244,12 +243,12 @@
       "itemCode": "game:lore-book-aged-orange",
       "name": "<font color=\"#8B5CF6\">Книга: Легенда о Треснувшем Колоколе</font>",
       "description": "<font color=\"#60A5FA\">Пергамент и чернила. Слова — как предостережение.</font>",
-      "sourceQuestId": "alstory:forlornstories",
+      "sourceQuestId": "alstory:last_breath_collect",
       "actions": [
         {
           "id": "addjournalentry",
           "args": [
-            "alstory:forlornstories",
+            "alstory:last_breath_collect",
             "alstory:lore-crackedbell",
             "note",
             "Сказание о Треснувшем Колоколе",
@@ -268,7 +267,7 @@
       "blockDeath": false,
       "actions": [],
       "attributes": {
-        "hungerrate": -0.3,
+        "hungerrate": -0.20,
         "maxhealthflat": -2.0,
         "healonkill": 0.03
       },

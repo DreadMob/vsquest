@@ -51,6 +51,7 @@
       "code": "close",
       "owner": "npc",
       "type": "talk",
+      "trigger": "closedialogue",
       "text": [
         { "value": "alstory:dialogue-johan-close-answer" }
       ]

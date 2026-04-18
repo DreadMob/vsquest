@@ -26,7 +26,9 @@
 
     "reckless": true,
 
-    "vsquestSoundPitchMul": 0.55
+    "vsquestSoundPitchMul": 0.55,
+
+    "trackCombatTime": true
 
   },
 
@@ -68,6 +70,8 @@
 
       { "code": "boss", "bossHpBarRange": 60 },
 
+      { "code": "bossmusicurl", "musicKey": "theme_alstory_clawchief", "range": 60 },
+
       { "code": "harvestable", "duration": 999999 },
 
       { "code": "bossnametag", "nameLangKey": "item-creature-bloodhand-clawchief-bellhead", "color": "#ff0000", "backgroundColor": "#000000", "backgroundOpacity": 0.35, "renderRange": 80 }
@@ -106,7 +110,7 @@
 
       { "code": "health", "currenthealth": 350, "maxhealth": 350 },
 
-      { "code": "bosscombatmarker" },
+      { "code": "bosscombatmarker", "trackCombatTime": true },
 
       { "code": "bossdespair", "despairDurationMultiplier": 3 },
 

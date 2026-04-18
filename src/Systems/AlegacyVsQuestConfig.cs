@@ -99,6 +99,8 @@ namespace VsQuest
 
 			public float BossKillHealFraction { get; set; } = 0.17f;
 
+			public bool BossPassiveRegenEnabled { get; set; } = true;
+
 		}
 
 

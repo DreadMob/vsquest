@@ -51,7 +51,7 @@
             "code": "meleeattack",
             "entityCodes": ["player"],
             "priority": 3,
-            "damage": 25,
+            "damage": 20,
             "damageTier": 4,
             "mincooldown": 1500,
             "maxcooldown": 1500,
