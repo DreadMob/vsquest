@@ -9,6 +9,7 @@ namespace VsQuest
     public class EntityBehaviorBossPassiveRegen : EntityBehavior
     {
         private float regenPerSecond;
+        private float outOfCombatRegenMult;
         private EntityBehaviorHealth healthBehavior;
         private int regenIntervalMs = 500;
         private long lastRegenMs;
@@ -23,6 +24,7 @@ namespace VsQuest
             base.Initialize(properties, attributes);
 
             regenPerSecond = attributes["regenPerSecond"].AsFloat(25f);
+            outOfCombatRegenMult = attributes["outOfCombatRegenMult"].AsFloat(0f);
             regenIntervalMs = attributes["regenIntervalMs"].AsInt(500);
             combatWindowMs = attributes["combatWindowMs"].AsInt(30000);
             healthBehavior = entity.GetBehavior<EntityBehaviorHealth>();
@@ -54,11 +56,14 @@ namespace VsQuest
             if (entity?.Api?.Side != EnumAppSide.Server) return;
             if (healthBehavior == null || regenPerSecond <= 0) return;
 
-            // Only regen when boss is in combat
             bool inCombat = IsInCombat();
+            float effectiveRegenPerSecond = regenPerSecond;
+
+            // Apply out of combat multiplier when not in combat
             if (!inCombat)
             {
-                return;
+                if (outOfCombatRegenMult <= 0f) return;
+                effectiveRegenPerSecond *= outOfCombatRegenMult;
             }
 
             long nowMs = entity.World.ElapsedMilliseconds;
@@ -79,7 +84,7 @@ namespace VsQuest
             {
                 if (healthBehavior.Health < healthBehavior.MaxHealth && healthBehavior.Health > 0)
                 {
-                    float regenAmount = regenPerSecond * (regenIntervalMs / 1000f);
+                    float regenAmount = effectiveRegenPerSecond * (regenIntervalMs / 1000f);
                     float oldHealth = healthBehavior.Health;
                     float newHealth = Math.Min(healthBehavior.MaxHealth, oldHealth + regenAmount);
                     healthBehavior.Health = newHealth;

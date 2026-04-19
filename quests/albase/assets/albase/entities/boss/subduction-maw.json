@@ -57,7 +57,7 @@
       { "code": "controlledphysics", "stepHeight": 1.1251 },
       { "code": "bossdamagesourceimmunity", "ignoreWeather": true, "ignoreExplosion": true, "ignoreElectricity": true, "onlyAllowPlayerDamage": true },
       { "code": "health", "currenthealth": 946, "maxhealth": 946 },
-      { "code": "bosspassiveregen", "regenPerSecond": 1.5 },
+      { "code": "bosspassiveregen", "regenPerSecond": 0.75, "outOfCombatRegenMult": 0.8 },
       { "code": "bosscombatmarker", "trackCombatTime": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:subduction-maw", "leashRange": 120, "returnMoveSpeed": 0.06, "leashCheckMs": 1000 },

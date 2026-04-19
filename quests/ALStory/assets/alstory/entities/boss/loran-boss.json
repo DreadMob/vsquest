@@ -100,7 +100,7 @@
             "sound": "game:block/heavymetal-hit",
             "soundRange": 28,
             "soundStartMs": 0,
-            "loopSound": "survival:effect/echochamber",
+            "loopSound": "game:sounds/effect/gears",
             "loopSoundRange": 22,
             "loopSoundIntervalMs": 200
           },
@@ -118,7 +118,7 @@
             "sound": "game:block/heavymetal-hit2",
             "soundRange": 32,
             "soundStartMs": 0,
-            "loopSound": "survival:effect/echochamber",
+            "loopSound": "game:sounds/effect/gears",
             "loopSoundRange": 26,
             "loopSoundIntervalMs": 150
           },
@@ -136,7 +136,7 @@
             "sound": "game:creature/eidolon/rockfallslam",
             "soundRange": 36,
             "soundStartMs": 0,
-            "loopSound": "survival:effect/echochamber",
+            "loopSound": "game:sounds/effect/gears",
             "loopSoundRange": 30,
             "loopSoundIntervalMs": 100
           }

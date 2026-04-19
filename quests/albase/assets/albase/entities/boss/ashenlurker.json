@@ -51,7 +51,7 @@
       { "code": "repulseagents" },
       { "code": "controlledphysics", "stepHeight": 2.1251 },
       { "code": "health", "currenthealth": 1408, "maxhealth": 1408 },
-      { "code": "bosspassiveregen", "regenPerSecond": 1.5 },
+      { "code": "bosspassiveregen", "regenPerSecond": 0.75, "outOfCombatRegenMult": 0.8 },
       { "code": "bosscombatmarker", "trackCombatTime": true },
       { "code": "bosshastargetsync" },
       { "code": "questtarget", "targetId": "albase:bosshunt:ashenlurker", "leashRange": 120, "returnMoveSpeed": 0.05, "leashCheckMs": 1000 },
