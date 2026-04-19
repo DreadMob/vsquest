@@ -264,16 +264,6 @@ namespace VsQuest
         {
             if (player == null) return;
 
-            long nowMs = sapi.World.ElapsedMilliseconds;
-            if (playerQuestInfoCache.TryGetValue(player.PlayerUID, out var cache))
-            {
-                if (nowMs - cache.LastUpdateMs < QuestInfoCacheDurationMs)
-                {
-                    sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(cache.Message, player.Player as IServerPlayer);
-                    return;
-                }
-            }
-
             var questSystem = QuestSystemCache.Get(sapi);
             var allActiveQuests = questSystem.GetPlayerQuests(player.PlayerUID);
             
@@ -385,7 +375,6 @@ namespace VsQuest
 
                         PopulateReputationInfo(msgChainCd, sapi, serverPlayer);
 
-                        playerQuestInfoCache[player.PlayerUID] = new QuestInfoCache { Message = msgChainCd, LastUpdateMs = nowMs };
                         sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(msgChainCd, player.Player as IServerPlayer);
                         return;
                     }
@@ -411,7 +400,6 @@ namespace VsQuest
 
                 PopulateReputationInfo(msgActive, sapi, serverPlayer);
 
-                playerQuestInfoCache[player.PlayerUID] = new QuestInfoCache { Message = msgActive, LastUpdateMs = nowMs };
                 sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(msgActive, player.Player as IServerPlayer);
                 return;
             }
@@ -562,7 +550,6 @@ namespace VsQuest
 
             PopulateReputationInfo(message, sapi, serverPlayer);
 
-            playerQuestInfoCache[player.PlayerUID] = new QuestInfoCache { Message = message, LastUpdateMs = nowMs };
             sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);
         }
 

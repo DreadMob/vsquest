@@ -26,27 +26,18 @@ namespace VsQuest
 
         public void Toggle()
         {
-            if (questJournalGui == null)
-            {
-                questJournalGui = new Gui.Journal.QuestJournalDialog(capi);
-                questJournalGui.OnClosed += () =>
-                {
-                    if (questJournalGui != null && !questJournalGui.IsOpened())
-                    {
-                        questJournalGui = null;
-                    }
-                };
-                questJournalGui.TryOpen();
-                return;
-            }
-
-            if (questJournalGui.IsOpened())
+            if (questJournalGui != null && questJournalGui.IsOpened())
             {
                 questJournalGui.TryClose();
+                questJournalGui = null;
                 return;
             }
 
-            (questJournalGui as Gui.Journal.QuestJournalDialog)?.Refresh();
+            questJournalGui = new Gui.Journal.QuestJournalDialog(capi);
+            questJournalGui.OnClosed += () =>
+            {
+                questJournalGui = null;
+            };
             questJournalGui.TryOpen();
         }
     }
