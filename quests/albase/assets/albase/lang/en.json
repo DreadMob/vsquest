@@ -38,6 +38,9 @@
   "game:tradingwindow-priest": "Priest",
   "item-creature-priest": "Priest",
 
+  "tradingwindow-herald": "Herald",
+  "game:tradingwindow-herald": "Herald",
+
   "tradingwindow-arena-broker": "Arena Broker",
   "game:tradingwindow-arena-broker": "Arena Broker",
 
@@ -52,6 +55,33 @@
 
   "dialogue-witness-aboutserver": "What is on this server?",
   "dialogue-witness-aboutserver-answer": "Four people — four paths.\n\nThe Innkeeper offers work and reputation. He values silence and results.\n\nThe Priest guards the rite of rebirth. Prove yourself, and he will grant you one chance to use .charsel.\n\nThe Boss Hunter leads hunts into the crypts. He gives targets and teaches how to survive where stone remembers blood.\n\nThe Treasurer counts other people's mistakes like coins. You can buy land claim expansions and area slots from him — but he likes exams.",
+
+  "dialogue-herald-intro": "The Herald nods: \"Ask, and I will answer.\"",
+  "dialogue-herald-serverinfo": "Tell me about the server.",
+  "dialogue-herald-openserverinfo-confirm": "Listen carefully.",
+  "dialogue-herald-whoareyou": "Who are you?",
+  "dialogue-herald-whoareyou-answer": "I'm not a judge and not a master. I just deliver the rules and the roads so you don't have to grope in the dark.",
+  "dialogue-herald-closechoice": "Bye.",
+  "dialogue-herald-close-answer": "Come back when you have questions.",
+
+  "herald-gui-title": "Herald: server information",
+  "herald-tab-political": "Political mode",
+  "herald-tab-karma": "Karma",
+  "herald-tab-duels": "Duels",
+  "herald-tab-newbiequests": "Newbie quests",
+  "herald-tab-ossuary": "Ossuary & bosses",
+  "herald-tab-claims": "Claim expansion",
+  "herald-tab-class": "Class change",
+  "herald-tab-cities": "Cities / factions",
+
+  "herald-body-political": "Political mode\n\nThis server uses separate PvP and political chat mechanics.\n\n- Chat may show tags/roles\n- Some zones/events may have their own rules\n\nSee the server rules and /help (if available) for details.",
+  "herald-body-karma": "Karma\n\nKarma reflects your reputation and the consequences of your actions.\n\n- Bad actions reduce karma\n- Good behavior restores karma\n\nWatch for system messages — they warn you when you cross the line.",
+  "herald-body-duels": "Duels\n\nThe server has a duel system: consensual fights.\n\n- A duel starts only after both sides confirm\n- Breaking an agreement is punished by server rules\n\nAsk staff or check mod hints for commands/instructions.",
+  "herald-body-newbiequests": "Innkeeper quests for beginners\n\nIf you're new, start with the Innkeeper. He gives quests that teach the basics and provide early rewards.\n\nTip: follow the chain calmly — many tasks are designed to help you settle in.",
+  "herald-body-ossuary": "Ossuary (endgame)\n\nThe Ossuary is late-game content: boss hunts and special items.\n\n- Prepare your gear before going in\n- Follow the Keeper/Boss hunter's guidance\n\nSome Ossuary items are used for crafting and progression — don't throw away unknown loot.",
+  "herald-body-claims": "Claim expansion\n\nThe Treasurer handles claim expansion. He offers quests and sells upgrades.\n\n- First, pass the survey/check\n- Then purchases become available\n\nIf there's a border dispute, solve it with rules, not with a pickaxe.",
+  "herald-body-class": "Class change\n\nA class change is unlocked by the Priest via a quest. Usually it's a \"one-time chance\" and you must prove yourself.\n\nIf you're unsure, talk to the Priest and read the quest description.",
+  "herald-body-cities": "Cities / factions\n\nPlayers can form cities/factions. This shows up as chat tags and can be linked with Discord.\n\n- Tags help you see who belongs to whom\n- Discord usually contains management/verification\n\nIf you want to join, start with communication and the faction's rules.",
 
   "dialogue-arena-broker-intro": "I manage arena rentals.",
   "dialogue-arena-broker-openui": "Open interface",

@@ -235,6 +235,19 @@ namespace VsQuest
                 return 0;
             }
 
+            if (value == "openserverinfo" && triggeringEntity.Api is ICoreServerAPI sapi2)
+            {
+                var behaviorConversable = entity.GetBehavior<EntityBehaviorConversable>();
+                behaviorConversable.Dialog?.TryClose();
+
+                var serverPlayer = (triggeringEntity as EntityPlayer)?.Player as IServerPlayer;
+                if (serverPlayer == null) return 0;
+
+                sapi2.Network.GetChannel(VsQuestNetworkRegistry.QuestChannelName)
+                    .SendPacket(new ShowServerInfoMessage(), serverPlayer);
+                return 0;
+            }
+
             return -1;
         }
 

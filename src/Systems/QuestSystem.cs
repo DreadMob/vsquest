@@ -33,6 +33,7 @@ namespace VsQuest
         private VsQuestDiscoveryHud discoveryHud;
         private QuestJournalHotkeyHandler journalHotkeyHandler;
         private QuestSelectGuiManager questSelectGuiManager;
+        private ServerInfoGuiManager serverInfoGuiManager;
         private QuestNotificationHandler notificationHandler;
 
         private long lagMonitorListenerId;
@@ -131,6 +132,7 @@ namespace VsQuest
             /* discoveryHud is client-only; it will be replaced in StartClientSide when available. */
             notificationHandler = new QuestNotificationHandler(discoveryHud);
             questSelectGuiManager = new QuestSelectGuiManager(Config);
+            serverInfoGuiManager = new ServerInfoGuiManager();
         }
 
         public override void StartClientSide(ICoreClientAPI capi)
@@ -152,6 +154,7 @@ namespace VsQuest
 
             notificationHandler = new QuestNotificationHandler(discoveryHud);
             questSelectGuiManager = new QuestSelectGuiManager(Config);
+            serverInfoGuiManager = new ServerInfoGuiManager();
         }
 
         public override void StartServerSide(ICoreServerAPI sapi)
@@ -356,6 +359,11 @@ namespace VsQuest
         internal void OnQuestInfoMessage(QuestInfoMessage message, ICoreClientAPI capi)
         {
             questSelectGuiManager.HandleQuestInfoMessage(message, capi);
+        }
+
+        internal void OnShowServerInfoMessage(ShowServerInfoMessage message, ICoreClientAPI capi)
+        {
+            serverInfoGuiManager.HandleShowServerInfoMessage(message, capi);
         }
 
         internal void OnShowNotificationMessage(ShowNotificationMessage message, ICoreClientAPI capi)

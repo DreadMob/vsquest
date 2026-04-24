@@ -24,6 +24,7 @@ namespace VsQuest
         {
             actionRegistry.Add("despawnquestgiver", new DespawnQuestGiverAction());
             actionRegistry.Add("openquests", new OpenQuestsAction());
+            actionRegistry.Add("openserverinfo", new OpenServerInfoAction());
 
             actionRegistry.Add("playsound", new PlaySoundQuestAction());
 

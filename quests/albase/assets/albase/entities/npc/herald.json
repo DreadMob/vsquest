@@ -1,0 +1,93 @@
+{
+  "canClimb": true,
+  "class": "EntityPlayerBot",
+  "client": {
+    "renderer": "Shape",
+    "size": 1.35,
+    "shape": {
+      "base": "game:entity/humanoid/seraph-faceless"
+    },
+    "texture": {
+      "base": "game:entity/humanoid/seraph-naked-hairless"
+    },
+    "behaviors": [
+      {
+        "code": "nametag",
+        "showtagonlywhentargeted": false
+      },
+      {
+        "code": "repulseagents"
+      },
+      {
+        "code": "controlledphysics",
+        "stepHeight": 1.01
+      },
+      {
+        "code": "interpolateposition"
+      },
+      {
+        "code": "extraskinnable"
+      },
+      {
+        "code": "seraphinventory"
+      },
+      {
+        "code": "conversable",
+        "dialogue": "config/dialogue/herald"
+      },
+      {
+        "code": "questgiver",
+        "quests": []
+      }
+    ]
+  },
+  "code": "herald",
+  "hitboxSize": {
+    "x": 0.82,
+    "y": 2.36
+  },
+  "attributes": {
+    "skinnableParts": [],
+    "alegacyvsquestNoUndress": true,
+    "inventory": [
+      { "type": "item", "code": "fagothic:fa-gothic-head-salletwing-meteoriciron-white" },
+      { "type": "item", "code": "fagothic:fa-gothic-body-meteoriciron-plain" },
+      { "type": "item", "code": "fagothic:fa-gothic-legs-meteoriciron-plain" }
+    ]
+  },
+  "server": {
+    "behaviors": [
+      {
+        "code": "nametag",
+        "showtagonlywhentargeted": false,
+        "selectFromRandomName": [
+          "Вестник"
+        ]
+      },
+      {
+        "code": "controlledphysics",
+        "stepHeight": 1.01
+      },
+      {
+        "code": "health",
+        "currenthealth": 1000000,
+        "maxhealth": 1000000
+      },
+      {
+        "code": "extraskinnable"
+      },
+      {
+        "code": "seraphinventory"
+      },
+      {
+        "code": "conversable",
+        "dialogue": "config/dialogue/herald"
+      },
+      {
+        "code": "questgiver",
+        "quests": []
+      }
+    ]
+  },
+  "sounds": {}
+}

@@ -54,6 +54,21 @@ namespace VsQuest.Harmony
             var capi = world.Api as ICoreClientAPI;
             if (capi == null) return;
 
+            // Skip if player has no active quests with interact objectives
+            // This avoids unnecessary network traffic for players without relevant quests
+            try
+            {
+                var questSystem = capi.ModLoader.GetModSystem<QuestSystem>();
+                if (!ClientQuestState.HasInteractObjectives(questSystem))
+                {
+                    return;
+                }
+            }
+            catch
+            {
+                // If we can't check, fall through to default behavior
+            }
+
             try
             {
                 int x = blockSel.Position.X;

@@ -60,6 +60,7 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("bosspassiveregen", typeof(EntityBehaviorBossPassiveRegen));
             api.RegisterEntityBehaviorClass("explodeondeath", typeof(EntityBehaviorExplodeOnDeath));
             api.RegisterEntityBehaviorClass("alegacyvsquest:questdropondeath", typeof(EntityBehaviorQuestDropOnDeath));
+            api.RegisterEntityBehaviorClass("alegacyvsquestguionclick", typeof(EntityBehaviorGuiOnClick));
         }
 
         private static void RegisterItems(ICoreAPI api)

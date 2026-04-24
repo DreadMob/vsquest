@@ -15,6 +15,9 @@ namespace VsQuest
 
         public void HandleQuestInfoMessage(QuestInfoMessage message, ICoreClientAPI capi)
         {
+            // Update client-side quest cache for performance optimization
+            ClientQuestState.UpdateActiveQuests(message?.activeQuests);
+
             TryCloseOpenDialogue(capi);
 
             try
