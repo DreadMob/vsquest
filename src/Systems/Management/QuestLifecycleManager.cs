@@ -205,14 +205,12 @@ namespace VsQuest
                 }
             }
 
-            // Clear quest info cache and send updated list immediately after accepting
+            // Send updated quest info to client immediately after accepting
             var questgiver = sapi.World.GetEntityById(message.questGiverId);
             if (questgiver != null)
             {
                 var questGiverBehavior = questgiver.GetBehavior<EntityBehaviorQuestGiver>();
-                questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
-                // Send updated quest info to client immediately
-                questGiverBehavior.SendQuestInfoMessageToClient(sapi, fromPlayer.Entity);
+                questGiverBehavior?.SendQuestInfoMessageToClient(sapi, fromPlayer.Entity);
             }
 
             try
@@ -277,12 +275,11 @@ namespace VsQuest
                     // Advance to next stage
                     activeQuest.AdvanceStage(quest);
 
-                    // Clear quest info cache and send updated info
+                    // Send updated quest info
                     var questgiver = sapi.World.GetEntityById(message.questGiverId);
                     if (questgiver != null)
                     {
                         var questGiverBehavior = questgiver.GetBehavior<EntityBehaviorQuestGiver>();
-                        questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
                         questGiverBehavior?.SendQuestInfoMessageToClient(sapi, fromPlayer.Entity);
                     }
                 }
@@ -301,13 +298,6 @@ namespace VsQuest
                 var questgiver = sapi.World.GetEntityById(message.questGiverId);
                 RewardPlayer(fromPlayer, message, sapi, questgiver);
                 MarkQuestCompleted(fromPlayer, message, questgiver);
-
-                // Clear quest info cache for this player to prevent stale availableQuestIds
-                if (questgiver != null)
-                {
-                    var questGiverBehavior = questgiver.GetBehavior<EntityBehaviorQuestGiver>();
-                    questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
-                }
 
                 // Broadcast completion message if enabled
                 if (ShouldNotifyOnComplete(quest))
@@ -380,13 +370,6 @@ namespace VsQuest
             var questgiver = sapi.World.GetEntityById(message.questGiverId);
             RewardPlayer(fromPlayer, message, sapi, questgiver);
             MarkQuestCompleted(fromPlayer, message, questgiver);
-
-            // Clear quest info cache for this player to prevent stale availableQuestIds
-            if (questgiver != null)
-            {
-                var questGiverBehavior = questgiver.GetBehavior<EntityBehaviorQuestGiver>();
-                questGiverBehavior?.ClearPlayerQuestInfoCache(fromPlayer.PlayerUID);
-            }
 
             // Get quest for notification check and timestamp update
             questRegistry.TryGetValue(message.questId, out var quest);

@@ -48,7 +48,7 @@ namespace VsQuest
             string bodyText;
             if (!string.IsNullOrWhiteSpace(message.BodyLangKey))
             {
-                bodyText = LocalizationUtils.GetSafe(message.BodyLangKey);
+                bodyText = LocalizationUtils.GetSafe(message.BodyLangKey).Replace("\\n", "\n");
             }
             else if (message.IsFinished || string.IsNullOrWhiteSpace(message.QuestionLangKey))
             {
@@ -56,11 +56,11 @@ namespace VsQuest
             }
             else
             {
-                string q = LocalizationUtils.GetSafe(message.QuestionLangKey);
-                string aText = StripOptionPrefix(LocalizationUtils.GetSafe(message.OptionALangKey));
-                string bText = StripOptionPrefix(LocalizationUtils.GetSafe(message.OptionBLangKey));
-                string cText = StripOptionPrefix(LocalizationUtils.GetSafe(message.OptionCLangKey));
-                string dText = StripOptionPrefix(LocalizationUtils.GetSafe(message.OptionDLangKey));
+                string q = LocalizationUtils.GetSafe(message.QuestionLangKey).Replace("\\n", "\n");
+                string aText = StripOptionPrefix(LocalizationUtils.GetSafe(message.OptionALangKey)).Replace("\\n", "\n");
+                string bText = StripOptionPrefix(LocalizationUtils.GetSafe(message.OptionBLangKey)).Replace("\\n", "\n");
+                string cText = StripOptionPrefix(LocalizationUtils.GetSafe(message.OptionCLangKey)).Replace("\\n", "\n");
+                string dText = StripOptionPrefix(LocalizationUtils.GetSafe(message.OptionDLangKey)).Replace("\\n", "\n");
 
                 bodyText = $"{q}\n\nА) {aText}\nБ) {bText}\nВ) {cText}\nГ) {dText}";
             }
@@ -71,14 +71,14 @@ namespace VsQuest
                 bool passed = message.NeededCorrect <= 0 || message.Correct >= message.NeededCorrect;
                 if (!string.IsNullOrWhiteSpace(message.ResultTemplateLangKey))
                 {
-                    header = $"{LocalizationUtils.GetSafe(message.ResultTemplateLangKey, message.Correct, message.Wrong, message.NeededCorrect)}\n\n";
+                    header = $"{LocalizationUtils.GetSafe(message.ResultTemplateLangKey, message.Correct, message.Wrong, message.NeededCorrect).Replace("\\n", "\n")}\n\n";
                 }
             }
             else
             {
                 if (!string.IsNullOrWhiteSpace(message.ProgressTemplateLangKey))
                 {
-                    header = $"{LocalizationUtils.GetSafe(message.ProgressTemplateLangKey, message.QuestionIndex, message.TotalQuestions, message.Correct, message.Wrong, message.NeededCorrect)}\n\n";
+                    header = $"{LocalizationUtils.GetSafe(message.ProgressTemplateLangKey, message.QuestionIndex, message.TotalQuestions, message.Correct, message.Wrong, message.NeededCorrect).Replace("\\n", "\n")}\n\n";
                 }
             }
 
@@ -183,6 +183,9 @@ namespace VsQuest
 
         public static void ShowFromMessage(ShowQuizMessage message, ICoreClientAPI capi)
         {
+            // Close quest select GUI if open to prevent overlapping windows
+            TryCloseQuestSelectGui(capi);
+
             var existing = FindExistingDialog(capi);
             if (existing != null)
             {
@@ -191,6 +194,26 @@ namespace VsQuest
             }
 
             new QuizDialogGui(capi, message).TryOpen();
+        }
+
+        private static void TryCloseQuestSelectGui(ICoreClientAPI capi)
+        {
+            try
+            {
+                var opened = capi?.Gui?.OpenedGuis;
+                if (opened == null) return;
+
+                foreach (var gui in opened)
+                {
+                    if (gui is QuestSelectGui questGui && questGui.IsOpened())
+                    {
+                        questGui.TryClose();
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         private void UpdateFromMessage(ShowQuizMessage message)

@@ -35,15 +35,6 @@ namespace VsQuest
         private string reputationNpcId;
         private string reputationFactionId;
 
-        private class QuestInfoCache
-        {
-            public QuestInfoMessage Message;
-            public long LastUpdateMs;
-        }
-
-        private readonly Dictionary<string, QuestInfoCache> playerQuestInfoCache = new Dictionary<string, QuestInfoCache>(StringComparer.OrdinalIgnoreCase);
-        private const int QuestInfoCacheDurationMs = 10000; // 10 seconds
-
         public static string ChainCooldownLastCompletedKey(long questGiverEntityId) => $"vsquest:questgiver:lastcompleted-{questGiverEntityId}";
 
         public string ReputationNpcId => reputationNpcId;
@@ -551,12 +542,6 @@ namespace VsQuest
             PopulateReputationInfo(message, sapi, serverPlayer);
 
             sapi.Network.GetChannel("alegacyvsquest").SendPacket<QuestInfoMessage>(message, player.Player as IServerPlayer);
-        }
-
-        public void ClearPlayerQuestInfoCache(string playerUID)
-        {
-            if (string.IsNullOrWhiteSpace(playerUID)) return;
-            playerQuestInfoCache.Remove(playerUID);
         }
 
         private List<QuestCompletionRewardStatus> BuildCompletionRewardStatuses(IServerPlayer serverPlayer, QuestSystem questSystem, QuestCompletionRewardSystem rewardSystem)
