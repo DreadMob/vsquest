@@ -8,7 +8,7 @@ namespace VsQuest.Harmony
     [HarmonyPatch(typeof(Block), "OnBlockInteractStart")]
     public class BlockInteractPatch
     {
-        private const int DebounceMs = 100;
+        private const int DebounceMs = 500;
 
         private static long lastSendMs;
         private static int lastX = int.MinValue;
@@ -21,6 +21,13 @@ namespace VsQuest.Harmony
         {
             if (!HarmonyPatchSwitches.BlockInteractEnabled(HarmonyPatchSwitches.BlockInteract_Block_OnBlockInteractStart)) return;
             if (world.Api.Side != EnumAppSide.Client || blockSel == null) return;
+
+            // Skip air blocks - no need to track interactions with empty blocks
+            string blockCode = __instance?.Code?.ToString();
+            if (string.IsNullOrWhiteSpace(blockCode) || blockCode == "air" || blockCode.EndsWith(":air"))
+            {
+                return;
+            }
 
             if (__result)
             {
