@@ -105,8 +105,6 @@ namespace VsQuest
             elem.ZPosition = 60f;
             elem.RenderAsPremultipliedAlpha = false;
             elem.SetVisible(false);
-
-            TryOpen();
         }
 
         public override bool TryClose()

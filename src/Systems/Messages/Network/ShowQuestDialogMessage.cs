@@ -5,16 +5,16 @@ namespace VsQuest
     [ProtoContract]
     public class ShowQuestDialogMessage
     {
-        [ProtoMember(1)]
+        [ProtoMember(10)]
         public string TitleLangKey { get; set; }
 
-        [ProtoMember(2)]
+        [ProtoMember(11)]
         public string TextLangKey { get; set; }
 
-        [ProtoMember(3)]
+        [ProtoMember(12)]
         public string Option1LangKey { get; set; }
 
-        [ProtoMember(4)]
+        [ProtoMember(13)]
         public string Option2LangKey { get; set; }
     }
 }
