@@ -1,4 +1,4 @@
-using Vintagestory.API.Common;
+﻿using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 
@@ -29,7 +29,7 @@ namespace VsQuest
             ItemAttributeUtils.ApplyActionItemAttributes(stack, actionItem);
             if (!byPlayer.InventoryManager.TryGiveItemstack(stack))
             {
-                sapi.World.SpawnItemEntity(stack, byPlayer.Entity.ServerPos.XYZ);
+                sapi.World.SpawnItemEntity(stack, byPlayer.Entity.Pos.XYZ);
             }
 
             var itemName = collectible.GetHeldItemName(stack);

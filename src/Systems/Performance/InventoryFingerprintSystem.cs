@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -46,7 +46,7 @@ namespace VsQuest.Systems.Performance
                 }
 
                 var stack = slot.Itemstack;
-                if (stack?.Item is not Vintagestory.GameContent.ItemWearable)
+                if (stack?.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() == null)
                 {
                     slotIndex++;
                     continue;

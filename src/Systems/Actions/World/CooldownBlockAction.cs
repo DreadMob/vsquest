@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
@@ -26,7 +26,7 @@ namespace VsQuest
 
             if (args != null && args.Length >= 2 && QuestInteractAtUtil.TryParsePos(args[1], out int ax, out int ay, out int az))
             {
-                pos = new BlockPos(ax, ay, az, player.Entity?.ServerPos?.Dimension ?? 0);
+                pos = new BlockPos(ax, ay, az, player.Entity?.Pos?.Dimension ?? 0);
             }
             else
             {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -60,7 +60,7 @@ namespace VsQuest
             float total = 0f;
             foreach (ItemSlot slot in inv)
             {
-                if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
+                if (!slot.Empty && slot.Itemstack?.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() != null)
                 {
                     total += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrViewDistance);
                 }

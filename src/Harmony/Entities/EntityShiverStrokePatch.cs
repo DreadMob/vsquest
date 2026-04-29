@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -136,14 +136,14 @@ namespace VsQuest.Harmony
             private static void FreezeEntity(EntityShiver shiver)
             {
                 if (shiver == null) return;
-                shiver.ServerPos.Motion.Set(0, 0, 0);
+                shiver.Pos.Motion.Set(0, 0, 0);
                 shiver.Controls.StopAllMovement();
             }
 
             private static void UnfreezeEntity(EntityShiver shiver)
             {
                 if (shiver == null) return;
-                shiver.ServerPos.Motion.Set(0, 0, 0);
+                shiver.Pos.Motion.Set(0, 0, 0);
             }
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -135,9 +135,9 @@ namespace VsQuest
             {
                 var plrEntity = player?.Entity;
                 if (plrEntity == null || !plrEntity.Alive) continue;
-                if (plrEntity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                if (plrEntity.Pos.Dimension != entity.Pos.Dimension) continue;
 
-                double distSq = plrEntity.ServerPos.DistanceTo(entity.ServerPos);
+                double distSq = plrEntity.Pos.DistanceTo(entity.Pos);
                 if (distSq > cloneRange) continue;
 
                 string uid = player.PlayerUID;
@@ -203,11 +203,11 @@ namespace VsQuest
 
                 ApplyCloneFlags(clone, player);
 
-                var spawnPos = GetSpawnPositionNear(player.Entity.ServerPos.XYZ);
-                int dim = entity.ServerPos.Dimension;
-                clone.ServerPos.SetPosWithDimension(new Vec3d(spawnPos.X, spawnPos.Y + dim * 32768.0, spawnPos.Z));
-                clone.ServerPos.Yaw = player.Entity.ServerPos.Yaw;
-                clone.Pos.SetFrom(clone.ServerPos);
+                var spawnPos = GetSpawnPositionNear(player.Entity.Pos.XYZ);
+                int dim = entity.Pos.Dimension;
+                clone.Pos.SetPosWithDimension(new Vec3d(spawnPos.X, spawnPos.Y + dim * 32768.0, spawnPos.Z));
+                clone.Pos.Yaw = player.Entity.Pos.Yaw;
+                clone.Pos.SetFrom(clone.Pos);
 
                 sapi.World.SpawnEntity(clone);
 
@@ -250,7 +250,7 @@ namespace VsQuest
 
         private Vec3d GetSpawnPositionNear(Vec3d basePos)
         {
-            if (basePos == null) return entity.ServerPos.XYZ.Clone();
+            if (basePos == null) return entity.Pos.XYZ.Clone();
 
             double angle = sapi.World.Rand.NextDouble() * Math.PI * 2.0;
             double dist = 1.5 + sapi.World.Rand.NextDouble() * 1.5;

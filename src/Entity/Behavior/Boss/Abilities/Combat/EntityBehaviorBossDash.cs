@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -46,7 +46,7 @@ namespace VsQuest
             Vec3d forward = null;
             try
             {
-                float yaw = entity?.ServerPos?.Yaw ?? 0f;
+                float yaw = entity?.Pos?.Yaw ?? 0f;
                 forward = new Vec3d(Math.Sin(yaw), 0, Math.Cos(yaw));
                 if (forward.Length() < 0.001) forward = null;
             }
@@ -230,15 +230,15 @@ namespace VsQuest
             double range = Math.Max(2.0, stage.maxTargetRange > 0 ? stage.maxTargetRange : 30f);
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float frange = (float)range;
                 var found = sapi.World.GetNearestEntity(own, frange, frange, e => e is EntityPlayer);
                 if (found == null || !found.Alive) return false;
 
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch (Exception ex)
@@ -268,7 +268,7 @@ namespace VsQuest
             TryPlaySound(stage);
             TryPlayAnimation(stage.windupAnimation);
 
-            dashDir = new Vec3d(target.ServerPos.X - entity.ServerPos.X, 0, target.ServerPos.Z - entity.ServerPos.Z);
+            dashDir = new Vec3d(target.Pos.X - entity.Pos.X, 0, target.Pos.Z - entity.Pos.Z);
             if (dashDir.Length() < 0.001) dashDir.Set(0, 0, 1);
             dashDir = ApplyDashDirection(dashDir, stage?.dashDirection);
             dashDir.Normalize();
@@ -327,13 +327,13 @@ namespace VsQuest
                         return;
                     }
 
-                    if (targetEntity.ServerPos.Dimension != entity.ServerPos.Dimension)
+                    if (targetEntity.Pos.Dimension != entity.Pos.Dimension)
                     {
                         StopDash();
                         return;
                     }
 
-                    dashDir.Set(targetEntity.ServerPos.X - entity.ServerPos.X, 0, targetEntity.ServerPos.Z - entity.ServerPos.Z);
+                    dashDir.Set(targetEntity.Pos.X - entity.Pos.X, 0, targetEntity.Pos.Z - entity.Pos.Z);
                     if (dashDir.Length() < 0.001) return;
                     dashDir.Normalize();
 
@@ -341,8 +341,8 @@ namespace VsQuest
                     yawLocked = true;
 
                     double spd = stage.dashSpeed;
-                    entity.ServerPos.Motion.X = dashDir.X * spd;
-                    entity.ServerPos.Motion.Z = dashDir.Z * spd;
+                    entity.Pos.Motion.X = dashDir.X * spd;
+                    entity.Pos.Motion.Z = dashDir.Z * spd;
                 }
                 catch (Exception ex)
                 {
@@ -369,7 +369,7 @@ namespace VsQuest
             {
                 if (entity != null)
                 {
-                    entity.ServerPos.Motion.Set(0, 0, 0);
+                    entity.Pos.Motion.Set(0, 0, 0);
                 }
             }
             catch (Exception ex)

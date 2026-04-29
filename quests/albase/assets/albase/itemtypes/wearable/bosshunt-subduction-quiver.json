@@ -3,6 +3,7 @@
   "maxstacksize": 1,
   "storageFlags": 2,
   "attributes": {
+    "handbook": { "exclude": true },
     "attachableToEntity": {
       "categoryCode": "backpack",
       "attachedShape": { "base": "game:item/bag/quiver-attached" }

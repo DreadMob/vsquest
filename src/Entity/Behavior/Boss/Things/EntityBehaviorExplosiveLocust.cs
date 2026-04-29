@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -276,7 +276,7 @@ namespace VsQuest
             try
             {
                 float range = Math.Max(1.2f, Math.Min(3.5f, explosionRadius));
-                target = sapi.World.GetNearestEntity(entity.ServerPos.XYZ, range, range, e => e is EntityPlayer plr && plr.Alive) as EntityPlayer;
+                target = sapi.World.GetNearestEntity(entity.Pos.XYZ, range, range, e => e is EntityPlayer plr && plr.Alive) as EntityPlayer;
             }
             catch
             {
@@ -287,9 +287,9 @@ namespace VsQuest
 
             try
             {
-                float dx = (float)(target.ServerPos.X - entity.ServerPos.X);
-                float dy = (float)(target.ServerPos.Y - entity.ServerPos.Y);
-                float dz = (float)(target.ServerPos.Z - entity.ServerPos.Z);
+                float dx = (float)(target.Pos.X - entity.Pos.X);
+                float dy = (float)(target.Pos.Y - entity.Pos.Y);
+                float dz = (float)(target.Pos.Z - entity.Pos.Z);
                 float distSq = dx * dx + dy * dy + dz * dz;
 
                 if (distSq <= ProximityExplodeDistanceSq)
@@ -375,8 +375,8 @@ namespace VsQuest
 
             try
             {
-                int dim = entity.ServerPos.Dimension;
-                var center = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y + dim * 32768.0, entity.ServerPos.Z);
+                int dim = entity.Pos.Dimension;
+                var center = new Vec3d(entity.Pos.X, entity.Pos.Y + dim * 32768.0, entity.Pos.Z);
                 var entities = sapi.World.GetEntitiesAround(center, explosionRadius, explosionRadius, e => e is EntityPlayer);
                 if (entities != null)
                 {
@@ -384,7 +384,7 @@ namespace VsQuest
                     {
                         if (entities[i] is not EntityPlayer plr) continue;
                         if (!plr.Alive) continue;
-                        if (plr.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                        if (plr.Pos.Dimension != entity.Pos.Dimension) continue;
 
                         plr.ReceiveDamage(new DamageSource()
                         {
@@ -416,8 +416,8 @@ namespace VsQuest
 
             try
             {
-                int dim = entity.ServerPos.Dimension;
-                var center = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y + dim * 32768.0, entity.ServerPos.Z);
+                int dim = entity.Pos.Dimension;
+                var center = new Vec3d(entity.Pos.X, entity.Pos.Y + dim * 32768.0, entity.Pos.Z);
 
                 float radius = explosionRadius;
                 if (radius <= 0.1f) radius = 1f;
@@ -478,7 +478,7 @@ namespace VsQuest
                 float range = leapTriggerRange;
                 if (range <= 0.1f) range = 6f;
 
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 var found = sapi.World.GetNearestEntity(own, range, range, e => e is EntityPlayer plr && plr.Alive);
                 target = found as EntityPlayer;
             }
@@ -488,10 +488,10 @@ namespace VsQuest
             }
 
             if (target == null) return;
-            if (target.ServerPos.Dimension != entity.ServerPos.Dimension) return;
+            if (target.Pos.Dimension != entity.Pos.Dimension) return;
 
-            Vec3d from = entity.ServerPos.XYZ;
-            Vec3d to = target.ServerPos.XYZ;
+            Vec3d from = entity.Pos.XYZ;
+            Vec3d to = target.Pos.XYZ;
 
             Vec3d dir = to.SubCopy(from);
             dir.Y = 0;
@@ -501,14 +501,14 @@ namespace VsQuest
 
             try
             {
-                var motion = entity.ServerPos.Motion;
+                var motion = entity.Pos.Motion;
                 motion.X = dir.X * leapHorizontalSpeed;
                 motion.Z = dir.Z * leapHorizontalSpeed;
                 motion.Y = Math.Max(motion.Y, leapVerticalSpeed);
-                entity.ServerPos.Motion = motion;
+                entity.Pos.Motion = motion;
                 entity.Pos.Motion = motion;
 
-                entity.ServerPos.Yaw = (float)Math.Atan2(dir.X, dir.Z);
+                entity.Pos.Yaw = (float)Math.Atan2(dir.X, dir.Z);
             }
             catch
             {

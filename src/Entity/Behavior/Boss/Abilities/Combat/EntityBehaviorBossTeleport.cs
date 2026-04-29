@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -228,15 +228,15 @@ namespace VsQuest
         {
             if (sapi == null || entity == null || pos == null) return;
 
-            int dim = entity.ServerPos.Dimension;
+            int dim = entity.Pos.Dimension;
 
             var clones = (stage != null && (stage.teleportClones || stage.swapWithClones)) ? FindClones() : null;
-            Vec3d bossOldPos = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z);
+            Vec3d bossOldPos = new Vec3d(entity.Pos.X, entity.Pos.Y, entity.Pos.Z);
 
             if (stage?.swapWithClones == true && clones != null && clones.Count > 0)
             {
                 var chosen = clones[sapi.World.Rand.Next(clones.Count)];
-                var clonePos = new Vec3d(chosen.ServerPos.X, chosen.ServerPos.Y, chosen.ServerPos.Z);
+                var clonePos = new Vec3d(chosen.Pos.X, chosen.Pos.Y, chosen.Pos.Z);
 
                 TeleportEntity(chosen, bossOldPos, dim);
                 TeleportEntity(entity, clonePos, dim);
@@ -245,7 +245,7 @@ namespace VsQuest
 
                 if (stage.teleportClones && clones.Count > 0)
                 {
-                    TeleportClonesAround(clones, entity.ServerPos.XYZ, stage, dim);
+                    TeleportClonesAround(clones, entity.Pos.XYZ, stage, dim);
                 }
 
                 return;
@@ -255,7 +255,7 @@ namespace VsQuest
 
             if (stage?.teleportClones == true && clones != null && clones.Count > 0)
             {
-                TeleportClonesAround(clones, entity.ServerPos.XYZ, stage, dim);
+                TeleportClonesAround(clones, entity.Pos.XYZ, stage, dim);
             }
         }
 
@@ -272,8 +272,8 @@ namespace VsQuest
                 entity?.Api?.Logger?.Error($"[vsquest] Exception in TeleportEntity IsTeleport: {ex}");
             }
 
-            target.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
-            target.Pos.SetFrom(target.ServerPos);
+            target.Pos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
+            target.Pos.SetFrom(target.Pos);
 
             // Safety: sometimes even a validated spot can become colliding (chunk load timing / selection box quirks).
             // Attempt a quick post-teleport nudge to a nearby free spot.
@@ -285,15 +285,15 @@ namespace VsQuest
                 var selBox = target.SelectionBox;
                 if (ba != null && ct != null && selBox != null)
                 {
-                    var tmpPos = new Vec3d(target.ServerPos.X, target.ServerPos.Y + dim * 32768.0, target.ServerPos.Z);
+                    var tmpPos = new Vec3d(target.Pos.X, target.Pos.Y + dim * 32768.0, target.Pos.Z);
                     bool colliding = ct.IsColliding(ba, selBox, tmpPos, alsoCheckTouch: false);
                     if (colliding)
                     {
-                        var bp = new BlockPos((int)Math.Floor(target.ServerPos.X), (int)Math.Floor(target.ServerPos.Y), (int)Math.Floor(target.ServerPos.Z), dim);
+                        var bp = new BlockPos((int)Math.Floor(target.Pos.X), (int)Math.Floor(target.Pos.Y), (int)Math.Floor(target.Pos.Z), dim);
                         if (TryFindFreeSpotNear(bp, requireSolidGround: true, out var found))
                         {
-                            target.ServerPos.SetPosWithDimension(new Vec3d(found.X, found.Y + dim * 32768.0, found.Z));
-                            target.Pos.SetFrom(target.ServerPos);
+                            target.Pos.SetPosWithDimension(new Vec3d(found.X, found.Y + dim * 32768.0, found.Z));
+                            target.Pos.SetFrom(target.Pos);
                         }
                     }
                 }
@@ -305,7 +305,7 @@ namespace VsQuest
 
             try
             {
-                target.ServerPos.Motion.Set(0, 0, 0);
+                target.Pos.Motion.Set(0, 0, 0);
             }
             catch (Exception ex)
             {
@@ -326,7 +326,7 @@ namespace VsQuest
             {
                 var e = entry.Value;
                 if (e == null || !e.Alive) continue;
-                if (e.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                if (e.Pos.Dimension != entity.Pos.Dimension) continue;
 
                 try
                 {
@@ -388,15 +388,15 @@ namespace VsQuest
             double range = Math.Max(2.0, stage.maxTargetRange > 0 ? stage.maxTargetRange : 40f);
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float frange = (float)range;
                 var found = sapi.World.GetNearestEntity(own, frange, frange, e => e is EntityPlayer);
                 if (found == null || !found.Alive) return false;
 
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch (Exception ex)
@@ -423,8 +423,8 @@ namespace VsQuest
 
             int tries = Math.Max(1, stage.tries);
 
-            int dim = entity.ServerPos.Dimension;
-            var targetPos = new Vec3d(target.ServerPos.X, target.ServerPos.Y, target.ServerPos.Z);
+            int dim = entity.Pos.Dimension;
+            var targetPos = new Vec3d(target.Pos.X, target.Pos.Y, target.Pos.Z);
             return TryFindTeleportPos(stage, targetPos, dim, out pos);
         }
 

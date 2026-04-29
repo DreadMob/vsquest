@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using Vintagestory.API.Common;
@@ -66,7 +66,7 @@ namespace VsQuest.Harmony
                     }
                 }
 
-                __instance.World.PlaySoundAt(location, (float)__instance.SidedPos.X, (float)__instance.SidedPos.InternalY, (float)__instance.SidedPos.Z, dualCallByPlayer, pitch, volume);
+                __instance.World.PlaySoundAt(location, (float)__instance.Pos.X, (float)__instance.Pos.InternalY, (float)__instance.Pos.Z, dualCallByPlayer, pitch, volume);
                 return false;
             }
             catch

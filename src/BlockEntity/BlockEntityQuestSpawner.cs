@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
@@ -638,11 +638,11 @@ namespace VsQuest
             int surfaceY = Api.World.BlockAccessor.GetRainMapHeightAt((int)x, (int)z);
             double y = surfaceY + yOffset;
 
-            entity.ServerPos.X = x;
-            entity.ServerPos.Y = y;
-            entity.ServerPos.Z = z;
-            entity.ServerPos.Dimension = Pos.dimension;
-            entity.Pos.SetFrom(entity.ServerPos);
+            entity.Pos.X = x;
+            entity.Pos.Y = y;
+            entity.Pos.Z = z;
+            entity.Pos.Dimension = Pos.dimension;
+            entity.Pos.SetFrom(entity.Pos);
 
             EntityBehaviorQuestTarget.SetSpawnerAnchor(entity, Pos);
 

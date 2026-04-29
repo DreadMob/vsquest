@@ -9,7 +9,7 @@ namespace VsQuest
         {
             if (sapi == null || byPlayer?.Entity == null || args == null || args.Length == 0) return;
 
-            var spawnPos = byPlayer.Entity.ServerPos.Copy();
+            var spawnPos = byPlayer.Entity.Pos.Copy();
             foreach (var code in args)
             {
                 var type = sapi.World.GetEntityType(new AssetLocation(code));
@@ -21,7 +21,7 @@ namespace VsQuest
                 var entity = sapi.World.ClassRegistry.CreateEntity(type);
                 if (entity == null) continue;
 
-                entity.ServerPos = spawnPos.Copy();
+                entity.Pos.SetFrom(spawnPos);
                 sapi.World.SpawnEntity(entity);
             }
         }

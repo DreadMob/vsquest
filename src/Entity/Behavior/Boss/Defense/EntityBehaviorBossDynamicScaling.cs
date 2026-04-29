@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -122,9 +122,9 @@ namespace VsQuest
             int count = 0;
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
-                if (player.Entity.ServerPos.DistanceTo(entity.ServerPos) <= playerDetectionRange)
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
+                if (player.Entity.Pos.DistanceTo(entity.Pos) <= playerDetectionRange)
                 {
                     count++;
                 }

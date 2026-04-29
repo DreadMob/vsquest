@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Common;
@@ -340,7 +340,7 @@ namespace VsQuest
                     foreach (var slot in inv)
                     {
                         if (slot?.Itemstack == null) continue;
-                        if (!(slot.Itemstack.Item is Vintagestory.GameContent.ItemWearable)) continue;
+                        if (slot.Itemstack.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() == null) continue;
                         float val = ItemAttributeUtils.GetAttributeFloat(slot.Itemstack, ItemAttributeUtils.AttrHealOnKill, 0f);
                         if (val > 0f) healOnKill += val;
                     }

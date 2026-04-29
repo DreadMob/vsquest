@@ -6,6 +6,7 @@
   "maxstacksize": 1,
   "storageFlags": 128,
   "attributes": {
+    "handbook": { "exclude": true },
     "clothescategory": "face",
     "wearableAttachment": true,
     "warmth": 0.01,

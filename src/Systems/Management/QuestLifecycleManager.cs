@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
@@ -451,7 +451,7 @@ namespace VsQuest
                 var stack = new ItemStack(item, reward.amount);
                 if (!fromPlayer.InventoryManager.TryGiveItemstack(stack))
                 {
-                    sapi.World.SpawnItemEntity(stack, (questgiver ?? fromPlayer.Entity).ServerPos.XYZ);
+                    sapi.World.SpawnItemEntity(stack, (questgiver ?? fromPlayer.Entity).Pos.XYZ);
                 }
             }
             var randomItems = quest.randomItemRewards?.items == null
@@ -478,7 +478,7 @@ namespace VsQuest
                 var stack = new ItemStack(item, sapi.World.Rand.Next(randomItem.minAmount, randomItem.maxAmount + 1));
                 if (!fromPlayer.InventoryManager.TryGiveItemstack(stack))
                 {
-                    sapi.World.SpawnItemEntity(stack, (questgiver ?? fromPlayer.Entity).ServerPos.XYZ);
+                    sapi.World.SpawnItemEntity(stack, (questgiver ?? fromPlayer.Entity).Pos.XYZ);
                 }
             }
             foreach (var action in quest.actionRewards)

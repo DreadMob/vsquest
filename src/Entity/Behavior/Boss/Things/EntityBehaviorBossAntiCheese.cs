@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -225,7 +225,7 @@ namespace VsQuest
 
             if (!BossBehaviorUtils.IsCooldownReady(sapi, entity, LastStartMsKey, stage.cooldownSeconds)) return;
 
-            if (!TryFindTeleportPos(stage, target.ServerPos.XYZ, entity.ServerPos.Dimension, out var tpPos))
+            if (!TryFindTeleportPos(stage, target.Pos.XYZ, entity.Pos.Dimension, out var tpPos))
             {
                 ResetState();
                 return;
@@ -278,14 +278,14 @@ namespace VsQuest
             double range = Math.Max(1.0, stage.searchRange);
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float frange = (float)range;
                 var found = sapi.World.GetNearestEntity(own, frange, frange, e => e is EntityPlayer) as EntityPlayer;
                 if (found == null || !found.Alive) return false;
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch
@@ -300,9 +300,9 @@ namespace VsQuest
 
             try
             {
-                rayTraceFrom.Set(entity.ServerPos);
+                rayTraceFrom.Set(entity.Pos);
                 rayTraceFrom.Y += 1.0 / 32.0;
-                rayTraceTo.Set(target.ServerPos);
+                rayTraceTo.Set(target.Pos);
                 rayTraceTo.Y += 1.0 / 32.0;
 
                 BlockSelection bs = null;
@@ -346,7 +346,7 @@ namespace VsQuest
             {
                 try
                 {
-                    TeleportEntity(entity, pos, entity.ServerPos.Dimension);
+                    TeleportEntity(entity, pos, entity.Pos.Dimension);
                     TryPlayAnimation(stage.arriveAnimation);
                 }
                 catch
@@ -371,12 +371,12 @@ namespace VsQuest
             {
             }
 
-            target.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
-            target.Pos.SetFrom(target.ServerPos);
+            target.Pos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
+            target.Pos.SetFrom(target.Pos);
 
             try
             {
-                target.ServerPos.Motion.Set(0, 0, 0);
+                target.Pos.Motion.Set(0, 0, 0);
             }
             catch
             {

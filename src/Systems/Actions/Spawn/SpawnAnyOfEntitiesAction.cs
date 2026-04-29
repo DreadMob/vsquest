@@ -14,7 +14,11 @@ namespace VsQuest
                 throw new QuestException(string.Format("Tried to spawn {0} for quest {1} but could not find the entity type!", code, message.questId));
             }
             var entity = sapi.World.ClassRegistry.CreateEntity(type);
-            entity.ServerPos = sapi.World.GetEntityById(message.questGiverId).ServerPos.Copy();
+            var questGiver = sapi.World.GetEntityById(message.questGiverId);
+            if (questGiver != null)
+            {
+                entity.Pos.SetFrom(questGiver.Pos);
+            }
             sapi.World.SpawnEntity(entity);
         }
     }

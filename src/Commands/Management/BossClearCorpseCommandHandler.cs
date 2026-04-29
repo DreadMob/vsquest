@@ -1,4 +1,4 @@
-using Vintagestory.API.Common;
+﻿using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
@@ -36,10 +36,10 @@ namespace VsQuest
 
             Vec3d callerPos = null;
             int callerDim = 0;
-            if (args.Caller?.Entity?.ServerPos != null)
+            if (args.Caller?.Entity?.Pos != null)
             {
-                callerPos = args.Caller.Entity.ServerPos.XYZ;
-                callerDim = args.Caller.Entity.ServerPos.Dimension;
+                callerPos = args.Caller.Entity.Pos.XYZ;
+                callerDim = args.Caller.Entity.Pos.Dimension;
             }
 
             int clearedCount = 0;
@@ -57,11 +57,11 @@ namespace VsQuest
 
                     if (radiusBlocks > 0 && callerPos != null)
                     {
-                        if (entity.ServerPos?.Dimension != callerDim) continue;
+                        if (entity.Pos?.Dimension != callerDim) continue;
 
-                        double dx = entity.ServerPos.X - callerPos.X;
-                        double dy = entity.ServerPos.Y - callerPos.Y;
-                        double dz = entity.ServerPos.Z - callerPos.Z;
+                        double dx = entity.Pos.X - callerPos.X;
+                        double dy = entity.Pos.Y - callerPos.Y;
+                        double dz = entity.Pos.Z - callerPos.Z;
 
                         if (dx * dx + dy * dy + dz * dz > radiusSq) continue;
                     }

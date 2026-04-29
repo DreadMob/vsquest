@@ -1,4 +1,4 @@
-using Vintagestory.API.Common;
+﻿using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 
@@ -38,7 +38,7 @@ namespace VsQuest
 
             if (!player.InventoryManager.TryGiveItemstack(stack))
             {
-                api.World.SpawnItemEntity(stack, player.Entity.ServerPos.XYZ);
+                api.World.SpawnItemEntity(stack, player.Entity.Pos.XYZ);
             }
 
             return TextCommandResult.Success($"Successfully gave {amount}x {actionItem.name}.");

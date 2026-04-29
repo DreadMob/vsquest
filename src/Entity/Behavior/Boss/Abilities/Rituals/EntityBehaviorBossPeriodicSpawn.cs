@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -162,14 +162,14 @@ namespace VsQuest
 
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float range = Math.Max(4f, stage.maxTargetRange > 0f ? stage.maxTargetRange : 40f);
                 var found = sapi.World.GetNearestEntity(own, range, range, e => e is EntityPlayer);
                 if (found == null || !found.Alive) return false;
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch
@@ -186,8 +186,8 @@ namespace VsQuest
 
             try
             {
-                int dim = entity.ServerPos.Dimension;
-                var center = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y + dim * 32768.0, entity.ServerPos.Z);
+                int dim = entity.Pos.Dimension;
+                var center = new Vec3d(entity.Pos.X, entity.Pos.Y + dim * 32768.0, entity.Pos.Z);
                 var entities = sapi.World.GetEntitiesAround(center, range, range, e => e != null && e.Alive);
                 if (entities == null) return 0;
 
@@ -247,14 +247,14 @@ namespace VsQuest
 
             if (type == null) return;
 
-            int dim = entity.ServerPos.Dimension;
+            int dim = entity.Pos.Dimension;
             for (int i = 0; i < count; i++)
             {
                 double angle = sapi.World.Rand.NextDouble() * Math.PI * 2.0;
                 double dist = stage.spawnRange * (0.5 + sapi.World.Rand.NextDouble() * 0.5);
-                double x = entity.ServerPos.X + Math.Cos(angle) * dist;
-                double z = entity.ServerPos.Z + Math.Sin(angle) * dist;
-                double y = entity.ServerPos.Y;
+                double x = entity.Pos.X + Math.Cos(angle) * dist;
+                double z = entity.Pos.Z + Math.Sin(angle) * dist;
+                double y = entity.Pos.Y;
 
                 float yaw = (float)(sapi.World.Rand.NextDouble() * Math.PI * 2.0);
                 var spawnPos = new Vec3d(x, y + dim * 32768.0, z);
@@ -287,9 +287,9 @@ namespace VsQuest
                 {
                 }
 
-                spawned.ServerPos.SetPosWithDimension(spawnPos);
-                spawned.Pos.SetFrom(spawned.ServerPos);
-                spawned.ServerPos.Yaw = yaw;
+                spawned.Pos.SetPosWithDimension(spawnPos);
+                spawned.Pos.SetFrom(spawned.Pos);
+                spawned.Pos.Yaw = yaw;
 
                 sapi.World.SpawnEntity(spawned);
 

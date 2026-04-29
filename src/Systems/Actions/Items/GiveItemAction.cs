@@ -1,4 +1,4 @@
-using Vintagestory.API.Common;
+﻿using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
 namespace VsQuest
@@ -42,7 +42,7 @@ namespace VsQuest
 
             if (!byPlayer.InventoryManager.TryGiveItemstack(stack))
             {
-                sapi.World.SpawnItemEntity(stack, byPlayer.Entity.ServerPos.XYZ);
+                sapi.World.SpawnItemEntity(stack, byPlayer.Entity.Pos.XYZ);
             }
         }
     }

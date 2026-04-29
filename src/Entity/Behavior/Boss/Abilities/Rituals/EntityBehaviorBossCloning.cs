@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -147,9 +147,9 @@ namespace VsQuest
             var type = sapi.World.GetEntityType(new AssetLocation(code));
             if (type == null) return;
 
-            Vec3d basePos = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z);
-            int dim = entity.ServerPos.Dimension;
-            float yaw = entity.ServerPos.Yaw;
+            Vec3d basePos = new Vec3d(entity.Pos.X, entity.Pos.Y, entity.Pos.Z);
+            int dim = entity.Pos.Dimension;
+            float yaw = entity.Pos.Yaw;
 
             int count = Math.Max(1, stage.cloneCount);
             for (int i = 0; i < count; i++)
@@ -164,9 +164,9 @@ namespace VsQuest
                     ApplyCloneAttributes(clone, stage);
 
                     Vec3d offset = RandomOffset(stage.spawnRange);
-                    clone.ServerPos.SetPosWithDimension(new Vec3d(basePos.X + offset.X, basePos.Y + dim * 32768.0, basePos.Z + offset.Z));
-                    clone.ServerPos.Yaw = yaw + (float)((sapi.World.Rand.NextDouble() - 0.5) * 0.4);
-                    clone.Pos.SetFrom(clone.ServerPos);
+                    clone.Pos.SetPosWithDimension(new Vec3d(basePos.X + offset.X, basePos.Y + dim * 32768.0, basePos.Z + offset.Z));
+                    clone.Pos.Yaw = yaw + (float)((sapi.World.Rand.NextDouble() - 0.5) * 0.4);
+                    clone.Pos.SetFrom(clone.Pos);
 
                     sapi.World.SpawnEntity(clone);
 
@@ -395,8 +395,8 @@ namespace VsQuest
             if (!followOwner) return;
 
             // Follow the owner - teleport if too far away
-            double dx = entity.ServerPos.X - owner.ServerPos.X;
-            double dz = entity.ServerPos.Z - owner.ServerPos.Z;
+            double dx = entity.Pos.X - owner.Pos.X;
+            double dz = entity.Pos.Z - owner.Pos.Z;
             double distSq = dx * dx + dz * dz;
             double maxDist = 25.0; // Max distance before teleport
 
@@ -405,11 +405,11 @@ namespace VsQuest
                 // Teleport clone near the owner
                 double angle = sapi.World.Rand.NextDouble() * Math.PI * 2.0;
                 double offsetDist = 3.0 + sapi.World.Rand.NextDouble() * 4.0;
-                double newX = owner.ServerPos.X + Math.Cos(angle) * offsetDist;
-                double newZ = owner.ServerPos.Z + Math.Sin(angle) * offsetDist;
+                double newX = owner.Pos.X + Math.Cos(angle) * offsetDist;
+                double newZ = owner.Pos.Z + Math.Sin(angle) * offsetDist;
 
-                entity.ServerPos.SetPos(newX, owner.ServerPos.Y, newZ);
-                entity.Pos.SetFrom(entity.ServerPos);
+                entity.Pos.SetPos(newX, owner.Pos.Y, newZ);
+                entity.Pos.SetFrom(entity.Pos);
             }
         }
     }

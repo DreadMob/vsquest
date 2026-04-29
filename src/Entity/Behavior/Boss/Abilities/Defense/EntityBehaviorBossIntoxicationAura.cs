@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -106,18 +106,18 @@ namespace VsQuest
 
             double range = stage.range > 0 ? stage.range : 24f;
             double rangeSq = range * range;
-            var selfPos = entity.ServerPos;
+            var selfPos = entity.Pos;
 
             for (int i = 0; i < players.Length; i++)
             {
                 var player = players[i] as IServerPlayer;
                 var playerEntity = player?.Entity;
                 if (playerEntity == null) continue;
-                if (playerEntity.ServerPos.Dimension != selfPos.Dimension) continue;
+                if (playerEntity.Pos.Dimension != selfPos.Dimension) continue;
 
-                double dx = playerEntity.ServerPos.X - selfPos.X;
-                double dy = playerEntity.ServerPos.Y - selfPos.Y;
-                double dz = playerEntity.ServerPos.Z - selfPos.Z;
+                double dx = playerEntity.Pos.X - selfPos.X;
+                double dy = playerEntity.Pos.Y - selfPos.Y;
+                double dz = playerEntity.Pos.Z - selfPos.Z;
                 double distSq = dx * dx + dy * dy + dz * dz;
                 if (distSq > rangeSq) continue;
 
@@ -267,18 +267,18 @@ namespace VsQuest
 
             double range = maxRange * 1.1f;
             double rangeSq = range * range;
-            var selfPos = entity.ServerPos;
+            var selfPos = entity.Pos;
 
             for (int i = 0; i < players.Length; i++)
             {
                 var player = players[i] as IServerPlayer;
                 var playerEntity = player?.Entity;
                 if (playerEntity == null) continue;
-                if (playerEntity.ServerPos.Dimension != selfPos.Dimension) continue;
+                if (playerEntity.Pos.Dimension != selfPos.Dimension) continue;
 
-                double dx = playerEntity.ServerPos.X - selfPos.X;
-                double dy = playerEntity.ServerPos.Y - selfPos.Y;
-                double dz = playerEntity.ServerPos.Z - selfPos.Z;
+                double dx = playerEntity.Pos.X - selfPos.X;
+                double dy = playerEntity.Pos.Y - selfPos.Y;
+                double dz = playerEntity.Pos.Z - selfPos.Z;
                 double distSq = dx * dx + dy * dy + dz * dz;
                 if (distSq > rangeSq) continue;
 

@@ -1,4 +1,4 @@
-using Vintagestory.API.Common;
+﻿using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
@@ -28,7 +28,7 @@ namespace VsQuest
             {
                 throw new QuestException($"Could not find quest giver with id {message.questGiverId} to spawn smoke for quest {message.questId}");
             }
-            smoke.MinPos = questgiver.ServerPos.XYZ.AddCopy(-1.5, -0.5, -1.5);
+            smoke.MinPos = questgiver.Pos.XYZ.AddCopy(-1.5, -0.5, -1.5);
             sapi.World.SpawnParticles(smoke);
         }
     }

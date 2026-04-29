@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -91,10 +91,10 @@ namespace VsQuest
                 }
                 entity.WatchedAttributes.SetDouble(AttrRespawnAtHours, respawnAt);
 
-                entity.WatchedAttributes.SetDouble(AttrRespawnX, entity.ServerPos.X);
-                entity.WatchedAttributes.SetDouble(AttrRespawnY, entity.ServerPos.Y);
-                entity.WatchedAttributes.SetDouble(AttrRespawnZ, entity.ServerPos.Z);
-                entity.WatchedAttributes.SetInt(AttrRespawnDim, entity.ServerPos.Dimension);
+                entity.WatchedAttributes.SetDouble(AttrRespawnX, entity.Pos.X);
+                entity.WatchedAttributes.SetDouble(AttrRespawnY, entity.Pos.Y);
+                entity.WatchedAttributes.SetDouble(AttrRespawnZ, entity.Pos.Z);
+                entity.WatchedAttributes.SetInt(AttrRespawnDim, entity.Pos.Dimension);
 
                 entity.WatchedAttributes.MarkPathDirty(AttrRespawnAtHours);
                 entity.WatchedAttributes.MarkPathDirty(AttrRespawnX);
@@ -118,12 +118,12 @@ namespace VsQuest
             var type = sapi.World.GetEntityType(new AssetLocation(code));
             if (type == null) return;
 
-            double x = entity.WatchedAttributes.GetDouble(AttrRespawnX, entity.ServerPos.X);
-            double y = entity.WatchedAttributes.GetDouble(AttrRespawnY, entity.ServerPos.Y);
-            double z = entity.WatchedAttributes.GetDouble(AttrRespawnZ, entity.ServerPos.Z);
-            int dim = entity.WatchedAttributes.GetInt(AttrRespawnDim, entity.ServerPos.Dimension);
+            double x = entity.WatchedAttributes.GetDouble(AttrRespawnX, entity.Pos.X);
+            double y = entity.WatchedAttributes.GetDouble(AttrRespawnY, entity.Pos.Y);
+            double z = entity.WatchedAttributes.GetDouble(AttrRespawnZ, entity.Pos.Z);
+            int dim = entity.WatchedAttributes.GetInt(AttrRespawnDim, entity.Pos.Dimension);
 
-            float yaw = entity.ServerPos.Yaw;
+            float yaw = entity.Pos.Yaw;
 
             sapi.World.DespawnEntity(entity, new EntityDespawnData { Reason = EnumDespawnReason.Expire });
 
@@ -131,9 +131,9 @@ namespace VsQuest
             if (newEntity == null) return;
 
             // EntityPos.SetPosWithDimension(Vec3d) expects Y to include dimension offset (dim*32768)
-            newEntity.ServerPos.SetPosWithDimension(new Vec3d(x, y + dim * 32768.0, z));
-            newEntity.ServerPos.Yaw = yaw;
-            newEntity.Pos.SetFrom(newEntity.ServerPos);
+            newEntity.Pos.SetPosWithDimension(new Vec3d(x, y + dim * 32768.0, z));
+            newEntity.Pos.Yaw = yaw;
+            newEntity.Pos.SetFrom(newEntity.Pos);
 
             sapi.World.SpawnEntity(newEntity);
         }

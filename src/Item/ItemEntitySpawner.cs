@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using Vintagestory.API.Client;
@@ -236,13 +236,13 @@ namespace VsQuest
                 return;
             }
 
-            entity.ServerPos.X = (float)(blockSel.Position.X + ((!blockSel.DidOffset) ? blockSel.Face.Normali.X : 0)) + 0.5f;
-            entity.ServerPos.Y = blockSel.Position.Y + ((!blockSel.DidOffset) ? blockSel.Face.Normali.Y : 0);
-            entity.ServerPos.Z = (float)(blockSel.Position.Z + ((!blockSel.DidOffset) ? blockSel.Face.Normali.Z : 0)) + 0.5f;
-            entity.ServerPos.Yaw = byEntity.Pos.Yaw + (float)Math.PI;
-            entity.ServerPos.Dimension = blockSel.Position.dimension;
-            entity.Pos.SetFrom(entity.ServerPos);
-            entity.PositionBeforeFalling.Set(entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z);
+            entity.Pos.X = (float)(blockSel.Position.X + ((!blockSel.DidOffset) ? blockSel.Face.Normali.X : 0)) + 0.5f;
+            entity.Pos.Y = blockSel.Position.Y + ((!blockSel.DidOffset) ? blockSel.Face.Normali.Y : 0);
+            entity.Pos.Z = (float)(blockSel.Position.Z + ((!blockSel.DidOffset) ? blockSel.Face.Normali.Z : 0)) + 0.5f;
+            entity.Pos.Yaw = byEntity.Pos.Yaw + (float)Math.PI;
+            entity.Pos.Dimension = blockSel.Position.dimension;
+            entity.Pos.SetFrom(entity.Pos);
+            entity.PositionBeforeFalling.Set(entity.Pos.X, entity.Pos.Y, entity.Pos.Z);
             entity.Attributes.SetString("origin", "playerplaced");
 
             byEntity.World.SpawnEntity(entity);

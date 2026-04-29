@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -177,15 +177,15 @@ namespace VsQuest
             double range = Math.Max(2.0, stage.maxTargetRange > 0 ? stage.maxTargetRange : 28f);
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float frange = (float)range;
                 var found = sapi.World.GetNearestEntity(own, frange, frange, e => e is EntityPlayer) as EntityPlayer;
                 if (found == null || !found.Alive) return false;
 
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch (Exception ex)
@@ -232,7 +232,7 @@ namespace VsQuest
 
             try
             {
-                float dist = (float)target.ServerPos.DistanceTo(entity.ServerPos);
+                float dist = (float)target.Pos.DistanceTo(entity.Pos);
                 sapi.Logger.VerboseDebug($"[alegacyvsquest] bosshook start stage={stageIndex} target={target?.Player?.PlayerName ?? "?"} entId={target?.EntityId} dist={dist:0.00} windupMs={stage.windupMs} pullMs={stage.pullMs} pullSpeed={stage.pullSpeed:0.###} maxMotion={stage.maxPlayerMotion:0.###}");
             }
             catch
@@ -293,16 +293,16 @@ namespace VsQuest
                         return;
                     }
 
-                    if (targetPlayer.ServerPos.Dimension != entity.ServerPos.Dimension)
+                    if (targetPlayer.Pos.Dimension != entity.Pos.Dimension)
                     {
                         StopHook();
                         return;
                     }
 
-                    var dir = new Vec3d(entity.ServerPos.X - targetPlayer.ServerPos.X, 0, entity.ServerPos.Z - targetPlayer.ServerPos.Z);
+                    var dir = new Vec3d(entity.Pos.X - targetPlayer.Pos.X, 0, entity.Pos.Z - targetPlayer.Pos.Z);
                     if (dir.Length() < 0.001) return;
 
-                    float dist = (float)targetPlayer.ServerPos.DistanceTo(entity.ServerPos);
+                    float dist = (float)targetPlayer.Pos.DistanceTo(entity.Pos);
                     dir.Normalize();
 
                     double pull = stage.pullSpeed;

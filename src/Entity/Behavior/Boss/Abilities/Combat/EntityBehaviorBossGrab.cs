@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -183,15 +183,15 @@ namespace VsQuest
             double range = Math.Max(1.5, stage.maxTargetRange > 0 ? stage.maxTargetRange : 3f);
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float frange = (float)range;
                 var found = sapi.World.GetNearestEntity(own, frange, frange, e => e is EntityPlayer) as EntityPlayer;
                 if (found == null || !found.Alive) return false;
 
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch (Exception ex)
@@ -289,7 +289,7 @@ namespace VsQuest
                         return;
                     }
 
-                    if (targetPlayer.ServerPos.Dimension != entity.ServerPos.Dimension)
+                    if (targetPlayer.Pos.Dimension != entity.Pos.Dimension)
                     {
                         StopGrab();
                         return;
@@ -298,7 +298,7 @@ namespace VsQuest
                     var stageNow = (activeStageIndex >= 0 && activeStageIndex < stages.Count) ? stages[activeStageIndex] : null;
                     if (stageNow != null)
                     {
-                        float dist = (float)targetPlayer.ServerPos.DistanceTo(entity.ServerPos);
+                        float dist = (float)targetPlayer.Pos.DistanceTo(entity.Pos);
                         if (dist > stageNow.maxTargetRange + 2f)
                         {
                             StopGrab();

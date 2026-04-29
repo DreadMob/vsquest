@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
@@ -185,7 +185,7 @@ namespace VsQuest
             {
                 if (entity == null || !entity.Alive) continue;
                 if (!entity.HasBehavior<EntityBehaviorBoss>()) continue;
-                if (entity.ServerPos.DistanceTo(Pos.ToVec3d()) <= 80)
+                if (entity.Pos.DistanceTo(Pos.ToVec3d()) <= 80)
                     return entity;
             }
             return null;
@@ -209,9 +209,9 @@ namespace VsQuest
 
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != Pos.dimension) continue;
-                if (player.Entity.ServerPos.DistanceTo(Pos.ToVec3d()) <= 80)
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != Pos.dimension) continue;
+                if (player.Entity.Pos.DistanceTo(Pos.ToVec3d()) <= 80)
                 {
                     player.Entity.Stats.Set("healrate", "bosshuntarenasuppression", -reduction, true);
                 }

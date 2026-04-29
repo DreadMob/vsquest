@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -86,7 +86,7 @@ namespace VsQuest.Systems.Performance
             foreach (var slot in inv)
             {
                 if (slot?.Empty != false) continue;
-                if (!(slot.Itemstack.Item is ItemWearable)) continue;
+                if (slot.Itemstack?.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() == null) continue;
                 
                 // Combine item code hash and stack fingerprint
                 var stack = slot.Itemstack;

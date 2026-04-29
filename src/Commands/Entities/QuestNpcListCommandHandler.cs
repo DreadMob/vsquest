@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
@@ -25,9 +25,9 @@ namespace VsQuest
                 {
                     long id = e.EntityId;
                     string code = e.Code?.ToShortString() ?? "<null>";
-                    int x = (int)e.ServerPos.X;
-                    int y = (int)e.ServerPos.Y;
-                    int z = (int)e.ServerPos.Z;
+                    int x = (int)e.Pos.X;
+                    int y = (int)e.Pos.Y;
+                    int z = (int)e.Pos.Z;
                     return $"{id} {code} @ {x},{y},{z}";
                 })
                 .OrderBy(s => s)

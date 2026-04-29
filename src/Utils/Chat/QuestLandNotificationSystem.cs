@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Common;
@@ -85,13 +85,13 @@ namespace VsQuest
             {
                 if (!(players[i] is IServerPlayer sp)) continue;
 
-                var pos = sp.Entity?.SidedPos;
+                var pos = sp.Entity?.Pos;
                 if (pos == null) continue;
 
                 int curDim;
                 try
                 {
-                    curDim = sp.Entity.SidedPos.Dimension;
+                    curDim = sp.Entity.Pos.Dimension;
                 }
                 catch
                 {
@@ -405,12 +405,12 @@ namespace VsQuest
 
         private string GetCurrentClaimName(IServerPlayer sp)
         {
-            if (sp?.Entity?.SidedPos == null) return null;
+            if (sp?.Entity?.Pos == null) return null;
 
             var claimsApi = sp.Entity.World?.Claims;
             if (claimsApi == null) return null;
 
-            BlockPos pos = sp.Entity.SidedPos.AsBlockPos;
+            BlockPos pos = sp.Entity.Pos.AsBlockPos;
             var claims = claimsApi.Get(pos);
             if (claims == null || claims.Length == 0) return null;
 

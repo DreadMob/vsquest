@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -120,8 +120,8 @@ namespace VsQuest
             if (entity.Swimming) { EnsureLastPosInitialized(entity, wa, questId, slot); return; }
             if (controls.IsFlying || controls.Gliding || controls.DetachedMode) { EnsureLastPosInitialized(entity, wa, questId, slot); return; }
 
-            double curX = entity.ServerPos.X;
-            double curZ = entity.ServerPos.Z;
+            double curX = entity.Pos.X;
+            double curZ = entity.Pos.Z;
 
             string cacheKey = CacheKey(player.PlayerUID, questId, slot);
 
@@ -232,8 +232,8 @@ namespace VsQuest
 
             if (cache.HasLast) return;
 
-            cache.LastX = entity.ServerPos.X;
-            cache.LastZ = entity.ServerPos.Z;
+            cache.LastX = entity.Pos.X;
+            cache.LastZ = entity.Pos.Z;
             cache.HasLast = true;
         }
 

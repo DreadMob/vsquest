@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
@@ -18,10 +18,10 @@ namespace VsQuest
             int maxDurability = slot.Itemstack.Collectible.GetMaxDurability(slot.Itemstack);
             if (maxDurability <= 0)
             {
-                if (slot.Itemstack.Collectible is ItemWearable wearable)
+                if (slot.Itemstack.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() is Vintagestory.API.Common.IWearable wearable)
                 {
-                    float current = slot.Itemstack.Attributes?.GetFloat("condition", 1f) ?? 1f;
-                    wearable.ChangeCondition(slot, 1f - current);
+                    slot.Itemstack.Attributes.SetFloat("condition", 1f);
+                    slot.MarkDirty();
                     return TextCommandResult.Success($"Repaired '{slot.Itemstack.GetName()}' to 100% condition.");
                 }
 
@@ -48,12 +48,13 @@ namespace VsQuest
             int maxDurability = slot.Itemstack.Collectible.GetMaxDurability(slot.Itemstack);
             if (maxDurability <= 0)
             {
-                if (slot.Itemstack.Collectible is ItemWearable wearable)
+                if (slot.Itemstack.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() is Vintagestory.API.Common.IWearable wearable)
                 {
                     float current = slot.Itemstack.Attributes?.GetFloat("condition", 1f) ?? 1f;
                     float delta = amount / 100f;
                     float newCondition = Math.Clamp(current - delta, 0f, 1f);
-                    wearable.ChangeCondition(slot, newCondition - current);
+                    slot.Itemstack.Attributes.SetFloat("condition", newCondition);
+                    slot.MarkDirty();
                     return TextCommandResult.Success($"Damaged '{slot.Itemstack.GetName()}' by {amount}% condition. Remaining: {newCondition * 100f:0.#}%.");
                 }
 

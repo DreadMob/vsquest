@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
@@ -63,7 +63,7 @@ namespace VsQuest
                 {
                     if (p?.Entity == null) continue;
 
-                    var pos = p.Entity.ServerPos;
+                    var pos = p.Entity.Pos;
                     var center = new Vec3i((int)pos.X, (int)pos.Y, (int)pos.Z);
 
                     for (int x = center.X - radiusBlocks; x <= center.X + radiusBlocks; x += chunksize)
@@ -123,8 +123,8 @@ namespace VsQuest
             var bossEntity = FindBossEntity(cfg, nowHours);
             if (bossEntity != null && bossEntity.Alive)
             {
-                pos = new Vec3d(bossEntity.ServerPos.X, bossEntity.ServerPos.Y, bossEntity.ServerPos.Z);
-                dimension = bossEntity.ServerPos.Dimension;
+                pos = new Vec3d(bossEntity.Pos.X, bossEntity.Pos.Y, bossEntity.Pos.Z);
+                dimension = bossEntity.Pos.Dimension;
                 isLiveEntity = true;
                 return true;
             }

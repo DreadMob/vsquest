@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -149,7 +149,7 @@ namespace VsQuest
 
         private void Unfreeze()
         {
-            entity.ServerPos.Motion.Set(0, 0, 0);
+            entity.Pos.Motion.Set(0, 0, 0);
         }
 
         private void HealDuringDespair()

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -193,12 +193,12 @@ namespace VsQuest
             if (dist < activeStage.minTargetRange) return;
             if (dist > activeStage.maxTargetRange) return;
 
-            if (!TryFindPosNear(activeStage.minRadius, activeStage.maxRadius, activeStage.tries, activeStage.requireSolidGround, target.ServerPos.XYZ, entity.ServerPos.Dimension, out var fakePos)) return;
+            if (!TryFindPosNear(activeStage.minRadius, activeStage.maxRadius, activeStage.tries, activeStage.requireSolidGround, target.Pos.XYZ, entity.Pos.Dimension, out var fakePos)) return;
 
             Vec3d bossTpPos = null;
             if (activeStage.teleportBoss)
             {
-                TryFindPosNear(activeStage.bossTeleportMinRadius, activeStage.bossTeleportMaxRadius, activeStage.bossTeleportTries, activeStage.requireSolidGround, target.ServerPos.XYZ, entity.ServerPos.Dimension, out bossTpPos);
+                TryFindPosNear(activeStage.bossTeleportMinRadius, activeStage.bossTeleportMaxRadius, activeStage.bossTeleportTries, activeStage.requireSolidGround, target.Pos.XYZ, entity.Pos.Dimension, out bossTpPos);
             }
 
             Start(activeStage, stageIndex, fakePos, bossTpPos);
@@ -239,7 +239,7 @@ namespace VsQuest
                     SpawnFake(stage, fakePos);
                     if (stage.teleportBoss && bossTpPos != null)
                     {
-                        TeleportEntity(entity, bossTpPos, entity.ServerPos.Dimension);
+                        TeleportEntity(entity, bossTpPos, entity.Pos.Dimension);
                     }
                 }
                 catch (Exception ex)
@@ -270,10 +270,10 @@ namespace VsQuest
 
                 ApplyFakeFlags(fake, stage);
 
-                int dim = entity.ServerPos.Dimension;
-                fake.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
-                fake.ServerPos.Yaw = entity.ServerPos.Yaw;
-                fake.Pos.SetFrom(fake.ServerPos);
+                int dim = entity.Pos.Dimension;
+                fake.Pos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
+                fake.Pos.Yaw = entity.Pos.Yaw;
+                fake.Pos.SetFrom(fake.Pos);
 
                 sapi.World.SpawnEntity(fake);
             }
@@ -420,15 +420,15 @@ namespace VsQuest
             double range = Math.Max(2.0, stage.maxTargetRange > 0 ? stage.maxTargetRange : 40f);
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float frange = (float)range;
                 var found = sapi.World.GetNearestEntity(own, frange, frange, e => e is EntityPlayer) as EntityPlayer;
                 if (found == null || !found.Alive) return false;
 
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch (Exception ex)
@@ -581,12 +581,12 @@ namespace VsQuest
             {
             }
 
-            target.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
-            target.Pos.SetFrom(target.ServerPos);
+            target.Pos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
+            target.Pos.SetFrom(target.Pos);
 
             try
             {
-                target.ServerPos.Motion.Set(0, 0, 0);
+                target.Pos.Motion.Set(0, 0, 0);
             }
             catch
             {

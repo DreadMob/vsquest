@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32.SafeHandles;
@@ -258,7 +258,7 @@ namespace VsQuest
                 int x = position[0];
                 int y = position[1];
                 int z = position[2];
-                int dim = byPlayer.Entity?.ServerPos?.Dimension ?? 0;
+                int dim = byPlayer.Entity?.Pos?.Dimension ?? 0;
 
                 bool shouldWrite = true;
                 try

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
@@ -250,8 +250,8 @@ namespace VsQuest
                     entity.WatchedAttributes.MarkPathDirty(EntityBehaviorQuestTarget.OutOfCombatLeashRangeKey);
                 }
 
-                entity.ServerPos.SetPosWithDimension(new Vec3d(point.X, point.Y + dim * 32768.0, point.Z));
-                entity.Pos.SetFrom(entity.ServerPos);
+                entity.Pos.SetPosWithDimension(new Vec3d(point.X, point.Y + dim * 32768.0, point.Z));
+                entity.Pos.SetFrom(entity.Pos);
 
                 sapi.World.SpawnEntity(entity);
 
@@ -326,12 +326,12 @@ namespace VsQuest
             {
                 if (players[i] is not IServerPlayer sp) continue;
                 var pe = sp.Entity;
-                if (pe?.ServerPos == null) continue;
-                if (pe.ServerPos.Dimension != dim) continue;
+                if (pe?.Pos == null) continue;
+                if (pe.Pos.Dimension != dim) continue;
 
-                double dx = pe.ServerPos.X - x;
-                double dy = pe.ServerPos.Y - y;
-                double dz = pe.ServerPos.Z - z;
+                double dx = pe.Pos.X - x;
+                double dy = pe.Pos.Y - y;
+                double dz = pe.Pos.Z - z;
 
                 if (dx * dx + dy * dy + dz * dz <= rangeSq) return true;
             }

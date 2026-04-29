@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
@@ -108,7 +108,7 @@ namespace VsQuest
             var taskAi = entity?.GetBehavior<EntityBehaviorTaskAI>();
             taskAi?.TaskManager?.StopTasks();
 
-            entity?.ServerPos?.Motion?.Set(0, 0, 0);
+            entity?.Pos?.Motion?.Set(0, 0, 0);
             if (entity is EntityAgent agent)
             {
                 agent.Controls.StopAllMovement();
@@ -121,11 +121,11 @@ namespace VsQuest
 
             if (!yawLocked)
             {
-                lockedYaw = entity.ServerPos.Yaw;
+                lockedYaw = entity.Pos.Yaw;
                 yawLocked = true;
             }
 
-            entity.ServerPos.Yaw = lockedYaw;
+            entity.Pos.Yaw = lockedYaw;
             entity.Pos.Yaw = lockedYaw;
             if (entity is EntityAgent agent)
             {

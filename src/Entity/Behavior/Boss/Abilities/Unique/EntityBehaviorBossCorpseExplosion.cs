@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
@@ -54,15 +54,15 @@ namespace VsQuest
 
         private void PerformExplosion()
         {
-            var pos = entity.ServerPos.XYZ;
+            var pos = entity.Pos.XYZ;
 
             // Damage players in radius
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
 
-                double dist = player.Entity.ServerPos.DistanceTo(pos);
+                double dist = player.Entity.Pos.DistanceTo(pos);
                 if (dist > explosionRadius) continue;
 
                 // Apply explosion damage

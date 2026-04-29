@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using Vintagestory.API.Common;
@@ -171,7 +171,7 @@ namespace VsQuest.Harmony.Players
             {
                 AssetLocation soundLoc = AssetLocation.Create(SecondChanceProcSound, "game").WithPathPrefixOnce("sounds/");
                 float pitch = (float)player.World.Rand.NextDouble() * 0.5f + 0.75f;
-                player.World.PlaySoundAt(soundLoc, player.ServerPos.X, player.ServerPos.Y, player.ServerPos.Z, null, pitch, 1f);
+                player.World.PlaySoundAt(soundLoc, player.Pos.X, player.Pos.Y, player.Pos.Z, null, pitch, 1f);
             }
             catch (Exception e)
             {

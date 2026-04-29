@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -75,9 +75,9 @@ namespace VsQuest
             int count = 0;
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
-                if (player.Entity.ServerPos.DistanceTo(entity.ServerPos) <= detectionRange)
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
+                if (player.Entity.Pos.DistanceTo(entity.Pos) <= detectionRange)
                 {
                     count++;
                 }
@@ -92,23 +92,23 @@ namespace VsQuest
             // Push all nearby players back
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
 
-                double dist = player.Entity.ServerPos.DistanceTo(entity.ServerPos);
+                double dist = player.Entity.Pos.DistanceTo(entity.Pos);
                 if (dist > knockbackRange) continue;
 
                 // Calculate knockback
-                Vec3d dir = player.Entity.ServerPos.XYZ - entity.ServerPos.XYZ;
+                Vec3d dir = player.Entity.Pos.XYZ - entity.Pos.XYZ;
                 dir.Normalize();
                 dir.Y = 0.5;
                 dir.Mul(0.6);
 
-                player.Entity.ServerPos.Motion.Add(dir);
+                player.Entity.Pos.Motion.Add(dir);
             }
 
             // Visual effect
-            var entityPos = entity.ServerPos.XYZ;
+            var entityPos = entity.Pos.XYZ;
             sapi.World.SpawnParticles(
                 new SimpleParticleProperties(
                     60, 80,
@@ -128,7 +128,7 @@ namespace VsQuest
             // Sound
             sapi.World.PlaySoundAt(
                 new AssetLocation("albase:shock-sound-effect-horror"),
-                entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z,
+                entity.Pos.X, entity.Pos.Y, entity.Pos.Z,
                 null, false, 32, 0.5f
             );
         }
@@ -140,10 +140,10 @@ namespace VsQuest
             // Damage and stun all nearby players
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
 
-                double dist = player.Entity.ServerPos.DistanceTo(entity.ServerPos);
+                double dist = player.Entity.Pos.DistanceTo(entity.Pos);
                 if (dist > detectionRange * 1.5) continue;
 
                 // Damage
@@ -165,7 +165,7 @@ namespace VsQuest
             }
 
             // Visual effect
-            var slamPos = entity.ServerPos.XYZ;
+            var slamPos = entity.Pos.XYZ;
             sapi.World.SpawnParticles(
                 new SimpleParticleProperties(
                     40, 60,

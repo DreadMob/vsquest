@@ -1,4 +1,4 @@
-using HarmonyLib;
+﻿using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
@@ -39,7 +39,7 @@ namespace VsQuest.Harmony.Items
                 if (inv?.ClassName != "character") return;
                 
                 // Check if it's a wearable item
-                if (__instance.Itemstack?.Item is not ItemWearable) return;
+                if (__instance.Itemstack?.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() == null) return;
                 
                 // Find player who owns this inventory
                 var player = FindPlayerFromInventory(inv);
@@ -69,7 +69,7 @@ namespace VsQuest.Harmony.Items
                 if (inv?.ClassName != "character") return;
                 
                 // Check if it's a wearable item
-                if (__instance.Itemstack?.Item is not ItemWearable) return;
+                if (__instance.Itemstack?.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() == null) return;
                 
                 // Find player who owns this inventory
                 var player = FindPlayerFromInventory(inv);

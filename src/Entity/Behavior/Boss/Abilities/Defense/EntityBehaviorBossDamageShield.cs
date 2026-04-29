@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -396,7 +396,7 @@ namespace VsQuest
 
             try
             {
-                var pos = entity.ServerPos.XYZ.Add(0, 1.5, 0); // Center of boss
+                var pos = entity.Pos.XYZ.Add(0, 1.5, 0); // Center of boss
 
                 sapi.World.SpawnParticles(
                     new SimpleParticleProperties(

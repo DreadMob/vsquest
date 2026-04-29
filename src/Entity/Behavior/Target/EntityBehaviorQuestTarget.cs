@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 using Vintagestory.API.Common;
 
@@ -256,9 +256,9 @@ namespace VsQuest
 
                 {
 
-                    double ddx = agent.ServerPos.X - anchor.X;
+                    double ddx = agent.Pos.X - anchor.X;
 
-                    double ddz = agent.ServerPos.Z - anchor.Z;
+                    double ddz = agent.Pos.Z - anchor.Z;
 
                     float dist = (float)Math.Sqrt(ddx * ddx + ddz * ddz);
 
@@ -364,9 +364,9 @@ namespace VsQuest
 
 
 
-            double dx = agent.ServerPos.X - anchor.X;
+            double dx = agent.Pos.X - anchor.X;
 
-            double dz = agent.ServerPos.Z - anchor.Z;
+            double dz = agent.Pos.Z - anchor.Z;
 
             bool inRange = (dx * dx + dz * dz) <= effectiveLeashRange * effectiveLeashRange;
 
@@ -418,7 +418,7 @@ namespace VsQuest
 
 
 
-                        agent.ServerPos?.Motion?.Set(0, 0, 0);
+                        agent.Pos?.Motion?.Set(0, 0, 0);
 
                         agent.Controls.StopAllMovement();
 
@@ -482,9 +482,9 @@ namespace VsQuest
 
                         wa.SetLong(ReturnNoProgressMsKey, 0);
 
-                        double tdx = agent.ServerPos.X - anchor.X;
+                        double tdx = agent.Pos.X - anchor.X;
 
-                        double tdz = agent.ServerPos.Z - anchor.Z;
+                        double tdz = agent.Pos.Z - anchor.Z;
 
                         wa.SetFloat(ReturnLastDistKey, (float)Math.Sqrt(tdx * tdx + tdz * tdz));
 
@@ -564,7 +564,7 @@ namespace VsQuest
 
             {
 
-                agent.ServerPos?.Motion?.Set(0, 0, 0);
+                agent.Pos?.Motion?.Set(0, 0, 0);
 
                 agent.Controls.StopAllMovement();
 
@@ -578,7 +578,7 @@ namespace VsQuest
 
 
 
-            int dim = agent.ServerPos.Dimension;
+            int dim = agent.Pos.Dimension;
 
 
 
@@ -598,9 +598,9 @@ namespace VsQuest
 
 
 
-            agent.ServerPos.SetPosWithDimension(new Vec3d(anchor.X, anchor.Y + dim * 32768.0, anchor.Z));
+            agent.Pos.SetPosWithDimension(new Vec3d(anchor.X, anchor.Y + dim * 32768.0, anchor.Z));
 
-            agent.Pos.SetFrom(agent.ServerPos);
+            agent.Pos.SetFrom(agent.Pos);
 
         }
 
@@ -622,7 +622,7 @@ namespace VsQuest
 
             if (dim == int.MinValue) return false;
 
-            if (entity.ServerPos.Dimension != dim) return false;
+            if (entity.Pos.Dimension != dim) return false;
 
 
 

@@ -5,6 +5,7 @@
   "storageFlags": 257,
   "materialDensity": 4000,
   "attributes": {
+    "handbook": { "exclude": true },
     "riftwardFuel": true,
     "corpseReturnFuel": true,
     "nightVisionFuelHours": 24,

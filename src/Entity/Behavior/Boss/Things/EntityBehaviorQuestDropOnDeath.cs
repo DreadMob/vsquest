@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -237,7 +237,7 @@ namespace VsQuest
                         {
                             if (!player.InventoryManager.TryGiveItemstack(stack))
                             {
-                                sapi.World.SpawnItemEntity(stack, player.Entity.ServerPos.XYZ);
+                                sapi.World.SpawnItemEntity(stack, player.Entity.Pos.XYZ);
                             }
                         }
                     }

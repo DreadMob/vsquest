@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -100,9 +100,9 @@ namespace VsQuest
 
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
-                if (player.Entity.ServerPos.DistanceTo(entity.ServerPos) > stage.range) continue;
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
+                if (player.Entity.Pos.DistanceTo(entity.Pos) > stage.range) continue;
                 if (chainedPlayers.ContainsKey(player.Entity.EntityId)) continue;
 
                 targets.Add(player.Entity);
@@ -124,7 +124,7 @@ namespace VsQuest
                 chainedPlayers[target.EntityId] = until;
 
                 // Visual - chains on player
-                var targetPos = target.ServerPos.XYZ;
+                var targetPos = target.Pos.XYZ;
                 sapi.World.SpawnParticles(
                     new SimpleParticleProperties(
                         25, 35,
@@ -167,10 +167,10 @@ namespace VsQuest
                 var stage = stages[currentStageIndex];
 
                 // Pull towards boss
-                Vec3d dir = entity.ServerPos.XYZ - player.ServerPos.XYZ;
+                Vec3d dir = entity.Pos.XYZ - player.Pos.XYZ;
                 dir.Normalize();
                 dir.Mul(stage.pullSpeed * dt);
-                player.ServerPos.Motion.Add(dir);
+                player.Pos.Motion.Add(dir);
 
                 // Disable abilities
                 player.WatchedAttributes.SetBool("alegacyvsquest:canshift", false);
@@ -192,7 +192,7 @@ namespace VsQuest
                 // Visual chain line
                 if (sapi.World.ElapsedMilliseconds % 200 < 50)
                 {
-                    Vec3d chainPos = player.ServerPos.XYZ.Add(0, 1, 0);
+                    Vec3d chainPos = player.Pos.XYZ.Add(0, 1, 0);
                     sapi.World.SpawnParticles(
                         new SimpleParticleProperties(
                             1, 2,

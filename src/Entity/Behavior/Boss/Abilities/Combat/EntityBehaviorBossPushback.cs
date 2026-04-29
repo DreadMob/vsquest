@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -59,10 +59,10 @@ namespace VsQuest
             List<EntityPlayer> nearbyPlayers = new List<EntityPlayer>();
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
 
-                double dist = player.Entity.ServerPos.DistanceTo(entity.ServerPos);
+                double dist = player.Entity.Pos.DistanceTo(entity.Pos);
                 if (dist <= triggerRange)
                 {
                     // Check player-specific cooldown
@@ -87,16 +87,16 @@ namespace VsQuest
                 entity.WatchedAttributes.SetLong(playerKey, now);
 
                 // Calculate knockback direction
-                Vec3d dir = player.ServerPos.XYZ - entity.ServerPos.XYZ;
+                Vec3d dir = player.Pos.XYZ - entity.Pos.XYZ;
                 dir.Normalize();
                 dir.Y = 0.3; // Slightly up
                 dir.Mul(knockbackStrength);
 
                 // Apply knockback
-                player.ServerPos.Motion.Add(dir);
+                player.Pos.Motion.Add(dir);
 
                 // Visual effect
-                var playerPos = player.ServerPos.XYZ;
+                var playerPos = player.Pos.XYZ;
                 sapi.World.SpawnParticles(
                     new SimpleParticleProperties(
                         5, 10,

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -93,7 +93,7 @@ namespace VsQuest
                 return;
             }
 
-            int playerDim = playerEntity.ServerPos?.Dimension ?? 0;
+            int playerDim = playerEntity.Pos?.Dimension ?? 0;
             if (playerDim != bossDim)
             {
                 sapi.Network.GetChannel("alegacyvsquest").SendPacket(new ShowDiscoveryMessage
@@ -103,7 +103,7 @@ namespace VsQuest
                 return;
             }
 
-            Vec3d playerPos = new Vec3d(playerEntity.ServerPos.X, playerEntity.ServerPos.Y, playerEntity.ServerPos.Z);
+            Vec3d playerPos = new Vec3d(playerEntity.Pos.X, playerEntity.Pos.Y, playerEntity.Pos.Z);
             double dx = playerPos.X - bossPos.X;
             double dy = playerPos.Y - bossPos.Y;
             double dz = playerPos.Z - bossPos.Z;

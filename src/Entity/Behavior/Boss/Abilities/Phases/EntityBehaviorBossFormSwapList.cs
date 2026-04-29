@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -156,13 +156,13 @@ namespace VsQuest
                 CopyTargetId(newEntity);
                 CopyAnchor(newEntity);
 
-                Vec3d pos = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z);
-                int dim = entity.ServerPos.Dimension;
-                float yaw = entity.ServerPos.Yaw;
+                Vec3d pos = new Vec3d(entity.Pos.X, entity.Pos.Y, entity.Pos.Z);
+                int dim = entity.Pos.Dimension;
+                float yaw = entity.Pos.Yaw;
 
-                newEntity.ServerPos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
-                newEntity.ServerPos.Yaw = yaw;
-                newEntity.Pos.SetFrom(newEntity.ServerPos);
+                newEntity.Pos.SetPosWithDimension(new Vec3d(pos.X, pos.Y + dim * 32768.0, pos.Z));
+                newEntity.Pos.Yaw = yaw;
+                newEntity.Pos.SetFrom(newEntity.Pos);
 
                 TryPlaySwapSound(stage);
 

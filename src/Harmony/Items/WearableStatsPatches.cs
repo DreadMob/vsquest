@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -257,7 +257,7 @@ namespace VsQuest.Harmony.Items
 
                 foreach (ItemSlot slot in inv)
                 {
-                    if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
+                    if (!slot.Empty && slot.Itemstack?.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() != null)
                     {
                         var stack = slot.Itemstack;
                         walkSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrWalkSpeed);

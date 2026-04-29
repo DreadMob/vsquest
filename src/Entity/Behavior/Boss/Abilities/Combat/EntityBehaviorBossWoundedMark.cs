@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -86,9 +86,9 @@ namespace VsQuest
 
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
-                if (player.Entity.ServerPos.DistanceTo(entity.ServerPos) > detectionRange) continue;
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
+                if (player.Entity.Pos.DistanceTo(entity.Pos) > detectionRange) continue;
 
                 // Check HP threshold
                 var health = player.Entity.GetBehavior<EntityBehaviorHealth>();
@@ -118,7 +118,7 @@ namespace VsQuest
                 woundedPlayers[target.EntityId] = now + markDurationMs; // Store expiry time
 
                 // Visual effect - pulsing red aura
-                var targetPos = target.ServerPos.XYZ;
+                var targetPos = target.Pos.XYZ;
                 sapi.World.SpawnParticles(
                     new SimpleParticleProperties(
                         30, 40,
@@ -185,9 +185,9 @@ namespace VsQuest
                 if (now >= kvp.Value) continue; // Skip expired
 
                 var player = sapi.World.PlayerByUid(kvp.Key.ToString())?.Entity;
-                if (player?.ServerPos == null) continue;
+                if (player?.Pos == null) continue;
 
-                var targetPos = player.ServerPos.XYZ;
+                var targetPos = player.Pos.XYZ;
                 sapi.World.SpawnParticles(
                     new SimpleParticleProperties(
                         8, 12,
@@ -208,7 +208,7 @@ namespace VsQuest
 
         private void ExplodeOnPlayer(EntityPlayer player)
         {
-            var pos = player.ServerPos.XYZ;
+            var pos = player.Pos.XYZ;
 
             // Damage in AoE
             var nearbyEntities = sapi.World.GetEntitiesAround(pos, explosionRange, explosionRange, (e) => e is EntityPlayer);

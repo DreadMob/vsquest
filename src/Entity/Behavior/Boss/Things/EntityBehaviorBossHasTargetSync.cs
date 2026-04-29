@@ -1,4 +1,4 @@
-using Vintagestory.API.Common;
+﻿using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.GameContent;
 
@@ -48,7 +48,7 @@ namespace VsQuest
                         if (task is AiTaskBaseTargetable targetable)
                         {
                             var te = targetable.TargetEntity;
-                            if (te != null && te.Alive && te.ServerPos != null && te.ServerPos.Dimension == entity.ServerPos.Dimension)
+                            if (te != null && te.Alive && te.Pos != null && te.Pos.Dimension == entity.Pos.Dimension)
                             {
                                 hasTarget = true;
                                 break;

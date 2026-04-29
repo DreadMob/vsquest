@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
@@ -109,7 +109,7 @@ namespace VsQuest
                 {
                     var plr = players[i] as EntityPlayer;
                     if (plr == null || !plr.Alive) continue;
-                    if (plr.ServerPos.Dimension != Pos.dimension) continue;
+                    if (plr.Pos.Dimension != Pos.dimension) continue;
 
                     if (IsPlayerOnThisBlock(plr))
                     {
@@ -125,12 +125,12 @@ namespace VsQuest
 
         private bool IsPlayerOnThisBlock(EntityPlayer player)
         {
-            if (player?.ServerPos == null || Pos == null) return false;
+            if (player?.Pos == null || Pos == null) return false;
             
             // Используем координаты ступней игрока
-            int px = (int)Math.Floor(player.ServerPos.X);
-            int py = (int)Math.Floor(player.ServerPos.Y);
-            int pz = (int)Math.Floor(player.ServerPos.Z);
+            int px = (int)Math.Floor(player.Pos.X);
+            int py = (int)Math.Floor(player.Pos.Y);
+            int pz = (int)Math.Floor(player.Pos.Z);
 
             // Проверяем блок под ногами и блок, в котором ноги (на случай если блок чуть ниже поверхности)
             bool atLevel = px == Pos.X && py == Pos.Y && pz == Pos.Z;

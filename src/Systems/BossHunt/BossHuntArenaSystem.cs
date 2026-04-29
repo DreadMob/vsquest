@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -68,7 +68,7 @@ namespace VsQuest
 
         public bool TryHandlePlayerDeath(EntityPlayer player)
         {
-            if (sapi == null || player?.Player == null || player.ServerPos == null) return false;
+            if (sapi == null || player?.Player == null || player.Pos == null) return false;
 
             string uid = player.Player.PlayerUID;
             if (string.IsNullOrWhiteSpace(uid)) return false;
@@ -76,7 +76,7 @@ namespace VsQuest
             string claim = GetCurrentClaimName(player);
             if (string.IsNullOrWhiteSpace(claim)) return false;
 
-            if (!TryFindArenaForClaim(player.ServerPos.Dimension, claim, out var arenaPos, out var cfg))
+            if (!TryFindArenaForClaim(player.Pos.Dimension, claim, out var arenaPos, out var cfg))
             {
                 return false;
             }
@@ -138,8 +138,8 @@ namespace VsQuest
                 Y = y,
                 Z = z,
                 Dimension = pos.dimension,
-                Pitch = epl.ServerPos.Pitch,
-                Yaw = epl.ServerPos.Yaw
+                Pitch = epl.Pos.Pitch,
+                Yaw = epl.Pos.Yaw
             };
 
             try

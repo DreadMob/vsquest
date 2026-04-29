@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -152,10 +152,10 @@ namespace VsQuest
             double angle = sapi.World.Rand.NextDouble() * Math.PI * 2.0;
             double dist = minRadius + sapi.World.Rand.NextDouble() * (maxRadius - minRadius);
 
-            double x = entity.ServerPos.X + Math.Cos(angle) * dist;
-            double z = entity.ServerPos.Z + Math.Sin(angle) * dist;
-            int dim = entity.ServerPos.Dimension;
-            double y = entity.ServerPos.Y + dim * 32768.0;
+            double x = entity.Pos.X + Math.Cos(angle) * dist;
+            double z = entity.Pos.Z + Math.Sin(angle) * dist;
+            int dim = entity.Pos.Dimension;
+            double y = entity.Pos.Y + dim * 32768.0;
 
             return new Vec3d(x, y, z);
         }

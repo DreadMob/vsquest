@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
@@ -91,7 +91,7 @@ namespace VsQuest
         {
             if (sapi == null) return;
             
-            var pos = entity.ServerPos.XYZ;
+            var pos = entity.Pos.XYZ;
             
             // Play explosion sound
             sapi.World.PlaySoundAt(

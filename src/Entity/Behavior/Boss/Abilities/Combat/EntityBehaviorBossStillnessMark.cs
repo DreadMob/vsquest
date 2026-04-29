@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -85,9 +85,9 @@ namespace VsQuest
 
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
-                if (player.Entity.ServerPos.DistanceTo(entity.ServerPos) > detectionRange) continue;
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
+                if (player.Entity.Pos.DistanceTo(entity.Pos) > detectionRange) continue;
 
                 // Check if already marked
                 if (markedPlayers.ContainsKey(player.Entity.EntityId)) continue;
@@ -111,7 +111,7 @@ namespace VsQuest
                 markedPlayers[target.EntityId] = until;
 
                 // Visual effect - red chains
-                var targetPos = target.ServerPos.XYZ;
+                var targetPos = target.Pos.XYZ;
                 sapi.World.SpawnParticles(
                     new SimpleParticleProperties(
                         20, 30,
@@ -160,7 +160,7 @@ namespace VsQuest
                     }
                 }
                 
-                if (player == null || !player.Alive || player.ServerPos?.Dimension != entity.ServerPos.Dimension)
+                if (player == null || !player.Alive || player.Pos?.Dimension != entity.Pos.Dimension)
                 {
                     toRemove.Add(kvp.Key);
                     cachedPlayers.Remove(kvp.Key);
@@ -187,7 +187,7 @@ namespace VsQuest
                     // Visual feedback
                     if (sapi.World.ElapsedMilliseconds % DamageTickIntervalMs < 50)
                     {
-                        var playerPos = player.ServerPos.XYZ;
+                        var playerPos = player.Pos.XYZ;
                         sapi.World.SpawnParticles(
                             new SimpleParticleProperties(
                                 2, 4,

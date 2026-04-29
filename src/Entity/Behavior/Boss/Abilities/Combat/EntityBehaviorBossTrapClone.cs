@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -306,8 +306,8 @@ namespace VsQuest
             var type = sapi.World.GetEntityType(new AssetLocation(stage.trapEntityCode));
             if (type == null) return;
 
-            int dim = entity.ServerPos.Dimension;
-            float yaw = entity.ServerPos.Yaw;
+            int dim = entity.Pos.Dimension;
+            float yaw = entity.Pos.Yaw;
 
             int count = Math.Max(1, stage.trapCount);
             var placed = new List<Vec3d>();
@@ -325,11 +325,11 @@ namespace VsQuest
 
                     ApplyTrapFlags(trap, stage);
 
-                    var spawnPos = TryFindSpawnPositionNear(trap, target.ServerPos.XYZ, stage.spawnRange, tries: SpawnTries, requireSolidGround: SpawnRequireSolidGround, minRingFrac: minRingFrac, avoidPositions: placed, minSeparation: minSeparation);
-                    trap.ServerPos.SetPosWithDimension(new Vec3d(spawnPos.X, spawnPos.Y + dim * 32768.0, spawnPos.Z));
+                    var spawnPos = TryFindSpawnPositionNear(trap, target.Pos.XYZ, stage.spawnRange, tries: SpawnTries, requireSolidGround: SpawnRequireSolidGround, minRingFrac: minRingFrac, avoidPositions: placed, minSeparation: minSeparation);
+                    trap.Pos.SetPosWithDimension(new Vec3d(spawnPos.X, spawnPos.Y + dim * 32768.0, spawnPos.Z));
                     double yawRand = (sapi.World.Rand.NextDouble() - 0.5) * SpawnYawRandomRange;
-                    trap.ServerPos.Yaw = yaw + (float)yawRand;
-                    trap.Pos.SetFrom(trap.ServerPos);
+                    trap.Pos.Yaw = yaw + (float)yawRand;
+                    trap.Pos.SetFrom(trap.Pos);
 
                     sapi.World.SpawnEntity(trap);
 
@@ -367,17 +367,17 @@ namespace VsQuest
 
         private Vec3d TryFindSpawnPositionNear(Entity trap, Vec3d center, float range, int tries, bool requireSolidGround, float minRingFrac, List<Vec3d> avoidPositions, float minSeparation)
         {
-            if (sapi == null || entity == null || center == null) return entity.ServerPos.XYZ.Clone();
+            if (sapi == null || entity == null || center == null) return entity.Pos.XYZ.Clone();
 
             var world = sapi.World;
             var ba = world?.BlockAccessor;
             var ct = world?.CollisionTester;
-            if (ba == null || ct == null) return entity.ServerPos.XYZ.Clone();
+            if (ba == null || ct == null) return entity.Pos.XYZ.Clone();
 
             var selBox = trap?.SelectionBox ?? entity.SelectionBox;
-            if (selBox == null) return entity.ServerPos.XYZ.Clone();
+            if (selBox == null) return entity.Pos.XYZ.Clone();
 
-            int dim = entity.ServerPos.Dimension;
+            int dim = entity.Pos.Dimension;
             double r = Math.Max(0.5, range);
             double minR = r * Math.Clamp(minRingFrac, 0f, 0.95f);
 
@@ -422,7 +422,7 @@ namespace VsQuest
                 }
             }
 
-            return entity.ServerPos.XYZ.Clone();
+            return entity.Pos.XYZ.Clone();
         }
 
         private bool TryFindFreeSpotNearForSelectionBox(Cuboidf selBox, BlockPos basePos, bool requireSolidGround, out Vec3d pos)
@@ -841,8 +841,8 @@ namespace VsQuest
 
             try
             {
-                int dim = entity.ServerPos.Dimension;
-                var center = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y + dim * 32768.0, entity.ServerPos.Z);
+                int dim = entity.Pos.Dimension;
+                var center = new Vec3d(entity.Pos.X, entity.Pos.Y + dim * 32768.0, entity.Pos.Z);
                 var entities = sapi.World.GetEntitiesAround(center, radius, radius, e => e is EntityPlayer);
                 if (entities == null) return false;
 
@@ -850,7 +850,7 @@ namespace VsQuest
                 {
                     if (entities[i] is not EntityPlayer plr) continue;
                     if (!plr.Alive) continue;
-                    if (plr.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                    if (plr.Pos.Dimension != entity.Pos.Dimension) continue;
 
                     plr.ReceiveDamage(new DamageSource()
                     {
@@ -870,8 +870,8 @@ namespace VsQuest
 
             try
             {
-                int dim = entity.ServerPos.Dimension;
-                var center = new Vec3d(entity.ServerPos.X, entity.ServerPos.Y + dim * 32768.0, entity.ServerPos.Z);
+                int dim = entity.Pos.Dimension;
+                var center = new Vec3d(entity.Pos.X, entity.Pos.Y + dim * 32768.0, entity.Pos.Z);
 
                 int smokeMin = Math.Max(65, (int)(radius * 56f));
                 int smokeMax = Math.Max(smokeMin + 25, (int)(radius * 98f));
@@ -937,15 +937,15 @@ namespace VsQuest
             double range = Math.Max(2.0, stage.maxTargetRange > 0 ? stage.maxTargetRange : 40f);
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float frange = (float)range;
                 var found = sapi.World.GetNearestEntity(own, frange, frange, e => e is EntityPlayer) as EntityPlayer;
                 if (found == null || !found.Alive) return false;
 
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch (Exception ex)

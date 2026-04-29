@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -235,8 +235,8 @@ namespace VsQuest
             Block ashBlock = sapi.World.GetBlock(new AssetLocation("alegacyvsquest:ashfloor"));
             if (ashBlock == null || ashBlock.IsMissing) return;
 
-            int dim = entity.ServerPos.Dimension;
-            var center = target.ServerPos.XYZ;
+            int dim = entity.Pos.Dimension;
+            var center = target.Pos.XYZ;
 
             long now = sapi.World.ElapsedMilliseconds;
             long despawnAt = now + Math.Max(250, stage.durationMs);
@@ -386,14 +386,14 @@ namespace VsQuest
             double range = Math.Max(2.0, stage.maxTargetRange > 0 ? stage.maxTargetRange : 40f);
             try
             {
-                var own = entity.ServerPos.XYZ;
+                var own = entity.Pos.XYZ;
                 float frange = (float)range;
                 var found = sapi.World.GetNearestEntity(own, frange, frange, e => e is EntityPlayer) as EntityPlayer;
                 if (found == null || !found.Alive) return false;
-                if (found.ServerPos.Dimension != entity.ServerPos.Dimension) return false;
+                if (found.Pos.Dimension != entity.Pos.Dimension) return false;
 
                 target = found;
-                dist = (float)found.ServerPos.DistanceTo(entity.ServerPos);
+                dist = (float)found.Pos.DistanceTo(entity.Pos);
                 return true;
             }
             catch

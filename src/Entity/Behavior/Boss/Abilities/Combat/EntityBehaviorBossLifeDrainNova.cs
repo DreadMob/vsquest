@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -132,10 +132,10 @@ namespace VsQuest
             // Find and damage players in range
             foreach (var player in sapi.World.AllOnlinePlayers)
             {
-                if (player.Entity?.ServerPos == null) continue;
-                if (player.Entity.ServerPos.Dimension != entity.ServerPos.Dimension) continue;
+                if (player.Entity?.Pos == null) continue;
+                if (player.Entity.Pos.Dimension != entity.Pos.Dimension) continue;
 
-                double dist = player.Entity.ServerPos.DistanceTo(entity.ServerPos);
+                double dist = player.Entity.Pos.DistanceTo(entity.Pos);
                 if (dist > stage.range) continue;
 
                 float damage = stage.drainPerSecond * (stage.tickIntervalMs / 1000f);
@@ -162,8 +162,8 @@ namespace VsQuest
                 // Visual heal effect - particles flying to boss
                 foreach (var player in damagedPlayers)
                 {
-                    Vec3d startPos = player.ServerPos.XYZ.Add(0, 1, 0);
-                    Vec3d endPos = entity.ServerPos.XYZ.Add(0, 1, 0);
+                    Vec3d startPos = player.Pos.XYZ.Add(0, 1, 0);
+                    Vec3d endPos = entity.Pos.XYZ.Add(0, 1, 0);
 
                     sapi.World.SpawnParticles(
                         new SimpleParticleProperties(
@@ -197,7 +197,7 @@ namespace VsQuest
             // Sound
             sapi.World.PlaySoundAt(
                 new AssetLocation("albase:sounds/mechanical/mecha switch power"),
-                entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z,
+                entity.Pos.X, entity.Pos.Y, entity.Pos.Z,
                 null, true, 32, 0.133f
             );
         }
@@ -214,8 +214,8 @@ namespace VsQuest
                     new SimpleParticleProperties(
                         2, 3,
                         ColorUtil.ToRgba(200, 160, 165, 175),
-                        entity.ServerPos.XYZ.Add(x, 0.5, z),
-                        entity.ServerPos.XYZ.Add(x, 1.5, z),
+                        entity.Pos.XYZ.Add(x, 0.5, z),
+                        entity.Pos.XYZ.Add(x, 1.5, z),
                         new Vec3f(-0.1f, 0.05f, -0.1f),
                         new Vec3f(0.1f, 0.15f, 0.1f),
                         0.4f,
