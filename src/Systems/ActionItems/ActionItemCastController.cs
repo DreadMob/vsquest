@@ -315,7 +315,8 @@ namespace VsQuest
             var player = capi?.World?.Player;
             if (player?.Entity == null) return;
 
-            capi.World.PlaySoundAt(castCompleteSound, player.Entity, null, randomizePitch: false, range: castCompleteSoundRange, volume: castCompleteSoundVolume);
+            float pitch = (float)capi.World.Rand.NextDouble() * 0.5f + 0.75f;
+            capi.World.PlaySoundAt(castCompleteSound, player.Entity, null, pitch, castCompleteSoundVolume);
         }
 
         private void PlayActionItemCastStartSound()
@@ -325,7 +326,8 @@ namespace VsQuest
             var player = capi?.World?.Player;
             if (player?.Entity == null) return;
 
-            capi.World.PlaySoundAt(castLoopSound, player.Entity, null, randomizePitch: false, range: castSoundRange, volume: castSoundVolume);
+            float pitch = (float)capi.World.Rand.NextDouble() * 0.5f + 0.75f;
+            capi.World.PlaySoundAt(castLoopSound, player.Entity, null, pitch, castSoundVolume);
         }
 
         private bool ShouldUseActionItemCast(string actionItemId)

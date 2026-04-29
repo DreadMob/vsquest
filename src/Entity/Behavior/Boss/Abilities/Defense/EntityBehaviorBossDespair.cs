@@ -96,7 +96,8 @@ namespace VsQuest
             {
                 try
                 {
-                    sapi.World.PlaySoundAt(new AssetLocation("sounds/creature/shiver/aggro"), entity, null, randomizePitch: true, 16f);
+                    float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                    sapi.World.PlaySoundAt(new AssetLocation("sounds/creature/shiver/aggro"), entity, null, pitch, 1f);
                 }
                 catch (Exception ex)
                 {

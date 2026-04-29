@@ -24,36 +24,9 @@ namespace VsQuest.Harmony.Items
             }
         }
 
-        [HarmonyPatch(typeof(ItemWearable), "TryMergeStacks")]
-        public class ItemWearable_TryMergeStacks_SecondChanceCharge_Patch
-        {
-            public static bool Prefix(ItemWearable __instance, ItemStackMergeOperation op)
-            {
-                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ItemWearable_TryMergeStacks_SecondChanceCharge)) return true;
-                if (TryHandleSecondChanceCharge(op)) return false;
-                if (TryHandleCryptSightMaskCharge(op)) return false;
-                if (TryHandleCustomItemRepair(op)) return false;
-                // Block vanilla repair if item has custom repairItemCode
-                if (HasCustomRepairItem(op?.SinkSlot?.Itemstack)) return false;
-                return true;
-            }
-        }
-
-        [HarmonyPatch(typeof(ItemWearable), "GetMergableQuantity")]
-        public class ItemWearable_GetMergableQuantity_SecondChanceCharge_Patch
-        {
-            public static bool Prefix(ItemWearable __instance, ItemStack sinkStack, ItemStack sourceStack, EnumMergePriority priority, ref int __result)
-            {
-                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ItemWearable_GetMergableQuantity_SecondChanceCharge)) return true;
-                if (CanChargeSecondChance(sinkStack, sourceStack) || CanChargeCryptSightMask(sinkStack, sourceStack) || CanRepairWithCustomItem(sinkStack, sourceStack))
-                {
-                    __result = 1;
-                    return false;
-                }
-
-                return true;
-            }
-        }
+        // ItemWearable merge patches removed - obsolete in 1.22
+        // ItemWearable inherits TryMergeStacks/GetMergableQuantity from CollectibleObject
+        // The CollectibleObject patch above handles all items including wearables
 
         private static bool TryHandleSecondChanceCharge(ItemStackMergeOperation op)
         {

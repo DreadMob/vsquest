@@ -68,7 +68,7 @@ namespace VsQuest
 
         public bool TryHandlePlayerDeath(EntityPlayer player)
         {
-            if (sapi == null || player?.Player == null || player.Pos == null) return false;
+            if (sapi == null || player?.Player == null || player.ServerPos == null) return false;
 
             string uid = player.Player.PlayerUID;
             if (string.IsNullOrWhiteSpace(uid)) return false;
@@ -76,7 +76,7 @@ namespace VsQuest
             string claim = GetCurrentClaimName(player);
             if (string.IsNullOrWhiteSpace(claim)) return false;
 
-            if (!TryFindArenaForClaim(player.Pos.Dimension, claim, out var arenaPos, out var cfg))
+            if (!TryFindArenaForClaim(player.ServerPos.Dimension, claim, out var arenaPos, out var cfg))
             {
                 return false;
             }

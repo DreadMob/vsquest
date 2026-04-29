@@ -384,13 +384,6 @@ namespace VsQuest.Harmony
         }
     }
 
-    [HarmonyPatch(typeof(ItemWearable), "GetHeldItemInfo")]
-    public class ItemWearable_GetHeldItemInfo_Patch
-    {
-        public static void Postfix(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
-        {
-            if (!HarmonyPatchSwitches.ItemTooltipEnabled(HarmonyPatchSwitches.ItemTooltip_ItemWearable_GetHeldItemInfo)) return;
-            ItemTooltipPatcher.ModifyTooltip(inSlot, dsc);
-        }
-    }
+    // ItemWearable is obsolete in 1.22, GetHeldItemInfo is inherited from Item
+    // The CollectibleObject patch handles all items including wearables
 }

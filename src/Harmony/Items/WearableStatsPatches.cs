@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -105,16 +106,43 @@ namespace VsQuest.Harmony.Items
             }
         }
 
-        [HarmonyPatch(typeof(ItemWearable), "GetWarmth")]
-        public class ItemWearable_GetWarmth_Patch
+        [HarmonyPatch(typeof(EntityBehaviorBodyTemperature), "updateWearableConditions")]
+        public class EntityBehaviorBodyTemperature_updateWearableConditions_Warmth_Patch
         {
-            public static void Postfix(ItemWearable __instance, ItemSlot inslot, ref float __result)
+            public static void Postfix(EntityBehaviorBodyTemperature __instance)
             {
-                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_ItemWearable_GetWarmth)) return;
-                if (inslot.Itemstack is ItemStack stack)
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_EntityBehaviorBodyTemperature_WarmthBonus)) return;
+                
+                var eagent = __instance.entity as EntityAgent;
+                if (eagent == null) return;
+
+                // Get inventory via reflection to avoid VSEssentials dependency
+                var bh = eagent.GetBehavior("EntityBehaviorPlayerInventory");
+                if (bh == null) return;
+
+                var invField = bh.GetType().GetProperty("Inventory");
+                if (invField == null) return;
+
+                var inventory = invField.GetValue(bh) as IInventory;
+                if (inventory == null) return;
+
+                float bonusWarmth = 0f;
+                foreach (var slot in inventory)
                 {
-                    float bonus = ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrWarmth);
-                    __result += bonus;
+                    if (slot.Empty) continue;
+                    
+                    bonusWarmth += ItemAttributeUtils.GetAttributeFloatScaled(slot.Itemstack, ItemAttributeUtils.AttrWarmth);
+                }
+
+                if (bonusWarmth > 0f)
+                {
+                    // Add bonus to clothingBonus via reflection
+                    var field = typeof(EntityBehaviorBodyTemperature).GetField("clothingBonus", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (field != null)
+                    {
+                        float currentBonus = (float)field.GetValue(__instance);
+                        field.SetValue(__instance, currentBonus + bonusWarmth);
+                    }
                 }
             }
         }
@@ -216,7 +244,12 @@ namespace VsQuest.Harmony.Items
                     }
                 }
 
-                StatModifiers bonusMods = new StatModifiers();
+                // Local variables replacing StatModifiers struct (type removed in newer VS versions)
+                float walkSpeed = 0f;
+                float hungerrate = 0f;
+                float healingeffectivness = 0f;
+                float rangedWeaponsAcc = 0f;
+                float rangedWeaponsSpeed = 0f;
                 float miningSpeedMult = 0f;
                 float jumpHeightMult = 0f;
                 float maxHealthFlat = 0f;
@@ -227,11 +260,11 @@ namespace VsQuest.Harmony.Items
                     if (!slot.Empty && slot.Itemstack?.Item is ItemWearable)
                     {
                         var stack = slot.Itemstack;
-                        bonusMods.walkSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrWalkSpeed);
-                        bonusMods.hungerrate += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrHungerRate);
-                        bonusMods.healingeffectivness += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrHealingEffectiveness);
-                        bonusMods.rangedWeaponsAcc += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedAccuracy);
-                        bonusMods.rangedWeaponsSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedSpeed);
+                        walkSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrWalkSpeed);
+                        hungerrate += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrHungerRate);
+                        healingeffectivness += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrHealingEffectiveness);
+                        rangedWeaponsAcc += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedAccuracy);
+                        rangedWeaponsSpeed += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrRangedSpeed);
                         miningSpeedMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMiningSpeedMult);
                         jumpHeightMult += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrJumpHeightMul);
                         maxHealthFlat += ItemAttributeUtils.GetAttributeFloatScaled(stack, ItemAttributeUtils.AttrMaxHealthFlat);
@@ -247,11 +280,11 @@ namespace VsQuest.Harmony.Items
                 if (lastTree != null)
                 {
                     changed =
-                        !ApproximatelyEqual(lastTree.GetFloat("walkspeed", float.NaN), bonusMods.walkSpeed) ||
-                        !ApproximatelyEqual(lastTree.GetFloat("healing", float.NaN), bonusMods.healingeffectivness) ||
-                        !ApproximatelyEqual(lastTree.GetFloat("hunger", float.NaN), bonusMods.hungerrate) ||
-                        !ApproximatelyEqual(lastTree.GetFloat("acc", float.NaN), bonusMods.rangedWeaponsAcc) ||
-                        !ApproximatelyEqual(lastTree.GetFloat("rangeSpeed", float.NaN), bonusMods.rangedWeaponsSpeed) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("walkspeed", float.NaN), walkSpeed) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("healing", float.NaN), healingeffectivness) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("hunger", float.NaN), hungerrate) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("acc", float.NaN), rangedWeaponsAcc) ||
+                        !ApproximatelyEqual(lastTree.GetFloat("rangeSpeed", float.NaN), rangedWeaponsSpeed) ||
                         !ApproximatelyEqual(lastTree.GetFloat("mining", float.NaN), miningSpeedMult) ||
                         !ApproximatelyEqual(lastTree.GetFloat("jump", float.NaN), jumpHeightMult) ||
                         !ApproximatelyEqual(lastTree.GetFloat("health", float.NaN), maxHealthFlat) ||
@@ -264,11 +297,11 @@ namespace VsQuest.Harmony.Items
                 var statsDict = new Dictionary<string, float>(7);
                 if (player.Entity is EntityPlayer ep && ep.Api is ICoreServerAPI sapi)
                 {
-                    statsDict["walkspeed"] = bonusMods.walkSpeed;
-                    statsDict["healingeffectivness"] = bonusMods.healingeffectivness;
-                    statsDict["hungerrate"] = bonusMods.hungerrate;
-                    statsDict["rangedWeaponsAcc"] = bonusMods.rangedWeaponsAcc;
-                    statsDict["rangedWeaponsSpeed"] = bonusMods.rangedWeaponsSpeed;
+                    statsDict["walkspeed"] = walkSpeed;
+                    statsDict["healingeffectivness"] = healingeffectivness;
+                    statsDict["hungerrate"] = hungerrate;
+                    statsDict["rangedWeaponsAcc"] = rangedWeaponsAcc;
+                    statsDict["rangedWeaponsSpeed"] = rangedWeaponsSpeed;
                     statsDict["miningSpeedMul"] = miningSpeedMult;
                     statsDict["jumpHeightMul"] = jumpHeightMult;
 
@@ -277,11 +310,11 @@ namespace VsQuest.Harmony.Items
                 else
                 {
                     // Fallback to direct updates if coalescing not available
-                    player.Entity.Stats.Set("walkspeed", "vsquestmod", bonusMods.walkSpeed, true);
-                    player.Entity.Stats.Set("healingeffectivness", "vsquestmod", bonusMods.healingeffectivness, true);
-                    player.Entity.Stats.Set("hungerrate", "vsquestmod", bonusMods.hungerrate, true);
-                    player.Entity.Stats.Set("rangedWeaponsAcc", "vsquestmod", bonusMods.rangedWeaponsAcc, true);
-                    player.Entity.Stats.Set("rangedWeaponsSpeed", "vsquestmod", bonusMods.rangedWeaponsSpeed, true);
+                    player.Entity.Stats.Set("walkspeed", "vsquestmod", walkSpeed, true);
+                    player.Entity.Stats.Set("healingeffectivness", "vsquestmod", healingeffectivness, true);
+                    player.Entity.Stats.Set("hungerrate", "vsquestmod", hungerrate, true);
+                    player.Entity.Stats.Set("rangedWeaponsAcc", "vsquestmod", rangedWeaponsAcc, true);
+                    player.Entity.Stats.Set("rangedWeaponsSpeed", "vsquestmod", rangedWeaponsSpeed, true);
                     player.Entity.Stats.Set("miningSpeedMul", "vsquestmod", miningSpeedMult, true);
                     player.Entity.Stats.Set("jumpHeightMul", "vsquestmod", jumpHeightMult, true);
                 }
@@ -342,11 +375,11 @@ namespace VsQuest.Harmony.Items
 
                 // Batch write last applied values to WatchedAttributes using TreeAttribute
                 var newTree = new Vintagestory.API.Datastructures.TreeAttribute();
-                newTree.SetFloat("walkspeed", bonusMods.walkSpeed);
-                newTree.SetFloat("healing", bonusMods.healingeffectivness);
-                newTree.SetFloat("hunger", bonusMods.hungerrate);
-                newTree.SetFloat("acc", bonusMods.rangedWeaponsAcc);
-                newTree.SetFloat("rangeSpeed", bonusMods.rangedWeaponsSpeed);
+                newTree.SetFloat("walkspeed", walkSpeed);
+                newTree.SetFloat("healing", healingeffectivness);
+                newTree.SetFloat("hunger", hungerrate);
+                newTree.SetFloat("acc", rangedWeaponsAcc);
+                newTree.SetFloat("rangeSpeed", rangedWeaponsSpeed);
                 newTree.SetFloat("mining", miningSpeedMult);
                 newTree.SetFloat("jump", jumpHeightMult);
                 newTree.SetFloat("health", maxHealthFlat);

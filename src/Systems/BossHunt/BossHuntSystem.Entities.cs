@@ -326,12 +326,12 @@ namespace VsQuest
             {
                 if (players[i] is not IServerPlayer sp) continue;
                 var pe = sp.Entity;
-                if (pe?.Pos == null) continue;
-                if (pe.Pos.Dimension != dim) continue;
+                if (pe?.ServerPos == null) continue;
+                if (pe.ServerPos.Dimension != dim) continue;
 
-                double dx = pe.Pos.X - x;
-                double dy = pe.Pos.Y - y;
-                double dz = pe.Pos.Z - z;
+                double dx = pe.ServerPos.X - x;
+                double dy = pe.ServerPos.Y - y;
+                double dz = pe.ServerPos.Z - z;
 
                 if (dx * dx + dy * dy + dz * dz <= rangeSq) return true;
             }

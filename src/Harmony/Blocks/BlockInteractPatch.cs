@@ -74,7 +74,7 @@ namespace VsQuest.Harmony
                 int x = blockSel.Position.X;
                 int y = blockSel.Position.Y;
                 int z = blockSel.Position.Z;
-                int dim = byPlayer?.Entity?.Pos?.Dimension ?? 0;
+                int dim = byPlayer?.Entity?.SidedPos?.Dimension ?? 0;
                 string code = __instance?.Code?.ToString();
 
                 long now = Environment.TickCount64;

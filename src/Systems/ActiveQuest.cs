@@ -258,7 +258,7 @@ namespace VsQuest
                 int x = position[0];
                 int y = position[1];
                 int z = position[2];
-                int dim = byPlayer.Entity?.Pos?.Dimension ?? 0;
+                int dim = byPlayer.Entity?.ServerPos?.Dimension ?? 0;
 
                 bool shouldWrite = true;
                 try
@@ -761,7 +761,10 @@ namespace VsQuest
                     {
                         if (++removed > maxRemovals) break;
                         if (!TryParsePosCached(posStr, out int x, out int y, out int z)) continue;
-                        byPlayer.Entity.World.BlockAccessor.SetBlock(0, new Vintagestory.API.MathTools.BlockPos(x, y, z));
+                        var ba = byPlayer.Entity.World.BlockAccessor;
+                        var pos = new Vintagestory.API.MathTools.BlockPos(x, y, z, 0);
+                        ba.RemoveBlockEntity(pos);
+                        ba.SetBlock(0, pos);
                     }
                 }
             }

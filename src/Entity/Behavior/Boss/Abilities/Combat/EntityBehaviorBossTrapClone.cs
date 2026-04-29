@@ -828,7 +828,8 @@ namespace VsQuest
                             float range = explodeSoundRange > 0f ? explodeSoundRange : 24f;
                             float volume = explodeSoundVolume;
                             if (volume <= 0f) volume = 1f;
-                            sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range, volume);
+                            float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                            sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
                         }
                     }
                 }
@@ -988,7 +989,8 @@ namespace VsQuest
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
+                        float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
                     }
                     catch (Exception ex)
                     {
@@ -1000,7 +1002,8 @@ namespace VsQuest
             {
                 try
                 {
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, stage.soundRange, volume);
+                    float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                    sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
                 }
                 catch (Exception ex)
                 {

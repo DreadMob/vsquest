@@ -221,7 +221,8 @@ namespace VsQuest
                 float range = stage.warningSoundRange > 0f ? stage.warningSoundRange : 2.5f;
                 if (range > 2.5f) range = 2.5f;
 
-                sapi.World.PlaySoundAt(soundLoc, strikePos.X, strikePos.Y, strikePos.Z, null, randomizePitch: true, range, volume);
+                float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                sapi.World.PlaySoundAt(soundLoc, strikePos.X, strikePos.Y, strikePos.Z, null, pitch, volume);
             }
             catch (Exception ex)
             {

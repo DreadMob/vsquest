@@ -430,7 +430,8 @@ namespace VsQuest
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range);
+                        float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, 1f);
                     }
                     catch
                     {
@@ -441,7 +442,8 @@ namespace VsQuest
 
             try
             {
-                sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range);
+                float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, 1f);
             }
             catch
             {

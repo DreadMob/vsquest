@@ -345,7 +345,8 @@ namespace VsQuest
                         wa.MarkPathDirty(lastProgressKey);
                         
                         // Play sound to indicate holding started
-                        sapi.World.PlaySoundAt(new AssetLocation("game:sounds/effect/translocate-breakdimension"), matchedX, matchedY, matchedZ, null, false, 8, 0.5f);
+                        float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                        sapi.World.PlaySoundAt(new AssetLocation("game:sounds/effect/translocate-breakdimension"), matchedX, matchedY, matchedZ, null, pitch, 0.5f);
                         
                         // Show lore message
                         string loreKey = $"{activeQuest.questId}-obj-{ao.objectiveId}-hold";
@@ -378,7 +379,8 @@ namespace VsQuest
                             wa.MarkPathDirty(lastProgressKey);
                             
                             // Play sound during holding
-                            sapi.World.PlaySoundAt(new AssetLocation("game:sounds/effect/translocate-breakdimension"), matchedX, matchedY, matchedZ, null, false, 8, 0.3f);
+                            float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                            sapi.World.PlaySoundAt(new AssetLocation("game:sounds/effect/translocate-breakdimension"), matchedX, matchedY, matchedZ, null, pitch, 0.3f);
                             
                             // Show lore message with progress
                             string loreKey = $"{activeQuest.questId}-obj-{ao.objectiveId}-hold";

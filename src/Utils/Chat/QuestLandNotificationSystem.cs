@@ -85,13 +85,13 @@ namespace VsQuest
             {
                 if (!(players[i] is IServerPlayer sp)) continue;
 
-                var pos = sp.Entity?.Pos;
+                var pos = sp.Entity?.SidedPos;
                 if (pos == null) continue;
 
                 int curDim;
                 try
                 {
-                    curDim = sp.Entity.Pos.Dimension;
+                    curDim = sp.Entity.SidedPos.Dimension;
                 }
                 catch
                 {
@@ -405,12 +405,12 @@ namespace VsQuest
 
         private string GetCurrentClaimName(IServerPlayer sp)
         {
-            if (sp?.Entity?.Pos == null) return null;
+            if (sp?.Entity?.SidedPos == null) return null;
 
             var claimsApi = sp.Entity.World?.Claims;
             if (claimsApi == null) return null;
 
-            BlockPos pos = sp.Entity.Pos.AsBlockPos;
+            BlockPos pos = sp.Entity.SidedPos.AsBlockPos;
             var claims = claimsApi.Get(pos);
             if (claims == null || claims.Length == 0) return null;
 

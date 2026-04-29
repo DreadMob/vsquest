@@ -183,6 +183,7 @@
   },
   "idleSoundRange": 14,
   "sounds": {
+    "idle": "game:creature/eidolon/idle",
     "hurt": "game:creature/eidolon/hit",
     "death": "game:creature/eidolon/death"
   }

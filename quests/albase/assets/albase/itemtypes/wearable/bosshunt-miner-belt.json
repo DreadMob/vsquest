@@ -1,6 +1,8 @@
 {
   "code": "bosshunt-miner-belt",
-  "class": "ItemWearable",
+  "behaviors": [
+    { "code": "wearable" }
+  ],
   "maxstacksize": 1,
   "storageFlags": 128,
   "attributes": {

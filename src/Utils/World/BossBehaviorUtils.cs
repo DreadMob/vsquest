@@ -270,7 +270,8 @@ namespace VsQuest
                             return;
                         }
 
-                        self.sapi?.World?.PlaySoundAt(self.soundLoc, self.entity, null, randomizePitch: true, self.range, self.volume);
+                        float pitch = (float)self.sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                        self.sapi?.World?.PlaySoundAt(self.soundLoc, self.entity, null, pitch, self.volume);
                     }
                     catch
                     {

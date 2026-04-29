@@ -263,13 +263,13 @@ namespace VsQuest
 			public bool EntityBehaviorTemporalStabilityAffected_OnGameTick { get; set; } = true;
 			public bool CollectibleObject_GetAttackPower { get; set; } = true;
 			public bool CollectibleObject_OnHeldAttackStart_AttackSpeed { get; set; } = true;
-			public bool ItemWearable_GetWarmth { get; set; } = true;
+			public bool CollectibleBehaviorWearable_GetWarmth { get; set; } = true;
+			public bool EntityBehaviorBodyTemperature_WarmthBonus { get; set; } = true;
 			public bool CollectibleObject_GetMiningSpeed_MiningSpeedMult { get; set; } = true;
 			public bool ModSystemWearableStats_handleDamaged { get; set; } = true;
 			public bool ModSystemWearableStats_updateWearableStats { get; set; } = true;
 			public bool CollectibleObject_TryMergeStacks_SecondChanceCharge { get; set; } = true;
-			public bool ItemWearable_TryMergeStacks_SecondChanceCharge { get; set; } = true;
-			public bool ItemWearable_GetMergableQuantity_SecondChanceCharge { get; set; } = true;
+			// ItemWearable merge patches removed - obsolete in 1.22
 		}
 
 		public class PlayerAttributePatchesCoreConfig
@@ -298,7 +298,7 @@ namespace VsQuest
 		public class ItemTooltipPatchesCoreConfig
 		{
 			public bool CollectibleObject_GetHeldItemInfo { get; set; } = true;
-			public bool ItemWearable_GetHeldItemInfo { get; set; } = true;
+			// ItemWearable is obsolete in 1.22, tooltip handling is covered by CollectibleObject patch
 		}
 
 		public class QuestItemHotbarOnlyPatchesCoreConfig

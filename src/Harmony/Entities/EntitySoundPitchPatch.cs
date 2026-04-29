@@ -9,7 +9,7 @@ namespace VsQuest.Harmony
     [HarmonyPatch(typeof(Entity), "PlayEntitySound")]
     public static class EntitySoundPitchPatch
     {
-        public static bool Prefix(Entity __instance, string type, IPlayer dualCallByPlayer, bool randomizePitch, float range)
+        public static bool Prefix(Entity __instance, string type, IPlayer dualCallByPlayer)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace VsQuest.Harmony
                 if (!hasPitchAdj && !hasVolumeAdj) return true;
 
                 var location = locations[__instance.World.Rand.Next(locations.Length)];
-                float pitch = randomizePitch ? (float)__instance.World.Rand.NextDouble() * 0.5f + 0.75f : 1f;
+                float pitch = (float)__instance.World.Rand.NextDouble() * 0.5f + 0.75f;
                 if (hasPitchAdj)
                 {
                     pitch *= mult;
@@ -66,7 +66,7 @@ namespace VsQuest.Harmony
                     }
                 }
 
-                __instance.World.PlaySoundAt(location, (float)__instance.SidedPos.X, (float)__instance.SidedPos.InternalY, (float)__instance.SidedPos.Z, dualCallByPlayer, pitch, range, volume);
+                __instance.World.PlaySoundAt(location, (float)__instance.SidedPos.X, (float)__instance.SidedPos.InternalY, (float)__instance.SidedPos.Z, dualCallByPlayer, pitch, volume);
                 return false;
             }
             catch

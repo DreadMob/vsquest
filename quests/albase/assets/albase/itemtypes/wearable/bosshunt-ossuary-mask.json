@@ -1,6 +1,8 @@
 {
   "code": "bosshunt-ossuary-mask",
-  "class": "ItemWearable",
+  "behaviors": [
+    { "code": "wearable" }
+  ],
   "maxstacksize": 1,
   "storageFlags": 128,
   "attributes": {

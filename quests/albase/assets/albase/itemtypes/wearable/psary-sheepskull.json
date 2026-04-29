@@ -1,6 +1,8 @@
 {
   "code": "psary-sheepskull",
-  "class": "ItemWearable",
+  "behaviors": [
+    { "code": "wearable" }
+  ],
   "maxstacksize": 1,
   "storageFlags": 128,
   "attributes": {

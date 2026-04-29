@@ -170,7 +170,8 @@ namespace VsQuest.Harmony.Players
             try
             {
                 AssetLocation soundLoc = AssetLocation.Create(SecondChanceProcSound, "game").WithPathPrefixOnce("sounds/");
-                player.World.PlaySoundAt(soundLoc, player.ServerPos.X, player.ServerPos.Y, player.ServerPos.Z, null, randomizePitch: true, SecondChanceProcSoundRange);
+                float pitch = (float)player.World.Rand.NextDouble() * 0.5f + 0.75f;
+                player.World.PlaySoundAt(soundLoc, player.ServerPos.X, player.ServerPos.Y, player.ServerPos.Z, null, pitch, 1f);
             }
             catch (Exception e)
             {

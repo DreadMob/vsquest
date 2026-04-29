@@ -1,6 +1,8 @@
 {
   "code": "flashboots",
-  "class": "ItemWearable",
+  "behaviors": [
+    { "code": "wearable" }
+  ],
   "maxstacksize": 1,
   "storageFlags": 128,
   "attributes": {

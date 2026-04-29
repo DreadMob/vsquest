@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>Release\build</OutputPath>
 		<ReleaseDir>$(MSBuildProjectDirectory)\Release</ReleaseDir>
@@ -77,11 +77,14 @@
 		
 		<ItemGroup>
 			<QuestFolders Include="$([System.IO.Directory]::GetDirectories('$(MSBuildProjectDirectory)\quests'))" />
+			<QuestFoldersToBuild Include="%(QuestFolders.Identity)" 
+			                     Condition="!$([System.IO.Path]::GetFileName('%(QuestFolders.Identity)').ToLower().Equals('debugging'))
+			                               And !$([System.IO.Path]::GetFileName('%(QuestFolders.Identity)').ToLower().Equals('newyear2026'))" />
 		</ItemGroup>
 		
-		<ZipDirectory SourceDirectory="%(QuestFolders.Identity)"
-		              DestinationFile="$(ReleaseDir)\$([System.IO.Path]::GetFileName('%(QuestFolders.Identity)'))_quest.zip"
+		<ZipDirectory SourceDirectory="%(QuestFoldersToBuild.Identity)"
+		              DestinationFile="$(ReleaseDir)\$([System.IO.Path]::GetFileName('%(QuestFoldersToBuild.Identity)'))_quest.zip"
 		              Overwrite="true"
-		              Condition="'@(QuestFolders)' != ''" />
+		              Condition="'@(QuestFoldersToBuild)' != ''" />
 	</Target>
 </Project>

@@ -1,6 +1,8 @@
 {
   "code": "2cnah-mask",
-  "class": "ItemWearable",
+  "behaviors": [
+    { "code": "wearable" }
+  ],
   "maxstacksize": 1,
   "storageFlags": 128,
   "attributes": {

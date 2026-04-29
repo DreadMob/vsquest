@@ -362,7 +362,8 @@ namespace VsQuest
                         float range = explodeSoundRange > 0f ? explodeSoundRange : 24f;
                         float volume = explodeSoundVolume;
                         if (volume <= 0f) volume = 1f;
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, randomizePitch: true, range, volume);
+                        float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
                     }
                 }
             }

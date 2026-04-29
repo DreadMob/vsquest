@@ -622,7 +622,7 @@ namespace VsQuest
 
             if (dim == int.MinValue) return false;
 
-            if (entity.Pos.Dimension != dim) return false;
+            if (entity.ServerPos.Dimension != dim) return false;
 
 
 

@@ -158,7 +158,8 @@ namespace VsQuest
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, randomizePitch: true, spawnSoundRange);
+                        float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                        sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, 1f);
                     }
                     catch
                     {
@@ -169,7 +170,8 @@ namespace VsQuest
 
             try
             {
-                sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, randomizePitch: true, spawnSoundRange);
+                float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, 1f);
             }
             catch
             {
@@ -190,7 +192,8 @@ namespace VsQuest
                 {
                     try
                     {
-                        sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, randomizePitch: true, soundRange);
+                        float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                        sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, 1f);
                     }
                     catch
                     {
@@ -201,7 +204,8 @@ namespace VsQuest
 
             try
             {
-                sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, randomizePitch: true, soundRange);
+                float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
+                sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, 1f);
             }
             catch
             {

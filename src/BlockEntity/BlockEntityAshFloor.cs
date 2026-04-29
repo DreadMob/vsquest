@@ -209,8 +209,8 @@ namespace VsQuest
 
                 if (myBlock.EntityClass != expectedClass) return;
 
-                sapi.World.BlockAccessor.SetBlock(0, Pos);
                 sapi.World.BlockAccessor.RemoveBlockEntity(Pos);
+                sapi.World.BlockAccessor.SetBlock(0, Pos);
             }
             catch (Exception ex)
             {

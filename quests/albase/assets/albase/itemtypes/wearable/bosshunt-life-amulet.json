@@ -1,6 +1,8 @@
 {
   "code": "bosshunt-life-amulet",
-  "class": "ItemWearable",
+  "behaviors": [
+    { "code": "wearable" }
+  ],
   "maxstacksize": 1,
   "storageFlags": 128,
   "attributes": {

@@ -73,12 +73,12 @@ namespace VsQuest
                     {
                         if (entity != null && entity.Alive == false)
                         {
+                            float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
                             sapi.World.PlaySoundAt(
                                 new AssetLocation("game:sounds/tick"),
                                 entity,
                                 null,
-                                randomizePitch: true,
-                                8,
+                                pitch,
                                 0.3f
                             );
                         }
@@ -98,8 +98,7 @@ namespace VsQuest
                 explodeSound,
                 entity,
                 null,
-                randomizePitch: false,
-                (int)explodeSoundRange,
+                1f,
                 explodeSoundVolume
             );
             

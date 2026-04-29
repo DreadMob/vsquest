@@ -10,13 +10,13 @@ namespace VsQuest
         public static bool Item_EntityBehaviorHealth_OnFallToGround { get; private set; } = true;
         public static bool Item_EntityBehaviorTemporalStabilityAffected_OnGameTick { get; private set; } = true;
         public static bool Item_CollectibleObject_GetAttackPower { get; private set; } = true;
-        public static bool Item_ItemWearable_GetWarmth { get; private set; } = true;
+        public static bool Item_CollectibleBehaviorWearable_GetWarmth { get; private set; } = true;
+        public static bool Item_EntityBehaviorBodyTemperature_WarmthBonus { get; private set; } = true;
         public static bool Item_CollectibleObject_GetMiningSpeed_MiningSpeedMult { get; private set; } = true;
         public static bool Item_ModSystemWearableStats_handleDamaged { get; private set; } = true;
         public static bool Item_ModSystemWearableStats_updateWearableStats { get; private set; } = true;
         public static bool Item_CollectibleObject_TryMergeStacks_SecondChanceCharge { get; private set; } = true;
-        public static bool Item_ItemWearable_TryMergeStacks_SecondChanceCharge { get; private set; } = true;
-        public static bool Item_ItemWearable_GetMergableQuantity_SecondChanceCharge { get; private set; } = true;
+        // ItemWearable merge patches removed - obsolete in 1.22
 
         public static bool Player_ModSystemWearableStats_handleDamaged_PlayerAttributes { get; private set; } = true;
         public static bool Player_EntityAgent_OnGameTick_Unified { get; private set; } = true;
@@ -36,7 +36,7 @@ namespace VsQuest
 
         public static bool ItemTooltipPatchesEnabled { get; private set; } = true;
         public static bool ItemTooltip_CollectibleObject_GetHeldItemInfo { get; private set; } = true;
-        public static bool ItemTooltip_ItemWearable_GetHeldItemInfo { get; private set; } = true;
+        // ItemWearable tooltip patch removed - obsolete in 1.22, covered by CollectibleObject patch
 
         public static bool QuestItemHotbarOnlyPatchesEnabled { get; private set; } = true;
         public static bool QuestItemHotbarOnly_ItemSlot_CanTakeFrom { get; private set; } = true;
@@ -101,13 +101,12 @@ namespace VsQuest
             Item_EntityBehaviorHealth_OnFallToGround = item?.EntityBehaviorHealth_OnFallToGround ?? true;
             Item_EntityBehaviorTemporalStabilityAffected_OnGameTick = item?.EntityBehaviorTemporalStabilityAffected_OnGameTick ?? true;
             Item_CollectibleObject_GetAttackPower = item?.CollectibleObject_GetAttackPower ?? true;
-            Item_ItemWearable_GetWarmth = item?.ItemWearable_GetWarmth ?? true;
+            Item_CollectibleBehaviorWearable_GetWarmth = item?.CollectibleBehaviorWearable_GetWarmth ?? true;
+            Item_EntityBehaviorBodyTemperature_WarmthBonus = item?.EntityBehaviorBodyTemperature_WarmthBonus ?? true;
             Item_CollectibleObject_GetMiningSpeed_MiningSpeedMult = item?.CollectibleObject_GetMiningSpeed_MiningSpeedMult ?? true;
             Item_ModSystemWearableStats_handleDamaged = item?.ModSystemWearableStats_handleDamaged ?? true;
             Item_ModSystemWearableStats_updateWearableStats = item?.ModSystemWearableStats_updateWearableStats ?? true;
             Item_CollectibleObject_TryMergeStacks_SecondChanceCharge = item?.CollectibleObject_TryMergeStacks_SecondChanceCharge ?? true;
-            Item_ItemWearable_TryMergeStacks_SecondChanceCharge = item?.ItemWearable_TryMergeStacks_SecondChanceCharge ?? true;
-            Item_ItemWearable_GetMergableQuantity_SecondChanceCharge = item?.ItemWearable_GetMergableQuantity_SecondChanceCharge ?? true;
 
             var player = harmony?.PlayerAttribute;
             Player_ModSystemWearableStats_handleDamaged_PlayerAttributes = player?.ModSystemWearableStats_handleDamaged_PlayerAttributes ?? true;
@@ -131,7 +130,6 @@ namespace VsQuest
             ItemTooltipPatchesEnabled = harmony?.ItemTooltipPatchesEnabled ?? true;
             var tooltip = harmony?.ItemTooltip;
             ItemTooltip_CollectibleObject_GetHeldItemInfo = tooltip?.CollectibleObject_GetHeldItemInfo ?? true;
-            ItemTooltip_ItemWearable_GetHeldItemInfo = tooltip?.ItemWearable_GetHeldItemInfo ?? true;
 
             QuestItemHotbarOnlyPatchesEnabled = harmony?.QuestItemHotbarOnlyPatchesEnabled ?? true;
             var hotbar = harmony?.QuestItemHotbarOnly;

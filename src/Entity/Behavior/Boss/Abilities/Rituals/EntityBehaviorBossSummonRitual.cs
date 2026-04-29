@@ -658,8 +658,7 @@ namespace VsQuest
 
                         float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
                         pitch *= pitchMul;
-
-                        sapi.World.PlaySoundAt(soundLoc, entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z, null, pitch, stage.soundRange, volume);
+                        sapi.World.PlaySoundAt(soundLoc, entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z, null, pitch, volume);
                     }
                     catch
                     {
@@ -675,8 +674,7 @@ namespace VsQuest
 
                     float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
                     pitch *= pitchMul;
-
-                    sapi.World.PlaySoundAt(soundLoc, entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z, null, pitch, stage.soundRange, volume);
+                    sapi.World.PlaySoundAt(soundLoc, entity.ServerPos.X, entity.ServerPos.Y, entity.ServerPos.Z, null, pitch, volume);
                 }
                 catch
                 {
