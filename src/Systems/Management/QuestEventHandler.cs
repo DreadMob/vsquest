@@ -73,7 +73,7 @@ namespace VsQuest
 
         private void OnPlayerJoin(IServerPlayer byPlayer)
         {
-            if (byPlayer == null) return;
+            if (byPlayer == null || byPlayer.Entity == null) return;
 
             // Delay to give vanilla ModJournal time to load the player's journal.
             sapi.Event.RegisterCallback(_ =>
