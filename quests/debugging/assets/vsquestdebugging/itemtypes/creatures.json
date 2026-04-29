@@ -12,13 +12,13 @@
     ],
     "shapeByType": {
         "*-questgiver": {
-            "base": "game:entity/humanoid/trader"
+            "base": "albase:entity/humanoid/trader"
         }
     },
     "texturesByType": {
         "*-questgiver": {
             "skin": {
-                "base": "game:entity/humanoid/trader"
+                "base": "albase:entity/humanoid/trader"
             }
         }
     },

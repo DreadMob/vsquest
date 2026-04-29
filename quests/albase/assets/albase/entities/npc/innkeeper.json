@@ -5,10 +5,10 @@
     "renderer": "Shape",
     "size": 1.28,
     "shape": {
-      "base": "game:entity/humanoid/trader"
+      "base": "albase:entity/humanoid/trader"
     },
     "texture": {
-      "base": "game:entity/humanoid/traderclothes/set2"
+      "base": "albase:entity/humanoid/traderclothes/set2"
     },
     "behaviors": [
       {

@@ -1,7 +1,7 @@
 {
   "code": "bosshunt-bloodthirsty-bracelet",
   "behaviors": [
-    { "code": "wearable" }
+    { "name": "wearable" }
   ],
   "maxstacksize": 1,
   "storageFlags": 128,

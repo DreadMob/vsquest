@@ -4,10 +4,10 @@
   "client": {
     "renderer": "Shape",
     "shape": {
-      "base": "game:entity/humanoid/trader"
+      "base": "albase:entity/humanoid/trader"
     },
     "texture": {
-      "base": "game:entity/humanoid/trader",
+      "base": "albase:entity/humanoid/trader",
       "alternates": [
         {
           "base": "game:entity/humanoid/traderclothes/set1"

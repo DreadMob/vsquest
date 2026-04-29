@@ -4,7 +4,7 @@
   "client": {
     "renderer": "Shape",
     "shape": {
-      "base": "game:entity/humanoid/trader"
+      "base": "albase:entity/humanoid/trader"
     },
     "texture": {
       "base": "albase:bosshunter1"

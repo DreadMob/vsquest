@@ -64,8 +64,8 @@ Create `entities/priest.json`:
   "class": "EntityAgent",
   "client": {
     "renderer": "Shape",
-    "shape": { "base": "game:entity/humanoid/trader" },
-    "texture": { "base": "game:entity/humanoid/trader" },
+    "shape": { "base": "albase:entity/humanoid/trader" },
+    "texture": { "base": "albase:entity/humanoid/trader" },
     "behaviors": [
       { "code": "nametag", "showtagonlywhentargeted": true },
       { "code": "repulseagents" },

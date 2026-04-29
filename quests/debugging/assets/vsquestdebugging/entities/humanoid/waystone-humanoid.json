@@ -13,8 +13,8 @@
 	},
 	"client": {
 		"renderer": "Shape",
-		"shape": { "base": "game:entity/humanoid/trader" },
-		"texture": { "base": "game:entity/humanoid/trader", "alternates": [
+		"shape": { "base": "albase:entity/humanoid/trader" },
+		"texture": { "base": "albase:entity/humanoid/trader", "alternates": [
 			{ "base": "game:entity/humanoid/traderclothes/set1" }
 		] },
 		"behaviors": [
