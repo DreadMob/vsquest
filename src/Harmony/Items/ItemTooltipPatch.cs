@@ -217,8 +217,7 @@ namespace VsQuest.Harmony
 
                 if (!shouldHide && hideVanilla.Contains("attackpower"))
                 {
-                    if (trimmed.StartsWith("Attack power:") || trimmed.StartsWith(Lang.Get("Attack power: -{0} hp"))) shouldHide = true;
-                    else if (trimmed.StartsWith("Attack tier:") || trimmed.StartsWith(Lang.Get("Attack tier: {0}"))) shouldHide = true;
+                    if (trimmed.StartsWith("Attack power:") || trimmed.StartsWith("Attack tier:")) shouldHide = true;
                     else if (trimmed.Contains("Attack power:") || trimmed.Contains("Attack tier:")) shouldHide = true;
                     else if (trimmed.Contains("Уровень атаки:") || trimmed.Contains("Сила атаки:")) shouldHide = true;
                 }
