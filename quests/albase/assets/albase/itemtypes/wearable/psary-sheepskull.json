@@ -1,7 +1,7 @@
 {
   "code": "psary-sheepskull",
   "behaviors": [
-    { "name": "wearable" }
+    { "name": "Wearable" }
   ],
   "maxstacksize": 1,
   "storageFlags": 128,

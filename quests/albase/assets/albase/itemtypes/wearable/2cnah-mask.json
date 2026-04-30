@@ -1,7 +1,7 @@
 {
   "code": "2cnah-mask",
   "behaviors": [
-    { "name": "wearable" }
+    { "name": "Wearable" }
   ],
   "maxstacksize": 1,
   "storageFlags": 128,
