@@ -321,8 +321,14 @@ namespace VsQuest
                         {
                             questName = $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
                         }
-                        string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
-                        GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
+                        string completionLine = Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName);
+                        string loreTitle = Lang.Get("alegacyvsquest:quest-completed-lore-title");
+                        string loreFooter = Lang.Get("alegacyvsquest:quest-completed-lore-footer");
+                        string text = ChatFormatUtil.LoreBlock(loreTitle, completionLine, loreFooter);
+                        
+                        string discordText = Lang.Get("alegacyvsquest:quest-completed-broadcast", fromPlayer.PlayerName, title);
+                        
+                        GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, EnumChatType.Notification);
                     }
                     catch
                     {
@@ -396,8 +402,15 @@ namespace VsQuest
                     {
                         questName = $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
                     }
-                    string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
-                    GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, EnumChatType.Notification);
+                    string completionLine = Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName);
+                    string loreTitle = Lang.Get("alegacyvsquest:quest-completed-lore-title");
+                    string loreFooter = Lang.Get("alegacyvsquest:quest-completed-lore-footer");
+                    string text = ChatFormatUtil.LoreBlock(loreTitle, completionLine, loreFooter);
+                    
+                    // Create Discord message using the same localization key
+                    string discordText = Lang.Get("alegacyvsquest:quest-completed-broadcast", fromPlayer.PlayerName, title);
+                    
+                    GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, EnumChatType.Notification);
                 }
                 catch
                 {

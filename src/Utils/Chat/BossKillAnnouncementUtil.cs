@@ -56,7 +56,14 @@ namespace VsQuest
                 .Replace("{{victim}}", victimName)
                 .Replace("{{boss}}", bossNameColored);
 
-            GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, ChatFormatUtil.PrefixAlert(message), Vintagestory.API.Common.EnumChatType.Notification);
+            string discordTemplate = template;
+            string discordMessage = discordTemplate
+                .Replace("{victim}", victim.PlayerName)
+                .Replace("{boss}", bossName)
+                .Replace("{{victim}}", victim.PlayerName)
+                .Replace("{{boss}}", bossName);
+            
+            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, ChatFormatUtil.PrefixAlert(message), discordMessage, Vintagestory.API.Common.EnumChatType.Notification);
         }
 
         public static void AnnounceBossDefeated(ICoreServerAPI sapi, IServerPlayer killer, Entity bossEntity)
@@ -70,7 +77,8 @@ namespace VsQuest
             string bossNameColored = ChatFormatUtil.Font(bossName, "#ff77ff");
             string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:boss-defeated", playerName, bossNameColored));
 
-            GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, Vintagestory.API.Common.EnumChatType.Notification);
+            string discordText = Lang.Get("alegacyvsquest:boss-defeated", killer.PlayerName, bossName);
+            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, Vintagestory.API.Common.EnumChatType.Notification);
         }
 
         public static void AnnounceBossDefeated(ICoreServerAPI sapi, IReadOnlyList<IServerPlayer> killers, Entity bossEntity)
@@ -90,7 +98,10 @@ namespace VsQuest
             string langKey = killers.Count > 1 ? "alegacyvsquest:boss-defeated-multi" : "alegacyvsquest:boss-defeated";
             string text = ChatFormatUtil.PrefixAlert(Lang.Get(langKey, playerNames, bossNameColored));
 
-            GlobalChatBroadcastUtil.BroadcastGeneralChat(sapi, text, Vintagestory.API.Common.EnumChatType.Notification);
+            // Create Discord message using the same localization key
+            string playerList = string.Join(", ", killers.Where(p => p != null).Select(p => p.PlayerName));
+            string discordText = Lang.Get(langKey, playerList, bossName);
+            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, Vintagestory.API.Common.EnumChatType.Notification);
         }
     }
 }
