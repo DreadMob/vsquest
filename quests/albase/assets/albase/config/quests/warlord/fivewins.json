@@ -1,0 +1,81 @@
+{
+  "id": "albase:warlord-fivewins",
+  "cooldown": 0,
+  "perPlayer": true,
+  "predecessor": "albase:warlord-firstblood",
+  "onAcceptedActions": [
+    {
+      "id": "playsound",
+      "args": [
+        "alegacyvsquest:sounds/queacc",
+        "0.175"
+      ]
+    },
+    {
+      "id": "addjournalentry",
+      "args": [
+        "albase:warlord",
+        "albase:warlord-fivewins",
+        "albase:warlord-fivewins-title",
+        "albase:warlord-fivewins-journal-text"
+      ]
+    }
+  ],
+  "watchedattributeobjectives": [
+    {
+      "attribute": "alegacy_duel_wins",
+      "operator": ">=",
+      "quantity": 5,
+      "code": "fivewins"
+    }
+  ],
+  "itemRewards": [
+    {
+      "itemCode": "game:gear-rusty",
+      "amount": 8
+    },
+    {
+      "itemCode": "game:meatcured",
+      "amount": 24
+    },
+    {
+      "itemCode": "game:cheese-hard",
+      "amount": 6
+    }
+  ],
+  "actionRewards": [
+    {
+      "id": "addreputation",
+      "args": [
+        "npc",
+        "albase:warlord",
+        "150"
+      ]
+    },
+    {
+      "id": "playsound",
+      "args": [
+        "game:sounds/effect/cashregister",
+        "0.35"
+      ]
+    },
+    {
+      "id": "showquestfinaldialog",
+      "args": [
+        "albase:warlord-final-title",
+        "albase:warlord-fivewins-final-text",
+        "albase:warlord-final-option"
+      ]
+    },
+    {
+      "id": "addjournalentry",
+      "args": [
+        "albase:warlord",
+        "albase:warlord-fivewins",
+        "albase:warlord-fivewins-title",
+        "overwrite",
+        "albase:warlord-fivewins-reward-journal-text"
+      ]
+    }
+  ]
+}

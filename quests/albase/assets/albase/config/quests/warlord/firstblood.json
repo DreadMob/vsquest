@@ -1,0 +1,76 @@
+{
+  "id": "albase:warlord-firstblood",
+  "cooldown": 0,
+  "perPlayer": true,
+  "onAcceptedActions": [
+    {
+      "id": "playsound",
+      "args": [
+        "alegacyvsquest:sounds/queacc",
+        "0.175"
+      ]
+    },
+    {
+      "id": "addjournalentry",
+      "args": [
+        "albase:warlord",
+        "albase:warlord-firstblood",
+        "albase:warlord-firstblood-title",
+        "albase:warlord-firstblood-journal-text"
+      ]
+    }
+  ],
+  "watchedattributeobjectives": [
+    {
+      "attribute": "alegacy_duel_wins",
+      "operator": ">=",
+      "quantity": 1,
+      "code": "firstblood"
+    }
+  ],
+  "itemRewards": [
+    {
+      "itemCode": "game:gear-rusty",
+      "amount": 3
+    },
+    {
+      "itemCode": "game:meatcured",
+      "amount": 12
+    }
+  ],
+  "actionRewards": [
+    {
+      "id": "addreputation",
+      "args": [
+        "npc",
+        "albase:warlord",
+        "50"
+      ]
+    },
+    {
+      "id": "playsound",
+      "args": [
+        "game:sounds/effect/cashregister",
+        "0.35"
+      ]
+    },
+    {
+      "id": "showquestfinaldialog",
+      "args": [
+        "albase:warlord-final-title",
+        "albase:warlord-firstblood-final-text",
+        "albase:warlord-final-option"
+      ]
+    },
+    {
+      "id": "addjournalentry",
+      "args": [
+        "albase:warlord",
+        "albase:warlord-firstblood",
+        "albase:warlord-firstblood-title",
+        "overwrite",
+        "albase:warlord-firstblood-reward-journal-text"
+      ]
+    }
+  ]
+}

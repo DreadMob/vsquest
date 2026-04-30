@@ -1,0 +1,61 @@
+{
+  "components": [
+    {
+      "code": "intro",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-warlord-intro" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "main",
+      "owner": "player",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-warlord-stats", "jumpTo": "showstats" },
+        { "value": "albase:dialogue-warlord-leaderboard", "jumpTo": "showleaderboard" },
+        { "value": "albase:dialogue-warlord-quests", "jumpTo": "openquests" },
+        { "value": "albase:dialogue-warlord-close", "jumpTo": "close" }
+      ]
+    },
+    {
+      "code": "showstats",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "alegacy:showduelstats",
+      "text": [
+        { "value": "albase:dialogue-warlord-stats-confirm" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "showleaderboard",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "alegacy:showduelleaderboard",
+      "text": [
+        { "value": "albase:dialogue-warlord-leaderboard-confirm" }
+      ],
+      "jumpTo": "main"
+    },
+    {
+      "code": "openquests",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "openquests",
+      "text": [
+        { "value": "albase:dialogue-warlord-quests-confirm" }
+      ]
+    },
+    {
+      "code": "close",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-warlord-close-answer" }
+      ]
+    }
+  ]
+}
