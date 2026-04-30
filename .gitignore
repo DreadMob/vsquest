@@ -6,6 +6,8 @@ bin
 .vs
 .vscode
 Release
+Release_debug
+launch_game.ps1
 vsquest.code-workspace
 bossmusicserver/Release
 bossmusicserver/bin
