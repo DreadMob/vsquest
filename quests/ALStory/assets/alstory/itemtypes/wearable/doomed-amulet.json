@@ -1,7 +1,7 @@
 {
   "code": "doomed-amulet",
   "behaviors": [
-    { "code": "wearable" }
+    { "name": "Wearable" }
   ],
   "maxstacksize": 1,
   "storageFlags": 128,

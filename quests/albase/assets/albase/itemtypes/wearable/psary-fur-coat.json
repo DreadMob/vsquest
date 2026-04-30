@@ -24,7 +24,7 @@
     "seraph": {
       "base": "game:block/transparent"
     },
-    "coat": {
+    "upperbodyover": {
       "base": "albase:fur-coat"
     }
   },
