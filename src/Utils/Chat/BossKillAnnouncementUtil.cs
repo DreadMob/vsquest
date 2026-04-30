@@ -56,14 +56,23 @@ namespace VsQuest
                 .Replace("{{victim}}", victimName)
                 .Replace("{{boss}}", bossNameColored);
 
-            string discordTemplate = template;
+            string discordTemplate = LocalizationUtils.GetSafe("alegacyvsquest:discord-bosskill-default-template");
+            if (string.IsNullOrWhiteSpace(discordTemplate) || string.Equals(discordTemplate, "alegacyvsquest:discord-bosskill-default-template", StringComparison.OrdinalIgnoreCase))
+            {
+                discordTemplate = template;
+            }
             string discordMessage = discordTemplate
                 .Replace("{victim}", victim.PlayerName)
                 .Replace("{boss}", bossName)
                 .Replace("{{victim}}", victim.PlayerName)
                 .Replace("{{boss}}", bossName);
             
-            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, ChatFormatUtil.PrefixAlert(message), discordMessage, Vintagestory.API.Common.EnumChatType.Notification);
+            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(
+                sapi,
+                ChatFormatUtil.PrefixAlert(message),
+                discordMessage,
+                Vintagestory.API.Common.EnumChatType.Notification,
+                DiscordBroadcastKind.BossDefeated);
         }
 
         public static void AnnounceBossDefeated(ICoreServerAPI sapi, IServerPlayer killer, Entity bossEntity)
@@ -77,8 +86,21 @@ namespace VsQuest
             string bossNameColored = ChatFormatUtil.Font(bossName, "#ff77ff");
             string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:boss-defeated", playerName, bossNameColored));
 
-            string discordText = Lang.Get("alegacyvsquest:boss-defeated", killer.PlayerName, bossName);
-            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, Vintagestory.API.Common.EnumChatType.Notification);
+            string discordText = LocalizationUtils.GetSafe("alegacyvsquest:discord-boss-defeated");
+            if (string.IsNullOrWhiteSpace(discordText) || string.Equals(discordText, "alegacyvsquest:discord-boss-defeated", StringComparison.OrdinalIgnoreCase))
+            {
+                discordText = Lang.Get("alegacyvsquest:boss-defeated", killer.PlayerName, bossName);
+            }
+            else
+            {
+                discordText = discordText.Replace("{0}", killer.PlayerName).Replace("{1}", bossName);
+            }
+            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(
+                sapi,
+                text,
+                discordText,
+                Vintagestory.API.Common.EnumChatType.Notification,
+                DiscordBroadcastKind.BossDefeated);
         }
 
         public static void AnnounceBossDefeated(ICoreServerAPI sapi, IReadOnlyList<IServerPlayer> killers, Entity bossEntity)
@@ -100,8 +122,22 @@ namespace VsQuest
 
             // Create Discord message using the same localization key
             string playerList = string.Join(", ", killers.Where(p => p != null).Select(p => p.PlayerName));
-            string discordText = Lang.Get(langKey, playerList, bossName);
-            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, Vintagestory.API.Common.EnumChatType.Notification);
+            string discordMultiTemplate = LocalizationUtils.GetSafe("alegacyvsquest:discord-boss-defeated-multi");
+            string discordText;
+            if (string.IsNullOrWhiteSpace(discordMultiTemplate) || string.Equals(discordMultiTemplate, "alegacyvsquest:discord-boss-defeated-multi", StringComparison.OrdinalIgnoreCase))
+            {
+                discordText = Lang.Get(langKey, playerList, bossName);
+            }
+            else
+            {
+                discordText = discordMultiTemplate.Replace("{0}", playerList).Replace("{1}", bossName);
+            }
+            GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(
+                sapi,
+                text,
+                discordText,
+                Vintagestory.API.Common.EnumChatType.Notification,
+                DiscordBroadcastKind.BossDefeated);
         }
     }
 }

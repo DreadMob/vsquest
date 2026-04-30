@@ -321,14 +321,19 @@ namespace VsQuest
                         {
                             questName = $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
                         }
-                        string completionLine = Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName);
-                        string loreTitle = Lang.Get("alegacyvsquest:quest-completed-lore-title");
-                        string loreFooter = Lang.Get("alegacyvsquest:quest-completed-lore-footer");
-                        string text = ChatFormatUtil.LoreBlock(loreTitle, completionLine, loreFooter);
+                        string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
                         
-                        string discordText = Lang.Get("alegacyvsquest:quest-completed-broadcast", fromPlayer.PlayerName, title);
+                        string discordText = LocalizationUtils.GetSafe("alegacyvsquest:discord-quest-completed");
+                        if (string.IsNullOrWhiteSpace(discordText) || string.Equals(discordText, "alegacyvsquest:discord-quest-completed", StringComparison.OrdinalIgnoreCase))
+                        {
+                            discordText = Lang.Get("alegacyvsquest:quest-completed-broadcast", fromPlayer.PlayerName, title);
+                        }
+                        else
+                        {
+                            discordText = discordText.Replace("{0}", fromPlayer.PlayerName).Replace("{1}", title);
+                        }
                         
-                        GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, EnumChatType.Notification);
+                        GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, EnumChatType.Notification, DiscordBroadcastKind.QuestCompleted);
                     }
                     catch
                     {
@@ -402,15 +407,19 @@ namespace VsQuest
                     {
                         questName = $"<font color=\"#77ddff\"><qhover text=\"{hoverText}\">{title}</qhover></font>";
                     }
-                    string completionLine = Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName);
-                    string loreTitle = Lang.Get("alegacyvsquest:quest-completed-lore-title");
-                    string loreFooter = Lang.Get("alegacyvsquest:quest-completed-lore-footer");
-                    string text = ChatFormatUtil.LoreBlock(loreTitle, completionLine, loreFooter);
+                    string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
                     
-                    // Create Discord message using the same localization key
-                    string discordText = Lang.Get("alegacyvsquest:quest-completed-broadcast", fromPlayer.PlayerName, title);
+                    string discordText = LocalizationUtils.GetSafe("alegacyvsquest:discord-quest-completed");
+                    if (string.IsNullOrWhiteSpace(discordText) || string.Equals(discordText, "alegacyvsquest:discord-quest-completed", StringComparison.OrdinalIgnoreCase))
+                    {
+                        discordText = Lang.Get("alegacyvsquest:quest-completed-broadcast", fromPlayer.PlayerName, title);
+                    }
+                    else
+                    {
+                        discordText = discordText.Replace("{0}", fromPlayer.PlayerName).Replace("{1}", title);
+                    }
                     
-                    GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, EnumChatType.Notification);
+                    GlobalChatBroadcastUtil.BroadcastGeneralChatWithDiscord(sapi, text, discordText, EnumChatType.Notification, DiscordBroadcastKind.QuestCompleted);
                 }
                 catch
                 {
