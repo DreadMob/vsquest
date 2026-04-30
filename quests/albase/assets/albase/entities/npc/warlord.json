@@ -27,6 +27,9 @@
       {
         "code": "conversable",
         "dialogue": "config/dialogue/warlord"
+      },
+      {
+        "code": "questgiver"
       }
     ]
   },
@@ -45,7 +48,7 @@
         "code": "nametag",
         "showtagonlywhentargeted": false,
         "selectFromRandomName": [
-          "Военачальник Валерий"
+          "Кассий Железный"
         ]
       },
       {
@@ -60,6 +63,18 @@
       {
         "code": "conversable",
         "dialogue": "config/dialogue/warlord"
+      },
+      {
+        "code": "questgiver",
+        "quests": [
+          "albase:warlord-firstblood",
+          "albase:warlord-fivewins",
+          "albase:warlord-tenunique"
+        ],
+        "noAvailableQuestDescLangKey": "albase:no-quest-available-warlord",
+        "noAvailableQuestCooldownDescLangKey": "albase:no-quest-available-warlord-cooldown",
+        "selectrandom": false,
+        "selectrandomcount": 1
       }
     ]
   },
