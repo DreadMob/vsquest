@@ -1,8 +1,7 @@
 {
   "id": "albase:warlord-fivewins",
-  "cooldown": 0,
+  "cooldown": 1440,
   "perPlayer": true,
-  "predecessor": "albase:warlord-firstblood",
   "onAcceptedActions": [
     {
       "id": "playsound",
@@ -31,8 +30,8 @@
   ],
   "itemRewards": [
     {
-      "itemCode": "game:gear-rusty",
-      "amount": 8
+      "itemCode": "game:ingot-iron",
+      "amount": 10
     },
     {
       "itemCode": "game:meatcured",
@@ -41,6 +40,10 @@
     {
       "itemCode": "game:cheese-hard",
       "amount": 6
+    },
+    {
+      "itemCode": "game:armor-medium-chest",
+      "amount": 1
     }
   ],
   "actionRewards": [

@@ -1,6 +1,6 @@
 {
   "id": "albase:warlord-firstblood",
-  "cooldown": 0,
+  "cooldown": -1,
   "perPlayer": true,
   "onAcceptedActions": [
     {
@@ -22,7 +22,7 @@
   ],
   "watchedattributeobjectives": [
     {
-      "attribute": "alegacy_duel_wins",
+      "attribute": "alegacy_duel_participations",
       "operator": ">=",
       "quantity": 1,
       "code": "firstblood"

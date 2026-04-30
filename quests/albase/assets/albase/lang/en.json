@@ -104,6 +104,8 @@
   "dialogue-warlord-quests": "Give me a task, Kassius",
   "dialogue-warlord-stats-confirm": "Here is your battle record:",
   "dialogue-warlord-stats": "Tell me about my victories",
+  "dialogue-warlord-about": "Tell me about the arena",
+  "dialogue-warlord-about-answer": "The arena is not just a place for combat. It is a test of spirit, strength, and skill. Legends are forged here, and the weak are broken. Every warrior who steps onto these stones writes their story. The question is whether it will be worthy.",
   "no-quest-available-warlord": "I have no tasks for you. Keep training, warrior.",
   "no-quest-available-warlord-cooldown": "You are not ready for a new trial yet. Wait a while.",
   "tradingwindow-warlord": "Kassius the Iron",

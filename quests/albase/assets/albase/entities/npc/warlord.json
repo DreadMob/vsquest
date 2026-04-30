@@ -66,11 +66,16 @@
       },
       {
         "code": "questgiver",
-        "quests": [
-          "albase:warlord-firstblood",
+        "alwaysquests": [
+          "albase:warlord-firstblood"
+        ],
+        "rotationpool": [
           "albase:warlord-fivewins",
           "albase:warlord-tenunique"
         ],
+        "rotationdays": 60,
+        "rotationcount": 1,
+        "singlequestatatime": true,
         "noAvailableQuestDescLangKey": "albase:no-quest-available-warlord",
         "noAvailableQuestCooldownDescLangKey": "albase:no-quest-available-warlord-cooldown",
         "selectrandom": false,

@@ -1,8 +1,7 @@
 {
   "id": "albase:warlord-tenunique",
-  "cooldown": 0,
+  "cooldown": -1,
   "perPlayer": true,
-  "predecessor": "albase:warlord-fivewins",
   "onAcceptedActions": [
     {
       "id": "playsound",
@@ -23,7 +22,7 @@
   ],
   "watchedattributeobjectives": [
     {
-      "attribute": "alegacy_duel_unique_opponents",
+      "attribute": "alegacy_duel_participations",
       "operator": ">=",
       "quantity": 10,
       "code": "tenunique"
@@ -31,8 +30,8 @@
   ],
   "itemRewards": [
     {
-      "itemCode": "game:gear-rusty",
-      "amount": 15
+      "itemCode": "game:ingot-iron",
+      "amount": 20
     },
     {
       "itemCode": "game:meatcured",
@@ -43,8 +42,8 @@
       "amount": 12
     },
     {
-      "itemCode": "game:flour-rye",
-      "amount": 20
+      "itemCode": "game:armor-medium-head",
+      "amount": 1
     }
   ],
   "actionRewards": [
