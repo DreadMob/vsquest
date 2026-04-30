@@ -104,10 +104,10 @@ namespace VsQuest
             SingleComposer.GetVerticalTab("tabs").SetValue(curTab, false);
 
             SingleComposer
+                .AddVerticalScrollbar(OnNewScrollbarvalue, scrollbarBounds, "scrollbar")
                 .BeginClip(clippingBounds)
                     .AddRichtext(Lang.Get(bodyLangKeys[curTab]), CairoFont.WhiteSmallishText(), textBounds, "infotext")
                 .EndClip()
-                .AddVerticalScrollbar(OnNewScrollbarvalue, scrollbarBounds, "scrollbar")
                 .AddButton(Lang.Get("alegacyvsquest:button-cancel"), TryClose, buttonBounds);
 
             SingleComposer.EndChildElements().Compose();
@@ -115,8 +115,7 @@ namespace VsQuest
             var textElement = SingleComposer.GetRichtext("infotext");
             if (textElement != null)
             {
-                SingleComposer.GetScrollbar("scrollbar")?.SetHeights((float)textBounds.fixedHeight, (float)textBounds.fixedHeight);
-                SingleComposer.GetScrollbar("scrollbar")?.SetNewTotalHeight((float)textElement.TotalHeight);
+                SingleComposer.GetScrollbar("scrollbar")?.SetHeights((float)clippingBounds.fixedHeight, (float)textElement.Bounds.fixedHeight);
                 SingleComposer.GetScrollbar("scrollbar")?.SetScrollbarPosition(0);
                 OnNewScrollbarvalue(0);
             }
