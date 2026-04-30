@@ -1,0 +1,84 @@
+{
+  "id": "albase:warlord-tenunique",
+  "cooldown": -1,
+  "perPlayer": true,
+  "onAcceptedActions": [
+    {
+      "id": "playsound",
+      "args": [
+        "alegacyvsquest:sounds/queacc",
+        "0.175"
+      ]
+    },
+    {
+      "id": "addjournalentry",
+      "args": [
+        "albase:warlord",
+        "albase:warlord-tenunique",
+        "albase:warlord-tenunique-title",
+        "albase:warlord-tenunique-journal-text"
+      ]
+    }
+  ],
+  "watchedattributeobjectives": [
+    {
+      "attribute": "alegacy_duel_participations",
+      "operator": ">=",
+      "quantity": 10,
+      "code": "tenunique"
+    }
+  ],
+  "itemRewards": [
+    {
+      "itemCode": "game:ingot-iron",
+      "amount": 20
+    },
+    {
+      "itemCode": "game:meatcured",
+      "amount": 36
+    },
+    {
+      "itemCode": "game:cheese-hard",
+      "amount": 12
+    },
+    {
+      "itemCode": "game:armor-medium-head",
+      "amount": 1
+    }
+  ],
+  "actionRewards": [
+    {
+      "id": "addreputation",
+      "args": [
+        "npc",
+        "albase:warlord",
+        "300"
+      ]
+    },
+    {
+      "id": "playsound",
+      "args": [
+        "game:sounds/effect/cashregister",
+        "0.35"
+      ]
+    },
+    {
+      "id": "showquestfinaldialog",
+      "args": [
+        "albase:warlord-final-title",
+        "albase:warlord-tenunique-final-text",
+        "albase:warlord-final-option"
+      ]
+    },
+    {
+      "id": "addjournalentry",
+      "args": [
+        "albase:warlord",
+        "albase:warlord-tenunique",
+        "albase:warlord-tenunique-title",
+        "overwrite",
+        "albase:warlord-tenunique-reward-journal-text"
+      ]
+    }
+  ]
+}

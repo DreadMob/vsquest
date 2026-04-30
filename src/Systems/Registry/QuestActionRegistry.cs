@@ -75,6 +75,7 @@ namespace VsQuest
             actionRegistry.Add("checkobjective", new CheckObjectiveAction());
             actionRegistry.Add("markinteraction", new MarkInteractionAction());
             actionRegistry.Add("markentityinteraction", new MarkEntityInteractionAction());
+            actionRegistry.Add("markduelparticipation", new MarkDuelParticipationAction());
 
             actionRegistry.Add("cycleentityanimation", new CycleEntityAnimationAction());
             actionRegistry.Add("damageentity", new DamageSelectedEntityAction());
