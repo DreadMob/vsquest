@@ -1,0 +1,8 @@
+{
+  "_comment": "Казначей — Квест покупки доп. зон (5 зон)",
+  "treasurer-buy-maxareas-large-title": "Казначей: Купить +5 зон",
+  "treasurer-buy-maxareas-large-desc": "Увеличить максимальное количество зон привата на 5. Оплата принимается в ржавых шестерёнках.",
+  "treasurer-buy-maxareas-large-obj": "Оплатить 50 ржавых шестерёнок: {0}/{1}",
+  "treasurer-buy-maxareas-large-reward": "Казначей: Оформлено. +5 зон привата.",
+  "treasurer-buy-maxareas-large-accepted": "Казначей: Перед оплатой я сверю твои текущие лимиты."
+}

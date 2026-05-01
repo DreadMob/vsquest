@@ -14,13 +14,14 @@ namespace VsQuest.Harmony
             try
             {
                 if (!HarmonyPatchSwitches.EntitySoundPitchEnabled(HarmonyPatchSwitches.EntitySoundPitch_Entity_PlayEntitySound)) return true;
-                if (__instance?.Properties?.Attributes == null) return true;
+                if (__instance?.Properties?.Sounds == null) return true;
+                if (!__instance.Properties.Sounds.TryGetValue(type, out var sound) || sound.Location == null) return true;
 
                 float mult = 1f;
                 Dictionary<string, float> volumeBySound = null;
                 try
                 {
-                    mult = __instance.Properties.Attributes["vsquestSoundPitchMul"].AsFloat(1f);
+                    mult = __instance.Properties.Attributes?["vsquestSoundPitchMul"].AsFloat(1f) ?? 1f;
                 }
                 catch
                 {
@@ -33,32 +34,28 @@ namespace VsQuest.Harmony
 
                 try
                 {
-                    volumeBySound = __instance.Properties.Attributes["SoundVolumeMulBySound"].AsObject<Dictionary<string, float>>();
+                    volumeBySound = __instance.Properties.Attributes?["SoundVolumeMulBySound"].AsObject<Dictionary<string, float>>();
                 }
                 catch
                 {
                 }
 
-                if (__instance.Properties.ResolvedSounds == null
-                    || !__instance.Properties.ResolvedSounds.TryGetValue(type, out var locations)
-                    || locations.Length == 0)
+                if (__instance.Properties.ResolvedSounds == null || !__instance.Properties.ResolvedSounds.TryGetValue(type, out var locations) || locations.Length == 0)
                 {
                     return true;
                 }
 
-                bool hasPitchAdj = mult != 1f;
-                bool hasVolumeAdj = volumeBySound != null && volumeBySound.Count > 0;
-                if (!hasPitchAdj && !hasVolumeAdj) return true;
-
                 var location = locations[__instance.World.Rand.Next(locations.Length)];
+                
+                // Always apply pitch randomization for entity sounds
                 float pitch = (float)__instance.World.Rand.NextDouble() * 0.5f + 0.75f;
-                if (hasPitchAdj)
+                if (mult != 1f)
                 {
                     pitch *= mult;
                 }
 
                 float volume = 1f;
-                if (hasVolumeAdj && TryGetVolumeMultiplier(volumeBySound, location, out float volumeMult))
+                if (volumeBySound != null && volumeBySound.Count > 0 && TryGetVolumeMultiplier(volumeBySound, location, out float volumeMult))
                 {
                     if (volumeMult > 0f)
                     {
@@ -71,6 +68,7 @@ namespace VsQuest.Harmony
             }
             catch
             {
+                // On any error, let vanilla handle it
                 return true;
             }
         }

@@ -1,0 +1,8 @@
+{
+  "_comment": "Казначей — Квест покупки доп. земли (1млн)",
+  "treasurer-buy-allowance-large-title": "Казначей: Купить +1,000,000 м³ земли",
+  "treasurer-buy-allowance-large-desc": "Увеличить лимит земли на 1,000,000 м³. Оплата принимается в ржавых шестерёнках.",
+  "treasurer-buy-allowance-large-obj": "Оплатить 50 ржавых шестерёнок: {0}/{1}",
+  "treasurer-buy-allowance-large-reward": "Казначей: Оформлено. +1,000,000 м³ к лимиту земли.",
+  "treasurer-buy-allowance-large-accepted": "Казначей: Перед оплатой я сверю твои текущие лимиты."
+}

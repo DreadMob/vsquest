@@ -1,0 +1,66 @@
+{
+  "id": "albase:treasurer-buy-allowance-large",
+  "cooldown": 0,
+  "perPlayer": true,
+  "predecessor": "albase:treasurer-survey",
+  "onAcceptedActions": [
+    {
+      "id": "landclaimallowance",
+      "args": []
+    },
+    {
+      "id": "landclaimmaxareas",
+      "args": []
+    }
+  ],
+  "actionObjectives": [
+    {
+      "id": "hasitem",
+      "objectiveId": "pay",
+      "args": [
+        "game:gear-rusty",
+        "50"
+      ]
+    }
+  ],
+  "killObjectives": [],
+  "itemRewards": [],
+  "actionRewards": [
+    {
+      "id": "takeitem",
+      "args": [
+        "game:gear-rusty",
+        "50"
+      ]
+    },
+    {
+      "id": "addplayerint",
+      "args": [
+        "landclaimallowance",
+        "1000000",
+        "99999999999"
+      ]
+    },
+    {
+      "id": "landclaimallowance",
+      "args": []
+    },
+    {
+      "id": "landclaimmaxareas",
+      "args": []
+    },
+    {
+      "id": "playsound",
+      "args": [
+        "game:sounds/effect/cashregister",
+        "0.35"
+      ]
+    },
+    {
+      "id": "notify",
+      "args": [
+        "albase:treasurer-buy-allowance-large-reward"
+      ]
+    }
+  ]
+}

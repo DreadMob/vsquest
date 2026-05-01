@@ -119,6 +119,7 @@ namespace VsQuest
             harmony.PatchAll();
 
             LocalizationUtils.LoadFromAssets(api);
+            LocalizationUtils.LoadNestedLanguageFiles(api);
 
             VsQuest.Harmony.EntityInteractPatch.TryPatch(harmony);
 
@@ -212,6 +213,7 @@ namespace VsQuest
             MobLocalizationUtils.LoadFromAssets(api);
 
             LocalizationUtils.LoadFromAssets(api);
+            LocalizationUtils.LoadNestedLanguageFiles(api);
             quizSystem?.LoadFromAssets(api);
             foreach (var mod in api.ModLoader.Mods)
             {

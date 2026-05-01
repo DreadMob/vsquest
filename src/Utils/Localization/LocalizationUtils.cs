@@ -1,13 +1,122 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
 
 namespace VsQuest
 {
     public static class LocalizationUtils
     {
         private static Dictionary<string, string> displayNameMap;
+        // Custom storage for nested language files: domain:lang -> key -> value
+        private static Dictionary<string, Dictionary<string, string>> nestedLangCache = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+        private static HashSet<string> loadedLangDomains = new HashSet<string>();
+
+        /// <summary>
+        /// Loads language files from nested folder structure: lang/{languageCode}/*.json
+        /// This supports organizing translations into subdirectories.
+        /// </summary>
+        public static void LoadNestedLanguageFiles(ICoreAPI api)
+        {
+            if (api == null) return;
+
+            string currentLang = Lang.CurrentLocale ?? "en";
+            string altLang = currentLang.Contains("-") ? currentLang.Split('-')[0] : currentLang;
+
+            foreach (var mod in api.ModLoader.Mods)
+            {
+                string domain = mod?.Info?.ModID;
+                if (string.IsNullOrWhiteSpace(domain)) continue;
+
+                string cacheKey = $"{domain}:{currentLang}";
+                if (loadedLangDomains.Contains(cacheKey)) continue;
+
+                try
+                {
+                    // Try to load from lang/{currentLang}/ folder structure
+                    var langAssets = api.Assets.GetMany($"lang/{currentLang}/", domain, loadAsset: true);
+                    if ((langAssets == null || !langAssets.Any()) && altLang != currentLang)
+                    {
+                        langAssets = api.Assets.GetMany($"lang/{altLang}/", domain, loadAsset: true);
+                    }
+
+                    if (langAssets == null || !langAssets.Any()) continue;
+
+                    var merged = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var asset in langAssets)
+                    {
+                        if (asset == null) continue;
+                        try
+                        {
+                            // Read as text and parse to handle BOM correctly
+                            string jsonText = asset.ToText();
+                            if (string.IsNullOrWhiteSpace(jsonText)) continue;
+
+                            // Remove UTF-8 BOM if present (EF BB BF)
+                            if (jsonText.Length > 0 && jsonText[0] == '\uFEFF')
+                            {
+                                jsonText = jsonText.Substring(1);
+                            }
+
+                            var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonText);
+                            if (dict == null) continue;
+
+                            foreach (var kvp in dict)
+                            {
+                                if (string.IsNullOrWhiteSpace(kvp.Key) || kvp.Value == null) continue;
+                                // Skip comment entries
+                                if (kvp.Key.StartsWith("_")) continue;
+                                merged[kvp.Key] = kvp.Value;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            api.Logger.Warning($"[vsquest] Failed to parse language file {asset.Location}: {ex.Message}");
+                        }
+                    }
+
+                    if (merged.Count > 0)
+                    {
+                        // Store in custom cache with both prefixed and non-prefixed keys
+                        var cache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                        foreach (var kvp in merged)
+                        {
+                            // Store with domain prefix (albase:key)
+                            cache[$"{domain}:{kvp.Key}"] = kvp.Value;
+                            // Also store without prefix for compatibility
+                            cache[kvp.Key] = kvp.Value;
+                        }
+                        nestedLangCache[cacheKey] = cache;
+                        loadedLangDomains.Add(cacheKey);
+                        api.Logger.Notification($"[vsquest] Loaded {merged.Count} translations from {domain}/lang/{currentLang}/");
+                    }
+                }
+                catch (Exception e)
+                {
+                    api.Logger.Warning($"[vsquest] Could not load nested language files from '{domain}': {e.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a translation from nested language files if available.
+        /// </summary>
+        public static string GetFromNested(string langKey)
+        {
+            if (string.IsNullOrEmpty(langKey)) return null;
+
+            // Try all loaded language caches
+            foreach (var cache in nestedLangCache.Values)
+            {
+                if (cache.TryGetValue(langKey, out var value))
+                    return value;
+            }
+
+            return null;
+        }
 
         public static void LoadFromAssets(ICoreAPI api)
         {
@@ -49,9 +158,20 @@ namespace VsQuest
         {
             if (string.IsNullOrEmpty(langKey)) return "";
 
+            // First check nested language files
+            var nested = GetFromNested(langKey);
+            if (nested != null) return nested;
+
             try
             {
-                return Lang.Get(langKey);
+                var result = Lang.Get(langKey);
+                return result;
+            }
+            catch (FormatException)
+            {
+                // String contains format placeholders but no args provided
+                // Return the raw translation without formatting
+                return Lang.Get(langKey, false);
             }
             catch
             {
@@ -62,6 +182,25 @@ namespace VsQuest
         public static string GetSafe(string langKey, params object[] args)
         {
             if (string.IsNullOrEmpty(langKey)) return "";
+
+            // First check nested language files
+            var nested = GetFromNested(langKey);
+            if (nested != null)
+            {
+                // Apply string formatting if args provided
+                if (args != null && args.Length > 0)
+                {
+                    try
+                    {
+                        return string.Format(nested, args);
+                    }
+                    catch
+                    {
+                        return nested;
+                    }
+                }
+                return nested;
+            }
 
             try
             {

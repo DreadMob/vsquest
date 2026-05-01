@@ -24,6 +24,56 @@ namespace VsQuest.Harmony.Items
             }
         }
 
+        [HarmonyPatch(typeof(CollectibleBehaviorWearable), "TryMergeStacks")]
+        public class CollectibleBehaviorWearable_TryMergeStacks_CustomRepair_Patch
+        {
+            public static void Prefix(CollectibleBehaviorWearable __instance, ItemStackMergeOperation op, ref EnumHandling handling)
+            {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return;
+                
+                // Only handle items with custom repairItemCode
+                if (op?.SinkSlot?.Itemstack == null || op.SourceSlot?.Itemstack == null) return;
+                if (!HasCustomRepairItem(op.SinkSlot.Itemstack)) return;
+                
+                // Try custom repair
+                try
+                {
+                    if (TryHandleCustomItemRepair(op))
+                    {
+                        handling = EnumHandling.PreventDefault;
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    // If repair fails, let vanilla handle it
+                    System.Console.WriteLine($"[vsquest] Custom repair failed: {ex.Message}");
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(CollectibleBehaviorWearable), "GetMergableQuantity")]
+        public class CollectibleBehaviorWearable_GetMergableQuantity_CustomRepair_Patch
+        {
+            public static void Postfix(CollectibleBehaviorWearable __instance, ItemStack sinkStack, ItemStack sourceStack, EnumMergePriority priority, ref int __result, ref EnumHandling handling)
+            {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return;
+                
+                // Only handle items with custom repairItemCode
+                if (sinkStack == null || sourceStack == null) return;
+                if (!HasCustomRepairItem(sinkStack)) return;
+                
+                // If vanilla returned 0 but we can repair, return 1
+                if (__result == 0 && priority == EnumMergePriority.DirectMerge)
+                {
+                    if (CanRepairWithCustomItem(sinkStack, sourceStack, out _))
+                    {
+                        __result = 1;
+                        handling = EnumHandling.PreventDefault;
+                    }
+                }
+            }
+        }
+
         // ItemWearable merge patches removed - obsolete in 1.22
         // ItemWearable inherits TryMergeStacks/GetMergableQuantity from CollectibleObject
         // The CollectibleObject patch above handles all items including wearables
@@ -153,7 +203,13 @@ namespace VsQuest.Harmony.Items
             if (!CanRepairWithCustomItem(sinkStack, sourceStack, out float repairStrength)) return false;
 
             // Repair the item
-            float currentCondition = sinkStack.Attributes.GetFloat("condition", 1f);
+            // Initialize condition if it doesn't exist
+            if (!sinkStack.Attributes.HasAttribute("condition"))
+            {
+                sinkStack.Attributes.SetFloat("condition", 0f);
+            }
+            
+            float currentCondition = sinkStack.Attributes.GetFloat("condition", 0f);
             float newCondition = System.Math.Min(1f, currentCondition + repairStrength);
             sinkStack.Attributes.SetFloat("condition", newCondition);
             op.MovedQuantity = 1;
@@ -169,7 +225,10 @@ namespace VsQuest.Harmony.Items
 
             // Check if sink item has repairItemCode attribute
             var repairItemAttr = sinkStack.ItemAttributes?["repairItemCode"];
-            if (repairItemAttr == null || !repairItemAttr.Exists) return false;
+            if (repairItemAttr == null || !repairItemAttr.Exists)
+            {
+                return false;
+            }
 
             string repairItemCode;
             
@@ -190,14 +249,22 @@ namespace VsQuest.Harmony.Items
 
             // Check if source item matches the repair item code
             string sourceCode = sourceStack.Collectible.Code.ToString();
-            if (!string.Equals(sourceCode, repairItemCode, System.StringComparison.OrdinalIgnoreCase) &&
-                !sourceCode.EndsWith(repairItemCode, System.StringComparison.OrdinalIgnoreCase))
+            string sourcePath = sourceStack.Collectible.Code.Path;
+            
+            // Match against full code or path only
+            bool matches = string.Equals(sourceCode, repairItemCode, System.StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(sourcePath, repairItemCode, System.StringComparison.OrdinalIgnoreCase) ||
+                          sourceCode.EndsWith(":" + repairItemCode, System.StringComparison.OrdinalIgnoreCase) ||
+                          sourceCode.EndsWith(repairItemCode, System.StringComparison.OrdinalIgnoreCase);
+            
+            if (!matches)
             {
                 return false;
             }
 
             // Check if item needs repair (condition < 1.0)
-            float condition = sinkStack.Attributes.GetFloat("condition", 1f);
+            // If condition attribute doesn't exist, assume it needs repair
+            float condition = sinkStack.Attributes.GetFloat("condition", 0f);
             return condition < 1f;
         }
 
@@ -209,8 +276,16 @@ namespace VsQuest.Harmony.Items
         private static bool HasCustomRepairItem(ItemStack sinkStack)
         {
             if (sinkStack?.ItemAttributes == null) return false;
-            var repairItemAttr = sinkStack.ItemAttributes["repairItemCode"];
-            return repairItemAttr != null && repairItemAttr.Exists;
+            
+            try
+            {
+                var repairItemAttr = sinkStack.ItemAttributes["repairItemCode"];
+                return repairItemAttr != null && repairItemAttr.Exists;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
