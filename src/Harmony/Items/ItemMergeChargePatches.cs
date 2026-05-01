@@ -12,12 +12,46 @@ namespace VsQuest.Harmony.Items
     {
         // Static API reference set by QuestSystem
         public static ICoreAPI API;
+
+        [HarmonyPatch(typeof(CollectibleObject), "GetMergableQuantity")]
+        public class CollectibleObject_GetMergableQuantity_CustomMerge_Patch
+        {
+            public static bool Prefix(
+                CollectibleObject __instance,
+                ItemStack sinkStack,
+                ItemStack sourceStack,
+                EnumMergePriority priority,
+                ref int __result)
+            {
+                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return true;
+                if (priority != EnumMergePriority.DirectMerge) return true;
+                if (sinkStack == null || sourceStack == null) return true;
+
+                // Allow direct merge when custom repair material matches and item is not fully repaired yet.
+                if (CanRepairWithCustomItem(sinkStack, sourceStack, out _))
+                {
+                    __result = 1;
+                    return false;
+                }
+
+                // Ensure special charge paths can also enter TryMergeStacks on newer VS merge flow.
+                if (CanChargeSecondChance(sinkStack, sourceStack) || CanChargeCryptSightMask(sinkStack, sourceStack))
+                {
+                    __result = 1;
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
         [HarmonyPatch(typeof(CollectibleObject), "TryMergeStacks")]
         public class CollectibleObject_TryMergeStacks_SecondChanceCharge_Patch
         {
             public static bool Prefix(CollectibleObject __instance, ItemStackMergeOperation op)
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return true;
+                if (op?.CurrentPriority != EnumMergePriority.DirectMerge) return true;
                 
                 API?.Logger.Debug($"[vsquest] TryMergeStacks called: sink={op?.SinkSlot?.Itemstack?.Collectible?.Code}, source={op?.SourceSlot?.Itemstack?.Collectible?.Code}");
                 
@@ -239,12 +273,11 @@ namespace VsQuest.Harmony.Items
 
             string repairItemCode;
             
-            // Check if repairItemCode is an object with code and strength
-            // In Vintage Story, parsed JSON objects become ITreeAttribute, not JObject
-            if (repairItemAttr is Vintagestory.API.Datastructures.ITreeAttribute obj && obj.HasAttribute("code"))
+            // ItemAttributes are JsonObject (collectible JSON), so object form is read via JsonObject keys.
+            if (repairItemAttr["code"]?.Exists == true)
             {
-                repairItemCode = obj.GetString("code");
-                repairStrength = obj.GetFloat("strength", 1f);
+                repairItemCode = repairItemAttr["code"].AsString(null);
+                repairStrength = repairItemAttr["strength"]?.AsFloat(1f) ?? 1f;
             }
             else
             {

@@ -13,7 +13,7 @@
       ],
       "blockMove": false,
       "blockEquip": true,
-      "blockDrop": false,
+      "blockDrop": true,
       "blockDeath": false,
       "blockGroundStorage": false,
       "showAttributes": [],
