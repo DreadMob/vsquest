@@ -647,6 +647,8 @@ namespace VsQuest
 
             if (pitchMul <= 0f) pitchMul = 1f;
 
+            float range = stage.soundRange > 0f ? stage.soundRange : 32f;
+
             if (stage.soundStartMs > 0)
             {
                 sapi.Event.RegisterCallback(_ =>
@@ -658,7 +660,7 @@ namespace VsQuest
 
                         float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
                         pitch *= pitchMul;
-                        sapi.World.PlaySoundAt(soundLoc, entity.Pos.X, entity.Pos.Y, entity.Pos.Z, null, pitch, volume);
+                        sapi.World.PlaySoundAt(soundLoc, entity.Pos.X, entity.Pos.Y, entity.Pos.Z, null, pitch, range, volume);
                     }
                     catch
                     {
@@ -674,7 +676,7 @@ namespace VsQuest
 
                     float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
                     pitch *= pitchMul;
-                    sapi.World.PlaySoundAt(soundLoc, entity.Pos.X, entity.Pos.Y, entity.Pos.Z, null, pitch, volume);
+                    sapi.World.PlaySoundAt(soundLoc, entity.Pos.X, entity.Pos.Y, entity.Pos.Z, null, pitch, range, volume);
                 }
                 catch
                 {

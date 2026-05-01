@@ -174,13 +174,11 @@ namespace VsQuest.Harmony.Items
             string repairItemCode;
             
             // Check if repairItemCode is an object with code and strength
-            if (repairItemAttr.Token is Newtonsoft.Json.Linq.JObject obj)
+            // In Vintage Story, parsed JSON objects become ITreeAttribute, not JObject
+            if (repairItemAttr is Vintagestory.API.Datastructures.ITreeAttribute obj && obj.HasAttribute("code"))
             {
-                repairItemCode = obj["code"]?.ToString();
-                if (obj["strength"] != null)
-                {
-                    repairStrength = (float)obj["strength"];
-                }
+                repairItemCode = obj.GetString("code");
+                repairStrength = obj.GetFloat("strength", 1f);
             }
             else
             {

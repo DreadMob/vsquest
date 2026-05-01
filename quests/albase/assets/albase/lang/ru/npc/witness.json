@@ -1,0 +1,19 @@
+{
+  "_comment": "Witness (Свидетель) - NPC диалоги и общие строки",
+
+  "dialogue-witness-aboutserver": "Что есть на сервере?",
+  "dialogue-witness-aboutserver-answer": "Четыре человека — четыре дороги.\n\nТрактирщик — даёт работу и репутацию. Любит тишину и результат.\n\nСвященник — хранит обряд перерождения. Если докажешься делом — откроет тебе один шанс на .charsel.\n\nОхотник на боссов — ведёт охоты в крипты. Он даёт цели и объясняет, как выжить там, где камень помнит кровь.\n\nКазначей — считает чужие ошибки, как монеты. У него покупают расширения приватов и число зон — но он любит экзамены.",
+  "dialogue-witness-close-answer": "Иди. Я подожду.",
+  "dialogue-witness-closechoice": "Я вернусь позже.",
+  "dialogue-witness-intro": "Свидетель молчит, но его взгляд тяжелее слов.",
+  "dialogue-witness-introduction-final-option": "Понял.",
+  "dialogue-witness-introduction-final-text": "Помни. Здесь ценятся дела, а не рассказы.",
+  "dialogue-witness-introduction-final-title": "Свидетель",
+  "dialogue-witness-openquests": "Мне нужна работа.",
+  "dialogue-witness-openquests-confirm": "Говори, что нужно сделать.",
+  "dialogue-witness-whoareyou": "Кто ты?",
+  "dialogue-witness-whoareyou-answer": "Я наблюдаю и запоминаю. Этого достаточно.",
+
+  "no-quest-available-witness": "У Свидетеля сейчас нет работы.",
+  "tradingwindow-witness": "Свидетель"
+}

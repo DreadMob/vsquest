@@ -1,0 +1,6 @@
+{
+  "_comment": "Innkeeper - Общие строки для квестов",
+
+  "innkeeper-title": "Трактирщик",
+  "innkeeper-randomkill-notify": "{0}x {1}"
+}

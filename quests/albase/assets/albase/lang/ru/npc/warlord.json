@@ -1,0 +1,22 @@
+{
+  "_comment": "Warlord (Кассий Железный) - NPC диалоги и общие строки",
+
+  "dialogue-warlord-intro": "Ты пришёл к Кассию Железному. Я помню каждого воина, что стоял на арене. Кого-то — с честью, кого-то — с позором.",
+  "dialogue-warlord-whoareyou": "Кто ты такой?",
+  "dialogue-warlord-whoareyou-answer": "Я — Кассий Железный. Когда-то сам ходил в походы, сам ломал копья о чужие щиты. Теперь я судья арены. Те, кто проходят через мои испытания — становятся легендами. Остальные — пыль на ветру.",
+  "dialogue-warlord-aboutarena": "Расскажи об арене",
+  "dialogue-warlord-aboutarena-answer": "Арена — это не просто место для боя. Это испытание духа, силы и мастерства. Здесь закаляются легенды, и здесь же ломаются слабые. Каждый воин, ступающий на эти камни, пишет свою историю. Вопрос лишь в том, будет ли она достойной.",
+  "dialogue-warlord-leaderboard-confirm": "Вот имена величайших воинов арены:",
+  "dialogue-warlord-leaderboard": "Кто сильнейшие воители?",
+  "dialogue-warlord-quests-confirm": "Время испытаний. Выбери свой путь:",
+  "dialogue-warlord-quests": "Дай задание, Кассий",
+  "dialogue-warlord-stats-confirm": "Вот твоя боевая летопись:",
+  "dialogue-warlord-stats": "Расскажи о моих победах",
+  "dialogue-warlord-close-answer": "Ступай. Арена ждёт.",
+  "dialogue-warlord-close": "До встречи",
+
+  "no-quest-available-warlord": "У меня нет для тебя заданий. Продолжай тренироваться, воин.",
+  "no-quest-available-warlord-cooldown": "Ты ещё не готов к новому испытанию. Подожди немного.",
+  "tradingwindow-warlord": "Кассий Железный",
+  "warlord-randomkill-notify": "Жатва: {0}x {1}"
+}

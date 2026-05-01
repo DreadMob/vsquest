@@ -1,6 +1,7 @@
 {
   "id": "albase:warlord-firstblood",
   "cooldown": -1,
+  "predecessor": "albase:warlord-intro",
   "perPlayer": true,
   "onAcceptedActions": [
     {
@@ -11,6 +12,13 @@
       ]
     },
     {
+      "id": "resetwalkdistance",
+      "args": [
+        "albase:warlord-firstblood",
+        "1"
+      ]
+    },
+    {
       "id": "addjournalentry",
       "args": [
         "albase:warlord",
@@ -18,24 +26,63 @@
         "albase:warlord-firstblood-title",
         "albase:warlord-firstblood-journal-text"
       ]
-    }
-  ],
-  "watchedattributeobjectives": [
+    },
     {
-      "attribute": "alegacy_duel_participations",
-      "operator": ">=",
-      "quantity": 1,
-      "code": "firstblood"
+      "id": "randomkill",
+      "args": [
+        "2",
+        "1",
+        "4",
+        "albase:warlord-randomkill-notify",
+        "playsound 'albase:sounds/priest_target' 0.25",
+        "playsound 'sounds/tutorialstepsuccess' 0.7",
+        "drifter-normal",
+        "drifter-deep",
+        "shiver",
+        "bowtorn"
+      ]
     }
   ],
+  "actionObjectives": [
+    {
+      "id": "randomkill",
+      "args": [
+        "albase:warlord-firstblood",
+        "0"
+      ]
+    },
+    {
+      "id": "randomkill",
+      "args": [
+        "albase:warlord-firstblood",
+        "1"
+      ]
+    },
+    {
+      "id": "walkdistance",
+      "args": [
+        "albase:warlord-firstblood",
+        "800"
+      ]
+    }
+  ],
+  "killObjectives": [],
   "itemRewards": [
     {
       "itemCode": "game:gear-rusty",
-      "amount": 3
+      "amount": 4
     },
     {
       "itemCode": "game:meatcured",
-      "amount": 12
+      "amount": 16
+    },
+    {
+      "itemCode": "game:cheese-hard",
+      "amount": 4
+    },
+    {
+      "itemCode": "game:bandage-clean",
+      "amount": 4
     }
   ],
   "actionRewards": [
@@ -44,7 +91,7 @@
       "args": [
         "npc",
         "albase:warlord",
-        "50"
+        "75"
       ]
     },
     {
@@ -57,9 +104,9 @@
     {
       "id": "showquestfinaldialog",
       "args": [
-        "albase:warlord-final-title",
+        "albase:warlord-firstblood-final-title",
         "albase:warlord-firstblood-final-text",
-        "albase:warlord-final-option"
+        "albase:warlord-firstblood-final-option"
       ]
     },
     {

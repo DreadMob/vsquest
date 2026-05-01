@@ -1,0 +1,13 @@
+{
+  "_comment": "Innkeeper - Квест 'Огни в ночи'",
+
+  "innkeeper-nightrunhunt-title": "Трактирщик: Огни в ночи",
+  "innkeeper-nightrunhunt-desc": "Ночью лес оживает. Те, кто не любит свет очага, подбираются слишком близко к окнам.\n\nПройдись по ночному тракту. Убей всё, что смотрит на трактир голодными глазами.",
+  "innkeeper-nightrunhunt-journal-text": "Ночной патруль. Трактирщик не хочет, чтобы его гости становились ужином для лесного зверья или чего похуже. Нужно зачистить окрестности под покровом темноты.",
+  "innkeeper-nightrunhunt-journal-title": "Трактирщик",
+  "innkeeper-nightrunhunt-obj": "",
+  "innkeeper-nightrunhunt-reward": "Трактирщик: Вернулся живым. Неплохо. Завтра будет спокойнее.",
+  "innkeeper-nightrunhunt-reward-journal-text": "Ночная зачистка прошла успешно. Тени вокруг трактира больше не шевелятся. Трактирщик выдал награду и сразу вернулся к своим делам.",
+  "innkeeper-nightrunhunt-reward-journal-title": "Трактирщик",
+  "innkeeper-nightrunhunt-final-text": "Ночь прошла спокойно. Твоя заслуга. Забирай награду."
+}

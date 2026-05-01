@@ -1,0 +1,16 @@
+{
+  "_comment": "Reputation — Boss Hunter",
+
+  "reputation-npc-bosshunter-title": "Boss Hunter",
+
+  "reputation-bosshunter-rank-0": "Stranger",
+  "reputation-bosshunter-rank-500": "Mark Walker",
+  "reputation-bosshunter-rank-1500": "Guest of the Ossuary",
+
+  "reputation-bosshunt-mask-req": "Complete all hunts",
+  "reputation-bosshunt-mask-title": "Mask of Salvation",
+
+  "reputation-reward-title-albase-bosshunter-300": "Crypt Sight",
+  "reputation-reward-title-albase-bosshunter-500": "Spark Boots",
+  "reputation-reward-title-albase-bosshunter-1500": "Uranium"
+}

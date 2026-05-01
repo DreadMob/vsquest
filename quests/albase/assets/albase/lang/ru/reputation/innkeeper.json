@@ -1,0 +1,16 @@
+{
+  "_comment": "Репутация — Трактирщик",
+
+  "reputation-npc-innkeeper-title": "Трактирщик",
+
+  "reputation-innkeeper-rank-0": "Постоялец",
+  "reputation-innkeeper-rank-500": "Тихая рука",
+  "reputation-innkeeper-rank-1000": "Завсегдатай",
+  "reputation-innkeeper-rank-1500": "Человек дела",
+  "reputation-innkeeper-rank-2000": "Свой человек",
+
+  "reputation-reward-title-albase-innkeeper-500": "Тихая рука",
+  "reputation-reward-title-albase-innkeeper-1000": "Завсегдатай",
+  "reputation-reward-title-albase-innkeeper-1500": "Человек дела",
+  "reputation-reward-title-albase-innkeeper-2000": "Уран"
+}

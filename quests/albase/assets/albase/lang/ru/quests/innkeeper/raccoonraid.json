@@ -1,0 +1,13 @@
+{
+  "_comment": "Innkeeper - Квест 'Мелкий погромщик'",
+
+  "innkeeper-raccoonraid-title": "Трактирщик: Мелкий погромщик",
+  "innkeeper-raccoonraid-desc": "Ночью у трактира начали крутиться волки. Гости нервничают, лошади рвутся с привязи, а хозяин злится.\n\nУбери хищников подальше от стен. Быстро и без лишней суеты.",
+  "innkeeper-raccoonraid-journal-text": "Волки шастают рядом с трактиром. Нужно убрать их, пока кто-то из гостей не стал добычей.",
+  "innkeeper-raccoonraid-journal-title": "Трактирщик",
+  "innkeeper-raccoonraid-obj": "",
+  "innkeeper-raccoonraid-reward": "Трактирщик: Волки ушли — и хорошо. Держи свою долю.",
+  "innkeeper-raccoonraid-reward-journal-text": "Волки больше не кружат у трактира. Ночь будет спокойнее. Трактирщик заплатил без лишних слов.",
+  "innkeeper-raccoonraid-reward-journal-title": "Трактирщик",
+  "innkeeper-raccoonraid-final-text": "Тише стало. Значит, справился. Держи."
+}

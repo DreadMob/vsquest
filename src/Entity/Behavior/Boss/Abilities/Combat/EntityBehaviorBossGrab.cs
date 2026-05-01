@@ -515,6 +515,8 @@ namespace VsQuest
                 entity?.Api?.Logger?.Error($"[vsquest] Exception in TryPlaySound volume adjustment: {ex}");
             }
 
+            float range = stage.soundRange > 0f ? stage.soundRange : 32f;
+
             if (stage.soundStartMs > 0)
             {
                 sapi.Event.RegisterCallback(_ =>
@@ -522,7 +524,7 @@ namespace VsQuest
                     try
                     {
                         float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, range, volume);
                     }
                     catch (Exception ex)
                     {
@@ -535,7 +537,7 @@ namespace VsQuest
                 try
                 {
                     float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
+                    sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, range, volume);
                 }
                 catch (Exception ex)
                 {

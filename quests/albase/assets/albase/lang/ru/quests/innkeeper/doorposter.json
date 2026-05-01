@@ -1,0 +1,13 @@
+{
+  "_comment": "Innkeeper - Квест 'Грязная писанина'",
+
+  "innkeeper-doorposter-title": "Трактирщик: Грязная писанина",
+  "innkeeper-doorposter-desc": "Какой-то шутник марает дверь заведения дурацкими листовками. Трактирщик не ценит народное творчество.\n\nНайди этого грамотея. Объясни ему, что бумага лучше горит в печи, чем висит на его дверях.",
+  "innkeeper-doorposter-journal-text": "Трактирщик в ярости, хоть и сохраняет каменное лицо. Нужно вычислить того, кто клеит записки на дверь, и доходчиво объяснить правила приличия.",
+  "innkeeper-doorposter-journal-title": "Трактирщик",
+  "innkeeper-doorposter-obj": "",
+  "innkeeper-doorposter-reward": "Трактирщик: Чисто. Если он снова возьмется за перо — сломай ему пальцы. Ступай.",
+  "innkeeper-doorposter-reward-journal-text": "Писака больше не марает бумагу. Дверь чиста, хозяин спокоен.",
+  "innkeeper-doorposter-reward-journal-title": "Трактирщик",
+  "innkeeper-doorposter-final-text": "Дверь чистая. Глаз радуется. Свободен."
+}

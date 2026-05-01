@@ -15,18 +15,28 @@
       "type": "talk",
       "text": [
         { "value": "albase:dialogue-warlord-quests", "jumpTo": "openquests" },
+        { "value": "albase:dialogue-warlord-whoareyou", "jumpTo": "whoareyou" },
+        { "value": "albase:dialogue-warlord-aboutarena", "jumpTo": "aboutarena" },
         { "value": "albase:dialogue-warlord-stats", "jumpTo": "showstats" },
         { "value": "albase:dialogue-warlord-leaderboard", "jumpTo": "showleaderboard" },
-        { "value": "albase:dialogue-warlord-about", "jumpTo": "aboutarena" },
         { "value": "albase:dialogue-warlord-close", "jumpTo": "close" }
       ]
+    },
+    {
+      "code": "whoareyou",
+      "owner": "npc",
+      "type": "talk",
+      "text": [
+        { "value": "albase:dialogue-warlord-whoareyou-answer" }
+      ],
+      "jumpTo": "main"
     },
     {
       "code": "aboutarena",
       "owner": "npc",
       "type": "talk",
       "text": [
-        { "value": "albase:dialogue-warlord-about-answer" }
+        { "value": "albase:dialogue-warlord-aboutarena-answer" }
       ],
       "jumpTo": "main"
     },

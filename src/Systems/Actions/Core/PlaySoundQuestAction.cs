@@ -39,12 +39,12 @@ namespace VsQuest
 
             if (args.Length >= 3 && float.TryParse(args[2], NumberStyles.Float, CultureInfo.InvariantCulture, out float pitch))
             {
-                api.World.PlaySoundFor(sound, byPlayer, pitch, volume);
+                api.World.PlaySoundFor(sound, byPlayer, pitch, 32f, volume);
                 return;
             }
 
             float randomPitch = (float)api.World.Rand.NextDouble() * 0.5f + 0.75f;
-            api.World.PlaySoundFor(sound, byPlayer, randomPitch, volume);
+            api.World.PlaySoundFor(sound, byPlayer, randomPitch, 32f, volume);
         }
     }
 }

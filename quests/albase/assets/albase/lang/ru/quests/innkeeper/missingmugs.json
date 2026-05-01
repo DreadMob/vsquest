@@ -1,0 +1,13 @@
+{
+  "_comment": "Innkeeper - Квест 'Учет посуды'",
+
+  "innkeeper-missingmugs-title": "Трактирщик: Учет посуды",
+  "innkeeper-missingmugs-desc": "Кружки начали исчезать из зала сами собой. Мистика? Нет, воровство. Трактирщик хочет, чтобы вор подавился последней украденной чашкой.\n\nВыследи, куда девается утварь.",
+  "innkeeper-missingmugs-journal-text": "Мелочь, но неприятно. Кто-то крадет посуду. Нужно проследить за подозрительными гостями и вернуть имущество. Или проучить вора.",
+  "innkeeper-missingmugs-journal-title": "Трактирщик",
+  "innkeeper-missingmugs-obj": "",
+  "innkeeper-missingmugs-reward": "Трактирщик: Нашлись. И вор, надеюсь, больше не ходит. На, за труды.",
+  "innkeeper-missingmugs-reward-journal-text": "Кружки возвращены. Вор проучен. Трактирщик ценит, что я не поднял шум на всю деревню.",
+  "innkeeper-missingmugs-reward-journal-title": "Трактирщик",
+  "innkeeper-missingmugs-final-text": "Посуда на месте. Ты — молодец, если можно так сказать. Бывай."
+}

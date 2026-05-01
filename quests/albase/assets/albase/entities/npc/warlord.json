@@ -66,16 +66,21 @@
       },
       {
         "code": "questgiver",
+        "reputationnpc": "albase:warlord",
         "alwaysquests": [
-          "albase:warlord-firstblood"
+          "albase:warlord-intro"
         ],
+        "singlequestatatime": true,
+        "chaincooldowndays": 30,
+        "maxavailablequests": 1,
         "rotationpool": [
+          "albase:warlord-firstblood",
           "albase:warlord-fivewins",
+          "albase:warlord-championpath",
           "albase:warlord-tenunique"
         ],
-        "rotationdays": 60,
+        "rotationdays": 30,
         "rotationcount": 1,
-        "singlequestatatime": true,
         "noAvailableQuestDescLangKey": "albase:no-quest-available-warlord",
         "noAvailableQuestCooldownDescLangKey": "albase:no-quest-available-warlord-cooldown",
         "selectrandom": false,

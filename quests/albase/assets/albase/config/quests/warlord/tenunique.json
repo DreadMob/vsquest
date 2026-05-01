@@ -1,6 +1,7 @@
 {
   "id": "albase:warlord-tenunique",
   "cooldown": -1,
+  "predecessor": "albase:warlord-championpath",
   "perPlayer": true,
   "onAcceptedActions": [
     {
@@ -8,6 +9,13 @@
       "args": [
         "alegacyvsquest:sounds/queacc",
         "0.175"
+      ]
+    },
+    {
+      "id": "resetwalkdistance",
+      "args": [
+        "albase:warlord-tenunique",
+        "1"
       ]
     },
     {
@@ -20,18 +28,57 @@
       ]
     }
   ],
-  "watchedattributeobjectives": [
+  "actionObjectives": [
     {
-      "attribute": "alegacy_duel_participations",
-      "operator": ">=",
-      "quantity": 10,
-      "code": "tenunique"
+      "id": "walkdistance",
+      "objectiveId": "walk",
+      "args": [
+        "albase:warlord-tenunique",
+        "3000"
+      ]
+    },
+    {
+      "id": "timeofday",
+      "args": [
+        "night",
+        "walk"
+      ]
+    }
+  ],
+  "killObjectives": [
+    {
+      "validCodes": [
+        "drifter-nightmare"
+      ],
+      "demand": 3
+    },
+    {
+      "validCodes": [
+        "locust-corrupt"
+      ],
+      "demand": 5
+    },
+    {
+      "validCodes": [
+        "shiver-bellhead"
+      ],
+      "demand": 3
+    },
+    {
+      "validCodes": [
+        "bowtorn-nightmare"
+      ],
+      "demand": 2
     }
   ],
   "itemRewards": [
     {
       "itemCode": "game:ingot-iron",
       "amount": 20
+    },
+    {
+      "itemCode": "game:ingot-steel",
+      "amount": 5
     },
     {
       "itemCode": "game:meatcured",
@@ -65,9 +112,9 @@
     {
       "id": "showquestfinaldialog",
       "args": [
-        "albase:warlord-final-title",
+        "albase:warlord-tenunique-final-title",
         "albase:warlord-tenunique-final-text",
-        "albase:warlord-final-option"
+        "albase:warlord-tenunique-final-option"
       ]
     },
     {

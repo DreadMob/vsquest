@@ -1,0 +1,26 @@
+{
+  "_comment": "Priest (Священник) - NPC диалоги и общие строки",
+
+  "dialogue-priest-aboutblessing": "Расскажите об обряде перерождения.",
+  "dialogue-priest-aboutblessing-answer": "Благословение перерождения — не подарок, а награда за очищение. Ты должен доказать свою готовность сражаться за порядок, уничтожив скверну в окрестностях. Тогда и только тогда двери к новой судьбе откроются.",
+  "dialogue-priest-abouttemple": "Что это за место?",
+  "dialogue-priest-abouttemple-answer": "Это храм Белого Лотоса, приют на Перекрёстке. Здесь сходятся дороги, а усталые путники находят кров и утешение. Для некоторых — и шанс начать всё заново.",
+  "dialogue-priest-changeclass": "Мне нужно изменить свою судьбу. Сменить класс.",
+  "dialogue-priest-close-answer": "Да пребудет с тобой мир. Возвращайся, когда будешь готов.",
+  "dialogue-priest-closechoice": "Я вернусь позже.",
+  "dialogue-priest-final-option": "Благодарю. Я понял.",
+  "dialogue-priest-final-text": "Дело сделано. Благословение на тебе. Используй .charsel, когда будешь готов переродиться. Помни — следующий шанс будет не раньше, чем через 720 дней.",
+  "dialogue-priest-final-title": "Священник",
+  "dialogue-priest-intro": "Мир тебе, странник. Чем могу служить в доме молитвы?",
+  "dialogue-priest-openquests-confirm": "Я готов выслушать.",
+  "dialogue-priest-whoareyou": "Кто вы?",
+  "dialogue-priest-whoareyou-answer": "Я простой служитель в этом храме. Моя задача — напоминать заблудшим, что свет и порядок всё ещё возможны в этом мире, и помогать тем, кто ищет новый путь.",
+
+  "no-quest-available-priest": "Обряд смены класса доступен раз в 720 дней.",
+  "no-quest-available-priest-cooldown": "Обряд смены класса будет доступен через {0} д.",
+  "tradingwindow-priest": "Священник",
+  "game:tradingwindow-priest": "Священник",
+  "game:nametag-священник": "Священник",
+  "item-creature-priest": "Священник",
+  "priest-randomkill-notify": "Очищение: убей {0}x {1}."
+}

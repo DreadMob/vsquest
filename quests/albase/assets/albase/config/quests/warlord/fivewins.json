@@ -1,6 +1,7 @@
 {
   "id": "albase:warlord-fivewins",
   "cooldown": 1440,
+  "predecessor": "albase:warlord-firstblood",
   "perPlayer": true,
   "onAcceptedActions": [
     {
@@ -8,6 +9,13 @@
       "args": [
         "alegacyvsquest:sounds/queacc",
         "0.175"
+      ]
+    },
+    {
+      "id": "resetwalkdistance",
+      "args": [
+        "albase:warlord-fivewins",
+        "1"
       ]
     },
     {
@@ -20,12 +28,36 @@
       ]
     }
   ],
-  "watchedattributeobjectives": [
+  "actionObjectives": [
     {
-      "attribute": "alegacy_duel_wins",
-      "operator": ">=",
-      "quantity": 5,
-      "code": "fivewins"
+      "id": "walkdistance",
+      "args": [
+        "albase:warlord-fivewins",
+        "1500"
+      ]
+    }
+  ],
+  "killObjectives": [
+    {
+      "validCodes": [
+        "drifter-normal",
+        "drifter-deep"
+      ],
+      "demand": 5
+    },
+    {
+      "validCodes": [
+        "shiver",
+        "shiver-stilt"
+      ],
+      "demand": 3
+    },
+    {
+      "validCodes": [
+        "bowtorn",
+        "bowtorn-nightmare"
+      ],
+      "demand": 2
     }
   ],
   "itemRewards": [
@@ -65,9 +97,9 @@
     {
       "id": "showquestfinaldialog",
       "args": [
-        "albase:warlord-final-title",
+        "albase:warlord-fivewins-final-title",
         "albase:warlord-fivewins-final-text",
-        "albase:warlord-final-option"
+        "albase:warlord-fivewins-final-option"
       ]
     },
     {

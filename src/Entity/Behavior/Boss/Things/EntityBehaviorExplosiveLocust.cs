@@ -363,7 +363,7 @@ namespace VsQuest
                         float volume = explodeSoundVolume;
                         if (volume <= 0f) volume = 1f;
                         float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, range, volume);
                     }
                 }
             }

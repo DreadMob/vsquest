@@ -1,0 +1,13 @@
+{
+  "_comment": "Innkeeper - Квест 'Лишние люди'",
+
+  "innkeeper-badcustomers-title": "Трактирщик: Лишние люди",
+  "innkeeper-badcustomers-desc": "Некоторые путают порядочное заведение с хлевом. Трактирщик не любит пьяный ор и тех, кто не знает меры.\n\nВыпроводи нежеланных личностей подальше от стен. Сделай так, чтобы возвращаться им не захотелось.",
+  "innkeeper-badcustomers-journal-text": "«Мусор нужно выносить вовремя». Трактирщик указал на сброд, ошивающийся поблизости. Нужно решить вопрос радикально, но без свидетелей.",
+  "innkeeper-badcustomers-journal-title": "Трактирщик",
+  "innkeeper-badcustomers-obj": "",
+  "innkeeper-badcustomers-reward": "Трактирщик: Меньше вони — крепче сон. На, заслужил.",
+  "innkeeper-badcustomers-reward-journal-text": "Дебоширы ушли, тишина вернулась. Трактирщик молча кивнул — это высшая форма его благодарности.",
+  "innkeeper-badcustomers-reward-journal-title": "Трактирщик",
+  "innkeeper-badcustomers-final-text": "Выставил их без лишнего шума. Ценю. Держи припасы. Проваливай."
+}

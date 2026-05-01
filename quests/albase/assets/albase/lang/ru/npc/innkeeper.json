@@ -1,0 +1,23 @@
+{
+  "_comment": "Innkeeper (Трактирщик) - NPC диалоги и общие строки",
+
+  "dialogue-innkeeper-aboutplace": "Что за место? Уютно у тебя.",
+  "dialogue-innkeeper-aboutplace-answer": "Трактир. Стены крепкие, эль холодный, похлебка горячая. Лишних вопросов не задаем, должников не любим. Тебе еще что-то разжевать?",
+  "dialogue-innkeeper-close-answer": "Дверью не хлопай. Бесит.",
+  "dialogue-innkeeper-closechoice": "Мне пора.",
+  "dialogue-innkeeper-intro": "Чего зенки пялишь? Пить будешь или так пришел?",
+  "dialogue-innkeeper-openquests-confirm": "Говори. И не растягивай.",
+  "dialogue-innkeeper-whoareyou": "Ты тут за главного?",
+  "dialogue-innkeeper-whoareyou-answer": "Хозяин. Держу «Угли и Амброзию». Тут едят и спят. Если собрался орать песни или махать железом — вылетишь быстрее, чем договоришь. Понял?",
+  "dialogue-innkeeper-whyso": "Чего такой хмурый? Словно покойника встретил.",
+  "dialogue-innkeeper-whyso-answer": "А чему радоваться? Очередному герою в сверкающих доспехах? От вас только шум и битая посуда. Посмотрим, что ты за человек, тогда и скалься.",
+  "dialogue-innkeeper-work": "Есть работа?",
+
+  "no-quest-available-innkeeper": "Трактирщик: Работы нет. Ступай, не мозоль глаза.",
+  "no-quest-available-innkeeper-cooldown": "Трактирщик: Сказал же — через {0} дн. Я дважды не повторяю.",
+  "tradingwindow-innkeeper": "Трактирщик",
+  "game:nametag-трактирщик": "Трактирщик",
+
+  "dialogue-innkeeper-final-option": "Понял.",
+  "dialogue-innkeeper-final-title": "Трактирщик"
+}
