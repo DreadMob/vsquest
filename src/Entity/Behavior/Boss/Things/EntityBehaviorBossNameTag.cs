@@ -137,22 +137,25 @@ namespace VsQuest
             {
                 if (nameLangKey.IndexOf(':') >= 0)
                 {
-                    text = Lang.GetIfExists(nameLangKey);
+                    text = LocalizationUtils.GetSafe(nameLangKey);
                 }
                 else
                 {
                     string domain = entity?.Code?.Domain;
                     if (!string.IsNullOrWhiteSpace(domain))
                     {
-                        text = Lang.GetIfExists(domain + ":" + nameLangKey);
+                        text = LocalizationUtils.GetSafe(domain + ":" + nameLangKey);
                     }
 
                     text = text
-                        ?? Lang.GetIfExists(nameLangKey)
-                        ?? Lang.GetIfExists("game:" + nameLangKey);
+                        ?? LocalizationUtils.GetSafe(nameLangKey)
+                        ?? LocalizationUtils.GetSafe("game:" + nameLangKey);
                 }
 
-                text ??= nameLangKey;
+                if (string.IsNullOrWhiteSpace(text) || string.Equals(text, nameLangKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    text = nameLangKey;
+                }
             }
             else if (!string.IsNullOrWhiteSpace(rawName))
             {

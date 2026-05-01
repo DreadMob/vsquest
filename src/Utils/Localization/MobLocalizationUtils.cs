@@ -198,14 +198,15 @@ namespace VsQuest
                 string t;
                 if (!string.IsNullOrWhiteSpace(domain) && key.IndexOf(':') < 0)
                 {
-                    t = Lang.Get(domain + ":" + key);
-                    if (!string.IsNullOrWhiteSpace(t) && !string.Equals(t, domain + ":" + key, StringComparison.OrdinalIgnoreCase))
+                    string fullKey = domain + ":" + key;
+                    t = LocalizationUtils.GetSafe(fullKey);
+                    if (!string.IsNullOrWhiteSpace(t) && !string.Equals(t, fullKey, StringComparison.OrdinalIgnoreCase))
                     {
                         return t;
                     }
                 }
 
-                t = Lang.Get(key);
+                t = LocalizationUtils.GetSafe(key);
                 if (!string.IsNullOrWhiteSpace(t) && !string.Equals(t, key, StringComparison.OrdinalIgnoreCase))
                 {
                     return t;

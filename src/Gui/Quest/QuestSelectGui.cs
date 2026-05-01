@@ -630,7 +630,7 @@ namespace VsQuest
 
                         {
 
-                            text = Lang.Get(noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft, noAvailableQuestRotationDaysLeft);
+                            text = LocalizationUtils.GetSafe(noAvailableQuestCooldownDescLangKey, noAvailableQuestCooldownDaysLeft, noAvailableQuestRotationDaysLeft);
 
                         }
 
@@ -644,7 +644,7 @@ namespace VsQuest
 
                             int value = noAvailableQuestCooldownDaysLeft > 0 ? noAvailableQuestCooldownDaysLeft : noAvailableQuestRotationDaysLeft;
 
-                            text = Lang.Get(noAvailableQuestCooldownDescLangKey, value);
+                            text = LocalizationUtils.GetSafe(noAvailableQuestCooldownDescLangKey, value);
 
                         }
 
@@ -656,7 +656,7 @@ namespace VsQuest
 
                         text = !string.IsNullOrWhiteSpace(noAvailableQuestDescLangKey)
 
-                            ? Lang.Get(noAvailableQuestDescLangKey)
+                            ? LocalizationUtils.GetSafe(noAvailableQuestDescLangKey)
 
                             : Lang.Get("alegacyvsquest:no-quest-available-desc");
 
@@ -912,7 +912,7 @@ namespace VsQuest
 
 
 
-                    string req = Lang.Get("alegacyvsquest:reputation-value-template", rr.min);
+                    string req = LocalizationUtils.GetSafe("alegacyvsquest:reputation-value-template", rr.min);
 
                     if (!string.IsNullOrWhiteSpace(rr.rankLangKey))
 
@@ -922,7 +922,7 @@ namespace VsQuest
 
                         {
 
-                            title = Lang.Get(rr.rankLangKey);
+                            title = LocalizationUtils.GetSafe(rr.rankLangKey);
 
                         }
 

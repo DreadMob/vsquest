@@ -27,9 +27,13 @@ namespace VsQuest.Harmony
                     return true;
                 }
 
-                if (__instance.GetBehavior<EntityBehaviorQuestBoss>() == null
-                    && __instance.GetBehavior<EntityBehaviorQuestTarget>() == null
-                    && __instance.GetBehavior<EntityBehaviorBoss>() == null)
+                bool hasQuestOrBossBehavior =
+                    __instance.GetBehavior<EntityBehaviorQuestBoss>() != null
+                    || __instance.GetBehavior<EntityBehaviorQuestTarget>() != null
+                    || __instance.GetBehavior<EntityBehaviorBoss>() != null;
+
+                // For alstory entities we want localization even without special quest/boss behaviors.
+                if (!hasQuestOrBossBehavior && !isQuestDomain)
                 {
                     return true;
                 }

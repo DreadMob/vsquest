@@ -32,14 +32,14 @@ namespace VsQuest
 
             if (!string.IsNullOrWhiteSpace(rankKey))
             {
-                string rankText = Lang.Get(rankKey);
+                string rankText = LocalizationUtils.GetSafe(rankKey);
                 if (!string.IsNullOrWhiteSpace(rankText))
                 {
                     return $"{rankText}: {repValue}";
                 }
             }
 
-            return Lang.Get("alegacyvsquest:reputation-value-template", repValue);
+            return LocalizationUtils.GetSafe("alegacyvsquest:reputation-value-template", repValue);
         }
 
         internal static string GetRankRewardTitle(ICoreClientAPI capi, string reputationNpcId, ReputationRankRewardStatus rr)
@@ -112,7 +112,7 @@ namespace VsQuest
 
             if (!string.IsNullOrWhiteSpace(rr.rankLangKey))
             {
-                return Lang.Get(rr.rankLangKey);
+                return LocalizationUtils.GetSafe(rr.rankLangKey);
             }
 
             return rr.min.ToString();
