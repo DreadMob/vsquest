@@ -11,5 +11,6 @@
   "dialogue-arena-broker-showregions": "Показать регионы",
   "dialogue-arena-broker-showregions-answer": "Я выкладываю список на общий стол.\n\n Если регионов не видно — значит никто не выставил их на торг. Это не рынок чудес: сначала регион должен быть объявлен, потом — куплен или взят в срок.",
 
+  "tradingwindow-arena-broker": "Арендодатель",
   "game:tradingwindow-arena-broker": "Арендодатель"
 }

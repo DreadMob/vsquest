@@ -175,7 +175,7 @@ namespace VsQuest
                     if (!double.IsNaN(respawnAt) && respawnAt > capi.World.Calendar.TotalHours)
                     {
                         double hoursLeft = Math.Max(0, respawnAt - capi.World.Calendar.TotalHours);
-                        text = Lang.Get("alegacyvsquest:boss-respawn-suffix", text, hoursLeft);
+                        text = LocalizationUtils.GetSafe("alegacyvsquest:boss-respawn-suffix", text, hoursLeft);
                     }
                 }
                 catch

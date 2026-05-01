@@ -323,7 +323,7 @@ namespace VsQuest
                         }
                         string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
                         
-                        string discordText = LocalizationUtils.GetSafe("alegacyvsquest:discord-quest-completed");
+                        string discordText = LocalizationUtils.GetSafe("alegacyvsquest:discord-quest-completed", fromPlayer.PlayerName, title);
                         if (string.IsNullOrWhiteSpace(discordText) || string.Equals(discordText, "alegacyvsquest:discord-quest-completed", StringComparison.OrdinalIgnoreCase))
                         {
                             discordText = Lang.Get("alegacyvsquest:quest-completed-broadcast", fromPlayer.PlayerName, title);
@@ -409,7 +409,7 @@ namespace VsQuest
                     }
                     string text = ChatFormatUtil.PrefixAlert(Lang.Get("alegacyvsquest:quest-completed-broadcast", playerName, questName));
                     
-                    string discordText = LocalizationUtils.GetSafe("alegacyvsquest:discord-quest-completed");
+                    string discordText = LocalizationUtils.GetSafe("alegacyvsquest:discord-quest-completed", fromPlayer.PlayerName, title);
                     if (string.IsNullOrWhiteSpace(discordText) || string.Equals(discordText, "alegacyvsquest:discord-quest-completed", StringComparison.OrdinalIgnoreCase))
                     {
                         discordText = Lang.Get("alegacyvsquest:quest-completed-broadcast", fromPlayer.PlayerName, title);
