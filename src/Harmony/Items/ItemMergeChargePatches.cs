@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Vintagestory.API.Common;
+using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
 namespace VsQuest.Harmony.Items
@@ -9,68 +10,46 @@ namespace VsQuest.Harmony.Items
     /// </summary>
     public class ItemMergeChargePatches
     {
+        // Static API reference set by QuestSystem
+        public static ICoreAPI API;
         [HarmonyPatch(typeof(CollectibleObject), "TryMergeStacks")]
         public class CollectibleObject_TryMergeStacks_SecondChanceCharge_Patch
         {
             public static bool Prefix(CollectibleObject __instance, ItemStackMergeOperation op)
             {
                 if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return true;
-                if (TryHandleSecondChanceCharge(op)) return false;
-                if (TryHandleCryptSightMaskCharge(op)) return false;
-                if (TryHandleCustomItemRepair(op)) return false;
+                
+                API?.Logger.Debug($"[vsquest] TryMergeStacks called: sink={op?.SinkSlot?.Itemstack?.Collectible?.Code}, source={op?.SourceSlot?.Itemstack?.Collectible?.Code}");
+                
+                // Try custom repair first (for items with repairItemCode)
+                if (TryHandleCustomItemRepair(op))
+                {
+                    API?.Logger.Notification($"[vsquest] Custom repair handled");
+                    return false;
+                }
+                
+                // Try Second Chance charge
+                if (TryHandleSecondChanceCharge(op))
+                {
+                    API?.Logger.Notification($"[vsquest] Second Chance charge handled");
+                    return false;
+                }
+                
+                // Try Crypt Sight Mask charge
+                if (TryHandleCryptSightMaskCharge(op))
+                {
+                    API?.Logger.Notification($"[vsquest] Crypt Sight charge handled");
+                    return false;
+                }
+                
                 // Block vanilla repair if item has custom repairItemCode
-                if (HasCustomRepairItem(op?.SinkSlot?.Itemstack)) return false;
+                if (HasCustomRepairItem(op?.SinkSlot?.Itemstack))
+                {
+                    API?.Logger.Debug($"[vsquest] Blocking vanilla repair (has custom repairItemCode)");
+                    return false;
+                }
+                
                 return true;
-            }
-        }
-
-        [HarmonyPatch(typeof(CollectibleBehaviorWearable), "TryMergeStacks")]
-        public class CollectibleBehaviorWearable_TryMergeStacks_CustomRepair_Patch
-        {
-            public static void Prefix(CollectibleBehaviorWearable __instance, ItemStackMergeOperation op, ref EnumHandling handling)
-            {
-                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return;
-                
-                // Only handle items with custom repairItemCode
-                if (op?.SinkSlot?.Itemstack == null || op.SourceSlot?.Itemstack == null) return;
-                if (!HasCustomRepairItem(op.SinkSlot.Itemstack)) return;
-                
-                // Try custom repair
-                try
-                {
-                    if (TryHandleCustomItemRepair(op))
-                    {
-                        handling = EnumHandling.PreventDefault;
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    // If repair fails, let vanilla handle it
-                    System.Console.WriteLine($"[vsquest] Custom repair failed: {ex.Message}");
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(CollectibleBehaviorWearable), "GetMergableQuantity")]
-        public class CollectibleBehaviorWearable_GetMergableQuantity_CustomRepair_Patch
-        {
-            public static void Postfix(CollectibleBehaviorWearable __instance, ItemStack sinkStack, ItemStack sourceStack, EnumMergePriority priority, ref int __result, ref EnumHandling handling)
-            {
-                if (!VsQuest.HarmonyPatchSwitches.ItemEnabled(VsQuest.HarmonyPatchSwitches.Item_CollectibleObject_TryMergeStacks_SecondChanceCharge)) return;
-                
-                // Only handle items with custom repairItemCode
-                if (sinkStack == null || sourceStack == null) return;
-                if (!HasCustomRepairItem(sinkStack)) return;
-                
-                // If vanilla returned 0 but we can repair, return 1
-                if (__result == 0 && priority == EnumMergePriority.DirectMerge)
-                {
-                    if (CanRepairWithCustomItem(sinkStack, sourceStack, out _))
-                    {
-                        __result = 1;
-                        handling = EnumHandling.PreventDefault;
-                    }
-                }
             }
         }
 
@@ -90,6 +69,9 @@ namespace VsQuest.Harmony.Items
             op.MovedQuantity = 1;
             op.SourceSlot.TakeOut(1);
             op.SinkSlot.MarkDirty();
+            
+            API?.Logger.Notification($"[vsquest] Second Chance mask charged: {sinkStack.Collectible.Code}");
+            
             return true;
         }
 
@@ -107,6 +89,9 @@ namespace VsQuest.Harmony.Items
             op.MovedQuantity = 1;
             op.SourceSlot.TakeOut(1);
             op.SinkSlot.MarkDirty();
+            
+            API?.Logger.Notification($"[vsquest] Crypt Sight mask charged: {sinkStack.Collectible.Code} ({hours:F1} hours)");
+            
             return true;
         }
 
@@ -115,7 +100,11 @@ namespace VsQuest.Harmony.Items
             if (sinkStack?.Attributes == null || sourceStack?.Collectible?.Code == null) return false;
 
             // Check if this is a Second Chance mask by item code
-            if (!IsSecondChanceMask(sinkStack.Collectible.Code)) return false;
+            if (!IsSecondChanceMask(sinkStack.Collectible.Code))
+            {
+                API?.Logger.Debug($"[vsquest] Not a Second Chance mask: {sinkStack.Collectible.Code}");
+                return false;
+            }
 
             string chargeKey = ItemAttributeUtils.GetKey(ItemAttributeUtils.AttrSecondChanceCharges);
             // Initialize attribute if missing (for items from creative inventory)
@@ -124,11 +113,26 @@ namespace VsQuest.Harmony.Items
                 sinkStack.Attributes.SetFloat(chargeKey, 0f);
             }
 
-            if (!IsDiamondRough(sourceStack.Collectible.Code)) return false;
-            if (!HasHighPotential(sourceStack)) return false;
+            if (!IsDiamondRough(sourceStack.Collectible.Code))
+            {
+                API?.Logger.Debug($"[vsquest] Source is not diamond-rough: {sourceStack.Collectible.Code}");
+                return false;
+            }
+            
+            if (!HasHighPotential(sourceStack))
+            {
+                API?.Logger.Debug($"[vsquest] Diamond does not have high potential");
+                return false;
+            }
 
             float charges = ItemAttributeUtils.GetAttributeFloat(sinkStack, ItemAttributeUtils.AttrSecondChanceCharges, 0f);
-            return charges < 0.5f;
+            if (charges >= 0.5f)
+            {
+                API?.Logger.Debug($"[vsquest] Mask already charged: {charges}");
+                return false;
+            }
+            
+            return true;
         }
 
         private static bool CanChargeCryptSightMask(ItemStack sinkStack, ItemStack sourceStack)
@@ -215,6 +219,9 @@ namespace VsQuest.Harmony.Items
             op.MovedQuantity = 1;
             op.SourceSlot.TakeOut(1);
             op.SinkSlot.MarkDirty();
+            
+            API?.Logger.Notification($"[vsquest] Item repaired: {sinkStack.Collectible.Code} ({currentCondition:F2} -> {newCondition:F2}) using {sourceStack.Collectible.Code}");
+            
             return true;
         }
 
@@ -259,13 +266,20 @@ namespace VsQuest.Harmony.Items
             
             if (!matches)
             {
+                API?.Logger.Debug($"[vsquest] Source item doesn't match repair code: {sourceCode} != {repairItemCode}");
                 return false;
             }
 
             // Check if item needs repair (condition < 1.0)
             // If condition attribute doesn't exist, assume it needs repair
             float condition = sinkStack.Attributes.GetFloat("condition", 0f);
-            return condition < 1f;
+            if (condition >= 1f)
+            {
+                API?.Logger.Debug($"[vsquest] Item already at max condition: {condition}");
+                return false;
+            }
+            
+            return true;
         }
 
         private static bool CanRepairWithCustomItem(ItemStack sinkStack, ItemStack sourceStack)

@@ -117,6 +117,9 @@ namespace VsQuest
             var harmony = new HarmonyLib.Harmony("alegacyvsquest");
             /* Centralized patch entry-point; individual patches decide whether they activate. */
             harmony.PatchAll();
+            
+            // Set API reference for ItemMergeChargePatches logging
+            VsQuest.Harmony.Items.ItemMergeChargePatches.API = api;
 
             LocalizationUtils.LoadFromAssets(api);
             LocalizationUtils.LoadNestedLanguageFiles(api);

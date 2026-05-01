@@ -71,7 +71,9 @@
         ],
         "quests": [
           "albase:treasurer-buy-allowance",
-          "albase:treasurer-buy-maxareas"
+          "albase:treasurer-buy-maxareas",
+          "albase:treasurer-buy-allowance-large",
+          "albase:treasurer-buy-maxareas-large"
         ],
         "singlequestatatime": true,
         "noAvailableQuestDescLangKey": "albase:no-quest-available-treasurer",

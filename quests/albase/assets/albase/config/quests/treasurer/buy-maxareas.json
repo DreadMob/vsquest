@@ -56,6 +56,13 @@
       "args": []
     },
     {
+      "id": "playsound",
+      "args": [
+        "game:sounds/effect/cashregister",
+        "0.35"
+      ]
+    },
+    {
       "id": "notify",
       "args": [
         "albase:treasurer-buy-maxareas-reward"
