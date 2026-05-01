@@ -582,7 +582,7 @@ namespace VsQuest
 
                             availableQuestIds.ToArray(),
 
-                            availableQuestIds.ConvertAll(id => Lang.Get(id + "-title")).ToArray(),
+                            availableQuestIds.ConvertAll(id => LocalizationUtils.GetSafe(id + "-title")).ToArray(),
 
                             selectedIndex,
 
@@ -700,7 +700,7 @@ namespace VsQuest
 
                     string[] activeQuestKeys = activeQuests.ConvertAll(q => ActiveQuestKey(q)).ToArray();
 
-                    string[] activeQuestTitles = activeQuests.ConvertAll(q => Lang.Get(q.questId + "-title")).ToArray();
+                    string[] activeQuestTitles = activeQuests.ConvertAll(q => LocalizationUtils.GetSafe(q.questId + "-title")).ToArray();
 
                     int selected = Math.Max(0, Array.IndexOf(activeQuestKeys, selectedActiveQuestKey));
 
@@ -1208,7 +1208,7 @@ namespace VsQuest
 
         {
 
-            string text = Lang.Get(questId + "-desc");
+            string text = LocalizationUtils.GetSafe(questId + "-desc");
 
             string extra = BuildLandClaimExtraText(questId);
 
