@@ -90,14 +90,14 @@ namespace VsQuest
             var tabsList = new List<GuiTab>();
             for (int i = 0; i < tabLangKeys.Length; i++)
             {
-                tabsList.Add(new GuiTab() { Name = Lang.Get(tabLangKeys[i]), DataInt = i });
+                tabsList.Add(new GuiTab() { Name = LocalizationUtils.GetSafe(tabLangKeys[i]), DataInt = i });
             }
 
             GuiTab[] tabs = tabsList.ToArray();
 
             SingleComposer = capi.Gui.CreateCompo("ServerInfoDialog-", dialogBounds)
                 .AddShadedDialogBG(bgBounds)
-                .AddDialogTitleBar(Lang.Get("albase:herald-gui-title"), () => TryClose())
+                .AddDialogTitleBar(LocalizationUtils.GetSafe("albase:herald-gui-title"), () => TryClose())
                 .AddVerticalTabs(tabs, tabsBounds, OnTabClicked, "tabs")
                 .BeginChildElements(bgBounds);
 
@@ -106,9 +106,9 @@ namespace VsQuest
             SingleComposer
                 .AddVerticalScrollbar(OnNewScrollbarvalue, scrollbarBounds, "scrollbar")
                 .BeginClip(clippingBounds)
-                    .AddRichtext(Lang.Get(bodyLangKeys[curTab]), CairoFont.WhiteSmallishText(), textBounds, "infotext")
+                    .AddRichtext(LocalizationUtils.GetSafe(bodyLangKeys[curTab]), CairoFont.WhiteSmallishText(), textBounds, "infotext")
                 .EndClip()
-                .AddButton(Lang.Get("alegacyvsquest:button-cancel"), TryClose, buttonBounds);
+                .AddButton(LocalizationUtils.GetSafe("alegacyvsquest:button-cancel"), TryClose, buttonBounds);
 
             SingleComposer.EndChildElements().Compose();
 

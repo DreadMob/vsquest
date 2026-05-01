@@ -10,6 +10,7 @@ namespace VsQuest
 {
     public static class LocalizationUtils
     {
+        private static ICoreAPI lastApi;
         private static Dictionary<string, string> displayNameMap;
         // Custom storage for nested language files: domain:lang -> key -> value
         private static Dictionary<string, Dictionary<string, string>> nestedLangCache = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
@@ -22,6 +23,7 @@ namespace VsQuest
         public static void LoadNestedLanguageFiles(ICoreAPI api)
         {
             if (api == null) return;
+            lastApi = api;
 
             string currentLang = Lang.CurrentLocale ?? "en";
             string altLang = currentLang.Contains("-") ? currentLang.Split('-')[0] : currentLang;
@@ -36,19 +38,54 @@ namespace VsQuest
 
                 try
                 {
-                    // Try to load from lang/{currentLang}/ folder structure
-                    var langAssets = api.Assets.GetMany($"lang/{currentLang}/", domain, loadAsset: true);
-                    if ((langAssets == null || !langAssets.Any()) && altLang != currentLang)
+                    var langAssets = new List<IAsset>();
+
+                    // Primary probe
+                    var direct = api.Assets.GetMany($"lang/{currentLang}/", domain, loadAsset: true);
+                    if (direct != null) langAssets.AddRange(direct);
+
+                    // Recursive probe (covers nested folders reliably)
+                    var locations = api.Assets.GetLocations($"lang/{currentLang}/", domain);
+                    if (locations != null)
                     {
-                        langAssets = api.Assets.GetMany($"lang/{altLang}/", domain, loadAsset: true);
+                        foreach (var loc in locations)
+                        {
+                            var asset = api.Assets.TryGet(loc, loadAsset: true);
+                            if (asset != null) langAssets.Add(asset);
+                        }
+                    }
+
+                    // Fallback to short locale (ru from ru-RU)
+                    if ((langAssets.Count == 0) && altLang != currentLang)
+                    {
+                        direct = api.Assets.GetMany($"lang/{altLang}/", domain, loadAsset: true);
+                        if (direct != null) langAssets.AddRange(direct);
+
+                        locations = api.Assets.GetLocations($"lang/{altLang}/", domain);
+                        if (locations != null)
+                        {
+                            foreach (var loc in locations)
+                            {
+                                var asset = api.Assets.TryGet(loc, loadAsset: true);
+                                if (asset != null) langAssets.Add(asset);
+                            }
+                        }
                     }
 
                     if (langAssets == null || !langAssets.Any()) continue;
 
+                    // De-dup by asset location (GetMany + GetLocations may overlap)
+                    var uniqueAssets = langAssets
+                        .Where(a => a?.Location != null)
+                        .GroupBy(a => a.Location.ToShortString(), StringComparer.OrdinalIgnoreCase)
+                        .Select(g => g.First())
+                        .ToList();
+
                     var merged = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var asset in langAssets)
+                    foreach (var asset in uniqueAssets)
                     {
                         if (asset == null) continue;
+                        if (!asset.Location.Path.EndsWith(".json", StringComparison.OrdinalIgnoreCase)) continue;
                         try
                         {
                             // Read as text and parse to handle BOM correctly
@@ -91,7 +128,6 @@ namespace VsQuest
                         }
                         nestedLangCache[cacheKey] = cache;
                         loadedLangDomains.Add(cacheKey);
-                        api.Logger.Notification($"[vsquest] Loaded {merged.Count} translations from {domain}/lang/{currentLang}/");
                     }
                 }
                 catch (Exception e)
@@ -108,6 +144,19 @@ namespace VsQuest
         {
             if (string.IsNullOrEmpty(langKey)) return null;
 
+            // Locale may not be finalized when early startup loaders run.
+            // Retry loading with the current locale on demand.
+            if (lastApi != null)
+            {
+                try
+                {
+                    LoadNestedLanguageFiles(lastApi);
+                }
+                catch
+                {
+                }
+            }
+
             // Try all loaded language caches
             foreach (var cache in nestedLangCache.Values)
             {
@@ -116,6 +165,13 @@ namespace VsQuest
             }
 
             return null;
+        }
+
+        public static string GetDialogueText(string langKey)
+        {
+            if (string.IsNullOrEmpty(langKey)) return "";
+            var result = GetFromNested(langKey);
+            return result ?? langKey;
         }
 
         public static void LoadFromAssets(ICoreAPI api)
@@ -220,6 +276,32 @@ namespace VsQuest
             }
 
             return GetSafe(fallbackLangKey);
+        }
+
+        public static string GetSafeParams(string langKey, params object[] args)
+        {
+            return GetSafe(langKey, args);
+        }
+
+        public static string GetSafeMatching(string langKey, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(langKey)) return fallback ?? "";
+            string value = GetSafe(langKey);
+            if (string.IsNullOrWhiteSpace(value) || string.Equals(value, langKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return fallback ?? "";
+            }
+            return value;
+        }
+
+        public static string GetSafeMatchingParams(string langKey, params object[] args)
+        {
+            string value = GetSafe(langKey, args);
+            if (string.IsNullOrWhiteSpace(value) || string.Equals(value, langKey, StringComparison.OrdinalIgnoreCase))
+            {
+                return langKey ?? "";
+            }
+            return value;
         }
 
         public static string GetMobDisplayName(string code)

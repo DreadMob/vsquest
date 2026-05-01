@@ -110,7 +110,7 @@ namespace VsQuest
 
             player = capi.World.Player;
 
-            closeGuiAfterAcceptingAndCompleting = questConfig.CloseGuiAfterAcceptingAndCompleting;
+            closeGuiAfterAcceptingAndCompleting = questConfig?.CloseGuiAfterAcceptingAndCompleting ?? false;
 
             ApplyData(message);
 

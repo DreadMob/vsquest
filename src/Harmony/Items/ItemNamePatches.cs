@@ -1,5 +1,9 @@
 using HarmonyLib;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 
 namespace VsQuest.Harmony.Items
 {
@@ -8,6 +12,27 @@ namespace VsQuest.Harmony.Items
     /// </summary>
     public class ItemNamePatches
     {
+        [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemName")]
+        public class CollectibleObject_GetHeldItemName_Localization_Patch
+        {
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = new List<CodeInstruction>(instructions);
+                var getSafeMatchingParamsMethod = typeof(LocalizationUtils).GetMethod("GetSafeMatchingParams", new[] { typeof(string), typeof(object[]) });
+
+                for (int i = 0; i < codes.Count; i++)
+                {
+                    if (codes[i].opcode != OpCodes.Call && codes[i].opcode != OpCodes.Callvirt) continue;
+                    if (codes[i].operand is not MethodInfo called || called.DeclaringType != typeof(Lang)) continue;
+                    if (called.Name != "GetMatching") continue;
+
+                    codes[i] = new CodeInstruction(OpCodes.Call, getSafeMatchingParamsMethod);
+                }
+
+                return codes;
+            }
+        }
+
         [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemName")]
         public class CollectibleObject_GetHeldItemName_ActionItem_ItemizerName_Patch
         {
