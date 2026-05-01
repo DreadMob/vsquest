@@ -17,7 +17,8 @@ namespace VsQuest.Harmony
 
                 // Cheap domain check first before expensive GetBehavior calls
                 string domain = __instance.Code?.Domain;
-                bool isQuestDomain = string.Equals(domain, "alstory", StringComparison.OrdinalIgnoreCase);
+                bool isQuestDomain = string.Equals(domain, "alstory", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(domain, "albase", StringComparison.OrdinalIgnoreCase);
                 bool isQuestTargetDomain = string.Equals(domain, "vsquest", StringComparison.OrdinalIgnoreCase) ||
                                           string.Equals(domain, "alegacyvsquest", StringComparison.OrdinalIgnoreCase);
                 
@@ -32,7 +33,7 @@ namespace VsQuest.Harmony
                     || __instance.GetBehavior<EntityBehaviorQuestTarget>() != null
                     || __instance.GetBehavior<EntityBehaviorBoss>() != null;
 
-                // For alstory entities we want localization even without special quest/boss behaviors.
+                // For alstory/albase entities we want localization even without special quest/boss behaviors.
                 if (!hasQuestOrBossBehavior && !isQuestDomain)
                 {
                     return true;

@@ -82,13 +82,6 @@ namespace VsQuest
 
             string normalized = NormalizeMobCode(code);
 
-            // Some call sites pass a localization key instead of an entity code
-            // (e.g. "albase:item-creature-ashenlurker"). Resolve such keys directly first.
-           /* string explicitLang = TryResolveExplicitLangKey(code, normalized, domain);
-            if (!string.IsNullOrWhiteSpace(explicitLang))
-            {
-                return explicitLang;
-            }*/
 
             // 1) mobdisplaynames.json overrides (exact only)
             if (displayNameMap != null && displayNameMap.TryGetValue(normalized, out var exactOverride) && !string.IsNullOrWhiteSpace(exactOverride))
@@ -132,50 +125,6 @@ namespace VsQuest
             return fallback;
         }
 
-      /*  private static string TryResolveExplicitLangKey(string original, string normalized, string domain)
-        {
-            string resolved = TryResolveSingleExplicitLangKey(original, domain);
-            if (!string.IsNullOrWhiteSpace(resolved)) return resolved;
-
-            if (!string.Equals(original, normalized, StringComparison.OrdinalIgnoreCase))
-            {
-                resolved = TryResolveSingleExplicitLangKey(normalized, domain);
-                if (!string.IsNullOrWhiteSpace(resolved)) return resolved;
-            }
-
-            return null;
-        }
-
-        private static string TryResolveSingleExplicitLangKey(string keyOrCode, string domain)
-        {
-            if (string.IsNullOrWhiteSpace(keyOrCode)) return null;
-
-            bool looksLikeLangKey =
-                keyOrCode.IndexOf(':') >= 0
-                || keyOrCode.StartsWith("item-creature-", StringComparison.OrdinalIgnoreCase)
-                || keyOrCode.StartsWith("prefixandcreature-", StringComparison.OrdinalIgnoreCase)
-                || keyOrCode.StartsWith("item-dead-creature-", StringComparison.OrdinalIgnoreCase);
-
-            if (!looksLikeLangKey) return null;
-
-            string direct = LocalizationUtils.GetSafe(keyOrCode);
-            if (!string.IsNullOrWhiteSpace(direct) && !string.Equals(direct, keyOrCode, StringComparison.OrdinalIgnoreCase))
-            {
-                return direct;
-            }
-
-            if (keyOrCode.IndexOf(':') < 0 && !string.IsNullOrWhiteSpace(domain))
-            {
-                string full = domain + ":" + keyOrCode;
-                string withDomain = LocalizationUtils.GetSafe(full);
-                if (!string.IsNullOrWhiteSpace(withDomain) && !string.Equals(withDomain, full, StringComparison.OrdinalIgnoreCase))
-                {
-                    return withDomain;
-                }
-            }
-
-            return null;
-        }*/
 
         public static string GetMobDisplayName(Entity entity)
         {

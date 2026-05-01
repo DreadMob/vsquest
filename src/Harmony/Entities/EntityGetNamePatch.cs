@@ -15,7 +15,8 @@ namespace VsQuest.Harmony
                 if (__instance == null) return true;
 
                 string domain = __instance.Code?.Domain;
-                bool isQuestDomain = string.Equals(domain, "alstory", StringComparison.OrdinalIgnoreCase);
+                bool isQuestDomain = string.Equals(domain, "alstory", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(domain, "albase", StringComparison.OrdinalIgnoreCase);
                 bool isQuestTargetDomain = string.Equals(domain, "vsquest", StringComparison.OrdinalIgnoreCase) ||
                                            string.Equals(domain, "alegacyvsquest", StringComparison.OrdinalIgnoreCase);
 
