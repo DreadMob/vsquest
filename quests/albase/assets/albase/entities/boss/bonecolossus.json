@@ -11,8 +11,15 @@
     "killedByInfoText": "deadcreature-eaten-large",
     "deadEntityCode": "albase:item-dead-creature-bonecolossus",
     "reckless": true,
-    "vsquestSoundPitchMul": 0.4,
-    "SoundVolumeMulBySound": { "albase:bosshunt_1": 0.36, "albase:magic-sparkling": 0.36, "albase:dark-magic-charge-up": 0.36, "albase:shock-sound-effect-horror": 0.36 },
+    "vsquestSoundPitchMul": 0.75,
+    "SoundVolumeMulBySound": {
+      "albase:bosshunt_1": 0.36,
+      "albase:magic-sparkling": 0.36,
+      "albase:dark-magic-charge-up": 0.36,
+      "albase:shock-sound-effect-horror": 0.36,
+      "game:creature/wolf/hurt": 4.0,
+      "game:sounds/creature/wolf/hurt": 4.0
+    },
     "alegacyvsquestHideInfoText": true
   },
   "client": {
@@ -109,7 +116,7 @@
             "dashSpeed": 1.6,
             "windupAnimation": "run",
             "dashAnimation": "run",
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundRange": 24,
             "soundStartMs": 150,
             "soundVolume": 0.18
@@ -124,7 +131,7 @@
             "dashSpeed": 1.75,
             "windupAnimation": "run",
             "dashAnimation": "run",
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundRange": 28,
             "soundStartMs": 120,
             "soundVolume": 0.18
@@ -213,9 +220,6 @@
             "lightningFlash": true
           }
         ]
-      },
-      {
-        "code": "bossdynamicscaling", "hpPerPlayer": 100, "regenPerPlayer": 0.5
       },
       {
         "code": "bossdamageinvulnerability"
@@ -310,7 +314,7 @@
             "damagePlayerAtMs": 820,
             "animation": "attack-withwindup",
             "animationSpeed": 1.2,
-            "sound": "game:creature/wolf/attack"
+            "sound": "game:creature/wolf/attack1"
           },
           {
             "code": "meleeattack",
@@ -327,7 +331,7 @@
             "damagePlayerAtMs": 900,
             "animation": "attack-withwindup",
             "animationSpeed": 1.0,
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundStartMs": 250,
             "whenInEmotionState": "bonecolossus-rage|bonecolossus-unstable"
           },
@@ -346,7 +350,7 @@
             "damagePlayerAtMs": 900,
             "animation": "attack-withwindup",
             "animationSpeed": 0.9,
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundStartMs": 250,
             "whenInEmotionState": "bonecolossus-unstable"
           },
@@ -365,7 +369,7 @@
             "damagePlayerAtMs": 720,
             "animation": "attack-withwindup",
             "animationSpeed": 1.05,
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundStartMs": 200,
             "whenInEmotionState": "bonecolossus-rage|bonecolossus-unstable"
           },

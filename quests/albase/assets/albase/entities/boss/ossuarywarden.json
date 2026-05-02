@@ -113,9 +113,6 @@
         ]
       },
       {
-        "code": "bossdynamicscaling", "hpPerPlayer": 140, "regenPerPlayer": 0.6
-      },
-      {
         "code": "bossdamageinvulnerability"
       },
       {

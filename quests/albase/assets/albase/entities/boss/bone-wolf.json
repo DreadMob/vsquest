@@ -10,6 +10,10 @@
   "attributes": {
     "killedByInfoText": "deadcreature-eaten-large",
     "deadEntityCode": "albase:item-dead-creature-bone-wolf",
+    "SoundVolumeMulBySound": {
+      "game:creature/wolf/hurt": 4.0,
+      "game:sounds/creature/wolf/hurt": 4.0
+    },
     "alegacyvsquestHideInfoText": true
   },
   "client": {
@@ -67,7 +71,7 @@
             "attackDurationMs": 600,
             "animation": "attack",
             "animationSpeed": 1.5,
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundRange": 16,
             "soundStartMs": 100,
             "soundVolume": 0.25

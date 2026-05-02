@@ -311,7 +311,7 @@
             "maxPlayerMotion": 0.22,
             "windupAnimation": "hit",
             "pullAnimation": "attack",
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundRange": 24,
             "soundStartMs": 120,
             "soundVolume": 0.2
@@ -391,7 +391,7 @@
             "dashDirection": "side",
             "windupAnimation": "hit",
             "dashAnimation": "run",
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundRange": 20,
             "soundStartMs": 120,
             "soundVolume": 0.18
@@ -482,7 +482,7 @@
             "damageTier": 3,
             "damageType": "PiercingAttack",
             "trapInvulnerable": false,
-            "sound": "game:creature/wolf/attack",
+            "sound": "game:creature/wolf/attack1",
             "soundRange": 22,
             "soundStartMs": 120,
             "soundVolume": 0.18,
