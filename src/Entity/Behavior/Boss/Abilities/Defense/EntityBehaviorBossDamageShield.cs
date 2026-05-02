@@ -331,6 +331,7 @@ namespace VsQuest
         {
             if (sapi == null || stage == null) return;
             if (string.IsNullOrWhiteSpace(stage.sound)) return;
+            float range = stage.soundRange > 0f ? stage.soundRange : 24f;
 
             AssetLocation soundLoc = AssetLocation.Create(stage.sound, "game").WithPathPrefixOnce("sounds/");
             if (soundLoc == null) return;
@@ -341,8 +342,9 @@ namespace VsQuest
                 {
                     try
                     {
+                        if (!shieldActive || entity == null || !entity.Alive) return;
                         float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, 1f);
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, range, 1f);
                     }
                     catch (Exception ex)
                     {
@@ -354,8 +356,9 @@ namespace VsQuest
             {
                 try
                 {
+                    if (!shieldActive || entity == null || !entity.Alive) return;
                     float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, 1f);
+                    sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, range, 1f);
                 }
                 catch (Exception ex)
                 {

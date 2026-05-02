@@ -982,6 +982,7 @@ namespace VsQuest
 
             float volume = stage.soundVolume;
             if (volume <= 0f) volume = 1f;
+            float range = stage.soundRange > 0f ? stage.soundRange : DefaultSoundRange;
 
             if (stage.soundStartMs > 0)
             {
@@ -989,8 +990,9 @@ namespace VsQuest
                 {
                     try
                     {
+                        if (entity == null || !entity.Alive) return;
                         float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
+                        sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, range, volume);
                     }
                     catch (Exception ex)
                     {
@@ -1002,8 +1004,9 @@ namespace VsQuest
             {
                 try
                 {
+                    if (entity == null || !entity.Alive) return;
                     float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                    sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, volume);
+                    sapi.World.PlaySoundAt(soundLoc, entity, null, pitch, range, volume);
                 }
                 catch (Exception ex)
                 {

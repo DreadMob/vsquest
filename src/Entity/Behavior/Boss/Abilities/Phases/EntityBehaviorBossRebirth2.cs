@@ -148,6 +148,7 @@ namespace VsQuest
         {
             if (sapi == null) return;
             if (string.IsNullOrWhiteSpace(spawnSound)) return;
+            float range = spawnSoundRange > 0f ? spawnSoundRange : 24f;
 
             AssetLocation soundLoc = AssetLocation.Create(spawnSound, "game").WithPathPrefixOnce("sounds/");
             if (soundLoc == null) return;
@@ -158,8 +159,9 @@ namespace VsQuest
                 {
                     try
                     {
+                        if (entity == null || !entity.Alive) return;
                         float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                        sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, 1f);
+                        sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, range, 1f);
                     }
                     catch
                     {
@@ -170,8 +172,9 @@ namespace VsQuest
 
             try
             {
+                if (entity == null || !entity.Alive) return;
                 float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, 1f);
+                sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, range, 1f);
             }
             catch
             {
@@ -182,6 +185,7 @@ namespace VsQuest
         {
             if (sapi == null) return;
             if (string.IsNullOrWhiteSpace(sound)) return;
+            float range = soundRange > 0f ? soundRange : 24f;
 
             AssetLocation soundLoc = AssetLocation.Create(sound, "game").WithPathPrefixOnce("sounds/");
             if (soundLoc == null) return;
@@ -192,8 +196,9 @@ namespace VsQuest
                 {
                     try
                     {
+                        if (entity == null || !entity.Alive) return;
                         float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                        sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, 1f);
+                        sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, range, 1f);
                     }
                     catch
                     {
@@ -204,8 +209,9 @@ namespace VsQuest
 
             try
             {
+                if (entity == null || !entity.Alive) return;
                 float pitch = (float)sapi.World.Rand.NextDouble() * 0.5f + 0.75f;
-                sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, 1f);
+                sapi.World.PlaySoundAt(soundLoc, pos.X, pos.Y, pos.Z, null, pitch, range, 1f);
             }
             catch
             {
