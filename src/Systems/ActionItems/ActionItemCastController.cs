@@ -5,7 +5,7 @@ using Vintagestory.GameContent;
 
 namespace VsQuest
 {
-    public class ActionItemCastController
+    public class ActionItemCastController : IDisposable
     {
         private readonly ICoreClientAPI capi;
         private readonly IClientNetworkChannel clientChannel;
@@ -212,7 +212,6 @@ namespace VsQuest
             actionItemCastId = actionItemId;
 
             ApplyActionItemCastSlowdown(true);
-            PlayActionItemCastStartSound();
             StartActionItemCastSound();
             StartActionItemCastProgress();
         }
@@ -275,9 +274,10 @@ namespace VsQuest
             {
                 Location = castLoopSound,
                 ShouldLoop = true,
-                RelativePosition = true,
-                DisposeOnFinish = true,
+                RelativePosition = false,
+                DisposeOnFinish = false,
                 Volume = castSoundVolume,
+                Pitch = 1f,
                 Range = castSoundRange
             });
 
@@ -294,7 +294,9 @@ namespace VsQuest
 
             if (actionItemCastSound.HasStopped)
             {
-                actionItemCastSound.Start();
+                // If a loop has stopped unexpectedly, recreate it once to avoid repeated Start() churn.
+                StartActionItemCastSound();
+                return;
             }
 
             actionItemCastSound.SetPosition((float)playerEntity.Pos.X, (float)playerEntity.Pos.InternalY, (float)playerEntity.Pos.Z);
@@ -305,6 +307,7 @@ namespace VsQuest
             if (actionItemCastSound == null) return;
 
             actionItemCastSound.FadeOutAndStop(0.25f);
+            actionItemCastSound.Dispose();
             actionItemCastSound = null;
         }
 
@@ -316,23 +319,20 @@ namespace VsQuest
             if (player?.Entity == null) return;
 
             float pitch = (float)capi.World.Rand.NextDouble() * 0.5f + 0.75f;
-            capi.World.PlaySoundAt(castCompleteSound, player.Entity, null, pitch, 32f, castCompleteSoundVolume);
-        }
-
-        private void PlayActionItemCastStartSound()
-        {
-            if (!ShouldUseActionItemCast(actionItemCastId)) return;
-
-            var player = capi?.World?.Player;
-            if (player?.Entity == null) return;
-
-            float pitch = (float)capi.World.Rand.NextDouble() * 0.5f + 0.75f;
-            capi.World.PlaySoundAt(castLoopSound, player.Entity, null, pitch, 32f, castSoundVolume);
+            capi.World.PlaySoundAt(castCompleteSound, player.Entity, null, pitch, castCompleteSoundRange, castCompleteSoundVolume);
         }
 
         private bool ShouldUseActionItemCast(string actionItemId)
         {
             return string.Equals(actionItemId, castActionItemId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public void Dispose()
+        {
+            CancelActionItemCast();
+            actionItemCastSound?.Stop();
+            actionItemCastSound?.Dispose();
+            actionItemCastSound = null;
         }
     }
 }

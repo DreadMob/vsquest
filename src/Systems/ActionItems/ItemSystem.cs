@@ -30,6 +30,8 @@ namespace VsQuest
 
         private long inventoryScanListenerId = 0;
         private long hotbarEnforceListenerId = 0;
+        private long clientTickListenerId = 0;
+        private Action blockTexturesLoadedHandler;
 
         private ActionItemAttributeResolver attributeResolver;
         private ActionItemCastController castController;
@@ -167,9 +169,9 @@ namespace VsQuest
 
             api.Event.MouseDown += inputHandler.OnMouseDown;
             api.Event.MouseUp += inputHandler.OnMouseUp;
-            api.Event.RegisterGameTickListener(inputHandler.OnClientTick, 20);
+            clientTickListenerId = api.Event.RegisterGameTickListener(inputHandler.OnClientTick, 20);
 
-            api.Event.BlockTexturesLoaded += () =>
+            blockTexturesLoadedHandler = () =>
             {
                 if (creativeTabInjector == null)
                 {
@@ -178,6 +180,7 @@ namespace VsQuest
 
                 creativeTabInjector.Inject(api);
             };
+            api.Event.BlockTexturesLoaded += blockTexturesLoadedHandler;
         }
 
         private void OnHotbarEnforceTick(float dt)
@@ -188,6 +191,49 @@ namespace VsQuest
         private void OnInventoryScanTick(float dt)
         {
             inventoryScanner?.Tick(dt);
+        }
+
+        public override void Dispose()
+        {
+            if (sapi != null)
+            {
+                if (inventoryScanListenerId != 0)
+                {
+                    sapi.Event.UnregisterGameTickListener(inventoryScanListenerId);
+                    inventoryScanListenerId = 0;
+                }
+
+                if (hotbarEnforceListenerId != 0)
+                {
+                    sapi.Event.UnregisterGameTickListener(hotbarEnforceListenerId);
+                    hotbarEnforceListenerId = 0;
+                }
+            }
+
+            if (capi != null)
+            {
+                if (inputHandler != null)
+                {
+                    capi.Event.MouseDown -= inputHandler.OnMouseDown;
+                    capi.Event.MouseUp -= inputHandler.OnMouseUp;
+                }
+
+                if (clientTickListenerId != 0)
+                {
+                    capi.Event.UnregisterGameTickListener(clientTickListenerId);
+                    clientTickListenerId = 0;
+                }
+
+                if (blockTexturesLoadedHandler != null)
+                {
+                    capi.Event.BlockTexturesLoaded -= blockTexturesLoadedHandler;
+                    blockTexturesLoadedHandler = null;
+                }
+            }
+
+            castController?.Dispose();
+            castController = null;
+            inputHandler = null;
         }
     }
 
