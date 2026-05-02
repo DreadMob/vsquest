@@ -31,11 +31,6 @@ namespace VsQuest.Harmony.Players
             // Only trigger if this damage would kill the player
             if (health - damage > 0f) return;
 
-            // Fast check: use cached flag instead of inventory scan
-            const string cacheKey = "alegacyvsquest:secondchance:hasmask";
-            if (!player.WatchedAttributes.GetBool(cacheKey)) return;
-
-            // Now get the actual slot and charges
             if (!SecondChanceHelper.TryGetSecondChanceSlot(player, out var slot)) return;
 
             float charges = SecondChanceHelper.GetSecondChanceCharges(slot.Itemstack);

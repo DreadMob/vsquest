@@ -38,9 +38,6 @@ namespace VsQuest.Harmony.Items
                 var inv = __instance?.Inventory;
                 if (inv?.ClassName != "character") return;
                 
-                // Check if it's a wearable item
-                if (__instance.Itemstack?.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() == null) return;
-                
                 // Find player who owns this inventory
                 var player = FindPlayerFromInventory(inv);
                 if (player?.Entity is EntityPlayer entityPlayer)
@@ -67,9 +64,6 @@ namespace VsQuest.Harmony.Items
                 // Only care about character inventory
                 var inv = __instance?.Inventory;
                 if (inv?.ClassName != "character") return;
-                
-                // Check if it's a wearable item
-                if (__instance.Itemstack?.Collectible.GetCollectibleInterface<Vintagestory.API.Common.IWearable>() == null) return;
                 
                 // Find player who owns this inventory
                 var player = FindPlayerFromInventory(inv);
