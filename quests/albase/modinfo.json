@@ -7,9 +7,9 @@
     "AshenLegacy"
   ],
   "description": "Base quest pack.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "dependencies": {
-    "game": "1.21.6",
+    "game": "1.22.0",
     "alegacyvsquest": "*"
   }
 }
