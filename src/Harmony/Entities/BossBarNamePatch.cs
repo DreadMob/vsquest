@@ -20,7 +20,7 @@ namespace VsQuest.Harmony
                 }
 
                 string key = domain + ":item-creature-" + path;
-                string localized = LocalizationUtils.GetSafe(key);
+                string localized = LocalizationUtils.GetSafeStrictDomains(key);
                 if (!string.IsNullOrWhiteSpace(localized) && !string.Equals(localized, key, StringComparison.OrdinalIgnoreCase))
                 {
                     __result = localized;
@@ -51,7 +51,7 @@ namespace VsQuest.Harmony
             try
             {
                 if (string.IsNullOrWhiteSpace(__result)) return;
-                string localized = LocalizationUtils.GetSafe(__result);
+                string localized = LocalizationUtils.GetSafeStrictDomains(__result);
                 if (!string.IsNullOrWhiteSpace(localized) && !string.Equals(localized, __result, StringComparison.OrdinalIgnoreCase))
                 {
                     __result = localized;

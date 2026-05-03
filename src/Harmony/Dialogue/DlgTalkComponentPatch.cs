@@ -13,7 +13,7 @@ namespace VsQuest.Harmony.Dialogue
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
-            var getSafeParamsMethod = typeof(LocalizationUtils).GetMethod("GetSafeParams", new[] { typeof(string), typeof(object[]) });
+            var getSafeParamsMethod = typeof(LocalizationUtils).GetMethod("GetSafeStrictDomains", new[] { typeof(string), typeof(object[]) });
 
             for (int i = 0; i < codes.Count; i++)
             {

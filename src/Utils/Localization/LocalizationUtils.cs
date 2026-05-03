@@ -296,6 +296,57 @@ namespace VsQuest
             return GetSafe(langKey, args);
         }
 
+        /// <summary>
+        /// Strict split:
+        /// - configured domains -> nested custom localization only
+        /// - all other domains/keys -> native Lang.Get only
+        /// </summary>
+        public static string GetSafeStrictDomains(string langKey, params object[] args)
+        {
+            if (string.IsNullOrWhiteSpace(langKey)) return langKey ?? "";
+
+            string domain = null;
+            int colon = langKey.IndexOf(':');
+            if (colon > 0)
+            {
+                domain = langKey.Substring(0, colon);
+            }
+
+            bool isOurDomain = !string.IsNullOrWhiteSpace(domain) && nestedLocalizationDomains.Contains(domain);
+
+            if (isOurDomain)
+            {
+                var nested = GetFromNested(langKey);
+                if (!string.IsNullOrWhiteSpace(nested))
+                {
+                    if (args != null && args.Length > 0)
+                    {
+                        try
+                        {
+                            return string.Format(nested, args);
+                        }
+                        catch
+                        {
+                            return nested;
+                        }
+                    }
+
+                    return nested;
+                }
+
+                return langKey;
+            }
+
+            try
+            {
+                return Lang.Get(langKey, args);
+            }
+            catch
+            {
+                return langKey;
+            }
+        }
+
         public static string GetSafeMatching(string langKey, string fallback)
         {
             if (string.IsNullOrWhiteSpace(langKey)) return fallback ?? "";

@@ -77,7 +77,7 @@ namespace VsQuest.Harmony
             // Only touch plain key-like values; keep regular info text untouched.
             if (trimmed.Contains(" ") || trimmed.Contains("\n") || trimmed.Contains("\r")) return text;
 
-            string localized = LocalizationUtils.GetSafe(trimmed);
+            string localized = LocalizationUtils.GetSafeStrictDomains(trimmed);
             if (!string.IsNullOrWhiteSpace(localized) && !string.Equals(localized, trimmed, StringComparison.OrdinalIgnoreCase))
             {
                 return localized;
@@ -90,7 +90,7 @@ namespace VsQuest.Harmony
                 if (!string.IsNullOrWhiteSpace(domain))
                 {
                     string full = domain + ":" + trimmed;
-                    localized = LocalizationUtils.GetSafe(full);
+                    localized = LocalizationUtils.GetSafeStrictDomains(full);
                     if (!string.IsNullOrWhiteSpace(localized) && !string.Equals(localized, full, StringComparison.OrdinalIgnoreCase))
                     {
                         return localized;
