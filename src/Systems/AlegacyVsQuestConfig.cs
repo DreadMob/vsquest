@@ -54,6 +54,12 @@ namespace VsQuest
 
 
 		public HarmonyPatchesCoreConfig HarmonyPatches { get; set; } = new HarmonyPatchesCoreConfig();
+		public List<string> NestedLocalizationDomains { get; set; } = new List<string>
+		{
+			"alegacyvsquest",
+			"albase",
+			"alstory"
+		};
 
 		public PerformanceCoreConfig Performance { get; set; } = new PerformanceCoreConfig();
 

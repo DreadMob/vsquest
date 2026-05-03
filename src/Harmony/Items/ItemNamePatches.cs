@@ -18,7 +18,7 @@ namespace VsQuest.Harmony.Items
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
                 var codes = new List<CodeInstruction>(instructions);
-                var getSafeMatchingParamsMethod = typeof(LocalizationUtils).GetMethod("GetSafeMatchingParams", new[] { typeof(string), typeof(object[]) });
+                var getSafeMatchingParamsMethod = typeof(LocalizationUtils).GetMethod("GetSafeMatchingStrictDomains", new[] { typeof(string), typeof(object[]) });
 
                 for (int i = 0; i < codes.Count; i++)
                 {

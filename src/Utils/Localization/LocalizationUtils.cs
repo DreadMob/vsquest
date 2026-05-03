@@ -12,9 +12,22 @@ namespace VsQuest
     {
         private static ICoreAPI lastApi;
         private static Dictionary<string, string> displayNameMap;
+        private static readonly HashSet<string> nestedLocalizationDomains = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         // Custom storage for nested language files: domain:lang -> key -> value
         private static Dictionary<string, Dictionary<string, string>> nestedLangCache = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         private static HashSet<string> loadedLangDomains = new HashSet<string>();
+
+        public static void SetNestedLocalizationDomains(IEnumerable<string> domains)
+        {
+            nestedLocalizationDomains.Clear();
+            if (domains == null) return;
+
+            foreach (var domain in domains)
+            {
+                if (string.IsNullOrWhiteSpace(domain)) continue;
+                nestedLocalizationDomains.Add(domain.Trim());
+            }
+        }
 
         /// <summary>
         /// Loads language files from nested folder structure: lang/{languageCode}/*.json
@@ -302,6 +315,57 @@ namespace VsQuest
                 return langKey ?? "";
             }
             return value;
+        }
+
+        /// <summary>
+        /// Strict split:
+        /// - our domains -> nested custom localization only
+        /// - all other domains/keys -> native Lang.GetMatching only
+        /// </summary>
+        public static string GetSafeMatchingStrictDomains(string langKey, params object[] args)
+        {
+            if (string.IsNullOrWhiteSpace(langKey)) return langKey ?? "";
+
+            string domain = null;
+            int colon = langKey.IndexOf(':');
+            if (colon > 0)
+            {
+                domain = langKey.Substring(0, colon);
+            }
+
+            bool isOurDomain = !string.IsNullOrWhiteSpace(domain) && nestedLocalizationDomains.Contains(domain);
+
+            if (isOurDomain)
+            {
+                var nested = GetFromNested(langKey);
+                if (!string.IsNullOrWhiteSpace(nested))
+                {
+                    if (args != null && args.Length > 0)
+                    {
+                        try
+                        {
+                            return string.Format(nested, args);
+                        }
+                        catch
+                        {
+                            return nested;
+                        }
+                    }
+
+                    return nested;
+                }
+
+                return langKey;
+            }
+
+            try
+            {
+                return Lang.GetMatching(langKey, args);
+            }
+            catch
+            {
+                return langKey;
+            }
         }
 
         public static string GetMobDisplayName(string code)

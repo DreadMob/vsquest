@@ -3,6 +3,11 @@
   "DefaultNotifyOnComplete": true,
   "ShowQuestDescriptionInHover": true,
   "OnlyCustomHoverText": false,
+  "NestedLocalizationDomains": [
+    "alegacyvsquest",
+    "albase",
+    "alstory"
+  ],
   "BossHunt": {
     "Debug": false,
     "SoftResetIdleHours": 1.0,

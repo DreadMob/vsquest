@@ -63,6 +63,7 @@ namespace VsQuest
         {
             Config = LoadOrCreateModConfig<QuestConfig>(api, "questconfig.json");
             CoreConfig = LoadOrCreateModConfig<AlegacyVsQuestConfig>(api, "alegacy-vsquest-config.json");
+            LocalizationUtils.SetNestedLocalizationDomains(CoreConfig.NestedLocalizationDomains);
             HarmonyPatchSwitches.ApplyFromConfig(CoreConfig);
             
             // Initialize performance config
@@ -109,6 +110,7 @@ namespace VsQuest
 
             /* QuestSystem cache (used by other subsystems to safely resolve the active instance). */
             QuestSystemCache.Initialize(api);
+            LoadConfigs(api);
 
             MobLocalizationUtils.LoadFromAssets(api);
 
@@ -130,8 +132,6 @@ namespace VsQuest
             objectiveRegistry.Register();
 
             networkChannelRegistry = new QuestNetworkChannelRegistry(this);
-
-            LoadConfigs(api);
 
             /* discoveryHud is client-only; it will be replaced in StartClientSide when available. */
             notificationHandler = new QuestNotificationHandler(discoveryHud);
