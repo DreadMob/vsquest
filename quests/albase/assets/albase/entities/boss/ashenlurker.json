@@ -342,8 +342,9 @@
             "attackDurationMs": 800,
             "animation": "attack",
             "animationSpeed": 1.8,
-            "sound": "game:creature/locust/saw",
-            "soundStartMs": 1000
+            "sound": "game:sounds/creature/locust/saw",
+            "soundStartMs": 1000,
+            "soundVolume": 3
           },
           {
             "code": "meleeattack",
@@ -360,8 +361,9 @@
             "attackDurationMs": 1200,
             "animation": "rundrill",
             "animationSpeed": 7.5,
-            "sound": "game:creature/locust/saw",
+            "sound": "game:sounds/creature/locust/saw",
             "soundStartMs": 450,
+            "soundVolume": 3,
             "whenInEmotionState": "ashenlurker-frenzy|ashenlurker-overdrive"
           },
           {
@@ -379,8 +381,9 @@
             "attackDurationMs": 900,
             "animation": "rundrill",
             "animationSpeed": 8.5,
-            "sound": "game:creature/locust/saw",
+            "sound": "game:sounds/creature/locust/saw",
             "soundStartMs": 350,
+            "soundVolume": 3,
             "whenInEmotionState": "ashenlurker-overdrive"
           },
           {
@@ -416,8 +419,8 @@
   "idleSoundRange": 32,
   "idleSoundChance": 0.04,
   "sounds": {
-    "hurt": "game:creature/locust/hurt",
-    "death": "game:creature/locust/death",
-    "idle": "game:creature/locust/idle"
+    "hurt": "game:sounds/creature/locust/hurt",
+    "death": "game:sounds/creature/locust/death",
+    "idle": "game:sounds/creature/locust/idle"
   }
 }

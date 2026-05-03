@@ -290,6 +290,7 @@
             "sound": "game:effect/translocate-breakdimension",
             "soundRange": 36,
             "soundStartMs": 0,
+            "soundVolume": 3,
             "spawnDelayMs": 250
           },
           {
@@ -306,6 +307,7 @@
             "sound": "game:effect/translocate-breakdimension",
             "soundRange": 40,
             "soundStartMs": 0,
+            "soundVolume": 3,
             "spawnDelayMs": 220
           }
         ]
@@ -352,8 +354,9 @@
             "attackDurationMs": 1000,
             "animation": "stab",
             "animationSpeed": 2.1,
-            "sound": "game:creature/drifter-hit",
-            "soundStartMs": 400
+            "sound": "game:sounds/creature/drifter-hit",
+            "soundStartMs": 400,
+            "soundVolume": 3
           },
           {
             "code": "getoutofwater",
@@ -420,8 +423,8 @@
   },
   "idleSoundRange": 18,
   "sounds": {
-    "hurt": "game:creature/bowtorn/hurt",
-    "death": "game:creature/bowtorn/death",
-    "idle": "game:creature/bowtorn/idle"
+    "hurt": "game:sounds/creature/bowtorn/hurt",
+    "death": "game:sounds/creature/bowtorn/death",
+    "idle": "game:sounds/creature/bowtorn/idle"
   }
 }

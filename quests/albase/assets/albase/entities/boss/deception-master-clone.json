@@ -301,8 +301,9 @@
             "attackDurationMs": 1000,
             "animation": "swordhit",
             "animationSpeed": 0.9,
-            "sound": "game:creature/drifter-hit",
-            "soundStartMs": 350
+            "sound": "game:sounds/creature/drifter-hit",
+            "soundStartMs": 350,
+            "soundVolume": 3
           },
           {
             "code": "seekentity",
@@ -339,9 +340,9 @@
   },
   "idleSoundRange": 14,
   "sounds": {
-    "hurt": "game:creature/drifter-hurt",
-    "death": "game:creature/drifter-death",
-    "idle": "game:creature/drifter-idle",
-    "attack": "game:creature/drifter-hit"
+    "hurt": "game:sounds/creature/drifter-hurt",
+    "death": "game:sounds/creature/drifter-death",
+    "idle": "game:sounds/creature/drifter-idle",
+    "attack": "game:sounds/creature/drifter-hit"
   }
 }

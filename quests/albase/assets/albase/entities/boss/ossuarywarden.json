@@ -192,8 +192,9 @@
             "attackDurationMs": 1000,
             "animation": "crawlattack",
             "animationSpeed": 1.4,
-            "sound": "game:creature/drifter-hit",
-            "soundStartMs": 400
+            "sound": "game:sounds/creature/drifter-hit",
+            "soundStartMs": 400,
+            "soundVolume": 3
           },
           {
             "code": "meleeattack",
@@ -210,8 +211,9 @@
             "attackDurationMs": 1100,
             "animation": "crawlattack",
             "animationSpeed": 1.35,
-            "sound": "game:creature/drifter-hit",
+            "sound": "game:sounds/creature/drifter-hit",
             "soundStartMs": 320,
+            "soundVolume": 3,
             "whenInEmotionState": "ossuarywarden-ritual|ossuarywarden-requiem"
           },
           {
@@ -229,8 +231,9 @@
             "attackDurationMs": 1000,
             "animation": "crawlattack",
             "animationSpeed": 1.6,
-            "sound": "game:creature/drifter-hit",
+            "sound": "game:sounds/creature/drifter-hit",
             "soundStartMs": 250,
+            "soundVolume": 3,
             "whenInEmotionState": "ossuarywarden-requiem"
           },
           {
@@ -264,8 +267,8 @@
   "idleSoundRange": 32,
   "idleSoundChance": 0.04,
   "sounds": {
-    "hurt": "game:creature/drifter-hurt",
+    "hurt": "game:sounds/creature/drifter-hurt",
     "death": "albase:bosshunt_1",
-    "idle": "game:creature/drifter-idle"
+    "idle": "game:sounds/creature/drifter-idle"
   }
 }

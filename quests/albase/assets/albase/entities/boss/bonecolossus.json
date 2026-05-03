@@ -17,7 +17,7 @@
       "albase:magic-sparkling": 0.36,
       "albase:dark-magic-charge-up": 0.36,
       "albase:shock-sound-effect-horror": 0.36,
-      "game:creature/wolf/hurt": 4.0,
+      "game:sounds/creature/wolf/hurt": 4.0,
       "game:sounds/creature/wolf/hurt": 4.0
     },
     "alegacyvsquestHideInfoText": true
@@ -116,7 +116,7 @@
             "dashSpeed": 1.6,
             "windupAnimation": "run",
             "dashAnimation": "run",
-            "sound": "game:creature/wolf/attack1",
+            "sound": "game:sounds/creature/wolf/attack1",
             "soundRange": 24,
             "soundStartMs": 150,
             "soundVolume": 0.18
@@ -131,7 +131,7 @@
             "dashSpeed": 1.75,
             "windupAnimation": "run",
             "dashAnimation": "run",
-            "sound": "game:creature/wolf/attack1",
+            "sound": "game:sounds/creature/wolf/attack1",
             "soundRange": 28,
             "soundStartMs": 120,
             "soundVolume": 0.18
@@ -183,7 +183,7 @@
             "cooldownSeconds": 18,
             "spawnRange": 9,
             "animation": "howl",
-            "sound": "game:creature/wolf/howl1",
+            "sound": "game:sounds/creature/wolf/howl1",
             "soundRange": 40,
             "soundStartMs": 0,
             "spawnDelayMs": 350
@@ -199,7 +199,7 @@
             "cooldownSeconds": 11,
             "spawnRange": 11,
             "animation": "howl",
-            "sound": "game:creature/wolf/howl1",
+            "sound": "game:sounds/creature/wolf/howl1",
             "soundRange": 45,
             "soundStartMs": 0,
             "spawnDelayMs": 300
@@ -314,7 +314,8 @@
             "damagePlayerAtMs": 820,
             "animation": "attack-withwindup",
             "animationSpeed": 1.2,
-            "sound": "game:creature/wolf/attack1"
+            "sound": "game:sounds/creature/wolf/attack1",
+            "soundVolume": 3
           },
           {
             "code": "meleeattack",
@@ -331,8 +332,9 @@
             "damagePlayerAtMs": 900,
             "animation": "attack-withwindup",
             "animationSpeed": 1.0,
-            "sound": "game:creature/wolf/attack1",
+            "sound": "game:sounds/creature/wolf/attack1",
             "soundStartMs": 250,
+            "soundVolume": 3,
             "whenInEmotionState": "bonecolossus-rage|bonecolossus-unstable"
           },
           {
@@ -350,8 +352,9 @@
             "damagePlayerAtMs": 900,
             "animation": "attack-withwindup",
             "animationSpeed": 0.9,
-            "sound": "game:creature/wolf/attack1",
+            "sound": "game:sounds/creature/wolf/attack1",
             "soundStartMs": 250,
+            "soundVolume": 3,
             "whenInEmotionState": "bonecolossus-unstable"
           },
           {
@@ -369,8 +372,9 @@
             "damagePlayerAtMs": 720,
             "animation": "attack-withwindup",
             "animationSpeed": 1.05,
-            "sound": "game:creature/wolf/attack1",
+            "sound": "game:sounds/creature/wolf/attack1",
             "soundStartMs": 200,
+            "soundVolume": 3,
             "whenInEmotionState": "bonecolossus-rage|bonecolossus-unstable"
           },
           {
@@ -404,8 +408,8 @@
   "idleSoundRange": 32,
   "idleSoundChance": 0.03,
   "sounds": {
-    "hurt": "game:creature/wolf/hurt",
+    "hurt": "game:sounds/creature/wolf/hurt",
     "death": "albase:bosshunt_1",
-    "idle": "game:creature/wolf/howl*"
+    "idle": "game:sounds/creature/wolf/howl*"
   }
 }

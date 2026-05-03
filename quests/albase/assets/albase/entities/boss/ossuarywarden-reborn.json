@@ -209,8 +209,9 @@
             "attackDurationMs": 900,
             "animation": "standattack",
             "animationSpeed": 1.5,
-            "sound": "game:creature/drifter-hit",
-            "soundStartMs": 350
+            "sound": "game:sounds/creature/drifter-hit",
+            "soundStartMs": 350,
+            "soundVolume": 3
           },
           {
             "code": "throwatentity",
@@ -227,8 +228,9 @@
             "releaseAtMs": 900,
             "animation": "standthrowleft",
             "animationSpeed": 1.4,
-            "sound": "game:creature/drifter-hit",
+            "sound": "game:sounds/creature/drifter-hit",
             "soundStartMs": 250,
+            "soundVolume": 3,
             "immobile": true,
             "maxTurnAngleDeg": 45,
             "maxOffAngleThrowDeg": 85
@@ -248,8 +250,9 @@
             "attackDurationMs": 950,
             "animation": "standattack",
             "animationSpeed": 1.25,
-            "sound": "game:creature/drifter-hit",
+            "sound": "game:sounds/creature/drifter-hit",
             "soundStartMs": 350,
+            "soundVolume": 3,
             "whenInEmotionState": "ossuarywarden-requiem"
           },
           {
@@ -282,8 +285,8 @@
   },
   "idleSoundRange": 32,
   "sounds": {
-    "hurt": "game:creature/drifter-hurt",
+    "hurt": "game:sounds/creature/drifter-hurt",
     "death": "albase:bosshunt_1",
-    "idle": "game:creature/drifter-idle"
+    "idle": "game:sounds/creature/drifter-idle"
   }
 }

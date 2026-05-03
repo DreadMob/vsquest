@@ -145,9 +145,9 @@
     ]
   },
   "sounds": {
-    "hurt": "creature/locust/hurt",
-    "death": "creature/locust/death",
-    "idle": "creature/locust/idle"
+    "hurt": "game:sounds/creature/locust/hurt",
+    "death": "game:sounds/creature/locust/death",
+    "idle": "game:sounds/creature/locust/idle"
   },
   "idleSoundChance": 0.05
 }
