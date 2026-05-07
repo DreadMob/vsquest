@@ -15,6 +15,7 @@ namespace VsQuest
         public const string ActionItemActionsKey = "alegacyvsquest:actions";
         public const string ActionItemIdKey = "alegacyvsquest:actionitemid";
         public const string ActionItemSourceQuestKey = "alegacyvsquest:sourcequest";
+        public const string ActionItemRerollGroupKey = "alegacyvsquest:rerollGroup";
         public const string ActionItemDefaultSourceQuestId = "item-action";
         public const string ActionItemModesKey = "alegacyvsquest:modes";
         public const string ActionItemModeIndexKey = "alegacyvsquest:mode";

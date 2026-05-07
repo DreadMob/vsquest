@@ -1,0 +1,64 @@
+{
+  "rerollGroups": [
+    {
+      "id": "ossuarywarden",
+      "name": "Оссуарий",
+      "itemsRequired": 2,
+      "applyQuality": false,
+      "rewardItems": [
+        "albase:bosshunt-reward-miner-belt",
+        "albase:bosshunt-reward-bloodthirsty",
+        "albase:bosshunt-reward-ossuary-mask"
+      ]
+    },
+    {
+      "id": "ashenlurker",
+      "name": "Пепельный Зверь",
+      "itemsRequired": 2,
+      "applyQuality": false,
+      "rewardItems": [
+        "albase:bosshunt-reward-archer-gloves",
+        "albase:bosshunt-reward-ashen-sigil"
+      ]
+    },
+    {
+      "id": "bonecolossus",
+      "name": "Костяной Колосс",
+      "itemsRequired": 2,
+      "applyQuality": false,
+      "rewardItems": [
+        "albase:bosshunt-reward-sea-spirit",
+        "albase:bosshunt-reward-life-amulet"
+      ]
+    },
+    {
+      "id": "subductionmaw",
+      "name": "Пасть Субдукции",
+      "itemsRequired": 2,
+      "applyQuality": false,
+      "rewardItems": [
+        "albase:bosshunt-reward-ultrawarm-coat",
+        "albase:bosshunt-reward-subduction-filter",
+        "albase:bosshunt-reward-subduction-quiver"
+      ]
+    },
+    {
+      "id": "deceptionmaster",
+      "name": "Мастер Обмана",
+      "itemsRequired": 2,
+      "applyQuality": false,
+      "rewardItems": [
+        "albase:bosshunt-reward-duelist",
+        "albase:bosshunt-reward-secondchance-mask",
+        "albase:bosshunt-reward-cryptsight"
+      ]
+    }
+  ],
+  "questToGroupMapping": {
+    "albase:bosshunt-ossuarywarden": "ossuarywarden",
+    "albase:bosshunt-ashenlurker": "ashenlurker",
+    "albase:bosshunt-bonecolossus": "bonecolossus",
+    "albase:bosshunt-subduction-maw": "subductionmaw",
+    "albase:bosshunt-deception-master": "deceptionmaster"
+  }
+}

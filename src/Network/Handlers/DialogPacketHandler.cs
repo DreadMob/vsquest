@@ -1,6 +1,7 @@
 using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 
 namespace VsQuest
@@ -95,6 +96,35 @@ namespace VsQuest
             catch (Exception ex)
             {
                 api.Logger.Error("[alegacyvsquest] Failed to preload boss music '{0}': {1}", message?.Url, ex.Message);
+            }
+        }
+
+        public void OnShowRerollDialogMessage(ShowRerollDialogMessage message, ICoreClientAPI capi)
+        {
+            RerollDialogGui.ShowFromMessage(message, capi);
+        }
+
+        public void OnExecuteRerollMessage(IServerPlayer player, ExecuteRerollMessage message, ICoreServerAPI sapi)
+        {
+            if (sapi == null || player == null || message == null) return;
+            if (string.IsNullOrWhiteSpace(message.GroupId)) return;
+
+            var itemSystem = sapi.ModLoader.GetModSystem<ItemSystem>();
+            var rerollService = itemSystem?.RerollService;
+            if (rerollService == null) return;
+
+            bool success = rerollService.ExecuteReroll(player, message.GroupId);
+            if (success)
+            {
+                sapi.SendMessage(player, GlobalConstants.GeneralChatGroup, 
+                    LocalizationUtils.GetSafe("alegacyvsquest:reroll-success"), 
+                    EnumChatType.Notification);
+            }
+            else
+            {
+                sapi.SendMessage(player, GlobalConstants.GeneralChatGroup, 
+                    LocalizationUtils.GetSafe("alegacyvsquest:reroll-failed"), 
+                    EnumChatType.Notification);
             }
         }
     }

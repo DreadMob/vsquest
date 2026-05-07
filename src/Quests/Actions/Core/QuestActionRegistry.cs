@@ -43,6 +43,7 @@ namespace VsQuest
             actionRegistry.Add("showquiz", new ShowQuizAction());
             actionRegistry.Add("closedialogue", new CloseDialogueAction());
             actionRegistry.Add("revealname", new RevealNameAction());
+            actionRegistry.Add("openrerolldialog", new OpenRerollDialogAction());
         }
 
         private void RegisterSpawnAndEntity()

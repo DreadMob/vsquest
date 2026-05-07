@@ -76,6 +76,14 @@ namespace VsQuest
                 int quantity = stack.StackSize;
                 ItemAttributeUtils.ApplyActionItemAttributes(stack, actionItem);
 
+                // Set reroll group based on quest ID
+                var rerollService = itemSystem.RerollService;
+                string rerollGroupId = rerollService?.GetRerollGroupIdForQuest(message.questId);
+                if (!string.IsNullOrWhiteSpace(rerollGroupId))
+                {
+                    stack.Attributes.SetString(ItemAttributeUtils.ActionItemRerollGroupKey, rerollGroupId);
+                }
+
                 // Try to apply item quality
                 var qualityService = itemSystem.QualityService;
                 qualityService?.TryApplyQuality(stack, actionItem, sapi.World.Rand);

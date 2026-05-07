@@ -15,6 +15,7 @@
       "type": "talk",
       "text": [
         { "value": "albase:dialogue-bosshunter-work", "jumpTo": "openquests" },
+        { "value": "albase:dialogue-bosshunter-reroll", "jumpTo": "reroll" },
         { "value": "albase:dialogue-bosshunter-whoareyou", "jumpTo": "whoareyou" },
         { "value": "albase:dialogue-bosshunter-about", "jumpTo": "about" },
         { "value": "albase:dialogue-bosshunter-whycrypts", "jumpTo": "whycrypts" },
@@ -85,6 +86,15 @@
       "trigger": "openquests",
       "text": [
         { "value": "albase:dialogue-bosshunter-openquests-confirm" }
+      ]
+    },
+    {
+      "code": "reroll",
+      "owner": "npc",
+      "type": "talk",
+      "trigger": "openrerolldialog",
+      "text": [
+        { "value": "albase:dialogue-bosshunter-reroll-confirm" }
       ]
     },
     {

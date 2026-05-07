@@ -44,6 +44,7 @@ namespace VsQuest
         private ActionItemPacketHandler packetHandler;
         private ActionItemSoundConfig soundConfig;
         private ItemQualityService qualityService;
+        private RerollService rerollService;
 
         private readonly Dictionary<string, (string invKey, int slot)> inventoryScanCursorByPlayerUid = new Dictionary<string, (string invKey, int slot)>(StringComparer.Ordinal);
 
@@ -53,6 +54,7 @@ namespace VsQuest
         public Dictionary<string, ActionItem> ActionItemRegistry { get; private set; } = new Dictionary<string, ActionItem>();
 
         public ItemQualityService QualityService => qualityService;
+        public RerollService RerollService => rerollService;
 
         public override void StartPre(ICoreAPI api)
         {
@@ -104,6 +106,13 @@ namespace VsQuest
             // Load quality configurations
             qualityService = new ItemQualityService(api);
             qualityService.LoadConfigs();
+
+            // Load reroll configurations (server-side only)
+            if (api.Side == EnumAppSide.Server)
+            {
+                rerollService = new RerollService(api as ICoreServerAPI);
+                rerollService.LoadConfigs();
+            }
         }
 
         public override void AssetsFinalize(ICoreAPI api)

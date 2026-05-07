@@ -148,6 +148,11 @@
     "block-alegacyvsquest:ashfloor": "Ashen Floor",
     "alegacyvsquest:block-ashfloor": "Ashen Floor",
     "block-alegacyvsquest:temporalriftprojector": "Temporal Rift Projector",
-    "alegacyvsquest:interactat-hold-item": "Must hold in hand: {0}"
+    "alegacyvsquest:interactat-hold-item": "Must hold in hand: {0}",
+    "alegacyvsquest:reroll-dialog-title": "Boss Item Reroll",
+    "alegacyvsquest:reroll-no-items": "You have no items available for reroll.",
+    "alegacyvsquest:reroll-button": "Reroll",
+    "alegacyvsquest:reroll-success": "Item rerolled! You received a new item.",
+    "alegacyvsquest:reroll-failed": "Failed to reroll item."
 }
 

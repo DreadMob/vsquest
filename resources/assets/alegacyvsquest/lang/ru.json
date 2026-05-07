@@ -158,5 +158,10 @@
     "alegacyvsquest:discord-quest-completed": "{0} завершил путь задания «{1}». Хранители занесли это деяние в летопись.",
     "alegacyvsquest:discord-boss-defeated": "{0} поверг {1}. Пепел осел, но эхо битвы еще живо.",
     "alegacyvsquest:discord-boss-defeated-multi": "{0} повергли {1}. Их имена запомнит сама пустошь.",
-    "alegacyvsquest:discord-bosskill-default-template": "{victim} пал перед {boss}. Пепельные земли приняли еще одну душу."
+    "alegacyvsquest:discord-bosskill-default-template": "{victim} пал перед {boss}. Пепельные земли приняли еще одну душу.",
+    "alegacyvsquest:reroll-dialog-title": "Рерол предметов босса",
+    "alegacyvsquest:reroll-no-items": "У вас нет предметов для рерола.",
+    "alegacyvsquest:reroll-button": "Рерол",
+    "alegacyvsquest:reroll-success": "Предмет переброшен! Вы получили новый предмет.",
+    "alegacyvsquest:reroll-failed": "Не удалось выполнить рерол."
 }
