@@ -37,7 +37,11 @@ namespace VsQuest
             var bossPos = bossEntity.Pos.XYZ;
             var entities = sapi.World.GetEntitiesAround(bossPos, maxRange, maxRange, e => e is EntityPlayer);
 
-            if (entities == null || entities.Length == 0) return false;
+            if (entities == null || entities.Length == 0)
+            {
+                sapi.Logger.Notification("[BossTargeting] TryFindTarget: No entities found around {0} in range {1}", bossPos, maxRange);
+                return false;
+            }
 
             // Find nearest valid player using squared distance
             EntityPlayer nearestPlayer = null;
@@ -45,9 +49,15 @@ namespace VsQuest
             float minRangeSq = minRange * minRange;
             float maxRangeSq = maxRange * maxRange;
 
+            int playersFound = 0;
+            int playersFilteredMinRange = 0;
+            int playersFilteredInvalid = 0;
+
             for (int i = 0; i < entities.Length; i++)
             {
                 if (!(entities[i] is EntityPlayer player)) continue;
+                playersFound++;
+
                 if (!player.Alive) continue;
                 if (player.Pos.Dimension != bossEntity.Pos.Dimension) continue;
 
@@ -56,11 +66,12 @@ namespace VsQuest
                 float dz = (float)(player.Pos.Z - bossPos.Z);
                 float distSq = dx * dx + dy * dy + dz * dz;
 
-                if (distSq < minRangeSq) continue;
+                if (distSq > maxRangeSq) continue; // 3D distance check (GetEntitiesAround uses cylinder)
+                if (distSq < minRangeSq) { playersFilteredMinRange++; continue; }
                 if (distSq >= nearestDistSq) continue;
 
                 // Additional validation
-                if (!IsValidTarget(player)) continue;
+                if (!IsValidTarget(player)) { playersFilteredInvalid++; continue; }
 
                 nearestPlayer = player;
                 nearestDistSq = distSq;
@@ -70,9 +81,12 @@ namespace VsQuest
             {
                 target = nearestPlayer;
                 distance = (float)Math.Sqrt(nearestDistSq);
+                sapi.Logger.Notification("[BossTargeting] TryFindTarget: Found valid target {0} at distance {1:F1}", target.Player?.PlayerName, distance);
                 return true;
             }
 
+            sapi.Logger.Notification("[BossTargeting] TryFindTarget: No valid target. Players found: {0}, filtered by minRange: {1}, filtered by IsValidTarget: {2}",
+                playersFound, playersFilteredMinRange, playersFilteredInvalid);
             return false;
         }
 
@@ -187,16 +201,26 @@ namespace VsQuest
         /// </summary>
         public virtual bool IsValidTarget(EntityPlayer player)
         {
-            if (player == null || !player.Alive) return false;
+            if (player == null || !player.Alive)
+            {
+                sapi?.Logger?.Notification("[BossTargeting] IsValidTarget: player null or dead");
+                return false;
+            }
 
             // Check if player is in creative mode
-            if (player.Player?.WorldData?.CurrentGameMode == EnumGameMode.Creative) return false;
+            if (player.Player?.WorldData?.CurrentGameMode == EnumGameMode.Creative)
+            {
+                sapi?.Logger?.Notification("[BossTargeting] IsValidTarget: player {0} in creative mode", player.Player?.PlayerName);
+                return false;
+            }
 
-            // Check if player is invulnerable
-            if (player.Stats.GetBlended("invulnerable") > 0) return false;
-
-            // Check if player is too far above or below
-            if (Math.Abs(player.Pos.Y - bossEntity.Pos.Y) > 10f) return false;
+            // Check if player is too far above or below (25 blocks for boss arenas with elevation)
+            double yDiff = Math.Abs(player.Pos.Y - bossEntity.Pos.Y);
+            if (yDiff > 25f)
+            {
+                sapi?.Logger?.Notification("[BossTargeting] IsValidTarget: player {0} Y diff too large: {1}", player.Player?.PlayerName, yDiff);
+                return false;
+            }
 
             return true;
         }

@@ -230,6 +230,51 @@ namespace VsQuest
             if (entity == null || stage == null) return;
 
             TryPlayAnimation(stage.dashAnimation);
+
+            // Register game tick listener for continuous movement updates
+            dashTickListenerId = Sapi.Event.RegisterGameTickListener(_ =>
+            {
+                try
+                {
+                    if (!IsAbilityActive)
+                    {
+                        StopDash();
+                        return;
+                    }
+
+                    long now = Sapi.World.ElapsedMilliseconds;
+                    if (now >= dashEndsAtMs)
+                    {
+                        StopDash();
+                        return;
+                    }
+
+                    if (entity == null || !entity.Alive)
+                    {
+                        StopDash();
+                        return;
+                    }
+
+                    if (activeStage == null) return;
+                    if (targetEntity == null || !targetEntity.Alive) return;
+                    if (targetEntity.Pos.Dimension != entity.Pos.Dimension) return;
+
+                    dashDir.Set(targetEntity.Pos.X - entity.Pos.X, 0, targetEntity.Pos.Z - entity.Pos.Z);
+                    if (dashDir.Length() < 0.001) return;
+                    dashDir.Normalize();
+
+                    lockedYaw = (float)Math.Atan2(dashDir.X, dashDir.Z);
+                    yawLocked = true;
+
+                    double spd = activeStage.dashSpeed;
+                    entity.Pos.Motion.X = dashDir.X * spd;
+                    entity.Pos.Motion.Z = dashDir.Z * spd;
+                }
+                catch (Exception ex)
+                {
+                    entity?.Api?.Logger?.Error($"[vsquest] Exception in dash tick: {ex}");
+                }
+            }, 50);
         }
 
         private void StopDash()

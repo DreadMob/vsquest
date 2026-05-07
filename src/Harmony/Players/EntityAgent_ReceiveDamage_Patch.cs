@@ -120,6 +120,20 @@ namespace VsQuest.Harmony.Players
                 }
             }
 
+            // Boss growth ritual damage multiplier (when boss is the attacker)
+            if (sourceEntity != null)
+            {
+                var sourceWatchedAttrs = sourceEntity.WatchedAttributes;
+                if (sourceWatchedAttrs != null)
+                {
+                    float growthMult = sourceWatchedAttrs.GetFloat(AttrKeys.BossGrowthRitualDamageMult, 0f);
+                    if (growthMult > 1.01f)
+                    {
+                        damage *= growthMult;
+                    }
+                }
+            }
+
             // Fired by boss clone check (rare)
             if (sourceEntity != null && sourceAttrs?.HasAttribute(AttrKeys.FiredBy) == true)
             {

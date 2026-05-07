@@ -325,8 +325,12 @@ namespace VsQuest
                         if (actionObjective == null) continue;
                         if (string.IsNullOrWhiteSpace(actionObjective.id)) continue;
 
+                        string effectiveObjectiveId = string.IsNullOrWhiteSpace(actionObjective.objectiveId)
+                            ? actionObjective.id
+                            : actionObjective.objectiveId;
+
                         // Only show objectives that have an objectiveId (named objectives)
-                        if (string.IsNullOrWhiteSpace(actionObjective.objectiveId)) continue;
+                        if (string.IsNullOrWhiteSpace(actionObjective.objectiveId) && actionObjective.id != "walkdistance") continue;
 
                         // Do not show gates as progress lines
                         if (actionObjective.id == "timeofday") continue;
@@ -349,11 +353,11 @@ namespace VsQuest
                         if (prog == null || prog.Count == 0) continue;
 
                         // Try custom per-objective progress string first
-                        string customKeyBase = activeQuest.questId + "-obj-" + (string.IsNullOrWhiteSpace(actionObjective.objectiveId) ? actionObjective.id : actionObjective.objectiveId);
+                        string customKeyBase = activeQuest.questId + "-obj-" + effectiveObjectiveId;
                         string customProgress = LocalizationUtils.GetSafe(customKeyBase, prog.Cast<object>().ToArray());
                         if (!string.IsNullOrWhiteSpace(customProgress) && !string.Equals(customProgress, customKeyBase, StringComparison.OrdinalIgnoreCase))
                         {
-                            lines.Add($"- {ApplyPrefixes(customProgress, actionObjective.objectiveId, actionObjectivesToProcess)}");
+                            lines.Add($"- {ApplyPrefixes(customProgress, effectiveObjectiveId, actionObjectivesToProcess)}");
                             continue;
                         }
 
@@ -390,7 +394,7 @@ namespace VsQuest
                                 }
 
                                 string killLine = Lang.Get("alegacyvsquest:progress-pair", targetName, prog[0], prog[1]);
-                                lines.Add($"- {ApplyPrefixes(killLine, actionObjective.objectiveId, actionObjectivesToProcess)}");
+                                lines.Add($"- {ApplyPrefixes(killLine, effectiveObjectiveId, actionObjectivesToProcess)}");
                                 continue;
                             }
                         }
@@ -407,10 +411,10 @@ namespace VsQuest
                         }
                         else
                         {
-                            line = Lang.Get("alegacyvsquest:progress-single", objectiveLabel, prog[0]);
+                            line = $"{objectiveLabel}: {prog[0]}";
                         }
 
-                        lines.Add($"- {ApplyPrefixes(line, actionObjective.objectiveId, actionObjectivesToProcess)}");
+                        lines.Add($"- {ApplyPrefixes(line, effectiveObjectiveId, actionObjectivesToProcess)}");
                     }
                 }
 

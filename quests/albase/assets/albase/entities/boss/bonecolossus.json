@@ -17,8 +17,7 @@
       "albase:magic-sparkling": 0.36,
       "albase:dark-magic-charge-up": 0.36,
       "albase:shock-sound-effect-horror": 0.36,
-      "game:sounds/creature/wolf/hurt": 4.0,
-      "game:sounds/creature/wolf/hurt": 4.0
+      "game:sounds/creature/wolf/attack1": 0.36
     },
     "alegacyvsquestHideInfoText": true
   },
@@ -152,7 +151,7 @@
             "sound": "albase:shock-sound-effect-horror",
             "soundRange": 26,
             "soundStartMs": 0,
-            "soundVolume": 0.08
+            "soundVolume": 0.18
           },
           {
             "whenHealthRelBelow": 0.35,
@@ -165,7 +164,7 @@
             "sound": "albase:shock-sound-effect-horror",
             "soundRange": 30,
             "soundStartMs": 0,
-            "soundVolume": 0.08
+            "soundVolume": 0.18
           }
         ]
       },
@@ -250,7 +249,7 @@
             "animation": "attack-withwindup",
             "sound": "albase:dark-magic-charge-up",
             "soundRange": 32,
-            "soundVolume": 0.2
+            "soundVolume": 0.4
           },
           {
             "whenHealthRelBelow": 0.2,
@@ -264,7 +263,7 @@
             "animation": "attack-withwindup",
             "sound": "albase:dark-magic-charge-up",
             "soundRange": 36,
-            "soundVolume": 0.24
+            "soundVolume": 0.2
           }
         ]
       },

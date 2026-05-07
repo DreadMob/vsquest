@@ -26,7 +26,8 @@ namespace VsQuest
             public override void FromJson(JsonObject json)
             {
                 base.FromJson(json);
-                surroundedThreshold = json["surroundedThreshold"].AsInt(3);
+                // Support both old and new property names for backwards compatibility
+                surroundedThreshold = json["surroundedThreshold"].AsInt(json["minPlayers"].AsInt(3));
                 shockwaveCooldownMs = json["shockwaveCooldownSeconds"].AsInt(10) * 1000;
                 slamCooldownMs = json["slamCooldownSeconds"].AsInt(8) * 1000;
                 knockbackRange = json["knockbackRange"].AsFloat(8f);

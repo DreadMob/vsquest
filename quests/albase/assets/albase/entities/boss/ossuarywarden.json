@@ -108,7 +108,7 @@
             "sound": "albase:shock-sound-effect-horror",
             "soundRange": 22,
             "soundStartMs": 0,
-            "soundVolume": 0.14
+            "soundVolume": 0.28
           },
           {
             "whenHealthRelBelow": 0.45,
@@ -127,7 +127,7 @@
             "sound": "albase:shock-sound-effect-horror",
             "soundRange": 24,
             "soundStartMs": 0,
-            "soundVolume": 0.14
+            "soundVolume": 0.28
           }
         ]
       },
@@ -175,7 +175,7 @@
             "animation": "crawlcry",
             "sound": "albase:dark-magic-charge-up",
             "soundRange": 30,
-            "soundVolume": 0.2
+            "soundVolume": 0.4
           },
           {
             "whenHealthRelBelow": 0.25,
@@ -189,7 +189,7 @@
             "animation": "crawldespair",
             "sound": "albase:dark-magic-charge-up",
             "soundRange": 34,
-            "soundVolume": 0.24
+            "soundVolume": 0.48
           }
         ]
       },
@@ -213,7 +213,7 @@
             "animationSpeed": 1.4,
             "sound": "game:sounds/creature/drifter-hit",
             "soundStartMs": 400,
-            "soundVolume": 3
+            "soundVolume": 6
           },
           {
             "code": "meleeattack",
@@ -232,7 +232,7 @@
             "animationSpeed": 1.35,
             "sound": "game:sounds/creature/drifter-hit",
             "soundStartMs": 320,
-            "soundVolume": 3,
+            "soundVolume": 6,
             "whenInEmotionState": "ossuarywarden-ritual|ossuarywarden-requiem"
           },
           {
@@ -252,7 +252,7 @@
             "animationSpeed": 1.6,
             "sound": "game:sounds/creature/drifter-hit",
             "soundStartMs": 250,
-            "soundVolume": 3,
+            "soundVolume": 6,
             "whenInEmotionState": "ossuarywarden-requiem"
           },
           {

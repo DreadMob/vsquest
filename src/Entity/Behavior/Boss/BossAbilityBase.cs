@@ -22,7 +22,8 @@ namespace VsQuest
             whenHealthRelBelow = json["whenHealthRelBelow"].AsFloat(1f);
             cooldownSeconds = json["cooldownSeconds"].AsFloat(0f);
             minTargetRange = json["minTargetRange"].AsFloat(0f);
-            maxTargetRange = json["maxTargetRange"].AsFloat(30f);
+            // Support both 'maxTargetRange' and 'range' for backwards compatibility
+            maxTargetRange = json["maxTargetRange"].AsFloat(json["range"].AsFloat(30f));
         }
     }
 
@@ -213,9 +214,14 @@ namespace VsQuest
                 if (stage == null)
                 {
                     // No stage matches current health - this is normal if health is too high
+                    // Log occasionally to help diagnose
+                    if (Sapi.World.Rand.NextDouble() < 0.01)
+                    {
+                        Sapi.Logger.Notification("[BossAbility] {0} no stage for health frac {1:F2} (need whenHealthRelBelow threshold)", PropertyName(), frac);
+                    }
                     return;
                 }
-                Sapi.Logger.Debug("[BossAbility] {0} found stage {1} for health frac {2:F2}", PropertyName(), stageIndex, frac);
+                Sapi.Logger.Notification("[BossAbility] {0} found stage {1} for health frac {2:F2}", PropertyName(), stageIndex, frac);
             }
             else
             {
@@ -230,7 +236,7 @@ namespace VsQuest
 
             if (!IsCooldownReady(stage))
             {
-                Sapi.Logger.Debug("[BossAbility] {0} cooldown not ready for {1}", PropertyName(), entity.Code);
+                Sapi.Logger.Notification("[BossAbility] {0} cooldown not ready for {1}", PropertyName(), entity.Code);
                 return;
             }
 
@@ -240,15 +246,15 @@ namespace VsQuest
                 float maxRange = ApplyRangeMultiplier(GetMaxTargetRange(stage));
                 if (!TargetingSystem.TryFindTarget(maxRange, MinTargetRange, out target, out float dist))
                 {
-                    Sapi.Logger.Debug("[BossAbility] {0} no target found for {1} in range {2}", PropertyName(), entity.Code, maxRange);
+                    Sapi.Logger.Notification("[BossAbility] {0} no target found for {1} in range {2}", PropertyName(), entity.Code, maxRange);
                     return;
                 }
-                Sapi.Logger.Debug("[BossAbility] {0} found target at distance {2:F1}", PropertyName(), dist);
+                Sapi.Logger.Notification("[BossAbility] {0} found target at distance {2:F1}", PropertyName(), entity.Code, dist);
             }
 
             if (!CanActivateWithConditions(stage, target))
             {
-                Sapi.Logger.Debug("[BossAbility] {0} CanActivateWithConditions returned false for {1}", PropertyName(), entity.Code);
+                Sapi.Logger.Notification("[BossAbility] {0} CanActivateWithConditions returned false for {1}", PropertyName(), entity.Code);
                 return;
             }
 

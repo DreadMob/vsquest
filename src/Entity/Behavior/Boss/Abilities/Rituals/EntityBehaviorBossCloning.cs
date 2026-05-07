@@ -17,7 +17,7 @@ namespace VsQuest
         private const string AnchorKeyPrefix = "alegacyvsquest:spawner:";
 
         protected override string CooldownKey => "alegacyvsquest:bossclone:lastStartMs";
-        protected override bool UseHealthBasedStages() => false;
+        protected override bool UseHealthBasedStages() => true;
         protected override bool RequiresTarget() => false;
         protected override int CheckIntervalMs => 500;
 
@@ -62,13 +62,67 @@ namespace VsQuest
 
         protected override bool ShouldCheckAbility()
         {
-            return !IsAbilityActive && !IsCloneEntity();
+            if (IsAbilityActive || IsCloneEntity()) return false;
+
+            // Only activate if we haven't already applied the matching (or higher) stage
+            // OR if all clones are dead (ability ended but stage tracking needs reset)
+            int currentCloneStage = entity.WatchedAttributes.GetInt(CloneStageKey, 0);
+            
+            // If ability is not active and no clones exist, we can re-check
+            bool hasActiveClones = false;
+            if (Sapi != null)
+            {
+                for (int i = 0; i < activeCloneEntityIds.Count; i++)
+                {
+                    long id = activeCloneEntityIds[i];
+                    if (id <= 0) continue;
+                    var e = Sapi.World.GetEntityById(id);
+                    if (e != null && e.Alive)
+                    {
+                        hasActiveClones = true;
+                        break;
+                    }
+                }
+            }
+            
+            // If no active clones, allow re-activation
+            if (!hasActiveClones && activeCloneEntityIds.Count > 0)
+            {
+                // Clones died/expired, clear tracking
+                activeCloneEntityIds.Clear();
+                entity.WatchedAttributes.SetInt(CloneStageKey, 0);
+                entity.WatchedAttributes.MarkPathDirty(CloneStageKey);
+                currentCloneStage = 0;
+            }
+            
+            if (!entity.TryGetHealthFraction(out float frac)) return false;
+
+            for (int i = 0; i < stages.Count; i++)
+            {
+                if (frac <= stages[i].whenHealthRelBelow)
+                {
+                    // This is the stage that should be active (highest matching)
+                    // Only allow if we haven't reached it yet
+                    if (currentCloneStage < i + 1)
+                        return true;
+                    return false;
+                }
+            }
+
+            return false;
         }
 
         protected override void ActivateAbility(object stageObj, int stageIndex, EntityPlayer target)
         {
-            if (stageObj is not Stage stage) return;
+            Sapi.Logger.Notification("[BossCloning] ActivateAbility called, stageObj type: {0}, stageIndex: {1}", stageObj?.GetType().Name ?? "null", stageIndex);
+            
+            if (stageObj is not Stage stage) 
+            {
+                Sapi.Logger.Notification("[BossCloning] ActivateAbility: stageObj is not Stage type");
+                return;
+            }
 
+            Sapi.Logger.Notification("[BossCloning] ActivateAbility: calling StartCloning");
             MarkCooldownStart();
 
             entity.WatchedAttributes.SetInt(CloneStageKey, stageIndex + 1);
@@ -108,13 +162,13 @@ namespace VsQuest
 
         private void StartCloning(Stage stage, int index)
         {
-            if (IsAbilityActive) return;
-
+            Sapi.Logger.Notification("[BossCloning] StartCloning: count={0}, durationMs={1}", stage.cloneCount, stage.durationMs);
             SetAbilityActive(true);
             cloningEndsAtMs = Sapi.World.ElapsedMilliseconds + Math.Max(500, stage.durationMs);
 
             CleanupClones();
             SpawnClones(stage);
+            Sapi.Logger.Notification("[BossCloning] Spawned {0} clones, total tracked: {1}", stage.cloneCount, activeCloneEntityIds.Count);
         }
 
         private void StopCloning()
@@ -142,13 +196,27 @@ namespace VsQuest
 
         private void SpawnClones(Stage stage)
         {
-            if (Sapi == null || entity == null) return;
+            if (Sapi == null || entity == null) 
+            {
+                Sapi?.Logger.Notification("[BossCloning] SpawnClones: Sapi or entity is null");
+                return;
+            }
 
             string code = entity.Code?.ToShortString();
-            if (string.IsNullOrWhiteSpace(code)) return;
+            if (string.IsNullOrWhiteSpace(code)) 
+            {
+                Sapi.Logger.Notification("[BossCloning] SpawnClones: entity code is empty");
+                return;
+            }
 
             var type = Sapi.World.GetEntityType(new AssetLocation(code));
-            if (type == null) return;
+            if (type == null) 
+            {
+                Sapi.Logger.Notification("[BossCloning] SpawnClones: entity type not found for code '{0}'", code);
+                return;
+            }
+
+            Sapi.Logger.Notification("[BossCloning] SpawnClones: spawning {0} clones of type '{1}'", stage.cloneCount, code);
 
             Vec3d basePos = new Vec3d(entity.Pos.X, entity.Pos.Y, entity.Pos.Z);
             int dim = entity.Pos.Dimension;
@@ -158,7 +226,11 @@ namespace VsQuest
             for (int i = 0; i < count; i++)
             {
                 Entity clone = Sapi.World.ClassRegistry.CreateEntity(type);
-                if (clone == null) continue;
+                if (clone == null)
+                {
+                    Sapi.Logger.Notification("[BossCloning] SpawnClones: failed to create clone {0}", i);
+                    continue;
+                }
 
                 CopyTargetId(clone);
                 CopyAnchor(clone);
@@ -170,9 +242,11 @@ namespace VsQuest
                 clone.Pos.SetFrom(clone.Pos);
 
                 Sapi.World.SpawnEntity(clone);
+                Sapi.Logger.Notification("[BossCloning] Spawned clone {0} with entity ID {1}", i, clone.EntityId);
 
                 activeCloneEntityIds.Add(clone.EntityId);
             }
+            Sapi.Logger.Notification("[BossCloning] Finished spawning clones. Total in list: {0}", activeCloneEntityIds.Count);
         }
 
         private Vec3d RandomOffset(float range)

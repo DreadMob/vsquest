@@ -413,12 +413,12 @@ namespace VsQuest
 
             if (entity.Properties.CollisionBoxSize != null)
             {
-                baseCollisionBoxSize = entity.Properties.CollisionBoxSize;
+                baseCollisionBoxSize = new Vec2f(entity.Properties.CollisionBoxSize.X, entity.Properties.CollisionBoxSize.Y);
             }
 
             if (entity.Properties.SelectionBoxSize != null)
             {
-                baseSelectionBoxSize = entity.Properties.SelectionBoxSize;
+                baseSelectionBoxSize = new Vec2f(entity.Properties.SelectionBoxSize.X, entity.Properties.SelectionBoxSize.Y);
             }
             else
             {
@@ -427,12 +427,12 @@ namespace VsQuest
 
             if (entity.Properties.DeadCollisionBoxSize != null)
             {
-                baseDeadCollisionBoxSize = entity.Properties.DeadCollisionBoxSize;
+                baseDeadCollisionBoxSize = new Vec2f(entity.Properties.DeadCollisionBoxSize.X, entity.Properties.DeadCollisionBoxSize.Y);
             }
 
             if (entity.Properties.DeadSelectionBoxSize != null)
             {
-                baseDeadSelectionBoxSize = entity.Properties.DeadSelectionBoxSize;
+                baseDeadSelectionBoxSize = new Vec2f(entity.Properties.DeadSelectionBoxSize.X, entity.Properties.DeadSelectionBoxSize.Y);
             }
             else
             {
@@ -499,6 +499,8 @@ namespace VsQuest
 
             double td = (entity.touchDistance = entity.GetTouchDistance());
             entity.touchDistanceSq = td * td;
+
+            entity.MarkShapeModified();
         }
 
         // Required abstract overrides for BossAbilityBase (event-driven mode)
