@@ -51,7 +51,21 @@ namespace VsQuest
 
         protected override void InitializeStages(JsonObject attributes)
         {
-            stages = ParseStages<Stage>(attributes);
+            // Check if stages array exists first
+            var stagesArray = attributes["stages"]?.AsArray();
+            if (stagesArray != null && stagesArray.Length > 0)
+            {
+                stages = ParseStages<Stage>(attributes);
+            }
+            else
+            {
+                // No stages array - read direct properties (legacy format)
+                var stage = new Stage();
+                stage.respawnInGameHours = attributes["respawnInGameHours"].AsDouble(24);
+                stage.spawnNewBoss = attributes["spawnNewBoss"].AsBool(false);
+                stage.respawnEntityCode = attributes["respawnEntityCode"].AsString(null);
+                stages.Add(stage);
+            }
         }
 
         protected override void OnPeriodicTick(float dt)

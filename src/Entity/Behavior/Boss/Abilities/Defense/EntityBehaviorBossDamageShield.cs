@@ -206,12 +206,12 @@ namespace VsQuest
             {
                 startShieldCallbackId = Sapi.Event.RegisterCallback(_ =>
                 {
-                    TryPlayAnimation(stage);
+                    TryPlayAnimationInternal(stage);
                 }, stage.windupMs);
             }
             else
             {
-                TryPlayAnimation(stage);
+                TryPlayAnimationInternal(stage);
             }
         }
 
@@ -242,11 +242,11 @@ namespace VsQuest
             activeStageIndex = -1;
         }
 
-        private void TryPlayAnimation(Stage stage)
+        private void TryPlayAnimationInternal(Stage stage)
         {
             if (stage == null || string.IsNullOrWhiteSpace(stage.animation)) return;
 
-            entity?.AnimManager?.StartAnimation(stage.animation);
+            TryPlayAnimation(stage.animation);
 
             int stopMs = stage.animationStopMs;
             if (stopMs <= 0) return;

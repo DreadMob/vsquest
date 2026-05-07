@@ -333,6 +333,10 @@ namespace VsQuest
                 double nowHours = sapi.World.Calendar.TotalHours;
                 st.deadUntilTotalHours = nowHours + cfg.GetRespawnHours();
 
+                // Write respawn time to entity's WatchedAttributes so boss nametag can show countdown
+                entity.WatchedAttributes.SetDouble("alegacyvsquest:bossrespawnAtTotalHours", st.deadUntilTotalHours);
+                entity.WatchedAttributes.MarkPathDirty("alegacyvsquest:bossrespawnAtTotalHours");
+
                 // Rotate location on death to prevent camping.
                 st.currentPointIndex = PickAnotherIndex(st.currentPointIndex, GetPointCount(cfg, st));
                 st.nextRelocateAtTotalHours = nowHours + cfg.GetRelocateIntervalHours();

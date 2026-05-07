@@ -58,6 +58,8 @@ namespace VsQuest
             api.RegisterEntityBehaviorClass("bosssurroundedresponse", typeof(EntityBehaviorBossSurroundedResponse));
             api.RegisterEntityBehaviorClass("bosslifedrainnova", typeof(EntityBehaviorBossLifeDrainNova));
             api.RegisterEntityBehaviorClass("bosspassiveregen", typeof(EntityBehaviorBossPassiveRegen));
+            api.RegisterEntityBehaviorClass("bosscorpseexplosion", typeof(EntityBehaviorBossCorpseExplosion));
+            api.RegisterEntityBehaviorClass("bossrequiemchains", typeof(EntityBehaviorBossRequiemChains));
             api.RegisterEntityBehaviorClass("explodeondeath", typeof(EntityBehaviorExplodeOnDeath));
             api.RegisterEntityBehaviorClass("alegacyvsquest:questdropondeath", typeof(EntityBehaviorQuestDropOnDeath));
             api.RegisterEntityBehaviorClass("alegacyvsquestguionclick", typeof(EntityBehaviorGuiOnClick));

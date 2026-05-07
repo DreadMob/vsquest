@@ -195,11 +195,19 @@ namespace VsQuest
             string currentBossKey = state.activeBossKey;
             if (!string.IsNullOrWhiteSpace(currentBossKey))
             {
+                // Cancel all scheduled callbacks for the old boss before despawning
+                CancelScheduledCallbacks(currentBossKey);
+
                 var currentCfg = FindConfig(currentBossKey);
                 if (currentCfg != null)
                 {
                     TryDespawnBossEntity(currentCfg);
                 }
+
+                // Reset old boss state entry
+                var oldSt = GetOrCreateState(currentBossKey);
+                oldSt.deadUntilTotalHours = 0;
+                oldSt.lastSoftResetAtTotalHours = 0;
             }
 
             TryReloadAnchors(512, out _, out _, out _);
@@ -218,6 +226,9 @@ namespace VsQuest
             st.lastSoftResetAtTotalHours = 0;
             st.nextRelocateAtTotalHours = nowHours + cfg.GetRelocateIntervalHours();
             stateDirty = true;
+
+            // Try to spawn the new boss immediately
+            TrySpawnIfPlayerNearby(cfg, st, nowHours);
 
             bossKey = cfg.bossKey;
             questId = cfg.questId;

@@ -31,6 +31,16 @@ namespace VsQuest
             long now = sapi.World.ElapsedMilliseconds;
             long cooldownMs = (long)(cooldownSeconds * 1000);
 
+            // Server restart detection: ElapsedMilliseconds resets to 0 on restart,
+            // but WatchedAttributes persist. If lastStartMs is in the future,
+            // the cooldown data is stale and must be reset.
+            if (lastStartMs > now && now >= 0)
+            {
+                bossEntity.WatchedAttributes.SetLong(cooldownKey, 0);
+                bossEntity.WatchedAttributes.MarkPathDirty(cooldownKey);
+                return true;
+            }
+
             return now - lastStartMs >= cooldownMs;
         }
 

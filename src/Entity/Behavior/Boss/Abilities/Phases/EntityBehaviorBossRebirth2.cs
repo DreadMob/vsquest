@@ -78,7 +78,22 @@ namespace VsQuest
 
         protected override void InitializeStages(JsonObject attributes)
         {
-            stages = ParseStages<Stage>(attributes);
+            // Check if stages array exists
+            var stagesArray = attributes["stages"]?.AsArray();
+            if (stagesArray != null && stagesArray.Length > 0)
+            {
+                stages = ParseStages<Stage>(attributes);
+            }
+            else
+            {
+                // No stages array - read direct properties (for final stage markers)
+                var stage = new Stage();
+                stage.isFinalStage = attributes["isFinalStage"].AsBool(false);
+                stage.nextEntityCode = attributes["nextEntityCode"].AsString(null);
+                stage.spawnDelayMs = attributes["spawnDelayMs"].AsInt(2000);
+                stage.spawnLightning = attributes["spawnLightning"].AsBool(true);
+                stages.Add(stage);
+            }
             weatherSystem = Sapi?.ModLoader?.GetModSystem<WeatherSystemBase>();
         }
 

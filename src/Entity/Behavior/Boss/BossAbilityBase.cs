@@ -122,14 +122,19 @@ namespace VsQuest
         {
             base.Initialize(properties, attributes);
             Sapi = entity?.Api as ICoreServerAPI;
-            
+
             if (Sapi != null)
             {
                 CooldownSystem = new BossCooldownSystem(Sapi, entity);
                 TargetingSystem = new BossTargetingSystem(Sapi, entity);
                 MarkingSystem = new BossMarkingSystem(Sapi, entity);
+                Sapi.Logger.Debug("[BossAbility] {0} initialized for entity {1}", PropertyName(), entity?.Code ?? "null");
             }
-            
+            else
+            {
+                // This is normal for client-side behaviors
+            }
+
             InitializeStages(attributes);
         }
 
@@ -171,12 +176,27 @@ namespace VsQuest
             if (nowCheck - lastCheckMs < CheckIntervalMs) return;
             lastCheckMs = nowCheck;
 
+            // Debug: log ability check
+            if (Sapi.World.Rand.NextDouble() < 0.01) // 1% chance to log
+            {
+                Sapi.Logger.Debug("[BossAbility] {0} checking for entity {1}, stages={2}, healthBased={3}",
+                    PropertyName(), entity.Code, GetStageCount(), UseHealthBasedStages());
+            }
+
             CheckAbility();
         }
 
         protected virtual void CheckAbility()
         {
-            if (!ShouldCheckAbility()) return;
+            if (!ShouldCheckAbility())
+            {
+                // Log why ShouldCheckAbility returned false
+                if (Sapi?.World?.Rand?.NextDouble() < 0.005) // 0.5% chance to log
+                {
+                    Sapi.Logger.Debug("[BossAbility] {0} ShouldCheckAbility=false for {1}, IsAbilityActive={2}", PropertyName(), entity.Code, IsAbilityActive);
+                }
+                return;
+            }
             if (!entity.Alive) return;
 
             object stage = null;
@@ -184,9 +204,18 @@ namespace VsQuest
 
             if (UseHealthBasedStages())
             {
-                if (!entity.TryGetHealthFraction(out float frac)) return;
+                if (!entity.TryGetHealthFraction(out float frac))
+                {
+                    Sapi.Logger.Warning("[BossAbility] {0} failed to get health fraction for {1}", PropertyName(), entity.Code);
+                    return;
+                }
                 (stage, stageIndex) = FindStageForHealth(frac);
-                if (stage == null) return;
+                if (stage == null)
+                {
+                    // No stage matches current health - this is normal if health is too high
+                    return;
+                }
+                Sapi.Logger.Debug("[BossAbility] {0} found stage {1} for health frac {2:F2}", PropertyName(), stageIndex, frac);
             }
             else
             {
@@ -199,17 +228,31 @@ namespace VsQuest
                 if (stage == null) return;
             }
 
-            if (!IsCooldownReady(stage)) return;
+            if (!IsCooldownReady(stage))
+            {
+                Sapi.Logger.Debug("[BossAbility] {0} cooldown not ready for {1}", PropertyName(), entity.Code);
+                return;
+            }
 
             EntityPlayer target = null;
             if (RequiresTarget())
             {
                 float maxRange = ApplyRangeMultiplier(GetMaxTargetRange(stage));
-                if (!TargetingSystem.TryFindTarget(maxRange, MinTargetRange, out target, out float dist)) return;
+                if (!TargetingSystem.TryFindTarget(maxRange, MinTargetRange, out target, out float dist))
+                {
+                    Sapi.Logger.Debug("[BossAbility] {0} no target found for {1} in range {2}", PropertyName(), entity.Code, maxRange);
+                    return;
+                }
+                Sapi.Logger.Debug("[BossAbility] {0} found target at distance {2:F1}", PropertyName(), dist);
             }
 
-            if (!CanActivateWithConditions(stage, target)) return;
+            if (!CanActivateWithConditions(stage, target))
+            {
+                Sapi.Logger.Debug("[BossAbility] {0} CanActivateWithConditions returned false for {1}", PropertyName(), entity.Code);
+                return;
+            }
 
+            Sapi.Logger.Notification("[BossAbility] {0} ACTIVATING for {1} stage {2}", PropertyName(), entity.Code, stageIndex);
             abilityActive = true;
             ActivateAbility(stage, stageIndex, target);
         }
@@ -338,7 +381,19 @@ namespace VsQuest
         protected void TryPlayAnimation(string animation)
         {
             if (string.IsNullOrWhiteSpace(animation)) return;
-            entity?.AnimManager?.StartAnimation(animation);
+            if (entity?.AnimManager == null) return;
+
+            // Try to resolve animation metadata for proper playback with speed, blend mode, weight
+            var animations = entity.Properties?.Client?.AnimationsByMetaCode;
+            if (animations != null && animations.TryGetValue(animation, out var meta) && meta != null)
+            {
+                entity.AnimManager.StartAnimation(meta.Clone());
+            }
+            else
+            {
+                // Fallback to string-based animation
+                entity.AnimManager.StartAnimation(animation);
+            }
         }
 
         protected void TryStopAnimation(string animation)
@@ -356,16 +411,21 @@ namespace VsQuest
             try
             {
                 var stagesArray = attributes["stages"]?.AsArray();
-                if (stagesArray != null)
+                if (stagesArray == null)
                 {
-                    foreach (var stageObj in stagesArray)
-                    {
-                        if (stageObj == null || !stageObj.Exists) continue;
-                        var stage = new T();
-                        stage.FromJson(stageObj);
-                        result.Add(stage);
-                    }
+                    Sapi?.Logger.Warning("[BossAbility] {0}: No 'stages' array found in attributes", PropertyName());
+                    return result;
                 }
+
+                foreach (var stageObj in stagesArray)
+                {
+                    if (stageObj == null || !stageObj.Exists) continue;
+                    var stage = new T();
+                    stage.FromJson(stageObj);
+                    result.Add(stage);
+                }
+
+                Sapi?.Logger.Notification("[BossAbility] {0}: Parsed {1} stages", PropertyName(), result.Count);
             }
             catch (Exception ex)
             {
@@ -521,10 +581,31 @@ namespace VsQuest
             if (entity == null) return false;
 
             var health = entity.GetBehavior<Vintagestory.GameContent.EntityBehaviorHealth>();
-            if (health == null || health.MaxHealth <= 0) return false;
+            if (health != null && health.MaxHealth > 0)
+            {
+                fraction = health.Health / health.MaxHealth;
+                return true;
+            }
 
-            fraction = health.Health / health.MaxHealth;
-            return true;
+            // Fallback: read directly from WatchedAttributes if behavior lookup fails
+            var wa = entity.WatchedAttributes;
+            if (wa != null)
+            {
+                var healthTree = wa.GetTreeAttribute("health");
+                if (healthTree != null)
+                {
+                    float maxHealth = healthTree.GetFloat("maxhealth", 0f);
+                    if (maxHealth <= 0f) maxHealth = healthTree.GetFloat("basemaxhealth", 0f);
+                    float curHealth = healthTree.GetFloat("currenthealth", 0f);
+                    if (maxHealth > 0f && curHealth > 0f)
+                    {
+                        fraction = curHealth / maxHealth;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
     }

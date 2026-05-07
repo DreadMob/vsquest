@@ -15,7 +15,7 @@ namespace VsQuest
         private const string GrowthScaleKey = "alegacyvsquest:bossgrowthritual:growthScale";
 
         protected override string CooldownKey => "alegacyvsquest:bossgrowthritual:lastStartMs";
-        protected override bool UseHealthBasedStages() => false;
+        protected override bool UseHealthBasedStages() => true;
         protected override bool RequiresTarget() => false;
         protected override int CheckIntervalMs => 500;
 
@@ -88,7 +88,25 @@ namespace VsQuest
 
         protected override bool ShouldCheckAbility()
         {
-            return !IsAbilityActive;
+            if (IsAbilityActive) return false;
+
+            // Only activate if we haven't already applied the matching (or higher) stage
+            int currentGrowthStage = entity.WatchedAttributes.GetInt(GrowthStageKey, 0);
+            if (!entity.TryGetHealthFraction(out float frac)) return false;
+
+            for (int i = 0; i < stages.Count; i++)
+            {
+                if (frac <= stages[i].whenHealthRelBelow)
+                {
+                    // This is the stage that should be active (highest matching)
+                    // Only allow if we haven't reached it yet
+                    if (currentGrowthStage < i + 1)
+                        return true;
+                    return false;
+                }
+            }
+
+            return false;
         }
 
         protected override void ActivateAbility(object stageObj, int stageIndex, EntityPlayer target)
@@ -176,7 +194,16 @@ namespace VsQuest
 
             if (string.IsNullOrWhiteSpace(anim)) return;
 
-            entity?.AnimManager?.StartAnimation(anim);
+            // Try to resolve animation metadata for proper playback
+            var animations = entity?.Properties?.Client?.AnimationsByMetaCode;
+            if (animations != null && animations.TryGetValue(anim, out var meta) && meta != null)
+            {
+                entity?.AnimManager?.StartAnimation(meta.Clone());
+            }
+            else
+            {
+                entity?.AnimManager?.StartAnimation(anim);
+            }
 
             if (ms <= 0) return;
 
@@ -204,9 +231,23 @@ namespace VsQuest
 
         private void ApplyGrowth(Stage stage)
         {
+            if (stage == null)
+            {
+                Sapi?.Logger?.Warning("[BossGrowthRitual] ApplyGrowth called with null stage");
+                return;
+            }
+
             bool applySize = stage.sizeMultiplier > 1.01f;
             bool applySpeed = stage.speedMultiplier > 1.01f;
-            if (!applySize && !applySpeed) return;
+
+            Sapi?.Logger?.Debug("[BossGrowthRitual] ApplyGrowth: sizeMult={0}, speedMult={1}, applySize={2}, applySpeed={3}",
+                stage.sizeMultiplier, stage.speedMultiplier, applySize, applySpeed);
+
+            if (!applySize && !applySpeed)
+            {
+                Sapi?.Logger?.Debug("[BossGrowthRitual] ApplyGrowth: skipping - no size or speed change");
+                return;
+            }
 
             if (stage.damageMultiplier <= 0f)
             {
@@ -223,28 +264,31 @@ namespace VsQuest
                     entity.Properties.Client.Size = baseClientSize * stage.sizeMultiplier;
                 }
 
-                if (entity.Properties.CollisionBoxSize != null)
+                if (baseCollisionBoxSize != null && entity.Properties.CollisionBoxSize != null)
                 {
                     entity.Properties.CollisionBoxSize = new Vec2f(baseCollisionBoxSize.X * stage.sizeMultiplier, baseCollisionBoxSize.Y * stage.sizeMultiplier);
                 }
 
-                if (entity.Properties.SelectionBoxSize != null)
+                if (baseSelectionBoxSize != null && entity.Properties.SelectionBoxSize != null)
                 {
                     entity.Properties.SelectionBoxSize = new Vec2f(baseSelectionBoxSize.X * stage.sizeMultiplier, baseSelectionBoxSize.Y * stage.sizeMultiplier);
                 }
 
-                if (entity.Properties.DeadCollisionBoxSize != null)
+                if (baseDeadCollisionBoxSize != null && entity.Properties.DeadCollisionBoxSize != null)
                 {
                     entity.Properties.DeadCollisionBoxSize = new Vec2f(baseDeadCollisionBoxSize.X * stage.sizeMultiplier, baseDeadCollisionBoxSize.Y * stage.sizeMultiplier);
                 }
 
-                if (entity.Properties.DeadSelectionBoxSize != null)
+                if (baseDeadSelectionBoxSize != null && entity.Properties.DeadSelectionBoxSize != null)
                 {
                     entity.Properties.DeadSelectionBoxSize = new Vec2f(baseDeadSelectionBoxSize.X * stage.sizeMultiplier, baseDeadSelectionBoxSize.Y * stage.sizeMultiplier);
                 }
             }
 
-            entity.Properties.EyeHeight = baseEyeHeight * stage.sizeMultiplier;
+            if (baseEyeHeight > 0)
+            {
+                entity.Properties.EyeHeight = baseEyeHeight * stage.sizeMultiplier;
+            }
 
             var cb = entity.Properties.CollisionBoxSize;
             if (cb != null)
@@ -285,15 +329,25 @@ namespace VsQuest
 
         private void TrySpawnLightningFlash(Stage stage)
         {
-            if (stage == null || !stage.lightningFlash) return;
+            if (stage == null || !stage.lightningFlash)
+            {
+                Sapi?.Logger?.Debug("[BossGrowthRitual] TrySpawnLightningFlash: skipped, stage={0}, lightning={1}", stage != null, stage?.lightningFlash ?? false);
+                return;
+            }
+            Sapi?.Logger?.Notification("[BossGrowthRitual] Spawning lightning flash at {0}", entity?.Pos?.XYZ);
             weatherSystem?.SpawnLightningFlash(entity?.Pos?.XYZ);
         }
 
         private void TryPlayStageAnimation(Stage stage)
         {
-            if (stage == null || string.IsNullOrWhiteSpace(stage.animation)) return;
+            if (stage == null || string.IsNullOrWhiteSpace(stage.animation))
+            {
+                Sapi?.Logger?.Debug("[BossGrowthRitual] TryPlayStageAnimation: skipped, stage={0}, anim={1}", stage != null, stage?.animation);
+                return;
+            }
 
-            entity?.AnimManager?.StartAnimation(stage.animation);
+            Sapi?.Logger?.Notification("[BossGrowthRitual] Playing animation: {0}", stage.animation);
+            TryPlayAnimation(stage.animation);
 
             int ms = stage.animationMs;
             if (ms <= 0) return;
@@ -310,10 +364,20 @@ namespace VsQuest
 
         private void TryPlayStageSound(Stage stage)
         {
-            if (stage == null || string.IsNullOrWhiteSpace(stage.sound) || Sapi == null) return;
+            if (stage == null || string.IsNullOrWhiteSpace(stage.sound) || Sapi == null)
+            {
+                Sapi?.Logger?.Debug("[BossGrowthRitual] TryPlayStageSound: skipped, stage={0}, sound={1}", stage != null, stage?.sound);
+                return;
+            }
 
             AssetLocation soundLoc = AssetLocation.Create(stage.sound, "game").WithPathPrefixOnce("sounds/");
-            if (soundLoc == null) return;
+            if (soundLoc == null)
+            {
+                Sapi?.Logger?.Warning("[BossGrowthRitual] TryPlayStageSound: failed to create sound location for {0}", stage.sound);
+                return;
+            }
+
+            Sapi?.Logger?.Notification("[BossGrowthRitual] Playing sound: {0} at range {1}", soundLoc, stage.soundRange);
 
             float range = stage.soundRange;
             if (range <= 0f) range = 24f;

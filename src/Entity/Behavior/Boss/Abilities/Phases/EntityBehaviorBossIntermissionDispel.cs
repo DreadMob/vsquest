@@ -234,7 +234,7 @@ namespace VsQuest
 
             TryPlaySound(stage);
             TryStartLoopSound(stage);
-            TryPlayAnimation(stage);
+            TryPlayAnimationInternal(stage);
 
             SpawnAdds(stage);
             SpawnDispelObjects(stage);
@@ -501,12 +501,12 @@ namespace VsQuest
             return alive;
         }
 
-        private void TryPlayAnimation(Stage stage)
+        private void TryPlayAnimationInternal(Stage stage)
         {
             if (stage == null) return;
             if (string.IsNullOrWhiteSpace(stage.animation)) return;
 
-            entity?.AnimManager?.StartAnimation(stage.animation);
+            TryPlayAnimation(stage.animation);
 
             int stopMs = stage.animationStopMs;
             if (stopMs <= 0) return;

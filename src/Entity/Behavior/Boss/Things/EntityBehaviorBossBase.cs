@@ -31,7 +31,19 @@ namespace VsQuest
         protected void TryPlayAnimation(string animation)
         {
             if (string.IsNullOrWhiteSpace(animation)) return;
-            entity?.AnimManager?.StartAnimation(animation);
+            if (entity?.AnimManager == null) return;
+
+            // Try to resolve animation metadata for proper playback with speed, blend mode, weight
+            var animations = entity.Properties?.Client?.AnimationsByMetaCode;
+            if (animations != null && animations.TryGetValue(animation, out var meta) && meta != null)
+            {
+                entity.AnimManager.StartAnimation(meta.Clone());
+            }
+            else
+            {
+                // Fallback to string-based animation
+                entity.AnimManager.StartAnimation(animation);
+            }
         }
 
         protected void TryStopAnimation(string animation)
