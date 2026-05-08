@@ -315,13 +315,17 @@ Boss creates a fake teleport illusion while actually staying in place.
 
 ### `explodeondeath` — EntityBehaviorExplodeOnDeath
 
-Boss explodes upon death.
+Boss explodes upon death after a fuse delay. Plays ticking sounds during the fuse.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `explosionRadius` | float | 5 | Explosion radius |
-| `damage` | float | 15 | Explosion damage |
-| `destroyBlocks` | bool | false | Whether to destroy blocks |
+| `fuseMs` | int | 2000 | Fuse time before explosion |
+| `explosionRadius` | float | 3 | Explosion radius |
+| `explosionDamage` | float | 10 | Explosion damage |
+| `damageTier` | int | 1 | Damage tier |
+| `damageType` | int | 2 | Damage type (EnumDamageType, default PiercingAttack) |
+| `explodeSound` | string | "effect/smallexplosion" | Explosion sound |
+| `explodeSoundVolume` | float | 0.5 | Explosion sound volume |
 
 ---
 
@@ -450,7 +454,7 @@ Boss is immune to specific damage sources.
 
 ### `bossrebirth2` — EntityBehaviorBossRebirth2
 
-Boss transforms into another entity upon death.
+Boss transforms into another entity upon death. Prevents despawn during transition and notifies BossHuntSystem.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -459,8 +463,14 @@ Boss transforms into another entity upon death.
 | `spawnDelayMs` | int | 2000 | Delay before spawning next form |
 | `spawnLightning` | bool | true | Spawn lightning effect |
 | `sound` | string | null | Sound on death |
+| `soundRange` | float | 24 | Sound range |
+| `soundStartMs` | int | 0 | Sound delay |
 | `spawnSound` | string | null | Sound on spawn |
+| `spawnSoundRange` | float | 24 | Spawn sound range |
+| `spawnSoundStartMs` | int | 0 | Spawn sound delay |
 | `loopSound` | string | null | Looping sound during transition |
+| `loopSoundRange` | float | 24 | Loop sound range |
+| `loopSoundIntervalMs` | int | 900 | Loop sound interval |
 
 **Example (multi-phase boss):**
 ```json
@@ -485,83 +495,122 @@ Boss transforms into another entity upon death.
 
 ### `bossformswap` — EntityBehaviorBossFormSwap
 
-Boss swaps between different forms based on health.
+Boss swaps into a different entity form. Copies target and anchor to the new entity.
 
 **Stages array:** `stages`
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `whenHealthRelBelow` | float | 1.0 | Health threshold |
-| `formEntityCode` | string | null | Entity code to swap to |
-| `swapDelayMs` | int | 1000 | Delay before swap |
-| `healPercent` | float | 0 | Heal percent after swap |
+| `alternateEntityCode` | string | null | Entity code to swap to |
+| `swapChance` | float | 1.0 | Chance to swap (0-1) |
+| `keepHealthFraction` | bool | true | Preserve health percentage |
 
 ---
 
 ### `bossformswaplist` — EntityBehaviorBossFormSwapList
 
-Boss cycles through multiple forms.
+Boss swaps into one of several predefined forms from stages. Rebinds player clones to new entity.
+
+**Stages array:** `stages`
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `forms` | array | [] | List of form entity codes |
-| `swapIntervalMs` | int | 10000 | Interval between swaps |
+| `whenHealthRelBelow` | float | 1.0 | Health threshold |
+| `entityCode` | string | null | Entity code for this stage |
+| `keepHealthFraction` | bool | true | Preserve health percentage |
 
 ---
 
 ### `bossintermissiondispel` — EntityBehaviorBossIntermissionDispel
 
-Boss creates an intermission phase where it's invulnerable and dispels effects.
+Boss enters an intermission phase: takes reduced damage, freezes, and spawns adds and dispel objects. Phase ends when all dispel objects are destroyed or max duration expires.
 
 **Stages array:** `stages`
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `whenHealthRelBelow` | float | 1.0 | Health threshold |
-| `intermissionMs` | int | 10000 | Intermission duration |
-| `invulnerable` | bool | true | Is boss invulnerable |
-| `dispelBuffs` | bool | true | Dispel player buffs |
+| `intermissionMaxMs` | int | 10000 | Max intermission duration |
+| `freezeBoss` | bool | true | Boss is immobile |
+| `lockYaw` | bool | false | Lock boss rotation |
+| `incomingDamageMultiplier` | float | 0 | Incoming damage multiplier (0 = full invulnerability) |
+| `adds` | array | [] | Spawned adds configurations |
+| `dispelEntityCode` | string | null | Entity code for dispel objects |
+| `dispelCount` | int | 1 | Number of dispel objects to spawn |
 
 ---
 
 ### `bossplayerclone` — EntityBehaviorBossPlayerClone
 
-Boss creates clones of nearby players.
+Boss creates clones of nearby players. Clones mimic player appearance, inventory and skin. Damage dealt to clones is transferred to the boss.
 
 **Stages array:** `stages`
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `whenHealthRelBelow` | float | 1.0 | Health threshold |
-| `cloneCount` | int | 2 | Number of clones |
-| `cloneHealthMult` | float | 0.5 | Clone health multiplier |
-| `cloneDurationMs` | int | 15000 | Clone lifetime |
+| `cloneEntityCode` | string | null | Clone entity code (player copy) |
+| `cloneRange` | float | 20 | Range to detect players for cloning |
 
 ---
 
 ### `bossrespawn` — EntityBehaviorBossRespawn
 
-Boss respawns at its spawn point after death.
+Boss corpse remains and respawns into a new entity after a set time. Prevents duplicate spawns if another boss already exists nearby.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `respawnDelayMs` | int | 5000 | Respawn delay |
-| `respawnHealthPercent` | float | 100 | Health percent on respawn |
+| `respawnInGameHours` | double | 24 | Time before respawn (in-game hours) |
+| `spawnNewBoss` | bool | false | Spawn new boss or just despawn corpse |
+| `respawnEntityCode` | string | null | Entity code for respawn (defaults to same) |
 
 ---
 
 ### `bosscastphase` — EntityBehaviorBossCastPhase
 
-Boss enters a casting phase with special abilities.
+Boss enters a casting phase: heals over time and takes reduced damage.
 
 **Stages array:** `stages`
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `whenHealthRelBelow` | float | 1.0 | Health threshold |
-| `phaseDurationMs` | int | 8000 | Phase duration |
-| `castIntervalMs` | int | 1000 | Interval between casts |
-| `castAction` | string | null | Action to perform |
+| `castMs` | int | 8000 | Cast phase duration |
+| `healPerSecond` | float | 0 | Heal per second |
+| `healRelPerSecond` | float | 0 | Relative heal per second (fraction) |
+| `incomingDamageMultiplier` | float | 0.5 | Incoming damage multiplier |
+| `animation` | string | null | Casting animation |
+| `loopSound` | string | null | Looping sound during cast |
+| `loopSoundRange` | float | 24 | Loop sound range |
+| `loopSoundIntervalMs` | int | 900 | Loop sound interval |
+| `windupSound` | string | null | Windup sound |
+| `windupSoundRange` | float | 24 | Windup sound range |
+| `windupSoundStartMs` | int | 0 | Windup sound delay |
+
+---
+
+### `bossmodelswap` — EntityBehaviorBossModelSwap
+
+Boss temporarily changes its visual model (shape and texture) without changing abilities or behaviors. Reverts after duration or on death/despawn.
+
+**Stages array:** `stages`
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `whenHealthRelBelow` | float | 1.0 | Health threshold |
+| `cooldownSeconds` | float | 0 | Cooldown |
+| `swapSound` | string | "albase:dark-magic-charge-up" | Sound on swap |
+| `soundRange` | float | 32 | Sound range |
+| `forms` | array | [] | List of possible forms |
+
+**Forms array item:**
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `shape` | string | null | Shape asset path |
+| `texture` | string | null | Texture asset path |
+| `durationMs` | int | 15000 | Form duration |
 
 ---
 
@@ -632,7 +681,7 @@ Boss performs a ritual to summon minions.
 
 ### `bosscloning` — EntityBehaviorBossCloning
 
-Boss creates clones of itself.
+Boss creates permanent clones of itself. Clones scale with boss health stages and respawn if killed while boss lives.
 
 **Stages array:** `stages`
 
@@ -640,42 +689,47 @@ Boss creates clones of itself.
 |----------|------|---------|-------------|
 | `whenHealthRelBelow` | float | 1.0 | Health threshold |
 | `cloneCount` | int | 2 | Number of clones |
-| `cloneHealthPercent` | float | 30 | Clone health percent |
-| `cloneDurationMs` | int | 20000 | Clone lifetime |
-| `cooldownSeconds` | float | 0 | Cooldown |
+| `spawnRange` | float | 8 | Spawn radius |
+| `cloneDamageMult` | float | 1.0 | Clone damage multiplier |
+| `cloneWalkSpeedMult` | float | 1.0 | Clone walk speed multiplier |
+| `cloneInvulnerable` | bool | false | Clones are invulnerable |
+| `cloneFollowOwner` | bool | false | Clones follow owner |
 
 ---
 
 ### `bossgrowthritual` — EntityBehaviorBossGrowthRitual
 
-Boss grows in size and power during a ritual.
+Boss grows in size, speed and damage. Heals to full health. Visual and audio feedback included.
 
 **Stages array:** `stages`
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `whenHealthRelBelow` | float | 1.0 | Health threshold |
-| `ritualMs` | int | 6000 | Ritual duration |
 | `sizeMultiplier` | float | 1.5 | Size multiplier |
+| `speedMultiplier` | float | 1.0 | Walk speed multiplier |
 | `damageMultiplier` | float | 1.3 | Damage multiplier |
-| `cooldownSeconds` | float | 0 | Cooldown |
+| `animation` | string | null | Growth animation |
+| `lightningFlash` | bool | false | Lightning flash effect |
 
 ---
 
 ### `bossperiodicspawn` — EntityBehaviorBossPeriodicSpawn
 
-Boss periodically spawns minions.
+Boss periodically spawns entities at intervals. Checks for nearby entity caps.
 
 **Stages array:** `stages`
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `whenHealthRelBelow` | float | 1.0 | Health threshold |
-| `entityCode` | string | null | Entity to spawn |
-| `spawnIntervalMs` | int | 10000 | Spawn interval |
+| `entityCode` | string | null | Entity code to spawn |
 | `minCount` | int | 1 | Min per spawn |
 | `maxCount` | int | 1 | Max per spawn |
+| `chance` | float | 1.0 | Spawn chance (0-1) |
 | `maxNearby` | int | 5 | Max nearby entities |
+| `spawnRange` | float | 8 | Spawn radius |
+| `requireHasTarget` | bool | false | Only spawn if boss has a target |
 
 ---
 
@@ -683,28 +737,67 @@ Boss periodically spawns minions.
 
 ### `bosscorpseexplosion` — EntityBehaviorBossCorpseExplosion
 
-Boss's corpse explodes after death.
+Boss's corpse explodes after death, damaging and poisoning nearby players. Can also trigger on ability use with a separate cooldown.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `explosionDelayMs` | int | 2000 | Delay after death |
-| `radius` | float | 8 | Explosion radius |
-| `damage` | float | 20 | Explosion damage |
+| `whenHealthRelBelow` | float | 1.0 | Health threshold |
+| `cooldownSeconds` | float | 0 | Cooldown |
+| `fuseMs` | int | 2000 | Fuse time |
+| `explosionRadius` | float | 3 | Explosion radius |
+| `explosionDamage` | float | 10 | Explosion damage |
+| `damageTier` | int | 1 | Damage tier |
+| `damageType` | string | "BluntAttack" | Damage type |
+| `explodeSound` | string | "effect/smallexplosion" | Explosion sound |
+| `explodeSoundVolume` | float | 0.5 | Sound volume |
+| `damage` | float | 15 | Direct damage to players |
+| `radius` | float | 4 | Direct damage radius |
+| `animation` | string | null | Animation on trigger |
+| `sound` | string | null | Trigger sound |
+| `soundRange` | float | 24 | Sound range |
+| `soundStartMs` | int | 0 | Sound delay |
+| `soundVolume` | float | 1.0 | Sound volume |
+| `poisonPerSecond` | float | 8 | Poison applied per second |
+| `poisonDurationSeconds` | int | 10 | Poison duration |
+| `cooldownBetweenExplosionsMs` | int | 2500 | Cooldown between explosions |
 
 ---
 
 ### `bossrequiemchains` — EntityBehaviorBossRequiemChains
 
-Boss binds players with chains.
+Boss binds random nearby players with chains, pulling them towards the boss and disabling movement abilities. Damages over time.
 
 **Stages array:** `stages`
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `whenHealthRelBelow` | float | 1.0 | Health threshold |
-| `chainRange` | float | 15 | Chain range |
-| `chainDurationMs` | int | 5000 | Chain duration |
-| `damagePerSecond` | float | 2 | Damage per second |
+| `cooldownSeconds` | int | 10 | Cooldown |
+| `range` | float | 8 | Target selection range |
+| `maxTargets` | int | 2 | Max chained targets |
+| `duration` | int | 5 | Chain duration in seconds |
+| `pullSpeed` | float | 0.08 | Pull speed towards boss |
+| `damagePerSecond` | float | 5 | Damage per second |
+
+---
+
+### `bossmindcontrol` — EntityBehaviorBossMindControl
+
+Boss takes control of a random nearby player. The controlled player attacks other players with reduced movement speed.
+
+**Stages array:** `stages`
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `whenHealthRelBelow` | float | 1.0 | Health threshold |
+| `cooldownSeconds` | float | 0 | Cooldown |
+| `controlDurationSeconds` | float | 5 | Control duration |
+| `controlRange` | float | 30 | Target selection range |
+| `victimMoveSpeed` | float | 0.04 | Controlled player move speed |
+| `attackDamage` | float | 10 | Attack damage per hit |
+| `attackDamageTier` | int | 3 | Attack damage tier |
+| `particleEffect` | string | null | Particle effect path |
+| `controlSound` | string | "albase:dark-magic-charge-up" | Sound on control |
 
 ---
 

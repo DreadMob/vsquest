@@ -29,11 +29,11 @@
       "description": "<font color=\"#FBBF24\">Тугой ремень с холодной пряжкой и костяной крошкой в трещинах. Он пахнет сырой землёй и железом, а по коже тянутся царапины — будто своды Оссуария пытались удержать того, кто проходил здесь до тебя.</font>",
       "actions": [],
       "attributes": {
-        "maxhealthflat": -3.0,
-        "walkspeed": -0.14,
+        "maxhealthflat": -4.0,
+        "walkspeed": -0.2,
         "hungerrate": 0.85,
         "miningspeedmult": 0.67,
-        "temporaldrainmult": 0.1
+        "temporaldrainmult": -0.2
       },
       "showAttributes": [
         "maxhealthflat",
@@ -84,17 +84,15 @@
       "description": "<font color=\"#FCA5A5\">Холодный металл с зазубринами. Если сжать кулак, кажется, что браслет сжимается в ответ — голодно и зло.</font>",
       "actions": [],
       "attributes": {
-        "attackpower": 1.2,
-        "maxhealthflat": -2.0,
-        "hungerrate": 0.3,
-        "walkspeed": -0.03,
-        "knockbackmult": 0.5
+        "attackpower": 1,
+        "maxhealthflat": -1.5,
+        "hungerrate": 0.15,
+        "knockbackmult": 0.4
       },
       "showAttributes": [
         "attackpower",
         "maxhealthflat",
         "hungerrate",
-        "walkspeed",
         "knockbackmult"
       ],
       "hideVanillaTooltips": [
@@ -171,7 +169,7 @@
         "rangedaccuracy": 0.2,
         "rangedchargspeed": 2.0,
         "hungerrate": 0.18,
-        "attackpower": -1.7,
+        "attackpower": -1.3,
         "rangeddamagemult": -0.125
       },
       "showAttributes": [
@@ -231,7 +229,7 @@
         "hungerrate": -0.5,
         "maxhealthflat": -2.0,
         "temporaldrainmult": -0.8,
-        "viewdistance": -0.45
+        "viewdistance": -0.25
       },
       "showAttributes": [
         "hungerrate",
