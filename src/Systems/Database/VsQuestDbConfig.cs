@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 namespace VsQuest.Systems.Database
 {
     /// <summary>
-    /// Configuration for VsQuest database API connection.
+    /// Configuration for Alegacy VsQuest database API connection.
     /// Loaded from JSON config file by the Vintage Story mod config system.
     /// </summary>
-    public class VsQuestDbConfig
+    public class AlegacyVsQuestDbConfig
     {
         /// <summary>
         /// Base URL of the alegacy_db API (e.g. "http://localhost:8080").

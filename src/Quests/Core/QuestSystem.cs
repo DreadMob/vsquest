@@ -206,22 +206,21 @@ namespace VsQuest
             eventHandler = new QuestEventHandler(persistenceManager, sapi, activeQuestEventDispatcher);
 
             // Initialize database sync
-            var dbConfig = sapi.LoadModConfig<Systems.Database.VsQuestDbConfig>("VsQuestDbConfig.json")
-                ?? new Systems.Database.VsQuestDbConfig();
-            sapi.StoreModConfig(dbConfig, "VsQuestDbConfig.json");
+            var dbConfig = sapi.LoadModConfig<Systems.Database.AlegacyVsQuestDbConfig>("AlegacyVsQuestDbConfig.json")
+                ?? new Systems.Database.AlegacyVsQuestDbConfig();
+            sapi.StoreModConfig(dbConfig, "AlegacyVsQuestDbConfig.json");
 
             dbClient = new Systems.Database.VsQuestDbClient(dbConfig);
             if (dbClient.IsEnabled)
             {
-                dbSyncService = new Systems.Database.VsQuestSyncService(dbClient, sapi, dbConfig.DebounceSeconds);
-                persistenceManager.SetDbSyncService(dbSyncService);
+                dbSyncService = new Systems.Database.VsQuestSyncService(dbClient, sapi);
                 eventHandler.SetDbSyncService(dbSyncService);
 
                 // Also set in ReputationSystem if it exists
                 var reputationSystem = sapi.ModLoader.GetModSystem<ReputationSystem>();
                 reputationSystem?.SetDbSyncService(dbSyncService);
 
-                sapi.Logger.Notification("[vsquest] Database sync enabled (debounce: {0}s)", dbConfig.DebounceSeconds);
+                sapi.Logger.Notification("[vsquest] Database sync enabled (event-driven)");
             }
             else
             {
@@ -432,5 +431,13 @@ namespace VsQuest
         internal QuestPacketHandler QuestPacketHandler => questPacketHandler;
         internal DialogPacketHandler DialogPacketHandler => dialogPacketHandler;
         internal QuizPacketHandler QuizPacketHandler => quizPacketHandler;
+
+        /// <summary>
+        /// Get the database client for external access (e.g., admin commands).
+        /// </summary>
+        public VsQuest.Systems.Database.VsQuestDbClient GetDbClient()
+        {
+            return dbClient;
+        }
     }
 }

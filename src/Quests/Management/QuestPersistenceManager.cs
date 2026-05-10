@@ -14,7 +14,6 @@ namespace VsQuest
         private readonly IQuestStateManager stateManager;
         private long autosaveListenerId = -1;
         private const double AutosaveIntervalMs = 30000; // 30 секунд
-        private Systems.Database.VsQuestSyncService dbSyncService;
 
         public QuestPersistenceManager(ICoreServerAPI sapi, IQuestStateManager stateManager = null)
         {
@@ -24,11 +23,6 @@ namespace VsQuest
 
             // Регистрируем автосохранение каждые 30 секунд
             autosaveListenerId = sapi.Event.RegisterGameTickListener(OnAutosaveTick, (int)AutosaveIntervalMs, 5000);
-        }
-
-        public void SetDbSyncService(Systems.Database.VsQuestSyncService syncService)
-        {
-            dbSyncService = syncService;
         }
 
         private void OnAutosaveTick(float dt)
@@ -68,29 +62,6 @@ namespace VsQuest
                         }
 
                         sapi.WorldManager.SaveGame.StoreData<List<ActiveQuestDto>>($"quests-{playerUID}", dto);
-
-                        // Sync to MySQL
-                        if (dbSyncService != null && quests != null)
-                        {
-                            var player = sapi.World.PlayerByUid(playerUID);
-                            string playerName = player?.PlayerName ?? "";
-
-                            foreach (var quest in quests)
-                            {
-                                if (quest == null) continue;
-                                quest.ExportProgress();
-
-                                dbSyncService.QueuePlayerQuest(
-                                    playerUID,
-                                    playerName,
-                                    quest.questId,
-                                    quest.currentStageIndex,
-                                    quest.completedStageIndices ?? new List<int>(),
-                                    quest.trackerProgressData ?? new List<int>(),
-                                    "active"
-                                );
-                            }
-                        }
                     }
                 }
                 catch (Exception e)

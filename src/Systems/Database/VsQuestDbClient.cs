@@ -51,7 +51,7 @@ namespace VsQuest.Systems.Database
             Formatting = Formatting.None,
         };
 
-        public VsQuestDbClient(VsQuestDbConfig config)
+        public VsQuestDbClient(AlegacyVsQuestDbConfig config)
         {
             _baseUrl = config.BaseUrl.TrimEnd('/');
             _apiKey = config.ApiKey;

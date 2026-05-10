@@ -52,6 +52,23 @@ namespace VsQuest
 
             // Update cooldown and timestamps
             UpdateCompletionTimestamps(fromPlayer, message, sapi, questgiver, quest);
+
+            // Record completion in MySQL
+            RecordCompletionInDb(fromPlayer, message, sapi);
+        }
+
+        private void RecordCompletionInDb(IServerPlayer fromPlayer, QuestCompletedMessage message, ICoreServerAPI sapi)
+        {
+            try
+            {
+                var qs = sapi.ModLoader.GetModSystem<QuestSystem>();
+                var sync = qs?.GetDbSyncService();
+                sync?.QueueQuestCompletion(fromPlayer.PlayerUID, fromPlayer.PlayerName, message.questId);
+            }
+            catch (Exception ex)
+            {
+                sapi.Logger.Warning("[QuestCompletion] Failed to queue DB completion: {0}", ex.Message);
+            }
         }
 
         private void MarkQuestCompleted(IServerPlayer fromPlayer, QuestCompletedMessage message, Entity questgiver, Dictionary<string, Quest> registry)

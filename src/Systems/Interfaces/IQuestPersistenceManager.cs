@@ -9,7 +9,6 @@ namespace VsQuest
         void MarkDirty(string playerUID);
         void UnloadPlayerQuests(string playerUID);
         void SaveAllPlayerQuests();
-        void SetDbSyncService(Systems.Database.VsQuestSyncService syncService);
         void Dispose();
     }
 }

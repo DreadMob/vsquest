@@ -39,7 +39,7 @@ namespace VsQuest
 
             if (entities == null || entities.Length == 0)
             {
-                sapi.Logger.Notification("[BossTargeting] TryFindTarget: No entities found around {0} in range {1}", bossPos, maxRange);
+                sapi.Logger.Debug("[BossTargeting] TryFindTarget: No entities found around {0} in range {1}", bossPos, maxRange);
                 return false;
             }
 
@@ -81,11 +81,11 @@ namespace VsQuest
             {
                 target = nearestPlayer;
                 distance = (float)Math.Sqrt(nearestDistSq);
-                sapi.Logger.Notification("[BossTargeting] TryFindTarget: Found valid target {0} at distance {1:F1}", target.Player?.PlayerName, distance);
+                sapi.Logger.Debug("[BossTargeting] TryFindTarget: Found valid target {0} at distance {1:F1}", target.Player?.PlayerName, distance);
                 return true;
             }
 
-            sapi.Logger.Notification("[BossTargeting] TryFindTarget: No valid target. Players found: {0}, filtered by minRange: {1}, filtered by IsValidTarget: {2}",
+            sapi.Logger.Debug("[BossTargeting] TryFindTarget: No valid target. Players found: {0}, filtered by minRange: {1}, filtered by IsValidTarget: {2}",
                 playersFound, playersFilteredMinRange, playersFilteredInvalid);
             return false;
         }
@@ -203,14 +203,14 @@ namespace VsQuest
         {
             if (player == null || !player.Alive)
             {
-                sapi?.Logger?.Notification("[BossTargeting] IsValidTarget: player null or dead");
+                sapi?.Logger?.Debug("[BossTargeting] IsValidTarget: player null or dead");
                 return false;
             }
 
             // Check if player is in creative mode
             if (player.Player?.WorldData?.CurrentGameMode == EnumGameMode.Creative)
             {
-                sapi?.Logger?.Notification("[BossTargeting] IsValidTarget: player {0} in creative mode", player.Player?.PlayerName);
+                sapi?.Logger?.Debug("[BossTargeting] IsValidTarget: player {0} in creative mode", player.Player?.PlayerName);
                 return false;
             }
 
@@ -218,7 +218,7 @@ namespace VsQuest
             double yDiff = Math.Abs(player.Pos.Y - bossEntity.Pos.Y);
             if (yDiff > 25f)
             {
-                sapi?.Logger?.Notification("[BossTargeting] IsValidTarget: player {0} Y diff too large: {1}", player.Player?.PlayerName, yDiff);
+                sapi?.Logger?.Debug("[BossTargeting] IsValidTarget: player {0} Y diff too large: {1}", player.Player?.PlayerName, yDiff);
                 return false;
             }
 

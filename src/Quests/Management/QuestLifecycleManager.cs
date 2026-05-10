@@ -73,6 +73,10 @@ namespace VsQuest
             }
 
             playerQuests.Add(activeQuest);
+
+            // Sync accepted quest to MySQL
+            SyncQuestToDb(fromPlayer, activeQuest, sapi, "active");
+
             foreach (var action in quest.onAcceptedActions)
             {
                 try
@@ -176,6 +180,9 @@ namespace VsQuest
                 // Advance to next stage
                 activeQuest.AdvanceStage(quest);
 
+                // Sync stage advance to MySQL
+                SyncQuestToDb(fromPlayer, activeQuest, sapi, "active");
+
                 // Send updated quest info
                 var questgiver = sapi.World.GetEntityById(message.questGiverId);
                 if (questgiver != null)
@@ -197,8 +204,38 @@ namespace VsQuest
             }
 
             var finalQuestgiver = sapi.World.GetEntityById(message.questGiverId);
+
+            // Sync final progress to MySQL before completion
+            activeQuest.ExportProgress();
+            SyncQuestToDb(fromPlayer, activeQuest, sapi, "completed");
+
             completionService.CompleteQuest(fromPlayer, message, sapi, finalQuestgiver, playerQuests, activeQuest);
             return true;
+        }
+
+        private static void SyncQuestToDb(IServerPlayer fromPlayer, ActiveQuest activeQuest, ICoreServerAPI sapi, string status)
+        {
+            try
+            {
+                var qs = sapi.ModLoader.GetModSystem<QuestSystem>();
+                var sync = qs?.GetDbSyncService();
+                if (sync == null) return;
+
+                activeQuest.ExportProgress();
+                sync.QueuePlayerQuest(
+                    fromPlayer.PlayerUID,
+                    fromPlayer.PlayerName,
+                    activeQuest.questId,
+                    activeQuest.currentStageIndex,
+                    activeQuest.completedStageIndices ?? new List<int>(),
+                    activeQuest.trackerProgressData ?? new List<int>(),
+                    status
+                );
+            }
+            catch (Exception ex)
+            {
+                sapi.Logger.Warning("[QuestLifecycle] Failed to sync quest {0} to DB: {1}", activeQuest?.questId, ex.Message);
+            }
         }
     }
 }
